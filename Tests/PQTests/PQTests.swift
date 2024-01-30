@@ -8,12 +8,34 @@
 import XCTest
 @testable import PQ
 
-final class SwiftPQTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
+let databaseName = "swiftpq_test"
+let databaseUserName = "swiftpq_test"
+let databasePassword = "swiftpq_test"
 
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
-    }
+final class PQTests: XCTestCase {
+  func test_socket() async throws {
+    #if os(macOS)
+    let socketDirectory = "/tmp"
+    #elseif os(Linux)
+    let socketDirectory = "/var/run/postgresql"
+    #else
+    #error("Unsupported OS.")
+    #endif
+
+    let connection = try PGConnection(
+      unixSocketDirectoryPath: socketDirectory,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+
+    let connDB = await connection.database
+    XCTAssertEqual(connDB, databaseName)
+
+    let connUser = await connection.user
+    XCTAssertEqual(connUser, databaseUserName)
+
+    let connPassword = await connection.password
+    XCTAssertEqual(connPassword, databasePassword)
+  }
 }
