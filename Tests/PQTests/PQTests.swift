@@ -8,12 +8,19 @@
 import XCTest
 @testable import PQ
 
+let runInGitHubActions: Bool = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"]?.lowercased() == "true"
+
 let databaseName = "swiftpq_test"
 let databaseUserName = "swiftpq_test"
 let databasePassword = "swiftpq_test"
 
 final class PQTests: XCTestCase {
   func test_socket() async throws {
+    if runInGitHubActions {
+      print("Skip this test because PostgreSQL's UNIX socket is disabled by ikalnytskyi/action-setup-postgres.")
+      return
+    }
+
     #if os(macOS)
     let socketDirectory = "/tmp"
     #elseif os(Linux)
