@@ -9,27 +9,25 @@ import CLibPQ
 import Foundation
 
 public enum PGConnectionError: Error {
-  case fileNotFound
-  case percentEncodingFailed
-
   case unexpectedError(String)
 }
 
 public actor PGConnection {
   private var _connection: OpaquePointer // PGconn *
+  private var _isFinished: Bool = false
 
-  private init(_connection: OpaquePointer) {
-    self._connection = _connection
-  }
-
-  private init(uriDescription: String) throws {
-    guard let pgConn = PQconnectdb(uriDescription) else {
-      throw PGConnectionError.unexpectedError("PQconnectdb returned NULL pointer.")
+  private init(_ connection: OpaquePointer?) throws {
+    guard let pgConn = connection else {
+      throw PGConnectionError.unexpectedError("`PGconn *` is NULL pointer.")
     }
     guard PQstatus(pgConn) == CONNECTION_OK else {
       throw PGConnectionError.unexpectedError(String(cString: PQerrorMessage(pgConn)))
     }
-    self.init(_connection: pgConn)
+    self._connection = pgConn
+  }
+
+  private init(uriDescription: String) throws {
+    try self.init(PQconnectdb(uriDescription))
   }
 
   /// Connect the database using UNIX-domain socket in `unixSocketDirectoryPath` directory.
@@ -40,42 +38,7 @@ public actor PGConnection {
     user: String? = nil,
     password: String? = nil
   ) throws {
-    guard path.hasPrefix("/") && FileManager.default.fileExists(atPath: path) else {
-      throw PGConnectionError.fileNotFound
-    }
-    guard let escapedPath = path.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
-      throw PGConnectionError.percentEncodingFailed
-    }
-    var uri = "postgresql://\(escapedPath)"
-    if let port {
-      uri += ":\(port.description)"
-    }
-    if let database {
-      uri += "/\(database)"
-    }
-
-    var params: [(name: String, value: String)] = []
-    if let user {
-      params.append((name: "user", value: user))
-    }
-    if let password {
-      params.append((name: "password", value: password))
-    }
-    if !params.isEmpty {
-      uri += "?"
-      for (ii, item) in params.enumerated() {
-        uri += "\(item.name)="
-        guard let escapedValue = item.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-          throw PGConnectionError.percentEncodingFailed
-        }
-        uri += escapedValue
-        if ii < params.count - 1 {
-          uri += "&"
-        }
-      }
-    }
-
-    try self.init(uriDescription: uri)
+    try self.init(PQsetdbLogin(path, port?.description, nil, nil, database, user, password))
   }
 
   deinit {
