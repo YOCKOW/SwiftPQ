@@ -7,8 +7,10 @@
 
 import CLibPQ
 import Foundation
+import yExtensions
 
 public enum PGConnectionError: Error {
+  case fileNotFound
   case unexpectedError(String)
 }
 
@@ -38,6 +40,9 @@ public actor PGConnection {
     user: String? = nil,
     password: String? = nil
   ) throws {
+    guard URL(fileURLWithPath: path, isDirectory: true).isExistingLocalDirectory else {
+      throw PGConnectionError.fileNotFound
+    }
     try self.init(PQsetdbLogin(path, port?.description, nil, nil, database, user, password))
   }
 
