@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import NetworkGear
 import XCTest
 @testable import PQ
 
@@ -31,6 +32,26 @@ final class PQTests: XCTestCase {
 
     let connection = try PGConnection(
       unixSocketDirectoryPath: socketDirectory,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+
+    let connDB = await connection.database
+    XCTAssertEqual(connDB, databaseName)
+
+    let connUser = await connection.user
+    XCTAssertEqual(connUser, databaseUserName)
+
+    let connPassword = await connection.password
+    XCTAssertEqual(connPassword, databasePassword)
+
+    await connection.finish()
+  }
+
+  func test_host() async throws {
+    let connection = try PGConnection(
+      host: XCTUnwrap(Domain("localhost")),
       database: databaseName,
       user: databaseUserName,
       password: databasePassword

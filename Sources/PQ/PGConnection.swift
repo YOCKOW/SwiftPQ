@@ -7,6 +7,7 @@
 
 import CLibPQ
 import Foundation
+import NetworkGear
 import yExtensions
 
 public enum PGConnectionError: Error {
@@ -44,6 +45,17 @@ public actor PGConnection {
       throw PGConnectionError.fileNotFound
     }
     try self.init(PQsetdbLogin(path, port?.description, nil, nil, database, user, password))
+  }
+
+  /// Connect the database on `host`.
+  public init(
+    host: Domain,
+    port: UInt16? = nil,
+    database: String? = nil,
+    user: String? = nil,
+    password: String? = nil
+  ) throws {
+    try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
   }
 
   public func finish() {
