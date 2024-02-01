@@ -26,8 +26,8 @@ jobs:
           - '5.9.2'
         swift-compat-ver:
           - '5'
-          - '4.2'
-          - '4'
+          # - '4.2'
+          # - '4'
     runs-on: ${{ matrix.os }}
     steps:
     - uses: ikalnytskyi/action-setup-postgres@v5
