@@ -41,8 +41,17 @@ public actor PGConnection {
     try self.init(PQsetdbLogin(path, port?.description, nil, nil, database, user, password))
   }
 
+  public func finish() {
+    if !_isFinished {
+      PQfinish(_connection)
+      _isFinished = true
+    }
+  }
+
   deinit {
-    PQfinish(_connection)
+    if !_isFinished {
+      PQfinish(_connection)
+    }
   }
 
   private func _property(_ pqFunc: (OpaquePointer) -> UnsafeMutablePointer<CChar>?) -> String? {

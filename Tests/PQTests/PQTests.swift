@@ -44,5 +44,7 @@ final class PQTests: XCTestCase {
 
     let connPassword = await connection.password
     XCTAssertEqual(connPassword, databasePassword)
+
+    await connection.finish()
   }
 }
