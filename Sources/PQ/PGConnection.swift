@@ -58,6 +58,17 @@ public actor PGConnection {
     try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
   }
 
+  /// Connect the database on the server with IP address `host`.
+  public init(
+    host: IPAddress,
+    port: UInt16? = nil,
+    database: String? = nil,
+    user: String? = nil,
+    password: String? = nil
+  ) throws {
+    try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
+  }
+
   public func finish() {
     if !_isFinished {
       PQfinish(_connection)
@@ -84,6 +95,9 @@ public actor PGConnection {
 
   /// Returns the server host name of the active connection.
   public var host: String? { _property(PQhost) }
+
+  /// Returns IP address of the server.
+  public var hostAddress: IPAddress? { _property(PQhostaddr).flatMap(IPAddress.init(string:)) }
 
   /// Returns the database name of the connection.
   public var database: String? { _property(PQdb) }

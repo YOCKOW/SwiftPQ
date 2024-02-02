@@ -68,4 +68,33 @@ final class PQTests: XCTestCase {
 
     await connection.finish()
   }
+
+  func test_ipAddress() async throws {
+    func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
+      let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)
+      let connection = try PGConnection(
+        host: ipAddress,
+        database: databaseName,
+        user: databaseUserName,
+        password: databasePassword
+      )
+
+      let connDB = await connection.database
+      XCTAssertEqual(connDB, databaseName, file: file, line: line)
+
+      let connUser = await connection.user
+      XCTAssertEqual(connUser, databaseUserName, file: file, line: line)
+
+      let connPassword = await connection.password
+      XCTAssertEqual(connPassword, databasePassword, file: file, line: line)
+
+      let connAddress = await connection.hostAddress
+      XCTAssertEqual(connAddress, ipAddress)
+
+      await connection.finish()
+    }
+
+    try await __test("127.0.0.1")
+    try await __test("::1")
+  }
 }
