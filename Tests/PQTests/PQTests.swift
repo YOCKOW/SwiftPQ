@@ -30,7 +30,7 @@ final class PQTests: XCTestCase {
     #error("Unsupported OS.")
     #endif
 
-    let connection = try PGConnection(
+    let connection = try Connection(
       unixSocketDirectoryPath: socketDirectory,
       database: databaseName,
       user: databaseUserName,
@@ -50,12 +50,12 @@ final class PQTests: XCTestCase {
   }
 
   func test_host() async throws {
-    let connection = try PGConnection(
+    let connection = try Connection(
       host: XCTUnwrap(Domain("localhost")),
       database: databaseName,
       user: databaseUserName,
       password: databasePassword,
-      parameters: [PGConnection.SSLMode.allow]
+      parameters: [Connection.SSLMode.allow]
     )
 
     let connDB = await connection.database
@@ -73,7 +73,7 @@ final class PQTests: XCTestCase {
   func test_ipAddress() async throws {
     func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
       let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)
-      let connection = try PGConnection(
+      let connection = try Connection(
         host: ipAddress,
         database: databaseName,
         user: databaseUserName,

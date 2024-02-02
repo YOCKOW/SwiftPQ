@@ -1,5 +1,5 @@
 /* *************************************************************************************************
- PGConnection.swift
+ Connection.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
@@ -10,19 +10,12 @@ import Foundation
 import NetworkGear
 import yExtensions
 
-public enum PGConnectionError: Error {
-  case fileNotFound
-  case missingUser
-  case percentEncodingFailed
-  case unexpectedError(String)
-}
-
-public protocol PGConnectionParameter {
+public protocol ConnectionParameter {
   var postgresParameterKey: String { get }
   var postgresParameterValue: String { get }
 }
 
-extension PGConnectionParameter where Self: RawRepresentable, Self.RawValue == String {
+extension ConnectionParameter where Self: RawRepresentable, Self.RawValue == String {
   public var postgresParameterValue: String { rawValue }
 }
 
@@ -43,9 +36,16 @@ extension IPAddress: _PGHost {
   }
 }
 
-public actor PGConnection {
+public actor Connection {
+  public enum Error: Swift.Error {
+    case fileNotFound
+    case missingUser
+    case percentEncodingFailed
+    case unexpectedError(String)
+  }
+
   /// GSS TCP/IP connection priority.
-  public enum GSSAPIMode: String, PGConnectionParameter {
+  public enum GSSAPIMode: String, ConnectionParameter {
     /// Disable a GSSAPI-encrypted connection.
     case disable
 
@@ -61,7 +61,7 @@ public actor PGConnection {
   }
 
   /// SSL TCP/IP connection priority.
-  public enum SSLMode: String, PGConnectionParameter {
+  public enum SSLMode: String, ConnectionParameter {
     /// Disable an SSL connection.
     case disable
 
@@ -92,10 +92,10 @@ public actor PGConnection {
 
   private init(_ connection: OpaquePointer?) throws {
     guard let pgConn = connection else {
-      throw PGConnectionError.unexpectedError("`PGconn *` is NULL pointer.")
+      throw Error.unexpectedError("`PGconn *` is NULL pointer.")
     }
     guard PQstatus(pgConn) == CONNECTION_OK else {
-      throw PGConnectionError.unexpectedError(String(cString: PQerrorMessage(pgConn)))
+      throw Error.unexpectedError(String(cString: PQerrorMessage(pgConn)))
     }
     self._connection = pgConn
   }
@@ -110,7 +110,7 @@ public actor PGConnection {
     database: String?,
     user: String?,
     password: String?,
-    parameters: [any PGConnectionParameter]
+    parameters: [any ConnectionParameter]
   ) throws {
     var uriDescription = "postgresql://"
 
@@ -120,7 +120,7 @@ public actor PGConnection {
     case (let user?, nil):
       uriDescription += "\(user)@"
     case (nil, _?):
-      throw PGConnectionError.missingUser
+      throw Error.missingUser
     case (nil, nil):
       break
     }
@@ -133,7 +133,7 @@ public actor PGConnection {
 
     if let database {
       guard let encodedDatabaseName = database.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
-        throw PGConnectionError.percentEncodingFailed
+        throw Error.percentEncodingFailed
       }
       uriDescription += "/\(encodedDatabaseName)"
     }
@@ -143,7 +143,7 @@ public actor PGConnection {
       uriDescription += try parameters.map({
         guard let encodedKey = $0.postgresParameterKey.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let encodedValue = $0.postgresParameterValue.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-          throw PGConnectionError.percentEncodingFailed
+          throw Error.percentEncodingFailed
         }
         return "\(encodedKey)=\(encodedValue)"
       }).joined(separator: "&")
@@ -161,7 +161,7 @@ public actor PGConnection {
     password: String? = nil
   ) throws {
     guard URL(fileURLWithPath: path, isDirectory: true).isExistingLocalDirectory else {
-      throw PGConnectionError.fileNotFound
+      throw Error.fileNotFound
     }
     try self.init(PQsetdbLogin(path, port?.description, nil, nil, database, user, password))
   }
@@ -173,7 +173,7 @@ public actor PGConnection {
     database: String? = nil,
     user: String? = nil,
     password: String? = nil,
-    parameters: [any PGConnectionParameter]? = nil
+    parameters: [any ConnectionParameter]? = nil
   ) throws {
     if let parameters {
       try self.init(_host: host, port: port, database: database, user: user, password: password, parameters: parameters)
@@ -189,7 +189,7 @@ public actor PGConnection {
     database: String? = nil,
     user: String? = nil,
     password: String? = nil,
-    parameters: [any PGConnectionParameter]? = nil
+    parameters: [any ConnectionParameter]? = nil
   ) throws {
     if let parameters {
       try self.init(_host: host, port: port, database: database, user: user, password: password, parameters: parameters)
