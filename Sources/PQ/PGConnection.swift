@@ -12,10 +12,81 @@ import yExtensions
 
 public enum PGConnectionError: Error {
   case fileNotFound
+  case missingUser
+  case percentEncodingFailed
   case unexpectedError(String)
 }
 
+public protocol PGConnectionParameter {
+  var postgresParameterKey: String { get }
+  var postgresParameterValue: String { get }
+}
+
+extension PGConnectionParameter where Self: RawRepresentable, Self.RawValue == String {
+  public var postgresParameterValue: String { rawValue }
+}
+
+private protocol _PGHost {
+  var _hostDescription: String { get }
+}
+extension Domain: _PGHost {
+  var _hostDescription: String { return description }
+}
+extension IPAddress: _PGHost {
+  var _hostDescription: String {
+    switch self {
+    case .v4:
+      return description
+    case .v6:
+      return "[\(description)]"
+    }
+  }
+}
+
 public actor PGConnection {
+  /// GSS TCP/IP connection priority.
+  public enum GSSAPIMode: String, PGConnectionParameter {
+    /// Disable a GSSAPI-encrypted connection.
+    case disable
+
+    /// Try a GSSAPI-encrypted connection first. If that fails, try a non-GSSAPI-encrypted connection.
+    case prefer
+
+    /// Only try a GSSAPI-encrypted connection.
+    case require
+
+    public var postgresParameterKey: String {
+      return "gssencmode"
+    }
+  }
+
+  /// SSL TCP/IP connection priority.
+  public enum SSLMode: String, PGConnectionParameter {
+    /// Disable an SSL connection.
+    case disable
+
+    /// Try an SSL connection only if a non-SSL connection fails.
+    case allow
+
+    /// Try an SSL connection first. If that fails, try a non-SSL connection.
+    case prefer
+
+    /// Only try an SSL connection.
+    case require
+
+    /// Only try an SSL connection with verifying that the server certificate is issued 
+    /// by a trusted certificate authority.
+    case verifyCertificateAuthority = "verify-ca"
+
+    /// Only try an SSL connection with verifying that the server certificate is issued 
+    /// by a trusted CA and that the requested server host name matches that in the certificate.
+    case verifyFull = "verify-full"
+
+    public var postgresParameterKey: String {
+      return "sslmode"
+    }
+  }
+
   private var _connection: OpaquePointer // PGconn *
   private var _isFinished: Bool = false
 
@@ -31,6 +102,54 @@ public actor PGConnection {
 
   private init(uriDescription: String) throws {
     try self.init(PQconnectdb(uriDescription))
+  }
+
+  private init(
+    _host host: any _PGHost,
+    port: UInt16?,
+    database: String?,
+    user: String?,
+    password: String?,
+    parameters: [any PGConnectionParameter]
+  ) throws {
+    var uriDescription = "postgresql://"
+
+    switch (user, password) {
+    case (let user?, let password?):
+      uriDescription += "\(user):\(password)@"
+    case (let user?, nil):
+      uriDescription += "\(user)@"
+    case (nil, _?):
+      throw PGConnectionError.missingUser
+    case (nil, nil):
+      break
+    }
+
+    uriDescription += "\(host._hostDescription)"
+
+    if let port {
+      uriDescription += ":\(port.description)"
+    }
+
+    if let database {
+      guard let encodedDatabaseName = database.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+        throw PGConnectionError.percentEncodingFailed
+      }
+      uriDescription += "/\(encodedDatabaseName)"
+    }
+
+    if !parameters.isEmpty {
+      uriDescription += "?"
+      uriDescription += try parameters.map({
+        guard let encodedKey = $0.postgresParameterKey.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let encodedValue = $0.postgresParameterValue.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+          throw PGConnectionError.percentEncodingFailed
+        }
+        return "\(encodedKey)=\(encodedValue)"
+      }).joined(separator: "&")
+    }
+
+    try self.init(uriDescription: uriDescription)
   }
 
   /// Connect the database using UNIX-domain socket in `unixSocketDirectoryPath` directory.
@@ -53,9 +172,14 @@ public actor PGConnection {
     port: UInt16? = nil,
     database: String? = nil,
     user: String? = nil,
-    password: String? = nil
+    password: String? = nil,
+    parameters: [any PGConnectionParameter]? = nil
   ) throws {
-    try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
+    if let parameters {
+      try self.init(_host: host, port: port, database: database, user: user, password: password, parameters: parameters)
+    } else {
+      try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
+    }
   }
 
   /// Connect the database on the server with IP address `host`.
@@ -64,9 +188,14 @@ public actor PGConnection {
     port: UInt16? = nil,
     database: String? = nil,
     user: String? = nil,
-    password: String? = nil
+    password: String? = nil,
+    parameters: [any PGConnectionParameter]? = nil
   ) throws {
-    try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
+    if let parameters {
+      try self.init(_host: host, port: port, database: database, user: user, password: password, parameters: parameters)
+    } else {
+      try self.init(PQsetdbLogin(host.description, port?.description, nil, nil, database, user, password))
+    }
   }
 
   public func finish() {

@@ -54,7 +54,8 @@ final class PQTests: XCTestCase {
       host: XCTUnwrap(Domain("localhost")),
       database: databaseName,
       user: databaseUserName,
-      password: databasePassword
+      password: databasePassword,
+      parameters: [PGConnection.SSLMode.allow]
     )
 
     let connDB = await connection.database
