@@ -98,4 +98,26 @@ final class PQTests: XCTestCase {
     try await __test("127.0.0.1")
     try await __test("::1")
   }
+
+  func test_query() async throws {
+    let connection = try Connection(
+      host: XCTUnwrap(Domain("localhost")),
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+
+    let creationResult = try await connection.execute(.rawSQL("""
+      CREATE TABLE IF NOT EXISTS test_table (
+        id integer,
+        name varchar(16)
+      );
+    """))
+    XCTAssertEqual(creationResult, .ok)
+
+    let dropResult = try await connection.execute(.rawSQL("DROP TABLE IF EXISTS test_table"))
+    XCTAssertEqual(dropResult, .ok)
+
+    await connection.finish()
+  }
 }
