@@ -100,8 +100,20 @@ final class PQTests: XCTestCase {
   }
 
   func test_token() throws {
+    let positionalParameter = try SingleToken.positionalParameter(1)
+    XCTAssertEqual(positionalParameter.description, "$1")
+
     let column = ColumnReference(tableName: TableName(schema: "public", name: "my_table"), columnName: "my_column")
     XCTAssertEqual(column.description, "public.my_table.my_column")
+
+    let subscriptExp1 = Subscript(expression: positionalParameter, parameter: .index(4))
+    XCTAssertEqual(subscriptExp1.description, "$1[4]")
+
+    let subscriptExp2 = Subscript(expression: column, parameter: .slice(lower: 12, upper: 24))
+    XCTAssertEqual(subscriptExp2.description, "public.my_table.my_column[12:24]")
+
+    let subscriptExp3 = Subscript(expression: subscriptExp2, parameter: .index(2))
+    XCTAssertEqual(subscriptExp3.description, "public.my_table.my_column[12:24][2]")
 
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")

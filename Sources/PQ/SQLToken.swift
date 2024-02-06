@@ -121,6 +121,8 @@ public class SQLToken: CustomStringConvertible, Equatable {
 
   public class SpecialCharacter: SQLToken {}
 
+  public class PositionalParameter: SpecialCharacter {}
+
   /// A token to remove whitespace.
   public final class Joiner: SQLToken {
     fileprivate static let singleton: Joiner = .init(rawValue: "")
@@ -186,7 +188,7 @@ extension SQLToken {
 
   /// Create a positional parameter token.
   public static func positionalParameter(_ position: UInt) throws -> SQLToken {
-    return SpecialCharacter(rawValue: "$\(position)")
+    return PositionalParameter(rawValue: "$\(position)")
   }
 
   /// Create a '(' token.
