@@ -69,6 +69,27 @@ public struct SingleToken: SQLTokenSequence {
   }
 }
 
+public struct ParenthesizedExpression: SQLTokenSequence {
+  public var expression: any SQLTokenSequence
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.leftParenthesis, .joiner]
+    tokens.append(contentsOf: expression.tokens)
+    tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    return tokens
+  }
+
+  public init(expression: any SQLTokenSequence) {
+    self.expression = expression
+  }
+}
+
+extension SQLTokenSequence {
+  public var parenthesized: ParenthesizedExpression {
+    return ParenthesizedExpression(expression: self)
+  }
+}
+
 /// A type that represents a name of table.
 public struct TableName: SQLTokenSequence {
   /// A name of schema.
@@ -165,5 +186,40 @@ public struct Subscript: SQLTokenSequence {
   public init(expression: any SQLTokenSequence, parameter: Parameter) {
     self.expression = expression
     self.parameter = parameter
+  }
+}
+
+public struct FieldSelection: SQLTokenSequence {
+  public enum Field {
+    case name(String)
+    case all
+  }
+
+  /// Preceding expression from that a field is selected.
+  public var expression: any SQLTokenSequence
+
+  public var field: Field
+
+  public var tokens: [SQLToken] {
+    let omitParentheses: Bool = switch expression {
+    case let singleToken as SingleToken where singleToken.isPositionalParameter: true
+    case let tableName as TableName where tableName.schema == nil: true
+    default: false
+    }
+
+    var tokens = omitParentheses ? expression.tokens : expression.parenthesized.tokens
+    tokens.append(contentsOf: [.joiner, .dot, .joiner])
+    switch field {
+    case .name(let string):
+      tokens.append(.identifier(string))
+    case .all:
+      tokens.append(.asterisk)
+    }
+    return tokens
+  }
+
+  public init(expression: any SQLTokenSequence, field: Field) {
+    self.expression = expression
+    self.field = field
   }
 }

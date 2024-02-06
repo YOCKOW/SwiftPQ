@@ -115,6 +115,15 @@ final class PQTests: XCTestCase {
     let subscriptExp3 = Subscript(expression: subscriptExp2, parameter: .index(2))
     XCTAssertEqual(subscriptExp3.description, "public.my_table.my_column[12:24][2]")
 
+    let fieldSelection1 = FieldSelection(expression: TableName(name: "my_table"), field: .name("my_column"))
+    XCTAssertEqual(fieldSelection1.description, "my_table.my_column")
+
+    let fieldSelection2 = FieldSelection(expression: TableName(schema: "public", name: "my_table"), field: .name("my_column"))
+    XCTAssertEqual(fieldSelection2.description, "(public.my_table).my_column")
+
+    let fieldSelection3 = FieldSelection(expression: ColumnReference(columnName: "my_column"), field: .all)
+    XCTAssertEqual(fieldSelection3.description, "(my_column).*")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
