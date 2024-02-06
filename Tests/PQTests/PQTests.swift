@@ -51,7 +51,7 @@ final class PQTests: XCTestCase {
 
   func test_host() async throws {
     let connection = try Connection(
-      host: XCTUnwrap(Domain("localhost")),
+      host: .localhost,
       database: databaseName,
       user: databaseUserName,
       password: databasePassword,
@@ -97,5 +97,32 @@ final class PQTests: XCTestCase {
 
     try await __test("127.0.0.1")
     try await __test("::1")
+  }
+
+  func test_token() throws {
+    let dropTableQuery = Query.dropTable(scheme: "public", name: "my_table", ifExists: true)
+    XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
+  }
+
+  func test_query() async throws {
+    let connection = try Connection(
+      host: XCTUnwrap(Domain("localhost")),
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+
+    let creationResult = try await connection.execute(.rawSQL("""
+      CREATE TABLE IF NOT EXISTS test_table (
+        id integer,
+        name varchar(16)
+      );
+    """))
+    XCTAssertEqual(creationResult, .ok)
+
+    let dropResult = try await connection.execute(.dropTable(name: "test_table", ifExists: true))
+    XCTAssertEqual(dropResult, .ok)
+
+    await connection.finish()
   }
 }

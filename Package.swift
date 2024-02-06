@@ -17,7 +17,8 @@ let package = Package(
     .library(name: "SwiftPQ", targets: ["PQ"]),
   ],
   dependencies: [
-    .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.5"..<"2.0.0"),
+    .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
+    .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.4.0"),
     .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
   ],
   targets: [
@@ -36,6 +37,7 @@ let package = Package(
       dependencies: [
         "CLibPQ",
         "SwiftNetworkGear",
+        "SwiftUnicodeSupplement",
         "ySwiftExtensions",
       ]
     ),

@@ -87,7 +87,7 @@ public actor Connection {
     }
   }
 
-  private var _connection: OpaquePointer // PGconn *
+  internal let _connection: OpaquePointer // PGconn *
   private var _isFinished: Bool = false
 
   private init(_ connection: OpaquePointer?) throws {
