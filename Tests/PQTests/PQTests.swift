@@ -51,7 +51,7 @@ final class PQTests: XCTestCase {
 
   func test_host() async throws {
     let connection = try Connection(
-      host: XCTUnwrap(Domain("localhost")),
+      host: .localhost,
       database: databaseName,
       user: databaseUserName,
       password: databasePassword,
