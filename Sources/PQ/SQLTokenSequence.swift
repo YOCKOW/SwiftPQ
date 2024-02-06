@@ -73,3 +73,24 @@ public struct TableName: SQLTokenSequence {
 }
 
 
+/// A type that represents a column reference.
+public struct ColumnReference: SQLTokenSequence {
+  public var tableName: TableName?
+
+  public var columnName: String
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = []
+    if let tableName {
+      tokens.append(contentsOf: tableName.tokens)
+      tokens.append(contentsOf: [.joiner, .dot, .joiner])
+    }
+    tokens.append(.identifier(columnName))
+    return tokens
+  }
+
+  public init(tableName: TableName? = nil, columnName: String) {
+    self.tableName = tableName
+    self.columnName = columnName
+  }
+}
