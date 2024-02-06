@@ -22,6 +22,27 @@ public struct Query {
   public static func rawSQL(_ command: String) -> Query {
     return .init(command)
   }
+
+  /// Create a query concatenating `tokens`.
+  public static func query<S>(from tokens: S) -> Query where S: Sequence, S.Element == SQLToken {
+    return .init(tokens.map(\.description).joined(separator: " "))
+  }
+}
+
+extension Query {
+  public static func dropTable(scheme: String? = nil, name: String, ifExists: Bool = false) -> Query {
+    var tokens: [SQLToken] = [.drop, .table]
+    if ifExists {
+      tokens.append(contentsOf: [.if, .exists])
+    }
+    if let scheme {
+      tokens.append(contentsOf: [.identifier(scheme), .dot])
+    }
+    tokens.append(.identifier(name))
+    tokens.append(.semicolon)
+
+    return .query(from: tokens)
+  }
 }
 
 public enum ExecutionError: Error {

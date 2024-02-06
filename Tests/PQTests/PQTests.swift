@@ -115,7 +115,7 @@ final class PQTests: XCTestCase {
     """))
     XCTAssertEqual(creationResult, .ok)
 
-    let dropResult = try await connection.execute(.rawSQL("DROP TABLE IF EXISTS test_table"))
+    let dropResult = try await connection.execute(.dropTable(name: "test_table", ifExists: true))
     XCTAssertEqual(dropResult, .ok)
 
     await connection.finish()
