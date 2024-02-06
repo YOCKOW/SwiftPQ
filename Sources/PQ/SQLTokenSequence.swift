@@ -173,11 +173,7 @@ public struct Subscript: SQLTokenSequence {
     default: false
     }
 
-    var tokens: [SQLToken] = omitParentheses ? [] : [.leftParenthesis, .joiner]
-    tokens.append(contentsOf: expression.tokens)
-    if !omitParentheses {
-      tokens.append(contentsOf: [.joiner, .rightParenthesis])
-    }
+    var tokens: [SQLToken] = omitParentheses ? expression.tokens : expression.parenthesized.tokens
     tokens.append(.joiner)
     tokens.append(contentsOf: parameter.tokens)
     return tokens
