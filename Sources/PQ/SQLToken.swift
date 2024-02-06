@@ -120,6 +120,11 @@ public class SQLToken: CustomStringConvertible, Equatable {
   }
 
   public class SpecialCharacter: SQLToken {}
+
+  /// A token to remove whitespace.
+  public final class Joiner: SQLToken {
+    fileprivate static let singleton: Joiner = .init(rawValue: "")
+  }
 }
 
 extension SQLToken {
@@ -210,4 +215,7 @@ extension SQLToken {
 
   /// Create a '.' token.
   public static let dot: SQLToken = SpecialCharacter(rawValue: ".")
+
+  /// Create a joiner token.
+  public static let joiner: SQLToken = Joiner.singleton
 }

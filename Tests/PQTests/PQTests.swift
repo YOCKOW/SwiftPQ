@@ -99,6 +99,11 @@ final class PQTests: XCTestCase {
     try await __test("::1")
   }
 
+  func test_token() throws {
+    let dropTableQuery = Query.dropTable(scheme: "public", name: "my_table", ifExists: true)
+    XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
+  }
+
   func test_query() async throws {
     let connection = try Connection(
       host: XCTUnwrap(Domain("localhost")),
