@@ -100,7 +100,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_token() throws {
-    let dropTableQuery = Query.dropTable(scheme: "public", name: "my_table", ifExists: true)
+    let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
 
