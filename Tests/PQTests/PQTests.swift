@@ -124,6 +124,15 @@ final class PQTests: XCTestCase {
     let fieldSelection3 = FieldSelection(expression: ColumnReference(columnName: "my_column"), field: .all)
     XCTAssertEqual(fieldSelection3.description, "(my_column).*")
 
+    let binaryOperator = BinaryInfixOperatorInvocation(SingleToken.integer(2), .plus, SingleToken.integer(3))
+    XCTAssertEqual(binaryOperator.description, "2 + 3")
+
+    let unaryPrefixOperator1 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(2))
+    XCTAssertEqual(unaryPrefixOperator1.description, "-2")
+
+    let unaryPrefixOperator2 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(-2))
+    XCTAssertEqual(unaryPrefixOperator2.description, "-(-2)")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

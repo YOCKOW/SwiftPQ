@@ -64,8 +64,28 @@ public struct SingleToken: SQLTokenSequence {
     return token is SQLToken.Identifier || token is SQLToken.DelimitedIdentifier
   }
 
+  public var isInteger: Bool {
+    return (token as? SQLToken.NumericConstant)?.isInteger == true
+  }
+
+  public var isFloat: Bool {
+    return (token as? SQLToken.NumericConstant)?.isFloat == true
+  }
+
+  public var isNegativeNumeric: Bool {
+    return (token as? SQLToken.NumericConstant)?.isNegative == true
+  }
+
   public static func positionalParameter(_ position: UInt) throws -> SingleToken {
     return .init(token: try .positionalParameter(position))
+  }
+
+  public static func integer<T>(_ integer: T) -> SingleToken where T: FixedWidthInteger {
+    return .init(token: .numeric(integer))
+  }
+
+  public static func float<T>(_ float: T) -> SingleToken where T: BinaryFloatingPoint & CustomStringConvertible {
+    return .init(token: .numeric(float))
   }
 }
 
@@ -217,5 +237,124 @@ public struct FieldSelection: SQLTokenSequence {
   public init(expression: any SQLTokenSequence, field: Field) {
     self.expression = expression
     self.field = field
+  }
+}
+
+public enum Operator: SQLTokenSequence {
+  case single(SQLToken.Operator)
+  case qualified(schema: String, operator: SQLToken.Operator)
+  case and
+  case or
+  case not
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .single(let opToken):
+      return [opToken]
+    case .qualified(schema: let schema, operator: let opToken):
+      return [
+        .operator, .joiner,
+        .leftParenthesis, .joiner,
+        .identifier(schema), .joiner, .dot, .joiner, opToken,
+        .joiner, .rightParenthesis,
+      ]
+    case .and:
+      return [.and]
+    case .or:
+      return [.or]
+    case .not:
+      return [.not]
+    }
+  }
+
+  public static let lessThan: Operator = .single(.lessThan)
+
+  public static let greaterThan: Operator = .single(.greaterThan)
+
+  public static let lessThanOrEqualTo: Operator = .single(.lessThanOrEqualTo)
+
+  public static let greaterThanOrEqualTo: Operator = .single(.greaterThanOrEqualTo)
+
+  public static let equalTo: Operator = .single(.equalTo)
+
+  public static let notEqualTo: Operator = .single(.notEqualTo)
+
+  public static let plus: Operator = .single(.plus)
+
+  public static let minus: Operator = .single(.minus)
+
+  public static let multiply: Operator = .single(.multiply)
+
+  public static let divide: Operator = .single(.divide)
+
+  public static let modulo: Operator = .single(.modulo)
+
+  public static let exponent: Operator = .single(.exponent)
+
+  public static let squareRoot: Operator = .single(.squareRoot)
+
+  public static let cubeRoot: Operator = .single(.cubeRoot)
+
+  public static let absoluteValue: Operator = .single(.absoluteValue)
+
+  public static let bitwiseAnd: Operator = .single(.bitwiseAnd)
+
+  public static let bitwiseOr: Operator = .single(.bitwiseOr)
+
+  public static let bitwiseExclusiveOr: Operator = .single(.bitwiseExclusiveOr)
+
+  public static let bitwiseNot: Operator = .single(.bitwiseNot)
+
+  public static let bitwiseShiftLeft: Operator = .single(.bitwiseShiftLeft)
+
+  public static let bitwiseShiftRight: Operator = .single(.bitwiseShiftRight)
+}
+
+/// A type that represents a binary infix operator invocation.
+public struct BinaryInfixOperatorInvocation: SQLTokenSequence {
+  /// Left-hand side expression.
+  public var left: any SQLTokenSequence
+
+  public var `operator`: Operator
+
+  /// Right-hand side expression.
+  public var right: any SQLTokenSequence
+
+  public var tokens: [SQLToken] {
+    return left.tokens + self.operator.tokens + right.tokens
+  }
+
+  public init(_ left: any SQLTokenSequence, _ `operator`: Operator, _ right: any SQLTokenSequence) {
+    self.left = left
+    self.operator = `operator`
+    self.right = right
+  }
+}
+
+/// A type that represents a unary prfeix operator invocation.
+public struct UnaryPrefixOperatorInvocation: SQLTokenSequence {
+  public var `operator`: Operator
+
+  public var expression: any SQLTokenSequence
+
+  public var tokens: [SQLToken] {
+    let omitParentheses = switch expression {
+    case let singleToken as SingleToken where !singleToken.isNegativeNumeric: true
+    default: false
+    }
+
+    var tokens = self.operator.tokens
+    tokens.append(.joiner)
+    if omitParentheses {
+      tokens.append(contentsOf: expression)
+    } else {
+      tokens.append(contentsOf: expression.parenthesized)
+    }
+    return tokens
+  }
+
+  public init(_ `operator`: Operator, _ expression: any SQLTokenSequence) {
+    self.operator = `operator`
+    self.expression = expression
   }
 }

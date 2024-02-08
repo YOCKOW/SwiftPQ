@@ -66,7 +66,25 @@ public class SQLToken: CustomStringConvertible, Equatable {
     }
   }
 
-  public class NumericConstant: SQLToken {}
+  public class NumericConstant: SQLToken {
+    public let isInteger: Bool
+    public let isFloat: Bool
+    public let isNegative: Bool
+
+    fileprivate init<T>(_ integer: T) where T: FixedWidthInteger {
+      self.isInteger = true
+      self.isFloat = false
+      self.isNegative = integer < 0
+      super.init(rawValue: integer.description)
+    }
+
+    fileprivate init<T>(_ float: T) where T: BinaryFloatingPoint & CustomStringConvertible {
+      self.isInteger = false
+      self.isFloat = true
+      self.isNegative = float < 0
+      super.init(rawValue: float.description)
+    }
+  }
 
   public class Operator: SQLToken {
     public enum Error: Swift.Error {
@@ -76,7 +94,11 @@ public class SQLToken: CustomStringConvertible, Equatable {
       case endInPlusOrMinus
     }
 
-    fileprivate init(operatorName: String) throws {
+    private override init(rawValue: String) {
+      super.init(rawValue: rawValue)
+    }
+
+    fileprivate convenience init(operatorName: String) throws {
       if operatorName.isEmpty {
         throw Error.empty
       }
@@ -115,8 +137,50 @@ public class SQLToken: CustomStringConvertible, Equatable {
         throw Error.endInPlusOrMinus
       }
 
-      super.init(rawValue: operatorName)
+      self.init(rawValue: operatorName)
     }
+
+    public static let lessThan: Operator = .init(rawValue: "<")
+
+    public static let greaterThan: Operator = .init(rawValue: ">")
+
+    public static let lessThanOrEqualTo: Operator = .init(rawValue: "<=")
+
+    public static let greaterThanOrEqualTo: Operator = .init(rawValue: ">=")
+
+    public static let equalTo: Operator = .init(rawValue: "=")
+
+    public static let notEqualTo: Operator = .init(rawValue: "<>")
+
+    public static let plus: Operator = .init(rawValue: "+")
+
+    public static let minus: Operator = .init(rawValue: "-")
+
+    public static let multiply: Operator = .init(rawValue: "*")
+
+    public static let divide: Operator = .init(rawValue: "/")
+
+    public static let modulo: Operator = .init(rawValue: "%")
+
+    public static let exponent: Operator = .init(rawValue: "^")
+
+    public static let squareRoot: Operator = .init(rawValue: "|/")
+
+    public static let cubeRoot: Operator = .init(rawValue: "||/")
+
+    public static let absoluteValue: Operator = .init(rawValue: "@")
+
+    public static let bitwiseAnd: Operator = .init(rawValue: "&")
+
+    public static let bitwiseOr: Operator = .init(rawValue: "|")
+
+    public static let bitwiseExclusiveOr: Operator = .init(rawValue: "#")
+
+    public static let bitwiseNot: Operator = .init(rawValue: "~")
+
+    public static let bitwiseShiftLeft: Operator = .init(rawValue: "<<")
+
+    public static let bitwiseShiftRight: Operator = .init(rawValue: ">>")
   }
 
   public class SpecialCharacter: SQLToken {}
@@ -173,12 +237,12 @@ extension SQLToken {
 
   /// Create a numeric constant token.
   public static func numeric<T>(_ integer: T) -> SQLToken where T: FixedWidthInteger {
-    return NumericConstant(rawValue: integer.description)
+    return NumericConstant(integer)
   }
 
   /// Create a numeric constant token.
   public static func numeric<T>(_ float: T) -> SQLToken where T: BinaryFloatingPoint & CustomStringConvertible {
-    return NumericConstant(rawValue: float.description)
+    return NumericConstant(float)
   }
 
   /// Create an operator token.
