@@ -133,6 +133,9 @@ final class PQTests: XCTestCase {
     let unaryPrefixOperator2 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(-2))
     XCTAssertEqual(unaryPrefixOperator2.description, "-(-2)")
 
+    let function1 = FunctionCall.concatenate(SingleToken.string("A"), SingleToken.string("B"))
+    XCTAssertEqual(function1.description, "CONCAT('A', 'B')")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

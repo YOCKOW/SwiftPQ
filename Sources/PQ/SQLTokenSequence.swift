@@ -87,6 +87,10 @@ public struct SingleToken: SQLTokenSequence {
   public static func float<T>(_ float: T) -> SingleToken where T: BinaryFloatingPoint & CustomStringConvertible {
     return .init(token: .numeric(float))
   }
+
+  public static func string(_ string: String) -> SingleToken {
+    return .init(token: .string(string))
+  }
 }
 
 public struct ParenthesizedExpression: SQLTokenSequence {
@@ -356,5 +360,93 @@ public struct UnaryPrefixOperatorInvocation: SQLTokenSequence {
   public init(_ `operator`: Operator, _ expression: any SQLTokenSequence) {
     self.operator = `operator`
     self.expression = expression
+  }
+}
+
+/// A type that represents a name of function.
+public struct FunctionName: SQLTokenSequence {
+  /// A name of schema.
+  public var schema: String?
+
+  private enum _Name {
+    case token(SQLToken.Keyword)
+    case string(String)
+  }
+  private var _name: _Name
+
+  /// A name of the function.
+  public var name: String {
+    get {
+      switch _name {
+      case .token(let keyword):
+        return keyword.description
+      case .string(let string):
+        return string
+      }
+    }
+    set {
+      _name = .string(newValue)
+    }
+  }
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = []
+    if let schema {
+      tokens.append(contentsOf: [.identifier(schema), .joiner, .dot, .joiner])
+    }
+    switch _name {
+    case .token(let keyword):
+      tokens.append(keyword)
+    case .string(let string):
+      tokens.append(.identifier(string))
+    }
+    return tokens
+  }
+
+  internal init(schema: String? = nil, name: SQLToken) {
+    guard case let keyword as SQLToken.Keyword = name else {
+      fatalError("Not an instance of `SQLToken.Keyword`?!")
+    }
+    self.schema = schema
+    self._name = .token(keyword)
+  }
+
+  public init(schema: String? = nil, name: String) {
+    self.schema = schema
+    self._name = .string(name)
+  }
+}
+
+public struct FunctionCall: SQLTokenSequence {
+  /// A name of the function.
+  public var name: FunctionName
+
+  /// Arguments of the function.
+  public var arguments: [any SQLTokenSequence]
+
+  public var tokens: [SQLToken] {
+    var tokens = name.tokens
+    tokens.append(contentsOf: [.joiner, .leftParenthesis, .joiner])
+
+    for (ii, argument) in arguments.enumerated() {
+      tokens.append(contentsOf: argument)
+      if ii < arguments.count - 1 {
+        tokens.append(contentsOf: [.joiner, .comma])
+      }
+    }
+
+    tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    return tokens
+  }
+
+  public init(name: FunctionName, arguments: [any SQLTokenSequence]) {
+    self.name = name
+    self.arguments = arguments
+  }
+
+  public init<each T: SQLTokenSequence>(name: FunctionName, argument: repeat each T)  {
+    var arguments: [any SQLTokenSequence] = []
+    repeat (arguments.append(each argument))
+    self.init(name: name, arguments: arguments)
   }
 }
