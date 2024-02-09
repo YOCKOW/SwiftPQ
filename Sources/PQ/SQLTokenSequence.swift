@@ -450,3 +450,75 @@ public struct FunctionCall: SQLTokenSequence {
     self.init(name: name, arguments: arguments)
   }
 }
+
+/// A type that represents `ORDER BY sort_expression`.
+public struct SortClause: SQLTokenSequence {
+  public enum SortDirection {
+    case ascending
+    case descending
+    public static let `default`: SortDirection = .ascending
+  }
+
+  public enum NullOrdering {
+    case first
+    case last
+  }
+
+  /// A type that represents `sort_expression [ASC | DESC] [NULLS { FIRST | LAST }]`
+  public struct Sorter: SQLTokenSequence {
+    public var expression: any SQLTokenSequence
+    public var direction: SortDirection?
+    public var nullOrdering: NullOrdering?
+
+    public var tokens: [SQLToken] {
+      var tokens: [SQLToken] = expression.tokens
+      switch direction {
+      case .ascending:
+        tokens.append(.asc)
+      case .descending:
+        tokens.append(.desc)
+      case nil:
+        break
+      }
+      if let nullOrdering {
+        tokens.append(.nulls)
+        switch nullOrdering {
+        case .first:
+          tokens.append(.first)
+        case .last:
+          tokens.append(.last)
+        }
+      }
+      return tokens
+    }
+
+    public init(expression: any SQLTokenSequence, direction: SortDirection? = nil, nullOrdering: NullOrdering? = nil) {
+      self.expression = expression
+      self.direction = direction
+      self.nullOrdering = nullOrdering
+    }
+  }
+
+  public enum Error: Swift.Error {
+    case emptySorters
+  }
+
+  public let sorters: [Sorter]
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.order, .by]
+    tokens.append(contentsOf: sorters.joined(separator: [.joiner, .comma]))
+    return tokens
+  }
+
+  public init(_ sorters: [Sorter]) throws {
+    if sorters.isEmpty {
+      throw Error.emptySorters
+    }
+    self.sorters = sorters
+  }
+
+  public init(_ sorters: Sorter...) throws {
+    try self.init(sorters)
+  }
+}
