@@ -80,6 +80,10 @@ public struct SingleToken: SQLTokenSequence {
     return .init(token: try .positionalParameter(position))
   }
 
+  public static func identifier(_ string: String, forceQuoting: Bool = false) -> SingleToken {
+    return .init(token: .identifier(string, forceQuoting: forceQuoting))
+  }
+
   public static func integer<T>(_ integer: T) -> SingleToken where T: FixedWidthInteger {
     return .init(token: .numeric(integer))
   }
