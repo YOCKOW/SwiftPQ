@@ -526,3 +526,19 @@ public struct SortClause: SQLTokenSequence {
     try self.init(sorters)
   }
 }
+
+/// A type that represents `FILTER (WHERE filter_expression)`
+public struct FilterClause: SQLTokenSequence {
+  public var filter: any SQLTokenSequence
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.filter, .leftParenthesis, .joiner, .where]
+    tokens.append(contentsOf: filter.tokens)
+    tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    return tokens
+  }
+
+  public init(_ filter: any SQLTokenSequence) {
+    self.filter = filter
+  }
+}

@@ -144,6 +144,9 @@ final class PQTests: XCTestCase {
     ])
     XCTAssertEqual(orderBy1.description, "ORDER BY a + b, c DESC NULLS LAST")
 
+    let filter1 = FilterClause(BinaryInfixOperatorInvocation(SingleToken.identifier("i"), .lessThan, SingleToken.integer(5)))
+    XCTAssertEqual(filter1.description, "FILTER (WHERE i < 5)")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
