@@ -136,6 +136,14 @@ final class PQTests: XCTestCase {
     let function1 = FunctionCall.concatenate(SingleToken.string("A"), SingleToken.string("B"))
     XCTAssertEqual(function1.description, "CONCAT('A', 'B')")
 
+    let orderBy1 = try SortClause([
+      .init(expression: BinaryInfixOperatorInvocation(
+        SingleToken.identifier("a"), .plus, SingleToken.identifier("b")
+      )),
+      .init(expression: SingleToken.identifier("c"), direction: .descending, nullOrdering: .last),
+    ])
+    XCTAssertEqual(orderBy1.description, "ORDER BY a + b, c DESC NULLS LAST")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
