@@ -542,3 +542,89 @@ public struct FilterClause: SQLTokenSequence {
     self.filter = filter
   }
 }
+
+public struct AggregateName: SQLTokenSequence {
+  /// A name of schema.
+  public var schema: String?
+
+  /// A name of the aggregate.
+  public var name: String
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = []
+    if let schema {
+      tokens.append(contentsOf: [.identifier(schema), .joiner, .dot, .joiner])
+    }
+    tokens.append(.identifier(name))
+    return tokens
+  }
+
+  public init(schema: String? = nil, name: String) {
+    self.schema = schema
+    self.name = name
+  }
+}
+
+/// A type that represents an aggregate expression.
+public struct AggregateExpression: SQLTokenSequence {
+  public enum AggregatePattern {
+    case all(expressions: [any SQLTokenSequence], orderBy: SortClause? = nil, filter: FilterClause? = nil)
+    case distinct(expressions: [any SQLTokenSequence], orderBy: SortClause? = nil, filter: FilterClause? = nil)
+    case any(filter: FilterClause? = nil)
+    case orderedSet(expressions: [any SQLTokenSequence], withinGroup: SortClause, filter: FilterClause? = nil)
+
+    fileprivate var _tokens: [SQLToken] {
+      var tokens: [SQLToken] = []
+
+      func __append(expressions: [any SQLTokenSequence]) {
+        for (ii, expression) in expressions.enumerated() {
+          tokens.append(contentsOf: expression)
+          if ii < expressions.count - 1 {
+            tokens.append(contentsOf: [.joiner, .comma])
+          }
+        }
+      }
+
+      switch self {
+      case .all(let expressions, let orderBy, let filter):
+        tokens.append(contentsOf: [.leftParenthesis, .joiner, .all])
+        __append(expressions: expressions)
+        orderBy.map({ tokens.append(contentsOf: $0) })
+        tokens.append(contentsOf: [.joiner, .rightParenthesis])
+        filter.map({ tokens.append(contentsOf: $0) })
+      case .distinct(let expressions, let orderBy, let filter):
+        tokens.append(contentsOf: [.leftParenthesis, .joiner, .distinct])
+        __append(expressions: expressions)
+        orderBy.map({ tokens.append(contentsOf: $0) })
+        tokens.append(contentsOf: [.joiner, .rightParenthesis])
+        filter.map({ tokens.append(contentsOf: $0) })
+      case .any(let filter):
+        tokens.append(contentsOf: [.leftParenthesis, .joiner, .asterisk, .joiner, .rightParenthesis])
+        filter.map({ tokens.append(contentsOf: $0) })
+      case .orderedSet(let expressions, let withinGroup, let filter):
+        __append(expressions: expressions)
+        tokens.append(contentsOf: [.within, .group, .leftParenthesis, .joiner])
+        tokens.append(contentsOf: withinGroup)
+        tokens.append(contentsOf: [.joiner, .rightParenthesis])
+        filter.map({ tokens.append(contentsOf: $0) })
+      }
+      return tokens
+    }
+  }
+
+  public var name: AggregateName
+
+  public var pattern: AggregatePattern
+
+  public var tokens: [SQLToken] {
+    var tokens = name.tokens
+    tokens.append(.joiner)
+    tokens.append(contentsOf: pattern._tokens)
+    return tokens
+  }
+
+  public init(name: AggregateName, pattern: AggregatePattern) {
+    self.name = name
+    self.pattern = pattern
+  }
+}
