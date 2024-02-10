@@ -147,6 +147,25 @@ final class PQTests: XCTestCase {
     let filter1 = FilterClause(BinaryInfixOperatorInvocation(SingleToken.identifier("i"), .lessThan, SingleToken.integer(5)))
     XCTAssertEqual(filter1.description, "FILTER (WHERE i < 5)")
 
+    let agg1 = AggregateExpression(
+      name: .stringAggregate,
+      pattern: .all(
+        expressions: [SingleToken.identifier("a"), SingleToken.string(",")],
+        orderBy: try .init([.init(expression: SingleToken.identifier("a"))]),
+        filter: nil
+      )
+    )
+    XCTAssertEqual(agg1.description, "STRING_AGG(ALL a, ',' ORDER BY a)")
+
+    let agg2 = AggregateExpression(
+      name: .continuousPercentile,
+      pattern: .orderedSet(
+        expressions: [SingleToken.float(0.5)],
+        withinGroup: try .init([.init(expression: SingleToken.identifier("foo"))])
+      )
+    )
+    XCTAssertEqual(agg2.description, "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY foo)")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

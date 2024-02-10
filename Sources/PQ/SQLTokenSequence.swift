@@ -526,7 +526,9 @@ public struct AggregateExpression: SQLTokenSequence {
         tokens.append(contentsOf: [.leftParenthesis, .joiner, .asterisk, .joiner, .rightParenthesis])
         filter.map({ tokens.append(contentsOf: $0) })
       case .orderedSet(let expressions, let withinGroup, let filter):
+        tokens.append(contentsOf: [.leftParenthesis, .joiner])
         __append(expressions: expressions)
+        tokens.append(contentsOf: [.joiner, .rightParenthesis])
         tokens.append(contentsOf: [.within, .group, .leftParenthesis, .joiner])
         tokens.append(contentsOf: withinGroup)
         tokens.append(contentsOf: [.joiner, .rightParenthesis])
