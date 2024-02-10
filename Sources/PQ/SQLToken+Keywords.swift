@@ -701,6 +701,7 @@ extension SQLToken {
   public static let stored: SQLToken = Keyword(rawValue: "STORED")
   public static let strict: SQLToken = Keyword(rawValue: "STRICT")
   public static let string: SQLToken = Keyword(rawValue: "STRING")
+  public static let stringAgg: SQLToken = Keyword(rawValue: "STRING_AGG")
   public static let strip: SQLToken = Keyword(rawValue: "STRIP")
   public static let structure: SQLToken = Keyword(rawValue: "STRUCTURE")
   public static let style: SQLToken = Keyword(rawValue: "STYLE")

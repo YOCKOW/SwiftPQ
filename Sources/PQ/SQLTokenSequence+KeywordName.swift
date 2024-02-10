@@ -139,4 +139,19 @@ public struct AggregateName: SQLTokenSequence {
   public init(schema: String? = nil, name: String) {
     self._base = .init(schema: schema, name: name)
   }
+
+  /// `ARRAY_AGG`
+  public static let arrayAggregate: AggregateName = .init(name: .arrayAgg)
+
+  /// `PERCENTILE_CONT`
+  public static let continuousPercentile: AggregateName = .init(name: .percentileCont)
+
+  /// `COUNT`
+  public static let count: AggregateName = .init(name: .count)
+
+  /// `STRING_AGG`
+  public static let stringAggregate: AggregateName = .init(name: .stringAgg)
+
+  /// `XMLAGG`
+  public static let xmlAggregate: AggregateName = .init(name: .xmlagg)
 }
