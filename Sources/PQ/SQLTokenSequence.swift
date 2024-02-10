@@ -367,60 +367,6 @@ public struct UnaryPrefixOperatorInvocation: SQLTokenSequence {
   }
 }
 
-/// A type that represents a name of function.
-public struct FunctionName: SQLTokenSequence {
-  /// A name of schema.
-  public var schema: String?
-
-  private enum _Name {
-    case token(SQLToken.Keyword)
-    case string(String)
-  }
-  private var _name: _Name
-
-  /// A name of the function.
-  public var name: String {
-    get {
-      switch _name {
-      case .token(let keyword):
-        return keyword.description
-      case .string(let string):
-        return string
-      }
-    }
-    set {
-      _name = .string(newValue)
-    }
-  }
-
-  public var tokens: [SQLToken] {
-    var tokens: [SQLToken] = []
-    if let schema {
-      tokens.append(contentsOf: [.identifier(schema), .joiner, .dot, .joiner])
-    }
-    switch _name {
-    case .token(let keyword):
-      tokens.append(keyword)
-    case .string(let string):
-      tokens.append(.identifier(string))
-    }
-    return tokens
-  }
-
-  internal init(schema: String? = nil, name: SQLToken) {
-    guard case let keyword as SQLToken.Keyword = name else {
-      fatalError("Not an instance of `SQLToken.Keyword`?!")
-    }
-    self.schema = schema
-    self._name = .token(keyword)
-  }
-
-  public init(schema: String? = nil, name: String) {
-    self.schema = schema
-    self._name = .string(name)
-  }
-}
-
 public struct FunctionCall: SQLTokenSequence {
   /// A name of the function.
   public var name: FunctionName
@@ -540,28 +486,6 @@ public struct FilterClause: SQLTokenSequence {
 
   public init(_ filter: any SQLTokenSequence) {
     self.filter = filter
-  }
-}
-
-public struct AggregateName: SQLTokenSequence {
-  /// A name of schema.
-  public var schema: String?
-
-  /// A name of the aggregate.
-  public var name: String
-
-  public var tokens: [SQLToken] {
-    var tokens: [SQLToken] = []
-    if let schema {
-      tokens.append(contentsOf: [.identifier(schema), .joiner, .dot, .joiner])
-    }
-    tokens.append(.identifier(name))
-    return tokens
-  }
-
-  public init(schema: String? = nil, name: String) {
-    self.schema = schema
-    self.name = name
   }
 }
 
