@@ -65,6 +65,10 @@ extension Array where Element == any SQLTokenSequence {
 public struct SingleToken: SQLTokenSequence {
   public var token: SQLToken
 
+  internal init(_ token: SQLToken) {
+    self.token = token
+  }
+
   public var tokens: [SQLToken] {
     return [token]
   }
@@ -90,23 +94,23 @@ public struct SingleToken: SQLTokenSequence {
   }
 
   public static func positionalParameter(_ position: UInt) throws -> SingleToken {
-    return .init(token: try .positionalParameter(position))
+    return .init(try .positionalParameter(position))
   }
 
   public static func identifier(_ string: String, forceQuoting: Bool = false) -> SingleToken {
-    return .init(token: .identifier(string, forceQuoting: forceQuoting))
+    return .init(.identifier(string, forceQuoting: forceQuoting))
   }
 
   public static func integer<T>(_ integer: T) -> SingleToken where T: FixedWidthInteger {
-    return .init(token: .numeric(integer))
+    return .init(.numeric(integer))
   }
 
   public static func float<T>(_ float: T) -> SingleToken where T: BinaryFloatingPoint & CustomStringConvertible {
-    return .init(token: .numeric(float))
+    return .init(.numeric(float))
   }
 
   public static func string(_ string: String) -> SingleToken {
-    return .init(token: .string(string))
+    return .init(.string(string))
   }
 }
 
