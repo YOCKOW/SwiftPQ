@@ -166,6 +166,31 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(agg2.description, "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY foo)")
 
+    let windowFunc1 = WindowFunctionCall(
+      name: .init(name: .count),
+      argument: .any,
+      window: .definition(.init(
+        existingWindowName: nil,
+        partitionBy: [SingleToken.identifier("x")],
+        orderBy: try .init([.init(SingleToken.identifier("y"))]),
+        frame: nil
+      ))
+    )
+    XCTAssertEqual(windowFunc1.description, "COUNT(*) OVER (PARTITION BY x ORDER BY y)")
+
+    let windowFunc2 = WindowFunctionCall(
+      name: .init(name: .max),
+      argument: .expressions([SingleToken.identifier("v")]),
+      filter: nil,
+      window: .definition(.init(
+        existingWindowName: nil,
+        partitionBy: [SingleToken.identifier("a"), SingleToken.identifier("b")],
+        orderBy: try .init([.init(SingleToken.identifier("x"))]),
+        frame: .init(mode: .rows, start: .unboundedPreceding, end: .unboundedFollowing, exclusion: nil)
+      ))
+    )
+    XCTAssertEqual(windowFunc2.description, "MAX(v) OVER (PARTITION BY a, b ORDER BY x ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

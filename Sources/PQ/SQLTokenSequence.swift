@@ -49,6 +49,19 @@ extension SQLTokenSequence {
   }
 }
 
+extension Array where Element == any SQLTokenSequence {
+  public func joined<S>(separator: S = Array<SQLToken>([.joiner, .comma])) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+    var result: [SQLToken] = []
+    for (ii, exp) in self.enumerated() {
+      result.append(contentsOf: exp)
+      if ii < self.count - 1 {
+        result.append(contentsOf: separator)
+      }
+    }
+    return result
+  }
+}
+
 public struct SingleToken: SQLTokenSequence {
   public var token: SQLToken
 
@@ -504,5 +517,180 @@ public struct WindowName: SQLTokenSequence {
   public init(schema: String? = nil, name: String) {
     self.schema = schema
     self.name = name
+  }
+}
+
+/// Representation of frame clause used in window function calls.
+public struct FrameClause: SQLTokenSequence {
+  public enum Mode {
+    case range
+    case rows
+    case groups
+
+    fileprivate var token: SQLToken {
+      switch self {
+      case .range:
+        return .range
+      case .rows:
+        return .rows
+      case .groups:
+        return .groups
+      }
+    }
+  }
+
+  public enum Bound {
+    case unboundedPreceding
+    case preceding(offset: any SQLTokenSequence)
+    case currentRow
+    case following(offset: any SQLTokenSequence)
+    case unboundedFollowing
+
+    fileprivate var tokens: [SQLToken] {
+      switch self {
+      case .unboundedPreceding:
+        return [.unbounded, .preceding]
+      case .preceding(let offset):
+        return offset.tokens + [.preceding]
+      case .currentRow:
+        return [.current, .row]
+      case .following(let offset):
+        return offset.tokens + [.following]
+      case .unboundedFollowing:
+        return [.unbounded, .following]
+      }
+    }
+  }
+
+  public enum Exclusion {
+    case currentRow
+    case group
+    case ties
+    case noOthers
+
+    fileprivate var tokens: [SQLToken] {
+      switch self {
+      case .currentRow:
+        return [.exclude, .current, .row]
+      case .group:
+        return [.exclude, .group]
+      case .ties:
+        return [.exclude, .ties]
+      case .noOthers:
+        return [.exclude, .no, .others]
+      }
+    }
+  }
+
+  public var mode: Mode
+
+  public var start: Bound
+
+  public var end: Bound?
+
+  public var exclusion: Exclusion?
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [mode.token]
+
+    if let end {
+      tokens.append(.between)
+      tokens.append(contentsOf: start.tokens)
+      tokens.append(.and)
+      tokens.append(contentsOf: end.tokens)
+    } else {
+      tokens.append(contentsOf: start.tokens)
+    }
+
+    exclusion.map({ tokens.append(contentsOf: $0.tokens) })
+
+    return tokens
+  }
+
+  public init(mode: Mode, start: Bound, end: Bound? = nil, exclusion: Exclusion? = nil) {
+    self.mode = mode
+    self.start = start
+    self.end = end
+    self.exclusion = exclusion
+  }
+}
+
+public struct WindowDefinition: SQLTokenSequence {
+  public var existingWindowName: WindowName?
+
+  public var partitionBy: [any SQLTokenSequence]?
+
+  public var orderBy: WindowDefinitionSortClause?
+
+  public var frame: FrameClause?
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = []
+    existingWindowName.map({ tokens.append(contentsOf: $0) })
+    partitionBy.map({
+      tokens.append(contentsOf: [.partition, .by])
+      tokens.append(contentsOf: $0.joined())
+    })
+    orderBy.map({ tokens.append(contentsOf: $0) })
+    frame.map({ tokens.append(contentsOf: $0) })
+    return tokens
+  }
+
+  public init(
+    existingWindowName: WindowName?,
+    partitionBy: [any SQLTokenSequence]?,
+    orderBy: WindowDefinitionSortClause?,
+    frame: FrameClause?
+  ) {
+    self.existingWindowName = existingWindowName
+    self.partitionBy = partitionBy
+    self.orderBy = orderBy
+    self.frame = frame
+  }
+}
+
+/// Representation of a window function call
+public struct WindowFunctionCall: SQLTokenSequence {
+  public enum Argument {
+    case expressions([any SQLTokenSequence])
+    case any
+  }
+
+  public enum Window {
+    case name(WindowName)
+    case definition(WindowDefinition)
+  }
+
+  public var name: FunctionName
+
+  public var argument: Argument
+
+  public var filter: FilterClause?
+
+  public var window: Window
+
+  public var tokens: [SQLToken] {
+    var tokens = name.tokens
+
+    tokens.append(contentsOf: [.joiner, .leftParenthesis, .joiner])
+    switch argument {
+    case .expressions(let expressions):
+      tokens.append(contentsOf: expressions.joined())
+    case .any:
+      tokens.append(.asterisk)
+    }
+    tokens.append(contentsOf: [.joiner, .rightParenthesis])
+
+    filter.map({ tokens.append(contentsOf: $0) })
+
+    tokens.append(.over)
+    switch window {
+    case .name(let windowName):
+      tokens.append(contentsOf: windowName)
+    case .definition(let windowDefinition):
+      tokens.append(contentsOf: windowDefinition.parenthesized)
+    }
+
+    return tokens
   }
 }
