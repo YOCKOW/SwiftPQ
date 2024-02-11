@@ -98,7 +98,7 @@ public class SQLToken: CustomStringConvertible, Equatable {
       super.init(rawValue: rawValue)
     }
 
-    fileprivate convenience init(operatorName: String) throws {
+    public convenience init(_ operatorName: String) throws {
       if operatorName.isEmpty {
         throw Error.empty
       }
@@ -247,7 +247,7 @@ extension SQLToken {
 
   /// Create an operator token.
   public static func `operator`(_ operatorName: String) throws -> SQLToken {
-    return try Operator(operatorName: operatorName)
+    return try Operator(operatorName)
   }
 
   /// Create a positional parameter token.

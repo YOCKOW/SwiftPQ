@@ -137,10 +137,10 @@ final class PQTests: XCTestCase {
     XCTAssertEqual(function1.description, "CONCAT('A', 'B')")
 
     let orderBy1 = try SortClause([
-      .init(expression: BinaryInfixOperatorInvocation(
+      .init(BinaryInfixOperatorInvocation(
         SingleToken.identifier("a"), .plus, SingleToken.identifier("b")
       )),
-      .init(expression: SingleToken.identifier("c"), direction: .descending, nullOrdering: .last),
+      .init(SingleToken.identifier("c"), direction: .descending, nullOrdering: .last),
     ])
     XCTAssertEqual(orderBy1.description, "ORDER BY a + b, c DESC NULLS LAST")
 
@@ -151,7 +151,7 @@ final class PQTests: XCTestCase {
       name: .stringAggregate,
       pattern: .all(
         expressions: [SingleToken.identifier("a"), SingleToken.string(",")],
-        orderBy: try .init([.init(expression: SingleToken.identifier("a"))]),
+        orderBy: try .init([.init(SingleToken.identifier("a"))]),
         filter: nil
       )
     )
@@ -161,7 +161,7 @@ final class PQTests: XCTestCase {
       name: .continuousPercentile,
       pattern: .orderedSet(
         expressions: [SingleToken.float(0.5)],
-        withinGroup: try .init([.init(expression: SingleToken.identifier("foo"))])
+        withinGroup: try .init([.init(SingleToken.identifier("foo"))])
       )
     )
     XCTAssertEqual(agg2.description, "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY foo)")
