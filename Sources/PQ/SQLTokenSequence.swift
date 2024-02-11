@@ -554,3 +554,27 @@ public struct AggregateExpression: SQLTokenSequence {
     self.pattern = pattern
   }
 }
+
+
+/// A type that represents a name of window.
+public struct WindowName: SQLTokenSequence {
+  /// A name of schema.
+  public var schema: String?
+
+  /// A name of the window.
+  public var name: String
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = []
+    if let schema {
+      tokens.append(contentsOf: [.identifier(schema), .joiner, .dot, .joiner])
+    }
+    tokens.append(.identifier(name))
+    return tokens
+  }
+
+  public init(schema: String? = nil, name: String) {
+    self.schema = schema
+    self.name = name
+  }
+}
