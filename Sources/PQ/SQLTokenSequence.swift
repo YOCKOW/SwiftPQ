@@ -698,3 +698,24 @@ public struct WindowFunctionCall: SQLTokenSequence {
     return tokens
   }
 }
+
+/// Representation of type-cast expression.
+public struct TypeCast: SQLTokenSequence {
+  public var expression: any SQLTokenSequence
+
+  public var type: DataType
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.cast, .leftParenthesis]
+    tokens.append(contentsOf: expression)
+    tokens.append(.as)
+    tokens.append(contentsOf: type.tokens)
+    tokens.append(.rightParenthesis)
+    return tokens
+  }
+
+  public init(expression: any SQLTokenSequence, type: DataType) {
+    self.expression = expression
+    self.type = type
+  }
+}

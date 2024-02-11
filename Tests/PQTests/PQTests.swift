@@ -191,6 +191,15 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(windowFunc2.description, "MAX(v) OVER (PARTITION BY a, b ORDER BY x ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)")
 
+    let typecast1 = TypeCast(expression: SingleToken.integer(0), type: try .numeric(precision: 6, scale: -1))
+    XCTAssertEqual(typecast1.description, "CAST ( 0 AS NUMERIC(6, -1) )")
+
+    let typecast2 = TypeCast(
+      expression: SingleToken.string("1 year 100 microseconds"),
+      type: try .interval(fields: .second, precision: 6)
+    )
+    XCTAssertEqual(typecast2.description, "CAST ( '1 year 100 microseconds' AS INTERVAL SECOND(6) )")
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
