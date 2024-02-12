@@ -9,7 +9,7 @@ import UnicodeSupplement
 
 /// A type representing SQL token.
 public class SQLToken: CustomStringConvertible, Equatable {
-  private let _rawValue: String
+  internal let _rawValue: String
 
   internal init(rawValue: String) {
     self._rawValue = rawValue
