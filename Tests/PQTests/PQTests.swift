@@ -99,6 +99,14 @@ final class PQTests: XCTestCase {
     try await __test("::1")
   }
 
+  func test_quoted() {
+    let id1 = SQLToken.identifier("ABCあいう🌐", encodingIsUTF8: false)
+    XCTAssertEqual(id1.description, #"U&"ABC\3042\3044\3046\+01F310""#)
+
+    let string1 = SQLToken.string("🈁1", encodingIsUTF8: false)
+    XCTAssertEqual(string1.description, #"U&'\+01F2011'"#)
+  }
+
   func test_token() throws {
     let positionalParameter = try SingleToken.positionalParameter(1)
     XCTAssertEqual(positionalParameter.description, "$1")

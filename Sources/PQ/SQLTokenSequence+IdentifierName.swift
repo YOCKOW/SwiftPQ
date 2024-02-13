@@ -56,9 +56,9 @@ public struct SQLIdentifierConvertibleString: ExpressibleByStringLiteral {
     self.init(gut: .token(idToken))
   }
 
-  public init(_ string: String, caseSensitive: Bool = false) {
+  public init(_ string: String, caseSensitive: Bool = false, encodingIsUTF8: Bool = true) {
     if caseSensitive {
-      let token = SQLToken.DelimitedIdentifier(rawValue: string)
+      let token = SQLToken.DelimitedIdentifier(rawValue: string, encodingIsUTF8: encodingIsUTF8)
       self.init(gut: .token(token))
     } else {
       self.init(gut: .string(string))

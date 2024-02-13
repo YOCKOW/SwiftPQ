@@ -7,6 +7,60 @@
 
 import UnicodeSupplement
 
+private extension String {
+  /// Used as a delimited identifier or a string constant.
+  /// Adding "Unicode escapes" if its encoding is not `UTF-8` for safety.
+  ///
+  /// - Note: `NUL`s are removed.
+  func _quoted(mark: Unicode.Scalar, isUTF8: Bool) -> String {
+    assert(mark == "'" || mark == "\"")
+    if isUTF8 {
+      var resultScalars = UnicodeScalarView([mark])
+      for scalar in self.unicodeScalars {
+        if scalar.value == 0x00 {
+          continue
+        }
+        if scalar == mark {
+          resultScalars.append(contentsOf: [mark, mark])
+        } else {
+          resultScalars.append(scalar)
+        }
+      }
+      resultScalars.append(mark)
+      return String(resultScalars)
+    } else {
+      // non-UTF-8
+      var resultScalars = UnicodeScalarView(["U", "&", mark])
+
+      for scalar in self.unicodeScalars {
+        let value = scalar.value
+
+        if value == 0x00 {
+          continue
+        }
+
+        func __appendEscapedScalars() {
+          if value <= 0xFFFF {
+            resultScalars.append(contentsOf: String(format: "\\%04X", value).unicodeScalars)
+          } else {
+            resultScalars.append(contentsOf: String(format: "\\+%06X", value).unicodeScalars)
+          }
+        }
+
+        switch value {
+        case 0x20..<0x7F where scalar != mark && scalar != "\\":
+          resultScalars.append(scalar)
+        default:
+          __appendEscapedScalars()
+        }
+      }
+
+      resultScalars.append(mark)
+      return String(resultScalars)
+    }
+  }
+}
+
 /// A type representing SQL token.
 public class SQLToken: CustomStringConvertible, Equatable {
   internal let _rawValue: String
@@ -29,40 +83,32 @@ public class SQLToken: CustomStringConvertible, Equatable {
   public class Identifier: SQLToken {}
 
   public class DelimitedIdentifier: SQLToken {
-    private lazy var _description: String = ({
-      var resultScalars: [Unicode.Scalar] = ["\""]
-      for scalar in _rawValue.unicodeScalars {
-        if scalar == "\"" {
-          resultScalars.append(contentsOf: ["\"", "\""])
-        } else {
-          resultScalars.append(scalar)
-        }
-      }
-      resultScalars.append("\"")
-      return String(String.UnicodeScalarView(resultScalars))
-    })()
+    private let _isUTF8: Bool
+
+    private lazy var _description: String = _rawValue._quoted(mark: "\"", isUTF8: _isUTF8)
 
     public override var description: String {
       return _description
     }
+
+    internal init(rawValue: String, encodingIsUTF8: Bool) {
+      self._isUTF8 = encodingIsUTF8
+      super.init(rawValue: rawValue)
+    }
   }
 
   public class StringConstant: SQLToken {
-    private lazy var _description: String = ({
-      var resultScalars: [Unicode.Scalar] = ["'"]
-      for scalar in _rawValue.unicodeScalars {
-        if scalar == "'" {
-          resultScalars.append(contentsOf: ["'", "'"])
-        } else {
-          resultScalars.append(scalar)
-        }
-      }
-      resultScalars.append("'")
-      return String(String.UnicodeScalarView(resultScalars))
-    })()
+    private let _isUTF8: Bool
+
+    private lazy var _description: String = _rawValue._quoted(mark: "'", isUTF8: _isUTF8)
 
     public override var description: String {
       return _description
+    }
+
+    fileprivate init(rawValue: String, encodingIsUTF8: Bool) {
+      self._isUTF8 = encodingIsUTF8
+      super.init(rawValue: rawValue)
     }
   }
 
@@ -195,15 +241,20 @@ public class SQLToken: CustomStringConvertible, Equatable {
 
 extension SQLToken {
   /// Create an identifier token.
-  public static func identifier(_ string: String, forceQuoting: Bool = false) -> SQLToken {
+  /// "Unicode escapes" may be added when quoting is required and `encodingIsUTF8` is `false`.
+  public static func identifier(_ string: String, forceQuoting: Bool = false, encodingIsUTF8: Bool = true) -> SQLToken {
     var requireQuoting = forceQuoting
 
     CHECK_REQUIRE_QUOTING: if !forceQuoting {
+      func __scalarIs(_ scalar: UnicodeScalar, _ property: KeyPath<Unicode.Scalar.LatestProperties, Bool>) -> Bool {
+        if !encodingIsUTF8 {
+          guard scalar.isASCII else { return false }
+        }
+        return scalar.latestProperties[keyPath: property]
+      }
+
       let scalars = string.unicodeScalars
-      guard let firstScalar = scalars.first, (
-        firstScalar == "_" ||
-        firstScalar.latestProperties.isLetter
-      ) else {
+      guard let firstScalar = scalars.first, (firstScalar == "_" || __scalarIs(firstScalar, \.isLetter)) else {
         // Note: Zero-length delimeted identifier might be generated, but don't throw any errors here.
         requireQuoting = true
         break CHECK_REQUIRE_QUOTING
@@ -214,8 +265,8 @@ extension SQLToken {
           scalar == "_" ||
           scalar == "$" ||
           ("0"..."9").contains(scalar) ||
-          scalar.latestProperties.isLetter ||
-          scalar.latestProperties.isMark
+          __scalarIs(scalar, \.isLetter) ||
+          __scalarIs(scalar, \.isMark)
         ) else {
           requireQuoting = true
           break CHECK_REQUIRE_QUOTING
@@ -226,13 +277,14 @@ extension SQLToken {
     if !requireQuoting {
       return Identifier(rawValue: string)
     } else {
-      return DelimitedIdentifier(rawValue: string)
+      return DelimitedIdentifier(rawValue: string, encodingIsUTF8: encodingIsUTF8)
     }
   }
 
   /// Create a string constant token.
-  public static func string(_ string: String) -> SQLToken {
-    return StringConstant(rawValue: string)
+  /// "Unicode escapes" are added when `encodingIsUTF8` is `false`.
+  public static func string(_ string: String, encodingIsUTF8: Bool = true) -> SQLToken {
+    return StringConstant(rawValue: string, encodingIsUTF8: encodingIsUTF8)
   }
 
   /// Create a numeric constant token.
