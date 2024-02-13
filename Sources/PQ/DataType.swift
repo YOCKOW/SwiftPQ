@@ -228,7 +228,7 @@ extension DataType {
       tokens.append(contentsOf: [
         .joiner, .leftParenthesis, .joiner, .numeric(p), .joiner, .rightParenthesis,
       ])
-    case (nil, let s?):
+    case (nil, _?):
       throw InitializationError.invalidValue
     case (nil, nil):
       break
