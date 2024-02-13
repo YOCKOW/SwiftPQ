@@ -208,6 +208,12 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(typecast2.description, "CAST ( '1 year 100 microseconds' AS INTERVAL SECOND(6) )")
 
+    let collationName1 = CollationName.c
+    XCTAssertEqual(collationName1.description, #""C""#)
+
+    let collationName2 = CollationName(locale: Locale(identifier: "ja-jp"))
+    XCTAssertEqual(collationName2.description, #""ja_JP""#)
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

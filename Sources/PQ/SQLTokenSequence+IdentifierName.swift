@@ -5,6 +5,8 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Foundation
+
 // TODO: Use macros?
 
 private protocol _SQLIdentifierConvertibleToken where Self: SQLToken {}
@@ -132,4 +134,39 @@ public struct AggregateName: SchemaQualifiedIdentifier {
 
   /// `XMLAGG`
   public static let xmlAggregate: AggregateName = .init(name: .xmlagg)
+}
+
+public struct CollationName: SchemaQualifiedIdentifier {
+  public var schema: SQLIdentifierConvertibleString?
+
+  public var name: SQLIdentifierConvertibleString
+
+  public init(schema: SQLIdentifierConvertibleString? = nil, name: SQLIdentifierConvertibleString) {
+    self.schema = schema
+    self.name = name
+  }
+
+  /// Use ANSI C locale for collation.
+  public static let c: CollationName = .init(name: SQLIdentifierConvertibleString("C", caseSensitive: true))
+
+  /// Use POSIX locale for collation.
+  public static let posix: CollationName = .init(name: SQLIdentifierConvertibleString("POSIX", caseSensitive: true))
+
+  /// Create an instance with `locale`.
+  public init(locale: Locale) {
+    func __cldrLocaleIdentifier() -> String {
+      #if canImport(Darwin)
+      if #available(iOS 16, macOS 13, macCatalyst 16, tvOS 16, watchOS 9, visionOS 1, *) {
+        return locale.identifier(.cldr)
+      }
+      #endif
+      return String(Locale.canonicalLanguageIdentifier(from: locale.identifier).map({
+        switch $0 {
+        case "-": return "_" as Character
+        default: return $0
+        }
+      }))
+    }
+    self.init(name: SQLIdentifierConvertibleString(__cldrLocaleIdentifier(), caseSensitive: true))
+  }
 }
