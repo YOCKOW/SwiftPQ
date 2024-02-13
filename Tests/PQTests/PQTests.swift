@@ -214,6 +214,14 @@ final class PQTests: XCTestCase {
     let collationName2 = CollationName(locale: Locale(identifier: "ja-jp"))
     XCTAssertEqual(collationName2.description, #""ja_JP""#)
 
+    let collation1 = CollationExpression(
+      expression: BinaryInfixOperatorInvocation(
+        SingleToken.identifier("a"), .greaterThan, SingleToken.string("foo")
+      ),
+      collation: .c
+    )
+    XCTAssertEqual(collation1.description, #"a > 'foo' COLLATE "C""#)
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }

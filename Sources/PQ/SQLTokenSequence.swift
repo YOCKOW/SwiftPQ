@@ -719,3 +719,23 @@ public struct TypeCast: SQLTokenSequence {
     self.type = type
   }
 }
+
+/// Representation of a collation expression.
+public struct CollationExpression: SQLTokenSequence {
+  /// An expression to be collated.
+  public var expression: any SQLTokenSequence
+
+  public var collation: CollationName
+
+  public var tokens: [SQLToken] {
+    var tokens = expression.tokens
+    tokens.append(.collate)
+    tokens.append(contentsOf: collation)
+    return tokens
+  }
+
+  public init(expression: any SQLTokenSequence, collation: CollationName) {
+    self.expression = expression
+    self.collation = collation
+  }
+}
