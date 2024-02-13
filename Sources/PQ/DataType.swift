@@ -14,6 +14,10 @@ public struct DataType {
 
   public let tokens: [SQLToken]
 
+  public var description: String {
+    return tokens._description
+  }
+
   fileprivate init(_tokens: [SQLToken]) {
     self.tokens = _tokens
   }
@@ -228,7 +232,7 @@ extension DataType {
       tokens.append(contentsOf: [
         .joiner, .leftParenthesis, .joiner, .numeric(p), .joiner, .rightParenthesis,
       ])
-    case (nil, let s?):
+    case (nil, _?):
       throw InitializationError.invalidValue
     case (nil, nil):
       break
@@ -299,4 +303,55 @@ extension DataType {
 
   /// XML
   public static let xml: DataType = .init(_token: .xml)
+}
+
+extension DataType {
+  /// Declare an array of `dataType`.
+  /// For example, `array(of: .bigInt, numberOfDimensions: 2)` returns the type of "BIGINT[][]".
+  ///
+  /// - Parameters:
+  ///   - numberOfDimensions: The number of dimensions. Returns non-array type if this value is zero.
+  ///
+  /// - Note: The number of dimensions is ignored because of the current PostgreSQL's implementation.
+  ///         See ["Declaration of Array Types" in the official documentation](https://www.postgresql.org/docs/current/arrays.html#ARRAYS-DECLARATION).
+  public static func array(of dataType: DataType, numberOfDimensions: Int = 1) -> DataType {
+    var tokens = dataType.tokens
+    for _ in 0..<numberOfDimensions {
+      tokens.append(contentsOf: [.joiner, .leftSquareBracket, .joiner, .rightSquareBracket])
+    }
+    return .init(_tokens: tokens)
+  }
+
+  public enum ArraySize: ExpressibleByIntegerLiteral {
+    case unspecified
+    case number(UInt)
+
+    public typealias IntegerLiteralType = UInt
+
+    public init(integerLiteral value: UInt) {
+      switch value {
+      case 0:
+        self = .unspecified
+      default:
+        self = .number(value)
+      }
+    }
+  }
+
+  /// Declare an array of `dataType`.
+  /// For example, `array(of: .bigInt, sizes: [2, 3])` returns the type of "BIGINT[2][3]".
+  ///
+  /// - Note: The sizes are ignored because of the current PostgreSQL's implementation.
+  ///         See ["Declaration of Array Types" in the official documentation](https://www.postgresql.org/docs/current/arrays.html#ARRAYS-DECLARATION).
+  public static func array<S>(of dataType: DataType, sizes: S) -> DataType where S: Sequence, S.Element == ArraySize {
+    var tokens = dataType.tokens
+    for size in sizes {
+      tokens.append(contentsOf: [.joiner, .leftSquareBracket])
+      if case .number(let n) = size {
+        tokens.append(contentsOf: [.joiner, .numeric(n)])
+      }
+      tokens.append(contentsOf: [.joiner, .rightSquareBracket])
+    }
+    return .init(_tokens: tokens)
+  }
 }

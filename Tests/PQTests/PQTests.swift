@@ -199,6 +199,12 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(windowFunc2.description, "MAX(v) OVER (PARTITION BY a, b ORDER BY x ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)")
 
+    let dataTypeArray1 = DataType.array(of: .bigInt, numberOfDimensions: 2)
+    XCTAssertEqual(dataTypeArray1.description, "BIGINT[][]")
+
+    let dataTypeArray2 = DataType.array(of: .bigInt, sizes: [3, 4])
+    XCTAssertEqual(dataTypeArray2.description, "BIGINT[3][4]")
+
     let typecast1 = TypeCast(expression: SingleToken.integer(0), type: try .numeric(precision: 6, scale: -1))
     XCTAssertEqual(typecast1.description, "CAST ( 0 AS NUMERIC(6, -1) )")
 
