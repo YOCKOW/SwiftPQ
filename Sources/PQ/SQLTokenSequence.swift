@@ -739,3 +739,43 @@ public struct CollationExpression: SQLTokenSequence {
     self.collation = collation
   }
 }
+
+/// Representation of an array constructor.
+public struct ArrayConstructor: SQLTokenSequence {
+  /// Initial elements (i.e. arguments of the constructor).
+  public var elements: [any SQLTokenSequence]
+
+  private func _tokens(inArrayConstructor: Bool) -> [SQLToken] {
+    var tokens: [SQLToken] = []
+    if !inArrayConstructor {
+      tokens.append(contentsOf: [.array, .joiner])
+    }
+    tokens.append(contentsOf: [.leftSquareBracket, .joiner])
+    for (ii, element) in elements.enumerated() {
+      if case let arrayConstructor as ArrayConstructor = element {
+        tokens.append(contentsOf: arrayConstructor._tokens(inArrayConstructor: true))
+      } else {
+        tokens.append(contentsOf: element)
+      }
+      if ii < elements.count - 1 {
+        tokens.append(contentsOf: [.joiner, .comma])
+      }
+    }
+    tokens.append(contentsOf: [.joiner, .rightSquareBracket])
+    return tokens
+  }
+
+  public var tokens: [SQLToken] {
+    return _tokens(inArrayConstructor: false)
+  }
+
+  public init(_ elements: [any SQLTokenSequence]) {
+    self.elements = elements
+  }
+
+  public init<each T>(_ element: repeat each T) where repeat each T: SQLTokenSequence {
+    var elements: [any SQLTokenSequence] = []
+    repeat (elements.append(each element))
+    self.init(elements)
+  }
+}

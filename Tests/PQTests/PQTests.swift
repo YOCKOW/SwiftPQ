@@ -222,6 +222,20 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(collation1.description, #"a > 'foo' COLLATE "C""#)
 
+    let arrayConstructor1 = ArrayConstructor(
+      ArrayConstructor(SingleToken.integer(1), SingleToken.integer(2)),
+      ArrayConstructor(SingleToken.integer(3), SingleToken.integer(4))
+    )
+    XCTAssertEqual(arrayConstructor1.description, "ARRAY[[1, 2], [3, 4]]")
+
+    let arrayConstructor2 = ArrayConstructor(
+      SingleToken.integer(1),
+      SingleToken.integer(2),
+      BinaryInfixOperatorInvocation(SingleToken.integer(3), .plus, SingleToken.integer(4))
+    )
+    XCTAssertEqual(arrayConstructor2.description, "ARRAY[1, 2, 3 + 4]")
+
+
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")
   }
