@@ -235,6 +235,13 @@ final class PQTests: XCTestCase {
     )
     XCTAssertEqual(arrayConstructor2.description, "ARRAY[1, 2, 3 + 4]")
 
+    let rowConstructor1 = RowConstructor(
+      SingleToken.integer(1),
+      SingleToken.float(2.3),
+      SingleToken.string("foo bar")
+    )
+    XCTAssertEqual(rowConstructor1.description, "ROW(1, 2.3, 'foo bar')")
+
 
     let dropTableQuery = Query.dropTable(schema: "public", name: "my_table", ifExists: true)
     XCTAssertEqual(dropTableQuery.command, "DROP TABLE IF EXISTS public.my_table;")

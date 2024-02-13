@@ -779,3 +779,23 @@ public struct ArrayConstructor: SQLTokenSequence {
     self.init(elements)
   }
 }
+
+/// Representation of a row constructor.
+public struct RowConstructor: SQLTokenSequence {
+  /// Elements of the row.
+  public var elements: [any SQLTokenSequence]
+
+  public var tokens: [SQLToken] {
+    return [.row, .joiner, .leftParenthesis, .joiner] + elements.joined() + [.joiner, .rightParenthesis]
+  }
+
+  public init(_ elements: [any SQLTokenSequence]) {
+    self.elements = elements
+  }
+
+  public init<each T>(_ element: repeat each T) where repeat each T: SQLTokenSequence {
+    var elements: [any SQLTokenSequence] = []
+    repeat (elements.append(each element))
+    self.init(elements)
+  }
+}
