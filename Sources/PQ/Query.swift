@@ -25,35 +25,23 @@ public struct Query {
 
   /// Create a query concatenating `tokens`.
   public static func query<S>(from tokens: S) -> Query where S: Sequence, S.Element == SQLToken {
-    var command = ""
-    var previousToken: SQLToken? = nil
-    for token in tokens {
-      defer { previousToken = token }
-      
-      if token is SQLToken.Joiner {
-        continue
-      } else if previousToken is SQLToken.Joiner || previousToken == nil {
-        command += token.description
-      } else {
-        command += " \(token.description)"
-      }
-    }
-    return .init(command)
+    return .init(tokens._description)
   }
 }
 
 extension Query {
-  public static func dropTable(scheme: String? = nil, name: String, ifExists: Bool = false) -> Query {
+  public static func dropTable(_ tableName: TableName, ifExists: Bool = false) -> Query {
     var tokens: [SQLToken] = [.drop, .table]
     if ifExists {
       tokens.append(contentsOf: [.if, .exists])
     }
-    if let scheme {
-      tokens.append(contentsOf: [.identifier(scheme), .joiner, .dot, .joiner])
-    }
-    tokens.append(contentsOf: [.identifier(name), .joiner, .semicolon])
-
+    tokens.append(contentsOf: tableName)
+    tokens.append(contentsOf: [.joiner, .semicolon])
     return .query(from: tokens)
+  }
+
+  public static func dropTable(schema: String? = nil, name: String, ifExists: Bool = false) -> Query {
+    return dropTable(TableName(schema: schema, name: name), ifExists: ifExists)
   }
 }
 
