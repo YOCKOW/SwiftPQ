@@ -255,21 +255,23 @@ final class PQTests: XCTestCase {
 
   func test_query() async throws {
     let connection = try Connection(
-      host: XCTUnwrap(Domain("localhost")),
+      host: .localhost,
       database: databaseName,
       user: databaseUserName,
       password: databasePassword
     )
 
-    let creationResult = try await connection.execute(.rawSQL("""
-      CREATE TABLE IF NOT EXISTS test_table (
+    let query = Query.rawSQL("""
+      CREATE TABLE IF NOT EXISTS \(.identifier("test_table")) (
         id integer,
         name varchar(16)
-      );
-    """))
+      )
+    """)
+
+    let creationResult = try await connection.execute(query)
     XCTAssertEqual(creationResult, .ok)
 
-    let dropResult = try await connection.execute(.dropTable(name: "test_table", ifExists: true))
+    let dropResult = try await connection.execute(.dropTable(name: "test_table", ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
     await connection.finish()

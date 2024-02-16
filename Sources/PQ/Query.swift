@@ -27,6 +27,26 @@ public struct Query {
   public static func query<S>(from tokens: S) -> Query where S: Sequence, S.Element == SQLToken {
     return .init(tokens._description)
   }
+
+  /// Create a query containing multiple commands with `separator`. Default separator is "; ".
+  public static func joining<S1, S2>(
+    _ tokenSequences: S1,
+    separator: S2 = Array<SQLToken>([.joiner, .semicolon])
+  ) -> Query where S1: Sequence, S1.Element: Sequence, S1.Element.Element == SQLToken,
+                   S2: Sequence, S2.Element == SQLToken
+  {
+    return query(from: tokenSequences.joined(separator: separator))
+  }
+}
+
+extension String.StringInterpolation {
+  public mutating func appendInterpolation(_ token: SQLToken) {
+    self.appendLiteral(token.description)
+  }
+
+  public mutating func appendInterpolation<T>(_ tokens: T) where T: SQLTokenSequence {
+    self.appendLiteral(tokens.description)
+  }
 }
 
 extension Query {
