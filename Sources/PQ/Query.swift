@@ -39,6 +39,16 @@ public struct Query {
   }
 }
 
+extension String.StringInterpolation {
+  public mutating func appendInterpolation(_ token: SQLToken) {
+    self.appendLiteral(token.description)
+  }
+
+  public mutating func appendInterpolation<T>(_ tokens: T) where T: SQLTokenSequence {
+    self.appendLiteral(tokens.description)
+  }
+}
+
 extension Query {
   public static func dropTable(_ tableName: TableName, ifExists: Bool = false) -> Query {
     var tokens: [SQLToken] = [.drop, .table]
