@@ -799,3 +799,48 @@ public struct RowConstructor: SQLTokenSequence {
     self.init(elements)
   }
 }
+
+
+public enum SequenceNumberGeneratorOption: SQLTokenSequence {
+  case `as`(DataType)
+  case increment(by: Int)
+  case min(value: Int?)
+  case max(value: Int?)
+  case start(with: Int)
+  case cache(Int)
+  case cycle
+  case noCycle
+  case owned(by: ColumnReference?)
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .as(let dataType):
+      return [.as] + dataType.tokens
+    case .increment(let int):
+      return [.increment, .by, .numeric(int)]
+    case .min(let value):
+      if let value {
+        return [.minvalue, .numeric(value)]
+      }
+      return [.no, .minvalue]
+    case .max(let value):
+      if let value {
+        return [.maxvalue, .numeric(value)]
+      }
+      return [.no, .maxvalue]
+    case .start(let int):
+      return [.start, .with, .numeric(int)]
+    case .cache(let int):
+      return [.cache, .numeric(int)]
+    case .cycle:
+      return [.cycle]
+    case .noCycle:
+      return [.no, .cycle]
+    case .owned(let owner):
+      if let owner {
+        return [.owned, .by] + owner.tokens
+      }
+      return [.owned, .by, .none]
+    }
+  }
+}
