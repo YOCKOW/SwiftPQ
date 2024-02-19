@@ -433,3 +433,87 @@ public struct TableConstraint: SQLTokenSequence {
     self.defaultConstraintCheckingTime = defaultConstraintCheckingTime
   }
 }
+
+
+/// Rerpresentation of a `LIKE` cluase in a table column definition.
+public struct TableLikeClause: SQLTokenSequence {
+  /// An option used in `LIKE` clause.
+  public struct Option: SQLTokenSequence {
+    public enum Verb {
+      case including
+      case excluding
+
+      fileprivate var token: SQLToken {
+        switch self {
+        case .including: return .including
+        case .excluding: return .excluding
+        }
+      }
+    }
+
+    /// Property(ies) of the original table (not) to copy.
+    public enum Property {
+      case comments
+      case compression
+      case constraints
+      case defaults
+      case generated
+      case identity
+      case indexes
+      case statistics
+      case storage
+      case all
+
+      fileprivate var token: SQLToken {
+        switch self {
+        case .comments: return .comments
+        case .compression: return .compression
+        case .constraints: return .constraints
+        case .defaults: return .defaults
+        case .generated: return .generated
+        case .identity: return .identity
+        case .indexes: return .indexes
+        case .statistics: return .statistics
+        case .storage: return .storage
+        case .all: return .all
+        }
+      }
+    }
+
+    public let verb: Verb
+
+    public let property: Property
+
+    public var tokens: [SQLToken] {
+      return [verb.token, property.token]
+    }
+
+    public init(_ verb: Verb, _ property: Property) {
+      self.verb = verb
+      self.property = property
+    }
+
+    public static func including(_ property: Property) -> Option {
+      return .init(.including, property)
+    }
+
+    public static func excluding(_ property: Property) -> Option {
+      return .init(.excluding, property)
+    }
+  }
+
+  public var source: TableName
+
+  public var options: [Option]?
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.like] + source.tokens
+    options.map { tokens.append(contentsOf: $0.flatMap(\.tokens)) }
+    return tokens
+  }
+
+  public init(source: TableName, options: [Option]? = nil) {
+    self.source = source
+    self.options = options
+  }
+}

@@ -353,6 +353,14 @@ final class PQTests: XCTestCase {
         "CONSTRAINT my_constraint PRIMARY KEY (col1) WITH (fillfactor = 50) NOT DEFERRABLE INITIALLY DEFERRED"
       )
     }
+
+    TABLE_LIKE: do {
+      let like = TableLikeClause(
+        source: .init(name: "source_table"),
+        options: [.including(.all), .excluding(.comments)]
+      )
+      XCTAssertEqual(like.description, "LIKE source_table INCLUDING ALL EXCLUDING COMMENTS")
+    }
   }
 
   func test_query() async throws {
