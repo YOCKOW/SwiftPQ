@@ -49,6 +49,19 @@ extension SQLTokenSequence {
   }
 }
 
+extension Array where Element: SQLToken {
+  public func joined<S>(separator: S = Array<SQLToken>([.joiner, .comma])) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+    var result: [SQLToken] = []
+    for (ii, token) in self.enumerated() {
+      result.append(token)
+      if ii < self.count - 1 {
+        result.append(contentsOf: separator)
+      }
+    }
+    return result
+  }
+}
+
 extension Array where Element == any SQLTokenSequence {
   public func joined<S>(separator: S = Array<SQLToken>([.joiner, .comma])) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
     var result: [SQLToken] = []
@@ -163,7 +176,7 @@ public struct TableName: SQLTokenSequence {
 public struct ColumnReference: SQLTokenSequence {
   public var tableName: TableName?
 
-  public var columnName: String
+  public var columnName: ColumnName
 
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = []
@@ -171,11 +184,11 @@ public struct ColumnReference: SQLTokenSequence {
       tokens.append(contentsOf: tableName.tokens)
       tokens.append(contentsOf: [.joiner, .dot, .joiner])
     }
-    tokens.append(.identifier(columnName))
+    tokens.append(columnName.token)
     return tokens
   }
 
-  public init(tableName: TableName? = nil, columnName: String) {
+  public init(tableName: TableName? = nil, columnName: ColumnName) {
     self.tableName = tableName
     self.columnName = columnName
   }
