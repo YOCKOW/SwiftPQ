@@ -114,11 +114,11 @@ public struct SingleToken: SQLTokenSequence {
     return .init(.identifier(string, forceQuoting: forceQuoting))
   }
 
-  public static func integer<T>(_ integer: T) -> SingleToken where T: FixedWidthInteger {
+  public static func integer<T>(_ integer: T) -> SingleToken where T: SQLIntegerType {
     return .init(.numeric(integer))
   }
 
-  public static func float<T>(_ float: T) -> SingleToken where T: BinaryFloatingPoint & CustomStringConvertible {
+  public static func float<T>(_ float: T) -> SingleToken where T: SQLFloatType {
     return .init(.numeric(float))
   }
 

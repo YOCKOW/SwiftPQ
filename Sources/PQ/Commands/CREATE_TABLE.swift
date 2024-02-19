@@ -649,3 +649,52 @@ public enum TableType {
     }
   }
 }
+
+public enum PartitionBoundSpecification: SQLTokenSequence {
+  public enum Bound: SQLTokenSequence {
+    case expression(any SQLTokenSequence)
+    case minValue
+    case maxValue
+
+    public var tokens: [SQLToken] {
+      switch self {
+      case .expression(let expression): return expression.tokens
+      case .minValue: return [.minvalue]
+      case .maxValue: return [.maxvalue]
+      }
+    }
+  }
+
+  case `in`([any SQLTokenSequence])
+  case from([Bound], to: [Bound])
+  case with(modulus: SQLToken.NumericConstant, remainder: SQLToken.NumericConstant)
+
+  public static func with<I1, I2>(modulus: I1, remainder: I2) -> PartitionBoundSpecification where I1: SQLIntegerType, I2: SQLIntegerType {
+    return .with(modulus: SQLToken.NumericConstant(modulus), remainder: SQLToken.NumericConstant(remainder))
+  }
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .in(let expressions):
+      var tokens: [SQLToken] = [.in, .leftParenthesis, .joiner]
+      tokens.append(contentsOf: expressions.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+      return tokens
+    case .from(let from, let to):
+      var tokens: [SQLToken] = [.from, .leftParenthesis, .joiner]
+      tokens.append(contentsOf: from.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+      tokens.append(contentsOf: [.to, .leftParenthesis, .joiner])
+      tokens.append(contentsOf: to.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+      return tokens
+    case .with(let modulus, let remainder):
+      return [
+        .with, .leftParenthesis, .joiner,
+        .modulus, modulus, .joiner, .comma,
+        .remainder, remainder,
+        .joiner, .rightParenthesis
+      ]
+    }
+  }
+}

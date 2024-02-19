@@ -368,6 +368,17 @@ final class PQTests: XCTestCase {
         "PARTITION BY RANGE (col1, col2)"
       )
     }
+
+    PARTITION_BOUND_SPEC: do {
+      XCTAssertEqual(
+        PartitionBoundSpecification.from([.expression(SingleToken.integer(0))], to: [.maxValue]).description,
+        "FROM (0) TO (MAXVALUE)"
+      )
+      XCTAssertEqual(
+        PartitionBoundSpecification.with(modulus: 2, remainder: 1).description,
+        "WITH (MODULUS 2, REMAINDER 1)"
+      )
+    }
   }
 
   func test_query() async throws {
