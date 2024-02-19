@@ -517,3 +517,23 @@ public struct TableLikeClause: SQLTokenSequence {
     self.options = options
   }
 }
+
+
+/// Strategy how temporary tables at the end of a transaction block behaves.
+public enum TransactionEndStrategy: SQLTokenSequence {
+  case preserveRows
+  case deleteRows
+  case drop
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .preserveRows:
+      return [.preserve, .rows]
+    case .deleteRows:
+      return [.delete, .rows]
+    case .drop:
+      return [.drop]
+    }
+  }
+}
+
