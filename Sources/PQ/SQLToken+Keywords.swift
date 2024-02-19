@@ -409,6 +409,7 @@ extension SQLToken {
   public static let limit: SQLToken = Keyword(rawValue: "LIMIT")
   public static let line: SQLToken = Keyword(rawValue: "LINE")
   public static let link: SQLToken = Keyword(rawValue: "LINK")
+  public static let list: SQLToken = Keyword(rawValue: "LIST")
   public static let listagg: SQLToken = Keyword(rawValue: "LISTAGG")
   public static let listen: SQLToken = Keyword(rawValue: "LISTEN")
   public static let ln: SQLToken = Keyword(rawValue: "LN")

@@ -361,6 +361,13 @@ final class PQTests: XCTestCase {
       )
       XCTAssertEqual(like.description, "LIKE source_table INCLUDING ALL EXCLUDING COMMENTS")
     }
+
+    PARTITION_BY: do {
+      XCTAssertEqual(
+        PartitioningStorategy(.range, keys: ["col1", "col2"]).description,
+        "PARTITION BY RANGE (col1, col2)"
+      )
+    }
   }
 
   func test_query() async throws {

@@ -5,6 +5,9 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+/// Specifier of an operator class
+public typealias OperatorClass = SQLToken
+
 /// Storage parameter for tables.
 public enum StorageParameter: SQLTokenSequence {
   case fillfactor(UInt8)
@@ -261,7 +264,7 @@ public struct TableConstraint: SQLTokenSequence {
 
       public var column: Column
 
-      public var operationClass: SQLToken?
+      public var operatorClass: OperatorClass?
 
       public var direction: SortDirection?
 
@@ -275,7 +278,7 @@ public struct TableConstraint: SQLTokenSequence {
         case .expression(let expression):
           tokens.append(contentsOf: expression.parenthesized)
         }
-        operationClass.map { tokens.append($0) }
+        operatorClass.map { tokens.append($0) }
         direction.map { tokens.append($0.token) }
         nullOrdering.map { tokens.append(contentsOf: [.nulls, $0.token]) }
         return tokens
@@ -288,7 +291,7 @@ public struct TableConstraint: SQLTokenSequence {
         nullOrdering: NullOrdering? = nil
       ) {
         self.column = column
-        self.operationClass = operationClass
+        self.operatorClass = operationClass
         self.direction = direction
         self.nullOrdering = nullOrdering
       }
@@ -515,6 +518,80 @@ public struct TableLikeClause: SQLTokenSequence {
   public init(source: TableName, options: [Option]? = nil) {
     self.source = source
     self.options = options
+  }
+}
+
+public struct PartitioningStorategy: SQLTokenSequence {
+  public enum Method {
+    case range
+    case list
+    case hash
+
+    public var token: SQLToken {
+      switch self {
+      case .range: return .range
+      case .list: return .list
+      case .hash: return .hash
+      }
+    }
+  }
+
+  /// The partition key for the table.
+  public struct PartitionKey: SQLTokenSequence {
+    public enum Column {
+      case column(ColumnName)
+      case expression(any SQLTokenSequence)
+    }
+
+    public var column: Column
+
+    public var collation: CollationName?
+
+    public var operatorClass: OperatorClass?
+
+    public var tokens: [SQLToken] {
+      var tokens: [SQLToken] = []
+      switch column {
+      case .column(let name):
+        tokens.append(name.token)
+      case .expression(let exp):
+        tokens.append(contentsOf: exp.parenthesized)
+      }
+      collation.map { tokens.append(contentsOf: [.collate] + $0) }
+      operatorClass.map { tokens.append($0) }
+      return tokens
+    }
+
+    public init(_ column: Column, collation: CollationName? = nil, operatorClass: OperatorClass? = nil) {
+      self.column = column
+      self.operatorClass = operatorClass
+    }
+
+    public init(_ columnName: ColumnName, collation: CollationName? = nil, operatorClass: OperatorClass? = nil) {
+      self.column = .column(columnName)
+      self.operatorClass = operatorClass
+    }
+  }
+
+  public var method: Method
+
+  public var keys: [PartitionKey]
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.partition, .by, method.token, .leftParenthesis, .joiner]
+    tokens.append(contentsOf:keys.joined(separator: [.joiner, .comma]))
+    tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    return tokens
+  }
+
+  public init(_ method: Method, keys: [PartitionKey]) {
+    self.method = method
+    self.keys = keys
+  }
+
+  public init(_ method: Method, keys: [ColumnName]) {
+    self.method = method
+    self.keys = keys.map { PartitionKey($0) }
   }
 }
 
