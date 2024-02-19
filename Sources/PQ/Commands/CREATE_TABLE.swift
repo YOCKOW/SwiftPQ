@@ -537,3 +537,26 @@ public enum TransactionEndStrategy: SQLTokenSequence {
   }
 }
 
+/// The storage mode for the column.
+public enum ColumnStorageMode {
+  case plain
+  case external
+  case extended
+  case main
+  case `default`
+
+  public var token: SQLToken {
+    switch self {
+    case .plain:
+      return .plain
+    case .external:
+      return .external
+    case .extended:
+      return .extended
+    case .main:
+      return .main
+    case .default:
+      return .default
+    }
+  }
+}
