@@ -637,3 +637,15 @@ public enum ColumnStorageMode {
     }
   }
 }
+
+public enum TableType {
+  case temporary
+  case unlogged
+
+  public var token: SQLToken {
+    switch self {
+    case .temporary: return .temporary
+    case .unlogged: return .unlogged
+    }
+  }
+}
