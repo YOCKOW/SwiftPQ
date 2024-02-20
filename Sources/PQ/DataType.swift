@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Representation of a data type.
-public struct DataType {
+public struct DataType: SQLTokenSequence {
   public enum InitializationError: Error {
     case emptyTokens
     case invalidValue

@@ -155,7 +155,7 @@ public struct ColumnConstraint: SQLTokenSequence {
     case null
     case check(any SQLTokenSequence, noInherit: Bool = false)
     case `default`(any SQLTokenSequence)
-    case generatedAndStores(generator: any SQLTokenSequence)
+    case generatedAndStored(generator: any SQLTokenSequence)
     case generatedAsIdentity(valueOption: GeneratedIdentityValueOption, sequenceOptions: [SequenceNumberGeneratorOption]? = nil)
     case unique(nullsNotDistinct: Bool? = nil, indexParameters: TableIndexParameters? = nil)
     case primaryKey(indexParameters: TableIndexParameters? = nil)
@@ -176,7 +176,7 @@ public struct ColumnConstraint: SQLTokenSequence {
         return tokens
       case .default(let expression):
         return [.default] + expression.tokens
-      case .generatedAndStores(let generator):
+      case .generatedAndStored(let generator):
         var tokens: [SQLToken] = [.generated, .always, .as]
         tokens.append(contentsOf: generator.parenthesized)
         tokens.append(.stored)
@@ -250,6 +250,47 @@ public struct ColumnConstraint: SQLTokenSequence {
     self.pattern = pattern
     self.deferrable = deferrable
     self.defaultConstraintCheckingTime = defaultConstraintCheckingTime
+  }
+
+  public static let notNull: ColumnConstraint = .init(pattern: .notNull)
+
+  public static let null: ColumnConstraint = .init(pattern: .null)
+
+  public static func check(_ expression: any SQLTokenSequence, noInherit: Bool = false) -> ColumnConstraint {
+    return .init(pattern: .check(expression, noInherit: noInherit))
+  }
+
+  public static func `default`(_ expression: any SQLTokenSequence) -> ColumnConstraint {
+    return .init(pattern: .default(expression))
+  }
+
+  public static func generatedAndStored(generator: any SQLTokenSequence) -> ColumnConstraint {
+    return .init(pattern: .generatedAndStored(generator: generator))
+  }
+
+  public static func generatedAsIdentity(
+    valueOption: Pattern.GeneratedIdentityValueOption,
+    sequenceOptions: [SequenceNumberGeneratorOption]? = nil
+  ) -> ColumnConstraint {
+    return .init(pattern: .generatedAsIdentity(valueOption: valueOption, sequenceOptions: sequenceOptions))
+  }
+
+  public static let unique: ColumnConstraint = .init(pattern: .unique(nullsNotDistinct: nil, indexParameters: nil))
+
+  public static func unique(nullsNotDistinct: Bool? = nil, indexParameters: TableIndexParameters? = nil) -> ColumnConstraint {
+    return .init(pattern: .unique(nullsNotDistinct: nullsNotDistinct, indexParameters: indexParameters))
+  }
+
+  public static let primaryKey: ColumnConstraint = .init(pattern: .primaryKey(indexParameters: nil))
+
+  public static func references(
+    _ refTable: TableName,
+    column: ColumnName? = nil,
+    matchType: MatchType? = nil,
+    onDelete: ReferentialAction? = nil,
+    onUpdate: ReferentialAction? = nil
+  ) -> ColumnConstraint {
+    return .init(pattern: .references(refTable, column: column, matchType: matchType, onDelete: onDelete, onUpdate: onUpdate))
   }
 }
 
@@ -434,6 +475,60 @@ public struct TableConstraint: SQLTokenSequence {
     self.pattern = pattern
     self.deferrable = deferrable
     self.defaultConstraintCheckingTime = defaultConstraintCheckingTime
+  }
+
+  public static func check(_ expression: any SQLTokenSequence, noInherit: Bool = false) -> TableConstraint {
+    return .init(pattern: .check(expression, noInherit: noInherit))
+  }
+
+  public static func unique(
+    nullsNotDistinct: Bool? = nil,
+    columns: [ColumnName],
+    indexParameters: TableIndexParameters? = nil
+  ) -> TableConstraint {
+    return .init(pattern: .unique(nullsNotDistinct: nullsNotDistinct, columns: columns, indexParameters: indexParameters))
+  }
+
+  public static func primaryKey(columns: [ColumnName], indexParameters: TableIndexParameters? = nil) -> TableConstraint {
+    return .init(pattern: .primaryKey(columns: columns, indexParameters: indexParameters))
+  }
+
+  public static func exclude(
+    indexMethod: SQLToken? = nil,
+    element: Pattern.ExcludeElement,
+    operators: [SQLToken.Operator],
+    indexParameters: TableIndexParameters? = nil,
+    predicate: (any SQLTokenSequence)? = nil
+  ) -> TableConstraint {
+    return .init(
+      pattern: .exclude(
+        indexMethod: indexMethod,
+        element: element,
+        operators: operators,
+        indexParameters: indexParameters,
+        predicate: predicate
+      )
+    )
+  }
+
+  public static func foreignKey(
+    columns: [ColumnName],
+    referenceTable: TableName,
+    referenceColumns: [ColumnName]? = nil,
+    matchType: MatchType? = nil,
+    onDelete: ReferentialAction? = nil,
+    onUpdate: ReferentialAction? = nil
+  ) -> TableConstraint {
+    return .init(
+      pattern: .foreignKey(
+        columns: columns,
+        referenceTable: referenceTable,
+        referenceColumns: referenceColumns,
+        matchType: matchType,
+        onDelete: onDelete,
+        onUpdate: onUpdate
+      )
+    )
   }
 }
 
@@ -698,3 +793,35 @@ public enum PartitionBoundSpecification: SQLTokenSequence {
     }
   }
 }
+
+/// Column definition used in `CREATE TABLE`.
+public enum ColumnDefinition: SQLTokenSequence {
+  case columnName(
+    ColumnName,
+    dataType: DataType,
+    storage: ColumnStorageMode? = nil,
+    compression: String? = nil,
+    collation: CollationName? = nil,
+    constraints: [ColumnConstraint]? = nil
+  )
+  case tableConstraint(TableConstraint)
+  case like(TableLikeClause)
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .columnName(let columnName, let dataType, let storage, let compression, let collation, let constraints):
+      var tokens: [SQLToken] = [columnName.token]
+      tokens.append(contentsOf: dataType.tokens)
+      storage.map { tokens.append(contentsOf: [.storage, $0.token]) }
+      compression.map { tokens.append(contentsOf: [.compression, .identifier($0)]) }
+      collation.map { tokens.append(contentsOf: [.collate] + $0) }
+      constraints.map { tokens.append(contentsOf: $0.flatMap({ $0.tokens })) }
+      return tokens
+    case .tableConstraint(let tableConstraint):
+      return tableConstraint.tokens
+    case .like(let clause):
+      return clause.tokens
+    }
+  }
+}
+

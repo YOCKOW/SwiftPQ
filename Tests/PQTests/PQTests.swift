@@ -270,7 +270,7 @@ final class PQTests: XCTestCase {
       )
       __assertPattern(.default(FunctionCall(name: .init(name: "rand"))), "DEFAULT rand()")
       __assertPattern(
-        .generatedAndStores(
+        .generatedAndStored(
           generator: BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .divide, SingleToken.float(3.14))
         ),
         "GENERATED ALWAYS AS (a / 3.14) STORED"
@@ -377,6 +377,20 @@ final class PQTests: XCTestCase {
       XCTAssertEqual(
         PartitionBoundSpecification.with(modulus: 2, remainder: 1).description,
         "WITH (MODULUS 2, REMAINDER 1)"
+      )
+    }
+
+    COLUMN_DEF: do {
+      XCTAssertEqual(
+        ColumnDefinition.columnName(
+          "numbers",
+          dataType: .array(of: .bigInt),
+          storage: .default,
+          constraints: [
+            .init(pattern: .notNull)
+          ]
+        ).description,
+        "numbers BIGINT[] STORAGE DEFAULT NOT NULL"
       )
     }
   }
