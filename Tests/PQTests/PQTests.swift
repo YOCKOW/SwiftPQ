@@ -445,6 +445,33 @@ final class PQTests: XCTestCase {
         "ON COMMIT PRESERVE ROWS " +
         "TABLESPACE my_space"
       )
+
+      XCTAssertEqual(
+        CreatePartitionTable(
+          tableType: .unlogged,
+          ifNotExists: true,
+          name: .init(name: "my_table"),
+          parent: .init(name: "my_parent"),
+          columns: [
+            .columnName("a"),
+            .columnName("b", constraints: [.notNull, .unique, .primaryKey]),
+          ],
+          partitionType: .values(.from([.minValue], to: [.maxValue])),
+          partitioningStorategy: .hash(["b"]),
+          tableAccessMethod: "some_method",
+          storageParameters: [.autovacuumEnabled(true)],
+          transactionEndStrategy: .preserveRows,
+          tableSpaceName: "my_space"
+        ).description,
+        "CREATE UNLOGGED TABLE IF NOT EXISTS my_table PARTITION OF my_parent " +
+        "( a, b NOT NULL UNIQUE PRIMARY KEY ) " +
+        "FOR VALUES FROM (MINVALUE) TO (MAXVALUE) " +
+        "PARTITION BY HASH (b) " +
+        "USING some_method " +
+        "WITH (autovacuum_enabled = TRUE) " +
+        "ON COMMIT PRESERVE ROWS " +
+        "TABLESPACE my_space"
+      )
     }
   }
 
