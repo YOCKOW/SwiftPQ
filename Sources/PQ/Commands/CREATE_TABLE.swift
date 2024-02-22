@@ -28,7 +28,7 @@ public enum StorageParameter: SQLTokenSequence {
     case .parallelWorkers(let int):
       return [.identifier("parallel_workers"), SQLToken.Operator.equalTo, .numeric(int)]
     case .autovacuumEnabled(let bool):
-      return [.identifier("parallel_workers"), SQLToken.Operator.equalTo, bool ? .true : .false]
+      return [.identifier("autovacuum_enabled"), SQLToken.Operator.equalTo, bool ? .true : .false]
     case .other(let key, let value):
       if let value {
         return [.identifier(key), SQLToken.Operator.equalTo, value]
@@ -688,6 +688,30 @@ public struct PartitioningStorategy: SQLTokenSequence {
     self.method = method
     self.keys = keys.map { PartitionKey($0) }
   }
+
+  public static func range(_ keys: [PartitionKey]) -> PartitioningStorategy {
+    return .init(.range, keys: keys)
+  }
+
+  public static func range(_ keys: [ColumnName]) -> PartitioningStorategy {
+    return .init(.range, keys: keys)
+  }
+
+  public static func list(_ keys: [PartitionKey]) -> PartitioningStorategy {
+    return .init(.list, keys: keys)
+  }
+
+  public static func list(_ keys: [ColumnName]) -> PartitioningStorategy {
+    return .init(.list, keys: keys)
+  }
+
+  public static func hash(_ keys: [PartitionKey]) -> PartitioningStorategy {
+    return .init(.hash, keys: keys)
+  }
+
+  public static func hash(_ keys: [ColumnName]) -> PartitioningStorategy {
+    return .init(.hash, keys: keys)
+  }
 }
 
 
@@ -825,3 +849,82 @@ public enum ColumnDefinition: SQLTokenSequence {
   }
 }
 
+/// Representation of `CREATE TABLE` command.
+///
+/// - Note: "`CREATE TABLE table_name OF type_name ...`" is represented by `CreateTypedTable`.
+///         "`CREATE TABLE table_name PARTITION OF parent_table ...`" is represented by `CreatePartitionTable`.
+public struct CreateTable: SQLTokenSequence {
+  public var tableType: TableType?
+
+  public var ifNotExists: Bool
+
+  public var name: TableName
+
+  public var columns: [ColumnDefinition]
+
+  public var parents: [TableName]?
+
+  public var partitioningStorategy: PartitioningStorategy?
+
+  public var tableAccessMethod: String?
+
+  public var storageParameters: [StorageParameter]?
+
+  public var transactionEndStrategy: TransactionEndStrategy?
+
+  public var tableSpaceName: String?
+
+  public var tokens: [SQLToken] {
+    var tokens:[SQLToken] = [.create]
+
+    tableType.map { tokens.append($0.token) }
+    tokens.append(.table)
+    if ifNotExists { tokens.append(contentsOf: [.if, .not, .exists]) }
+    tokens.append(contentsOf: name)
+    tokens.append(.leftParenthesis)
+    tokens.append(contentsOf: columns.joined(separator: [.joiner, .comma]))
+    tokens.append(.rightParenthesis)
+
+    // Options
+    if let parents, !parents.isEmpty {
+      tokens.append(contentsOf: [.inherits, .leftParenthesis, .joiner])
+      tokens.append(contentsOf: parents.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    }
+    partitioningStorategy.map { tokens.append(contentsOf: $0) }
+    tableAccessMethod.map { tokens.append(contentsOf: [.using, .identifier($0)]) }
+    if let storageParameters, !storageParameters.isEmpty {
+      tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
+      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    }
+    transactionEndStrategy.map { tokens.append(contentsOf: [.on, .commit] + $0.tokens) }
+    tableSpaceName.map { tokens.append(contentsOf: [.tablespace, .identifier($0)]) }
+
+    return tokens
+  }
+
+  public init(
+    tableType: TableType? = nil,
+    ifNotExists: Bool = false,
+    name: TableName,
+    columns: [ColumnDefinition],
+    parents: [TableName]? = nil,
+    partitioningStorategy: PartitioningStorategy? = nil,
+    tableAccessMethod: String? = nil,
+    storageParameters: [StorageParameter]? = nil,
+    transactionEndStrategy: TransactionEndStrategy? = nil,
+    tableSpaceName: String? = nil
+  ) {
+    self.tableType = tableType
+    self.ifNotExists = ifNotExists
+    self.name = name
+    self.columns = columns
+    self.parents = parents
+    self.partitioningStorategy = partitioningStorategy
+    self.tableAccessMethod = tableAccessMethod
+    self.storageParameters = storageParameters
+    self.transactionEndStrategy = transactionEndStrategy
+    self.tableSpaceName = tableSpaceName
+  }
+}

@@ -393,6 +393,34 @@ final class PQTests: XCTestCase {
         "numbers BIGINT[] STORAGE DEFAULT NOT NULL"
       )
     }
+
+    CREATE_TABLE: do {
+      XCTAssertEqual(
+        CreateTable(
+          tableType: .unlogged,
+          ifNotExists: true,
+          name: .init(name: "my_table"),
+          columns: [
+            .columnName("a", dataType: .smallInt),
+            .columnName("b", dataType: .array(of: .bigInt), constraints: [.notNull, .unique, .primaryKey]),
+          ],
+          parents: [.init(name: "parent")],
+          partitioningStorategy: .hash(["b"]),
+          tableAccessMethod: "some_method",
+          storageParameters: [.autovacuumEnabled(true)],
+          transactionEndStrategy: .preserveRows,
+          tableSpaceName: "my_space"
+        ).description,
+        "CREATE UNLOGGED TABLE IF NOT EXISTS my_table " +
+        "( a SMALLINT, b BIGINT[] NOT NULL UNIQUE PRIMARY KEY ) " +
+        "INHERITS (parent) " +
+        "PARTITION BY HASH (b) " +
+        "USING some_method " +
+        "WITH (autovacuum_enabled = TRUE) " +
+        "ON COMMIT PRESERVE ROWS " +
+        "TABLESPACE my_space"
+      )
+    }
   }
 
   func test_query() async throws {
