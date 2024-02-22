@@ -420,6 +420,31 @@ final class PQTests: XCTestCase {
         "ON COMMIT PRESERVE ROWS " +
         "TABLESPACE my_space"
       )
+
+      XCTAssertEqual(
+        CreateTypedTable(
+          tableType: .temporary,
+          ifNotExists: true,
+          name: .init(name: "my_table"),
+          typeName: .init(name: "my_type"),
+          columns: [
+            .columnName("a"),
+            .columnName("b", constraints: [.notNull, .unique, .primaryKey]),
+          ],
+          partitioningStorategy: .hash(["b"]),
+          tableAccessMethod: "some_method",
+          storageParameters: [.autovacuumEnabled(true)],
+          transactionEndStrategy: .preserveRows,
+          tableSpaceName: "my_space"
+        ).description,
+        "CREATE TEMPORARY TABLE IF NOT EXISTS my_table OF my_type " +
+        "( a, b NOT NULL UNIQUE PRIMARY KEY ) " +
+        "PARTITION BY HASH (b) " +
+        "USING some_method " +
+        "WITH (autovacuum_enabled = TRUE) " +
+        "ON COMMIT PRESERVE ROWS " +
+        "TABLESPACE my_space"
+      )
     }
   }
 

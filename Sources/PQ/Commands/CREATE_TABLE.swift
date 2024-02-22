@@ -928,3 +928,98 @@ public struct CreateTable: SQLTokenSequence {
     self.tableSpaceName = tableSpaceName
   }
 }
+
+
+public enum TypedTableColumnDefinition: SQLTokenSequence {
+  case columnName(ColumnName, constraints: [ColumnConstraint]? = nil)
+  case tableConstraint(TableConstraint)
+
+  public var tokens: [SQLToken] {
+    switch self {
+    case .columnName(let columnName, let constraints):
+      var tokens: [SQLToken] = [columnName.token]
+      if let constraints, !constraints.isEmpty {
+        tokens.append(contentsOf: constraints.flatMap { $0 })
+      }
+      return tokens
+    case .tableConstraint(let tableConstraint):
+      return tableConstraint.tokens
+    }
+  }
+}
+
+public struct CreateTypedTable: SQLTokenSequence {
+  public var tableType: TableType?
+
+  public var ifNotExists: Bool
+
+  public var name: TableName
+
+  public var typeName: TypeName
+
+  public var columns: [TypedTableColumnDefinition]?
+
+  public var partitioningStorategy: PartitioningStorategy?
+
+  public var tableAccessMethod: String?
+
+  public var storageParameters: [StorageParameter]?
+
+  public var transactionEndStrategy: TransactionEndStrategy?
+
+  public var tableSpaceName: String?
+
+  public var tokens: [SQLToken] {
+    var tokens: [SQLToken] = [.create]
+    tableType.map { tokens.append($0.token) }
+    tokens.append(.table)
+    if ifNotExists {
+      tokens.append(contentsOf: [.if, .not, .exists])
+    }
+    tokens.append(contentsOf: name)
+    tokens.append(.of)
+    tokens.append(contentsOf: typeName)
+    if let columns, !columns.isEmpty {
+      tokens.append(.leftParenthesis)
+      tokens.append(contentsOf: columns.joined(separator: [.joiner, .comma]))
+      tokens.append(.rightParenthesis)
+    }
+
+    // Options
+    partitioningStorategy.map { tokens.append(contentsOf: $0) }
+    tableAccessMethod.map { tokens.append(contentsOf: [.using, .identifier($0)]) }
+    if let storageParameters, !storageParameters.isEmpty {
+      tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
+      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: [.joiner, .rightParenthesis])
+    }
+    transactionEndStrategy.map { tokens.append(contentsOf: [.on, .commit] + $0.tokens) }
+    tableSpaceName.map { tokens.append(contentsOf: [.tablespace, .identifier($0)]) }
+
+    return tokens
+  }
+
+  public init(
+    tableType: TableType? = nil,
+    ifNotExists: Bool,
+    name: TableName,
+    typeName: TypeName,
+    columns: [TypedTableColumnDefinition]? = nil,
+    partitioningStorategy: PartitioningStorategy? = nil,
+    tableAccessMethod: String? = nil,
+    storageParameters: [StorageParameter]? = nil,
+    transactionEndStrategy: TransactionEndStrategy? = nil,
+    tableSpaceName: String? = nil
+  ) {
+    self.tableType = tableType
+    self.ifNotExists = ifNotExists
+    self.name = name
+    self.typeName = typeName
+    self.columns = columns
+    self.partitioningStorategy = partitioningStorategy
+    self.tableAccessMethod = tableAccessMethod
+    self.storageParameters = storageParameters
+    self.transactionEndStrategy = transactionEndStrategy
+    self.tableSpaceName = tableSpaceName
+  }
+}
