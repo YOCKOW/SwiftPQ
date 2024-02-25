@@ -57,7 +57,7 @@ CREATE TABLE products (
 """))
 ```
 
-#### Interpolated SQL
+#### SQL with String Interpolation
 
 ```Swift
 let result = try await connection.execute(.rawSQL("""
@@ -83,6 +83,26 @@ let result = try await connection.execute(
     ifNotExists: true
   )
 )
+```
+
+### DROP TABLE
+
+#### Raw SQL
+
+```Swift
+let result = try await connection.execute(.rawSQL("DROP TABLE my_table;"))
+```
+
+#### SQL with String Interpolation
+
+```Swift
+let result = try await connection.execute(.rawSQL("DROP TABLE \(.identifier(userInput));"))
+```
+
+### Swifty way
+
+```Swift
+let result = try await connection.execute(.dropTable("my_old_table", ifExists: true))
 ```
 
 
