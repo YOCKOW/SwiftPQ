@@ -72,6 +72,25 @@ public struct SQLIdentifierConvertibleString: ExpressibleByStringLiteral {
   }
 }
 
+/// A column name.
+public struct ColumnName: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+  public typealias StringLiteralType = String
+
+  public var name: SQLIdentifierConvertibleString
+
+  public var token: SQLToken {
+    return name.token
+  }
+
+  public init(_ name: SQLIdentifierConvertibleString) {
+    self.name = name
+  }
+
+  public init(stringLiteral value: String) {
+    self.name = .init(stringLiteral: value)
+  }
+}
+
 public protocol SchemaQualifiedIdentifier: SQLTokenSequence {
   /// A name of schema.
   var schema: SQLIdentifierConvertibleString? { get }
@@ -168,5 +187,17 @@ public struct CollationName: SchemaQualifiedIdentifier {
       }))
     }
     self.init(name: SQLIdentifierConvertibleString(__cldrLocaleIdentifier(), caseSensitive: true))
+  }
+}
+
+/// A type name defined by a user, for example, in `CREATE TYPE`.
+public struct TypeName: SchemaQualifiedIdentifier {
+  public var schema: SQLIdentifierConvertibleString?
+  
+  public var name: SQLIdentifierConvertibleString
+  
+  public init(schema: SQLIdentifierConvertibleString? = nil, name: SQLIdentifierConvertibleString) {
+    self.schema = schema
+    self.name = name
   }
 }

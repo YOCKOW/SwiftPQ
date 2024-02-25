@@ -15,13 +15,17 @@ public enum SortDirection: SortDirectionProtocol {
   case descending
   public static let `default`: SortDirection = .ascending
 
-  public var tokens: [SQLToken] {
+
+  public var token: SQLToken {
     switch self {
     case .ascending:
-      return [.asc]
+      return .asc
     case .descending:
-      return [.desc]
+      return .desc
     }
+  }
+  public var tokens: [SQLToken] {
+    return [token]
   }
 }
 
@@ -46,6 +50,15 @@ public enum WindowDefinitionSortDirection: SortDirectionProtocol {
 public enum NullOrdering {
   case first
   case last
+
+  internal var token: SQLToken {
+    switch self {
+    case .first:
+      return .first
+    case .last:
+      return .last
+    }
+  }
 }
 
 public protocol SorterProtocol: SQLTokenSequence {
@@ -61,15 +74,7 @@ extension SorterProtocol {
     if let direction {
       tokens.append(contentsOf: direction.tokens)
     }
-    if let nullOrdering {
-      tokens.append(.nulls)
-      switch nullOrdering {
-      case .first:
-        tokens.append(.first)
-      case .last:
-        tokens.append(.last)
-      }
-    }
+    nullOrdering.map { tokens.append(contentsOf: [.nulls, $0.token]) }
     return tokens
   }
 }
@@ -83,7 +88,7 @@ public protocol SortClauseProtocol: SQLTokenSequence {
 extension SortClauseProtocol {
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = [.order, .by]
-    tokens.append(contentsOf: sorters.joined(separator: [.joiner, .comma]))
+    tokens.append(contentsOf: sorters.joined(separator: commaSeparator))
     return tokens
   }
 

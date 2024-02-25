@@ -7,6 +7,9 @@
 
 import UnicodeSupplement
 
+public typealias SQLIntegerType = FixedWidthInteger
+public typealias SQLFloatType   = BinaryFloatingPoint & CustomStringConvertible
+
 private extension String {
   /// Used as a delimited identifier or a string constant.
   /// Adding "Unicode escapes" if its encoding is not `UTF-8` for safety.
@@ -117,14 +120,14 @@ public class SQLToken: CustomStringConvertible, Equatable {
     public let isFloat: Bool
     public let isNegative: Bool
 
-    fileprivate init<T>(_ integer: T) where T: FixedWidthInteger {
+    internal init<T>(_ integer: T) where T: SQLIntegerType {
       self.isInteger = true
       self.isFloat = false
       self.isNegative = integer < 0
       super.init(rawValue: integer.description)
     }
 
-    fileprivate init<T>(_ float: T) where T: BinaryFloatingPoint & CustomStringConvertible {
+    internal init<T>(_ float: T) where T: SQLFloatType {
       self.isInteger = false
       self.isFloat = true
       self.isNegative = float < 0
@@ -288,12 +291,12 @@ extension SQLToken {
   }
 
   /// Create a numeric constant token.
-  public static func numeric<T>(_ integer: T) -> SQLToken where T: FixedWidthInteger {
+  public static func numeric<T>(_ integer: T) -> SQLToken where T: SQLIntegerType {
     return NumericConstant(integer)
   }
 
   /// Create a numeric constant token.
-  public static func numeric<T>(_ float: T) -> SQLToken where T: BinaryFloatingPoint & CustomStringConvertible {
+  public static func numeric<T>(_ float: T) -> SQLToken where T: SQLFloatType {
     return NumericConstant(float)
   }
 
