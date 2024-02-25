@@ -757,8 +757,12 @@ public enum ColumnStorageMode {
   }
 }
 
-public enum TableType {
+/// An option for the table creation/alteration.
+public enum TableKind {
+  /// Automatically dropped after the session or the transaction.
   case temporary
+
+  /// Data is never written to the write-ahead log.
   case unlogged
 
   public var token: SQLToken {
@@ -854,7 +858,7 @@ public enum ColumnDefinition: SQLTokenSequence {
 /// - Note: "`CREATE TABLE table_name OF type_name ...`" is represented by `CreateTypedTable`.
 ///         "`CREATE TABLE table_name PARTITION OF parent_table ...`" is represented by `CreatePartitionTable`.
 public struct CreateTable: SQLTokenSequence {
-  public var tableType: TableType?
+  public var kind: TableKind?
 
   public var ifNotExists: Bool
 
@@ -877,7 +881,7 @@ public struct CreateTable: SQLTokenSequence {
   public var tokens: [SQLToken] {
     var tokens:[SQLToken] = [.create]
 
-    tableType.map { tokens.append($0.token) }
+    kind.map { tokens.append($0.token) }
     tokens.append(.table)
     if ifNotExists { tokens.append(contentsOf: [.if, .not, .exists]) }
     tokens.append(contentsOf: name)
@@ -905,7 +909,7 @@ public struct CreateTable: SQLTokenSequence {
   }
 
   public init(
-    tableType: TableType? = nil,
+    kind: TableKind? = nil,
     ifNotExists: Bool = false,
     name: TableName,
     columns: [ColumnDefinition],
@@ -916,7 +920,7 @@ public struct CreateTable: SQLTokenSequence {
     transactionEndStrategy: TransactionEndStrategy? = nil,
     tableSpaceName: String? = nil
   ) {
-    self.tableType = tableType
+    self.kind = kind
     self.ifNotExists = ifNotExists
     self.name = name
     self.columns = columns
@@ -949,7 +953,7 @@ public enum TypedTableColumnDefinition: SQLTokenSequence {
 }
 
 public struct CreateTypedTable: SQLTokenSequence {
-  public var tableType: TableType?
+  public var kind: TableKind?
 
   public var ifNotExists: Bool
 
@@ -971,7 +975,7 @@ public struct CreateTypedTable: SQLTokenSequence {
 
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = [.create]
-    tableType.map { tokens.append($0.token) }
+    kind.map { tokens.append($0.token) }
     tokens.append(.table)
     if ifNotExists {
       tokens.append(contentsOf: [.if, .not, .exists])
@@ -1000,7 +1004,7 @@ public struct CreateTypedTable: SQLTokenSequence {
   }
 
   public init(
-    tableType: TableType? = nil,
+    kind: TableKind? = nil,
     ifNotExists: Bool,
     name: TableName,
     typeName: TypeName,
@@ -1011,7 +1015,7 @@ public struct CreateTypedTable: SQLTokenSequence {
     transactionEndStrategy: TransactionEndStrategy? = nil,
     tableSpaceName: String? = nil
   ) {
-    self.tableType = tableType
+    self.kind = kind
     self.ifNotExists = ifNotExists
     self.name = name
     self.typeName = typeName
@@ -1048,7 +1052,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
     case `default`
   }
 
-  public var tableType: TableType?
+  public var kind: TableKind?
 
   public var ifNotExists: Bool
 
@@ -1073,7 +1077,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = [.create]
 
-    tableType.map { tokens.append($0.token) }
+    kind.map { tokens.append($0.token) }
     tokens.append(.table)
     if ifNotExists {
       tokens.append(contentsOf: [.if, .not, .exists])
@@ -1109,7 +1113,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
   }
 
   public init(
-    tableType: TableType? = nil,
+    kind: TableKind? = nil,
     ifNotExists: Bool = false,
     name: TableName,
     parent: TableName,
@@ -1121,7 +1125,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
     transactionEndStrategy: TransactionEndStrategy? = nil,
     tableSpaceName: String? = nil
   ) {
-    self.tableType = tableType
+    self.kind = kind
     self.ifNotExists = ifNotExists
     self.name = name
     self.parent = parent

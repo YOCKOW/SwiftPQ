@@ -179,7 +179,9 @@ extension SQLTokenSequence {
 }
 
 /// A type that represents a name of table.
-public struct TableName: SQLTokenSequence {
+public struct TableName: SQLTokenSequence, ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+  public typealias StringLiteralType = String
+
   /// A name of schema.
   public var schema: String?
 
@@ -198,6 +200,10 @@ public struct TableName: SQLTokenSequence {
   public init(schema: String? = nil, name: String) {
     self.schema = schema
     self.name = name
+  }
+
+  public init(stringLiteral value: String) {
+    self.init(name: value)
   }
 }
 

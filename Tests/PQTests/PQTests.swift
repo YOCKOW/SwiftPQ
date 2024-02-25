@@ -397,7 +397,7 @@ final class PQTests: XCTestCase {
     CREATE_TABLE: do {
       XCTAssertEqual(
         CreateTable(
-          tableType: .unlogged,
+          kind: .unlogged,
           ifNotExists: true,
           name: .init(name: "my_table"),
           columns: [
@@ -423,7 +423,7 @@ final class PQTests: XCTestCase {
 
       XCTAssertEqual(
         CreateTypedTable(
-          tableType: .temporary,
+          kind: .temporary,
           ifNotExists: true,
           name: .init(name: "my_table"),
           typeName: .init(name: "my_type"),
@@ -448,7 +448,7 @@ final class PQTests: XCTestCase {
 
       XCTAssertEqual(
         CreatePartitionTable(
-          tableType: .unlogged,
+          kind: .unlogged,
           ifNotExists: true,
           name: .init(name: "my_table"),
           parent: .init(name: "my_parent"),
@@ -482,15 +482,17 @@ final class PQTests: XCTestCase {
       user: databaseUserName,
       password: databasePassword
     )
-
-    let query = Query.rawSQL("""
-      CREATE TABLE IF NOT EXISTS \(.identifier("test_table")) (
-        id integer,
-        name varchar(16)
+    
+    let creationResult = try await connection.execute(
+      .createTable(
+        "test_table",
+        columns: [
+          .name("id", dataType: .integer),
+          .name("name", dataType: .characterVarying(16))
+        ],
+        ifNotExists: true
       )
-    """)
-
-    let creationResult = try await connection.execute(query)
+    )
     XCTAssertEqual(creationResult, .ok)
 
     let dropResult = try await connection.execute(.dropTable(name: "test_table", ifExists: false))
