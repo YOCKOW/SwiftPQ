@@ -24,18 +24,23 @@ public struct Query {
   }
 
   /// Create a query concatenating `tokens`.
-  public static func query<S>(from tokens: S) -> Query where S: Sequence, S.Element == SQLToken {
-    return .init(tokens._description)
+  public static func query<S>(from tokens: S, addStatementTerminator: Bool = true) -> Query where S: Sequence, S.Element == SQLToken {
+    var statement = tokens._description
+    if addStatementTerminator {
+      statement += ";"
+    }
+    return Query(statement)
   }
 
   /// Create a query containing multiple commands with `separator`. Default separator is "; ".
   public static func joining<S1, S2>(
     _ tokenSequences: S1,
-    separator: S2 = Array<SQLToken>([.joiner, .semicolon])
+    separator: S2 = statementTerminator,
+    addStatementTerminator: Bool = true
   ) -> Query where S1: Sequence, S1.Element: Sequence, S1.Element.Element == SQLToken,
                    S2: Sequence, S2.Element == SQLToken
   {
-    return query(from: tokenSequences.joined(separator: separator))
+    return query(from: tokenSequences.joined(separator: separator), addStatementTerminator: addStatementTerminator)
   }
 }
 
@@ -46,22 +51,6 @@ extension String.StringInterpolation {
 
   public mutating func appendInterpolation<T>(_ tokens: T) where T: SQLTokenSequence {
     self.appendLiteral(tokens.description)
-  }
-}
-
-extension Query {
-  public static func dropTable(_ tableName: TableName, ifExists: Bool = false) -> Query {
-    var tokens: [SQLToken] = [.drop, .table]
-    if ifExists {
-      tokens.append(contentsOf: [.if, .exists])
-    }
-    tokens.append(contentsOf: tableName)
-    tokens.append(contentsOf: [.joiner, .semicolon])
-    return .query(from: tokens)
-  }
-
-  public static func dropTable(schema: String? = nil, name: String, ifExists: Bool = false) -> Query {
-    return dropTable(TableName(schema: schema, name: name), ifExists: ifExists)
   }
 }
 

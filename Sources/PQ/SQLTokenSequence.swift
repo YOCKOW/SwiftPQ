@@ -98,6 +98,27 @@ extension Array where Element == any SQLTokenSequence {
   }
 }
 
+extension Collection where Element: SQLTokenSequence {
+  /// Returns joined tokens with `separator`.
+  public func joined<S>(separator: S? = Optional<Array<SQLToken>>.none) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+    guard let separator else { return self.flatMap({ $0 }) }
+
+    var result: [SQLToken] = []
+    for (ii, exp) in self.enumerated() {
+      result.append(contentsOf: exp)
+      if ii < self.count - 1 {
+        result.append(contentsOf: separator)
+      }
+    }
+    return result
+  }
+
+  @inlinable
+  public func joinedByCommas() -> Array<SQLToken> {
+    return self.joined(separator: commaSeparator)
+  }
+}
+
 public struct SingleToken: SQLTokenSequence {
   public var token: SQLToken
 
@@ -156,6 +177,13 @@ public final class CommaSeparator: SQLTokenSequence {
   public static let commaSeparator: CommaSeparator = .init()
 }
 public let commaSeparator: CommaSeparator = .commaSeparator
+
+/// Statement terminator (;)
+public final class StatementTerminator: SQLTokenSequence {
+  public let tokens: [SQLToken] = [.joiner, .semicolon]
+  public static let statementTerminator: StatementTerminator = .init()
+}
+public let statementTerminator: StatementTerminator = .statementTerminator
 
 public struct ParenthesizedExpression: SQLTokenSequence {
   public var expression: any SQLTokenSequence
