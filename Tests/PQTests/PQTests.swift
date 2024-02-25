@@ -382,7 +382,7 @@ final class PQTests: XCTestCase {
 
     COLUMN_DEF: do {
       XCTAssertEqual(
-        ColumnDefinition.columnName(
+        ColumnDefinition.name(
           "numbers",
           dataType: .array(of: .bigInt),
           storage: .default,
@@ -401,8 +401,8 @@ final class PQTests: XCTestCase {
           ifNotExists: true,
           name: .init(name: "my_table"),
           columns: [
-            .columnName("a", dataType: .smallInt),
-            .columnName("b", dataType: .array(of: .bigInt), constraints: [.notNull, .unique, .primaryKey]),
+            .name("a", dataType: .smallInt),
+            .name("b", dataType: .array(of: .bigInt), constraints: [.notNull, .unique, .primaryKey]),
           ],
           parents: [.init(name: "parent")],
           partitioningStorategy: .hash(["b"]),
@@ -428,8 +428,8 @@ final class PQTests: XCTestCase {
           name: .init(name: "my_table"),
           typeName: .init(name: "my_type"),
           columns: [
-            .columnName("a"),
-            .columnName("b", constraints: [.notNull, .unique, .primaryKey]),
+            .name("a"),
+            .name("b", constraints: [.notNull, .unique, .primaryKey]),
           ],
           partitioningStorategy: .hash(["b"]),
           tableAccessMethod: "some_method",
@@ -453,8 +453,8 @@ final class PQTests: XCTestCase {
           name: .init(name: "my_table"),
           parent: .init(name: "my_parent"),
           columns: [
-            .columnName("a"),
-            .columnName("b", constraints: [.notNull, .unique, .primaryKey]),
+            .name("a"),
+            .name("b", constraints: [.notNull, .unique, .primaryKey]),
           ],
           partitionType: .values(.from([.minValue], to: [.maxValue])),
           partitioningStorategy: .hash(["b"]),

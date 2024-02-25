@@ -820,7 +820,7 @@ public enum PartitionBoundSpecification: SQLTokenSequence {
 
 /// Column definition used in `CREATE TABLE`.
 public enum ColumnDefinition: SQLTokenSequence {
-  case columnName(
+  case name(
     ColumnName,
     dataType: DataType,
     storage: ColumnStorageMode? = nil,
@@ -833,7 +833,7 @@ public enum ColumnDefinition: SQLTokenSequence {
 
   public var tokens: [SQLToken] {
     switch self {
-    case .columnName(let columnName, let dataType, let storage, let compression, let collation, let constraints):
+    case .name(let columnName, let dataType, let storage, let compression, let collation, let constraints):
       var tokens: [SQLToken] = [columnName.token]
       tokens.append(contentsOf: dataType.tokens)
       storage.map { tokens.append(contentsOf: [.storage, $0.token]) }
@@ -931,12 +931,12 @@ public struct CreateTable: SQLTokenSequence {
 
 
 public enum TypedTableColumnDefinition: SQLTokenSequence {
-  case columnName(ColumnName, constraints: [ColumnConstraint]? = nil)
+  case name(ColumnName, constraints: [ColumnConstraint]? = nil)
   case tableConstraint(TableConstraint)
 
   public var tokens: [SQLToken] {
     switch self {
-    case .columnName(let columnName, let constraints):
+    case .name(let columnName, let constraints):
       var tokens: [SQLToken] = [columnName.token]
       if let constraints, !constraints.isEmpty {
         tokens.append(contentsOf: constraints.flatMap { $0 })
@@ -1025,12 +1025,12 @@ public struct CreateTypedTable: SQLTokenSequence {
 }
 
 public enum PartitionTableColumnDefinition: SQLTokenSequence {
-  case columnName(ColumnName, constraints: [ColumnConstraint]? = nil)
+  case name(ColumnName, constraints: [ColumnConstraint]? = nil)
   case tableConstraint(TableConstraint)
 
   public var tokens: [SQLToken] {
     switch self {
-    case .columnName(let columnName, let constraints):
+    case .name(let columnName, let constraints):
       var tokens: [SQLToken] = [columnName.token]
       if let constraints, !constraints.isEmpty {
         tokens.append(contentsOf: constraints.flatMap { $0 })
