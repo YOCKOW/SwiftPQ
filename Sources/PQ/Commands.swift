@@ -193,3 +193,37 @@ extension Query {
     )
   }
 }
+
+
+// MARK: - DROP TABLE
+
+extension Query {
+  /// Create a query of "DROP TABLE"
+  ///
+  /// - Parameters:
+  ///   * tables: A list of the tables to be removed.
+  ///   * ifExists: If `true`, error is not thrown even if a table with the specified name doesn't exist.
+  ///   * option: Specify the option that indicates whether or not objects that depend on the table should be also removed.
+  public static func dropTable(
+    _ tables: [TableName],
+    ifExists: Bool = false,
+    option: DropTable.Option? = nil
+  ) -> Query {
+    return .query(from: DropTable(tables, ifExists: ifExists, option: option))
+  }
+
+  /// Create a query of "DROP TABLE"
+  ///
+  /// - Parameters:
+  ///   * name: The name of the table to be removed.
+  ///   * ifExists: If `true`, error is not thrown even if a table with the specified name doesn't exist.
+  ///   * option: Specify the option that indicates whether or not objects that depend on the table should be also removed.
+  @inlinable
+  public static func dropTable(
+    _ name: TableName,
+    ifExists: Bool = false,
+    option: DropTable.Option? = nil
+  ) -> Query {
+    return dropTable([name], ifExists: ifExists, option: option)
+  }
+}
