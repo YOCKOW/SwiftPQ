@@ -88,7 +88,7 @@ public protocol SortClauseProtocol: SQLTokenSequence {
 extension SortClauseProtocol {
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = [.order, .by]
-    tokens.append(contentsOf: sorters.joined(separator: [.joiner, .comma]))
+    tokens.append(contentsOf: sorters.joined(separator: commaSeparator))
     return tokens
   }
 

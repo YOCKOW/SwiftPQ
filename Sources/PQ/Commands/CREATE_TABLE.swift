@@ -53,12 +53,12 @@ public struct TableIndexParameters: SQLTokenSequence {
     var tokens: [SQLToken] = []
     if let columns, !columns.isEmpty {
       tokens.append(contentsOf: [.include, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: columns.map(\.token).joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: columns.map(\.token).joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     if let storageParameters, !storageParameters.isEmpty {
       tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: storageParameters.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     if let tableSpaceName {
@@ -112,7 +112,7 @@ public enum ReferentialAction: SQLTokenSequence {
       var tokens: [SQLToken] = [.set, .null]
       if let columns, !columns.isEmpty {
         tokens.append(contentsOf: [.leftParenthesis, .joiner])
-        tokens.append(contentsOf: columns.map(\.token).joined(separator: [.joiner, .comma]))
+        tokens.append(contentsOf: columns.map(\.token).joined(separator: commaSeparator))
         tokens.append(contentsOf: [.joiner, .rightParenthesis])
       }
       return tokens
@@ -120,7 +120,7 @@ public enum ReferentialAction: SQLTokenSequence {
       var tokens: [SQLToken] = [.set, .default]
       if let columns, !columns.isEmpty {
         tokens.append(contentsOf: [.leftParenthesis, .joiner])
-        tokens.append(contentsOf: columns.map(\.token).joined(separator: [.joiner, .comma]))
+        tokens.append(contentsOf: columns.map(\.token).joined(separator: commaSeparator))
         tokens.append(contentsOf: [.joiner, .rightParenthesis])
       }
       return tokens
@@ -388,14 +388,14 @@ public struct TableConstraint: SQLTokenSequence {
     public var tokens: [SQLToken] {
       func __joinedAndParenthesized(_ tokens: [SQLToken]) -> [SQLToken] {
         var result: [SQLToken] = [.leftParenthesis, .joiner]
-        result.append(contentsOf: tokens.joined(separator: [.joiner, .comma]))
+        result.append(contentsOf: tokens.joined(separator: commaSeparator))
         result.append(contentsOf: [.joiner, .rightParenthesis])
         return result
       }
 
       func __joinedAndParenthesized<S>(_ tokens: S) -> [SQLToken] where S: Sequence, S.Element: Sequence, S.Element.Element == SQLToken {
         var result: [SQLToken] = [.leftParenthesis, .joiner]
-        result.append(contentsOf: tokens.joined(separator: [.joiner, .comma]))
+        result.append(contentsOf: tokens.joined(separator: commaSeparator))
         result.append(contentsOf: [.joiner, .rightParenthesis])
         return result
       }
@@ -426,7 +426,7 @@ public struct TableConstraint: SQLTokenSequence {
         tokens.append(contentsOf: [.leftParenthesis, .joiner])
         tokens.append(contentsOf: element)
         tokens.append(.with)
-        tokens.append(contentsOf: operators.joined(separator: [.joiner, .comma]))
+        tokens.append(contentsOf: operators.joined(separator: commaSeparator))
         tokens.append(contentsOf: [.joiner, .rightParenthesis])
         indexParameters.map { tokens.append(contentsOf: $0) }
         if let predicate {
@@ -674,7 +674,7 @@ public struct PartitioningStorategy: SQLTokenSequence {
 
   public var tokens: [SQLToken] {
     var tokens: [SQLToken] = [.partition, .by, method.token, .leftParenthesis, .joiner]
-    tokens.append(contentsOf:keys.joined(separator: [.joiner, .comma]))
+    tokens.append(contentsOf:keys.joined(separator: commaSeparator))
     tokens.append(contentsOf: [.joiner, .rightParenthesis])
     return tokens
   }
@@ -796,15 +796,15 @@ public enum PartitionBoundSpecification: SQLTokenSequence {
     switch self {
     case .in(let expressions):
       var tokens: [SQLToken] = [.in, .leftParenthesis, .joiner]
-      tokens.append(contentsOf: expressions.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: expressions.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
       return tokens
     case .from(let from, let to):
       var tokens: [SQLToken] = [.from, .leftParenthesis, .joiner]
-      tokens.append(contentsOf: from.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: from.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
       tokens.append(contentsOf: [.to, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: to.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: to.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
       return tokens
     case .with(let modulus, let remainder):
@@ -882,20 +882,20 @@ public struct CreateTable: SQLTokenSequence {
     if ifNotExists { tokens.append(contentsOf: [.if, .not, .exists]) }
     tokens.append(contentsOf: name)
     tokens.append(.leftParenthesis)
-    tokens.append(contentsOf: columns.joined(separator: [.joiner, .comma]))
+    tokens.append(contentsOf: columns.joined(separator: commaSeparator))
     tokens.append(.rightParenthesis)
 
     // Options
     if let parents, !parents.isEmpty {
       tokens.append(contentsOf: [.inherits, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: parents.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: parents.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     partitioningStorategy.map { tokens.append(contentsOf: $0) }
     tableAccessMethod.map { tokens.append(contentsOf: [.using, .identifier($0)]) }
     if let storageParameters, !storageParameters.isEmpty {
       tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: storageParameters.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     transactionEndStrategy.map { tokens.append(contentsOf: [.on, .commit] + $0.tokens) }
@@ -981,7 +981,7 @@ public struct CreateTypedTable: SQLTokenSequence {
     tokens.append(contentsOf: typeName)
     if let columns, !columns.isEmpty {
       tokens.append(.leftParenthesis)
-      tokens.append(contentsOf: columns.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: columns.joined(separator: commaSeparator))
       tokens.append(.rightParenthesis)
     }
 
@@ -990,7 +990,7 @@ public struct CreateTypedTable: SQLTokenSequence {
     tableAccessMethod.map { tokens.append(contentsOf: [.using, .identifier($0)]) }
     if let storageParameters, !storageParameters.isEmpty {
       tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: storageParameters.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     transactionEndStrategy.map { tokens.append(contentsOf: [.on, .commit] + $0.tokens) }
@@ -1083,7 +1083,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
     tokens.append(contentsOf: parent)
     if let columns, !columns.isEmpty {
       tokens.append(.leftParenthesis)
-      tokens.append(contentsOf: columns.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: columns.joined(separator: commaSeparator))
       tokens.append(.rightParenthesis)
     }
     switch partitionType {
@@ -1099,7 +1099,7 @@ public struct CreatePartitionTable: SQLTokenSequence {
     tableAccessMethod.map { tokens.append(contentsOf: [.using, .identifier($0)]) }
     if let storageParameters, !storageParameters.isEmpty {
       tokens.append(contentsOf: [.with, .leftParenthesis, .joiner])
-      tokens.append(contentsOf: storageParameters.joined(separator: [.joiner, .comma]))
+      tokens.append(contentsOf: storageParameters.joined(separator: commaSeparator))
       tokens.append(contentsOf: [.joiner, .rightParenthesis])
     }
     transactionEndStrategy.map { tokens.append(contentsOf: [.on, .commit] + $0.tokens) }

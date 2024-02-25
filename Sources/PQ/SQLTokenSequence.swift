@@ -49,8 +49,18 @@ extension SQLTokenSequence {
   }
 }
 
+extension SQLTokenSequence {
+  @inlinable
+  internal func _opening<T>(_ job: (Self) throws -> T) rethrows -> T {
+    return try job(self)
+  }
+}
+
 extension Array where Element: SQLToken {
-  public func joined<S>(separator: S = Array<SQLToken>([.joiner, .comma])) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+  /// Returns joined tokens with `separator`.
+  public func joined<S>(separator: S? = Optional<Array<SQLToken>>.none) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+    guard let separator else { return self.map({ $0 }) }
+
     var result: [SQLToken] = []
     for (ii, token) in self.enumerated() {
       result.append(token)
@@ -60,10 +70,18 @@ extension Array where Element: SQLToken {
     }
     return result
   }
+
+  @inlinable
+  public func joinedByCommas() -> Array<SQLToken> {
+    return self.joined(separator: commaSeparator)
+  }
 }
 
 extension Array where Element == any SQLTokenSequence {
-  public func joined<S>(separator: S = Array<SQLToken>([.joiner, .comma])) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+  /// Returns joined tokens with `separator`.
+  public func joined<S>(separator: S? = Optional<Array<SQLToken>>.none) -> Array<SQLToken> where S: Sequence, S.Element == SQLToken {
+    guard let separator else { return self.flatMap({ $0._opening({ AnySequence($0) }) }) }
+
     var result: [SQLToken] = []
     for (ii, exp) in self.enumerated() {
       result.append(contentsOf: exp)
@@ -72,6 +90,11 @@ extension Array where Element == any SQLTokenSequence {
       }
     }
     return result
+  }
+
+  @inlinable
+  public func joinedByCommas() -> Array<SQLToken> {
+    return self.joined(separator: commaSeparator)
   }
 }
 
@@ -126,6 +149,13 @@ public struct SingleToken: SQLTokenSequence {
     return .init(.string(string))
   }
 }
+
+/// Comma as a separator.
+public final class CommaSeparator: SQLTokenSequence {
+  public let tokens: [SQLToken] = [.joiner, .comma]
+  public static let commaSeparator: CommaSeparator = .init()
+}
+public let commaSeparator: CommaSeparator = .commaSeparator
 
 public struct ParenthesizedExpression: SQLTokenSequence {
   public var expression: any SQLTokenSequence
@@ -411,7 +441,7 @@ public struct FunctionCall: SQLTokenSequence {
     for (ii, argument) in arguments.enumerated() {
       tokens.append(contentsOf: argument)
       if ii < arguments.count - 1 {
-        tokens.append(contentsOf: [.joiner, .comma])
+        tokens.append(contentsOf: commaSeparator)
       }
     }
 
@@ -462,7 +492,7 @@ public struct AggregateExpression: SQLTokenSequence {
         for (ii, expression) in expressions.enumerated() {
           tokens.append(contentsOf: expression)
           if ii < expressions.count - 1 {
-            tokens.append(contentsOf: [.joiner, .comma])
+            tokens.append(contentsOf: commaSeparator)
           }
         }
       }
@@ -646,7 +676,7 @@ public struct WindowDefinition: SQLTokenSequence {
     existingWindowName.map({ tokens.append(contentsOf: $0) })
     partitionBy.map({
       tokens.append(contentsOf: [.partition, .by])
-      tokens.append(contentsOf: $0.joined())
+      tokens.append(contentsOf: $0.joined(separator: commaSeparator))
     })
     orderBy.map({ tokens.append(contentsOf: $0) })
     frame.map({ tokens.append(contentsOf: $0) })
@@ -692,7 +722,7 @@ public struct WindowFunctionCall: SQLTokenSequence {
     tokens.append(contentsOf: [.joiner, .leftParenthesis, .joiner])
     switch argument {
     case .expressions(let expressions):
-      tokens.append(contentsOf: expressions.joined())
+      tokens.append(contentsOf: expressions.joined(separator: commaSeparator))
     case .any:
       tokens.append(.asterisk)
     }
@@ -771,7 +801,7 @@ public struct ArrayConstructor: SQLTokenSequence {
         tokens.append(contentsOf: element)
       }
       if ii < elements.count - 1 {
-        tokens.append(contentsOf: [.joiner, .comma])
+        tokens.append(contentsOf: commaSeparator)
       }
     }
     tokens.append(contentsOf: [.joiner, .rightSquareBracket])
@@ -799,7 +829,7 @@ public struct RowConstructor: SQLTokenSequence {
   public var elements: [any SQLTokenSequence]
 
   public var tokens: [SQLToken] {
-    return [.row, .joiner, .leftParenthesis, .joiner] + elements.joined() + [.joiner, .rightParenthesis]
+    return [.row, .joiner, .leftParenthesis, .joiner] + elements.joined(separator: commaSeparator) + [.joiner, .rightParenthesis]
   }
 
   public init(_ elements: [any SQLTokenSequence]) {
