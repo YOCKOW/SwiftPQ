@@ -24,7 +24,7 @@ public struct Query {
   }
 
   /// Create a query concatenating `tokens`.
-  public static func query<S>(from tokens: S, addStatementTerminator: Bool = true) -> Query where S: Sequence, S.Element == SQLToken {
+  public static func query<S>(from tokens: S, addStatementTerminator: Bool = false) -> Query where S: Sequence, S.Element == SQLToken {
     var statement = tokens._description
     if addStatementTerminator {
       statement += ";"
@@ -36,7 +36,7 @@ public struct Query {
   public static func joining<S1, S2>(
     _ tokenSequences: S1,
     separator: S2 = statementTerminator,
-    addStatementTerminator: Bool = true
+    addStatementTerminator: Bool = false
   ) -> Query where S1: Sequence, S1.Element: Sequence, S1.Element.Element == SQLToken,
                    S2: Sequence, S2.Element == SQLToken
   {

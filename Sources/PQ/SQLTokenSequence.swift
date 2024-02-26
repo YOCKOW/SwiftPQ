@@ -185,6 +185,25 @@ public final class StatementTerminator: SQLTokenSequence {
 }
 public let statementTerminator: StatementTerminator = .statementTerminator
 
+public struct TerminatedStatement<Statement>: SQLTokenSequence where Statement: SQLTokenSequence {
+  public let statement: Statement
+
+  public var tokens: [SQLToken] {
+    return statement.tokens + statementTerminator.tokens
+  }
+
+  public init(_ statement: Statement) {
+    self.statement = statement
+  }
+}
+
+extension SQLTokenSequence {
+  @inlinable
+  public var terminatedStatement: TerminatedStatement<Self> {
+    return .init(self)
+  }
+}
+
 public struct ParenthesizedExpression: SQLTokenSequence {
   public var expression: any SQLTokenSequence
 
