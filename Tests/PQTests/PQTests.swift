@@ -132,8 +132,11 @@ final class PQTests: XCTestCase {
     let fieldSelection3 = FieldSelection(expression: ColumnReference(columnName: "my_column"), field: .all)
     XCTAssertEqual(fieldSelection3.description, "(my_column).*")
 
-    let binaryOperator = BinaryInfixOperatorInvocation(SingleToken.integer(2), .plus, SingleToken.integer(3))
-    XCTAssertEqual(binaryOperator.description, "2 + 3")
+    let binaryOperator1 = BinaryInfixOperatorInvocation(SingleToken.integer(2), .plus, SingleToken.integer(3))
+    XCTAssertEqual(binaryOperator1.description, "2 + 3")
+
+    let binaryOperator2 = SQLToken.numeric(2).plus(SQLToken.numeric(3))
+    XCTAssertEqual(binaryOperator2.description, "2 + 3")
 
     let unaryPrefixOperator1 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(2))
     XCTAssertEqual(unaryPrefixOperator1.description, "-2")
