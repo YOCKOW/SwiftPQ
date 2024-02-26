@@ -47,7 +47,7 @@ extension Query {
         storageParameters: storageParameters,
         transactionEndStrategy: onCommit,
         tableSpaceName: tableSpace
-      )
+      ).terminatedStatement
     )
   }
 
@@ -144,7 +144,7 @@ extension Query {
         storageParameters: storageParameters,
         transactionEndStrategy: onCommit,
         tableSpaceName: tableSpace
-      )
+      ).terminatedStatement
     )
   }
 
@@ -189,7 +189,7 @@ extension Query {
         storageParameters: storageParameters,
         transactionEndStrategy: onCommit,
         tableSpaceName: tableSpace
-      )
+      ).terminatedStatement
     )
   }
 }
@@ -209,7 +209,7 @@ extension Query {
     ifExists: Bool = false,
     option: DropTable.Option? = nil
   ) -> Query {
-    return .query(from: DropTable(tables, ifExists: ifExists, option: option))
+    return .query(from: DropTable(tables, ifExists: ifExists, option: option).terminatedStatement)
   }
 
   /// Create a query of "DROP TABLE"
