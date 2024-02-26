@@ -170,6 +170,9 @@ public struct SingleToken: SQLTokenSequence {
     return .init(.string(string))
   }
 }
+internal extension SQLToken {
+  var asSequence: some SQLTokenSequence { return SingleToken(self) }
+}
 
 /// Comma as a separator.
 public final class CommaSeparator: SQLTokenSequence {
