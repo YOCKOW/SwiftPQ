@@ -2,6 +2,7 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
+import CompilerPluginSupport
 
 let package = Package(
   name: "PQ",
@@ -20,6 +21,9 @@ let package = Package(
     .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
     .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.4.0"),
     .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
+
+    // For Macros
+    .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.1"),
   ],
   targets: [
       // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -32,6 +36,13 @@ let package = Package(
         .apt(["libpq-dev"]),
       ]
     ),
+    .macro(
+      name: "PQMacros",
+      dependencies: [
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+      ]
+    ),
     .target(
       name: "PQ",
       dependencies: [
@@ -39,13 +50,22 @@ let package = Package(
         "SwiftNetworkGear",
         "SwiftUnicodeSupplement",
         "ySwiftExtensions",
+        "PQMacros",
       ]
     ),
     .testTarget(name: "PQTests", dependencies: ["PQ"]),
+    .testTarget(
+      name: "PQMacrosTests",
+      dependencies: [
+        "PQMacros",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ]
+    ),
   ]
 )
 
 import Foundation
+let repoDirPath = String(#filePath).split(separator: "/", omittingEmptySubsequences: false).dropLast().joined(separator: "/")
 if ProcessInfo.processInfo.environment["YOCKOW_USE_LOCAL_PACKAGES"] != nil {
   func localPath(with url: String) -> String {
     guard let url = URL(string: url) else { fatalError("Unexpected URL.") }
@@ -53,7 +73,11 @@ if ProcessInfo.processInfo.environment["YOCKOW_USE_LOCAL_PACKAGES"] != nil {
     return "../\(dirName)"
   }
   package.dependencies = package.dependencies.map {
-    guard case .sourceControl(_, let location, _) = $0.kind else { fatalError("Unexpected dependency.") }
-    return .package(path: localPath(with: location))
+    guard case .sourceControl(_, let location, _) = $0.kind else { return $0 }
+    let depRelPath = localPath(with: location)
+    guard FileManager.default.fileExists(atPath: "\(repoDirPath)/\(depRelPath)") else {
+      return $0
+    }
+    return .package(path: depRelPath)
   }
 }

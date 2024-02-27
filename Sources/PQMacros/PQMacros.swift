@@ -1,3 +1,10 @@
+/* *************************************************************************************************
+ PQMacros.swift
+   © 2024 YOCKOW.
+     Licensed under MIT License.
+     See "LICENSE.txt" for more information.
+ ************************************************************************************************ */
+
 import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
