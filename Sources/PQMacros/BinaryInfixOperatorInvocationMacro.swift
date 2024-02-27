@@ -9,6 +9,34 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
+private let _operatorNames: [String: String] = [
+  "<": "lessThan",
+  ">": "greaterThan",
+  "<=": "lessThanOrEqualTo",
+  ">=": "greaterThanOrEqualTo",
+  "=": "equalTo",
+  "<>": "notEqualTo",
+  "+": "plus",
+  "-": "minus",
+  "*": "multiply",
+  "/": "divide",
+  "%": "modulo",
+  "^": "exponent",
+  "|/": "squareRoot",
+  "||/": "cubeRoot",
+  "&": "bitwiseAnd",
+  "|": "bitwiseOr",
+  "#": "bitwiseExclusiveOr",
+  "<<": "bitwiseShiftLeft",
+  ">>": "bitwiseShiftRight",
+]
+private func _operatorConstuctorExpr(for operator: String, dotSyntax: Bool = false) -> ExprSyntax {
+  if let name = _operatorNames[`operator`] {
+    return dotSyntax ? ".\(raw: name)" : "Operator.\(raw: name)"
+  }
+  return dotSyntax ? ".single(.init(\"\(raw: `operator`)\"))" : "Operator.single(SQLToken.Operator(\"\(raw: `operator`)\"))"
+}
+
 /// Implementation of the `binOp` macro, which takes an binary infix operator expression
 /// and produces a constructor of `BinaryInfixOperatorInvocation`.
 ///
@@ -16,9 +44,9 @@ import SwiftSyntaxMacros
 ///
 /// Macro                 | Expanded
 /// ----------------------|-----------------------------------------------------------------------------------------------------------------------------------
-/// `#binOp("a" + "'b'")` | `BinaryInfixOperatorInvocation(SingleToken.identifier("a"), Operator.single(SQLToken.Operator("+")), SingleToken.string("b"))`
-/// `#binOp(1 + 2.3)`     | `BinaryInfixOperatorInvocation(SingleToken.integer(1), Operator.single(SQLToken.Operator("+")), SingleToken.float(2.3))`
-/// `#binOp("c" < 4.5)`   | `BinaryInfixOperatorInvocation(SingleToken.identifier("c"), Operator.single(SQLToken.Operator("<")), SingleToken.float(4.5))`
+/// `#binOp("a" + "'b'")` | `BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .plus, SingleToken.string("b"))`
+/// `#binOp(1 + 2.3)`     | `BinaryInfixOperatorInvocation(SingleToken.integer(1), .plus, SingleToken.float(2.3))`
+/// `#binOp("c" < 4.5)`   | `BinaryInfixOperatorInvocation(SingleToken.identifier("c"), .lessThan, SingleToken.float(4.5))`
 ///
 public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
   public enum MacroError: Error {
@@ -80,7 +108,7 @@ public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
       guard let binOp = `operator`.as(BinaryOperatorExprSyntax.self) else {
         throw MacroError.unsupportedOperator
       }
-      return "Operator.single(SQLToken.Operator(\"\(raw: binOp.operator.text)\"))"
+      return _operatorConstuctorExpr(for: binOp.operator.text, dotSyntax: true)
     }
 
     return try "BinaryInfixOperatorInvocation(\(__modifyOperand(left)), \(__modifyOperator(op)), \(__modifyOperand(right)))"

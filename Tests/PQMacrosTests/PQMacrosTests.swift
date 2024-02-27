@@ -26,16 +26,16 @@ final class PQMacrosTests: XCTestCase {
       #binOp("a" + "'b'")
       """,
       expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.identifier("a"), Operator.single(SQLToken.Operator("+")), SingleToken.string("b"))
+      BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .plus, SingleToken.string("b"))
       """,
       macros: testMacros
     )
     assertMacroExpansion(
       """
-      #binOp(1 + 2.3)
+      #binOp(1 < 2.3)
       """,
       expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.integer(1), Operator.single(SQLToken.Operator("+")), SingleToken.float(2.3))
+      BinaryInfixOperatorInvocation(SingleToken.integer(1), .lessThan, SingleToken.float(2.3))
       """,
       macros: testMacros
     )

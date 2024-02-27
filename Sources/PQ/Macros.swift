@@ -44,9 +44,9 @@ public struct _BinaryInfixOperatorInvocationMacroOperand: ExpressibleByStringLit
 ///
 /// Macro                 | Expanded
 /// ----------------------|-----------------------------------------------------------------------------------------------------------------------------------
-/// `#binOp("a" + "'b'")` | `BinaryInfixOperatorInvocation(SingleToken.identifier("a"), Operator.single(SQLToken.Operator("+")), SingleToken.string("b"))`
-/// `#binOp(1 + 2.3)`     | `BinaryInfixOperatorInvocation(SingleToken.integer(1), Operator.single(SQLToken.Operator("+")), SingleToken.float(2.3))`
-/// `#binOp("c" < 4.5)`   | `BinaryInfixOperatorInvocation(SingleToken.identifier("c"), Operator.single(SQLToken.Operator("<")), SingleToken.float(4.5))`
+/// `#binOp("a" + "'b'")` | `BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .plus, SingleToken.string("b"))`
+/// `#binOp(1 + 2.3)`     | `BinaryInfixOperatorInvocation(SingleToken.integer(1), .plus, SingleToken.float(2.3))`
+/// `#binOp("c" < 4.5)`   | `BinaryInfixOperatorInvocation(SingleToken.identifier("c"), .lessThan, SingleToken.float(4.5))`
 ///
 @freestanding(expression)
 public macro binOp(_ value: _BinaryInfixOperatorInvocationMacroResult) -> BinaryInfixOperatorInvocation = #externalMacro(module: "PQMacros", type: "BinaryInfixOperatorInvocationMacro")
