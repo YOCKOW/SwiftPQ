@@ -15,7 +15,6 @@ import PQMacros
 
 let testMacros: [String: Macro.Type] = [
   "binOp": BinaryInfixOperatorInvocationMacro.self,
-  "stringify": StringifyMacro.self,
 ]
 #endif
 
@@ -38,38 +37,6 @@ final class PQMacrosTests: XCTestCase {
       expandedSource: """
       BinaryInfixOperatorInvocation(SingleToken.integer(1), Operator.single(SQLToken.Operator("+")), SingleToken.float(2.3))
       """,
-      macros: testMacros
-    )
-    #else
-    throw XCTSkip("macros are only supported when running tests for the host platform")
-    #endif
-  }
-
-  func testMacro() throws {
-    #if canImport(PQMacros)
-    assertMacroExpansion(
-      """
-      #stringify(a + b)
-      """,
-      expandedSource: """
-      (a + b, "a + b")
-      """,
-      macros: testMacros
-    )
-    #else
-    throw XCTSkip("macros are only supported when running tests for the host platform")
-    #endif
-  }
-
-  func testMacroWithStringLiteral() throws {
-    #if canImport(PQMacros)
-    assertMacroExpansion(
-      #"""
-      #stringify("Hello, \(name)")
-      """#,
-      expandedSource: #"""
-      ("Hello, \(name)", #""Hello, \(name)""#)
-      """#,
       macros: testMacros
     )
     #else
