@@ -155,6 +155,7 @@ public class SQLToken: CustomStringConvertible, Equatable {
       let scalars = operatorName.unicodeScalars
       var index = scalars.startIndex
       var canEndInPlusOrMinus = false
+      var numberOfScalars = 0
       while true {
         let currentScalar = scalars[index]
         let nextIndex = scalars.index(after: index)
@@ -181,8 +182,9 @@ public class SQLToken: CustomStringConvertible, Equatable {
           break
         }
         index = nextIndex
+        numberOfScalars += 1
       }
-      if !canEndInPlusOrMinus && (scalars.last == "+" || scalars.last == "-") {
+      if numberOfScalars > 1 && !canEndInPlusOrMinus && (scalars.last == "+" || scalars.last == "-") {
         throw Error.endInPlusOrMinus
       }
 
