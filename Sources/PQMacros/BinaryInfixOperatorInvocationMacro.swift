@@ -9,28 +9,6 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-private let _operatorNames: [String: String] = [
-  "<": "lessThan",
-  ">": "greaterThan",
-  "<=": "lessThanOrEqualTo",
-  ">=": "greaterThanOrEqualTo",
-  "=": "equalTo",
-  "<>": "notEqualTo",
-  "+": "plus",
-  "-": "minus",
-  "*": "multiply",
-  "/": "divide",
-  "%": "modulo",
-  "^": "exponent",
-  "|/": "squareRoot",
-  "||/": "cubeRoot",
-  "&": "bitwiseAnd",
-  "|": "bitwiseOr",
-  "#": "bitwiseExclusiveOr",
-  "<<": "bitwiseShiftLeft",
-  ">>": "bitwiseShiftRight",
-]
-
 private func _operatorConstuctorExpr(for operator: String, dotSyntax: Bool = false) -> ExprSyntax {
   if let name = OperatorMap.map.name(of: `operator`) {
     return dotSyntax ? ".\(raw: name)" : "Operator.\(raw: name)"
