@@ -94,3 +94,78 @@ public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
   }
 }
 
+public struct BinaryInfixOperatorInvocationShortcutMacro: MemberMacro {
+  public enum Error: Swift.Error {
+    case notExtensionDecl
+    case unsupportedType
+  }
+
+  private enum _ExtendedType {
+    case tokenSequence
+    case token
+  }
+
+  public static func expansion(
+    of node: AttributeSyntax,
+    providingMembersOf declaration: some DeclGroupSyntax,
+    in context: some MacroExpansionContext
+  ) throws -> [DeclSyntax] {
+    guard let extDecl = declaration.as(ExtensionDeclSyntax.self) else {
+      throw Error.notExtensionDecl
+    }
+
+    let extendedType: _ExtendedType = try ({
+      switch extDecl.extendedType.as(IdentifierTypeSyntax.self)?.name.text {
+      case "SQLTokenSequence":
+        return .tokenSequence
+      case "SQLToken":
+        return .token
+      default:
+        throw Error.unsupportedType
+      }
+    })()
+
+    let map = OperatorMap.map
+
+    let generateDecls: (String) -> [DeclSyntax] = switch extendedType {
+    case .tokenSequence:
+      { (name: String) -> [DeclSyntax] in
+        let op = map.operator(for: name)!
+        return [
+          """
+          /// Create an invocation that is a sequence of tokens as `self \(raw: op) right`.
+          public func \(raw: name)(_ rhs: any SQLTokenSequence) -> BinaryInfixOperatorInvocation {
+            return .init(self, .\(raw: name), rhs)
+          }
+          """,
+          """
+          /// Create an invocation that is a sequence of tokens as `self \(raw: op) right`.
+          public func \(raw: name)(_ rhs: SQLToken) -> BinaryInfixOperatorInvocation {
+            return \(raw: name)(rhs.asSequence)
+          }
+          """
+        ]
+      }
+    case .token:
+      { (name: String) -> [DeclSyntax] in
+        let op = map.operator(for: name)!
+        return [
+          """
+          /// Create an invocation that is a sequence of tokens as `self \(raw: op) right`.
+          public func \(raw: name)(_ rhs: any SQLTokenSequence) -> BinaryInfixOperatorInvocation {
+            return self.asSequence.\(raw: name)(rhs)
+          }
+          """,
+          """
+          /// Create an invocation that is a sequence of tokens as `self \(raw: op) right`.
+          public func \(raw: name)(_ rhs: SQLToken) -> BinaryInfixOperatorInvocation {
+            return \(raw: name)(rhs.asSequence)
+          }
+          """
+        ]
+      }
+    }
+
+    return map.binaryOperatorNames.flatMap(generateDecls)
+  }
+}

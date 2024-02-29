@@ -54,3 +54,6 @@ public macro binOp(_ value: _BinaryInfixOperatorInvocationMacroResult) -> Binary
 
 @attached(member, names: arbitrary)
 internal macro _WellknownOperators() = #externalMacro(module: "PQMacros", type: "WellknownOperatorsMacro")
+
+@attached(member, names: arbitrary)
+internal macro _BinaryInfixOperatorInvocationShortcut() =  #externalMacro(module: "PQMacros", type: "BinaryInfixOperatorInvocationShortcutMacro")
