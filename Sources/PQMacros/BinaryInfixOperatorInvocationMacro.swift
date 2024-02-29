@@ -166,6 +166,6 @@ public struct BinaryInfixOperatorInvocationShortcutMacro: MemberMacro {
       }
     }
 
-    return map.binaryOperatorNames.flatMap(generateDecls)
+    return map.binaryOperatorNames.sorted().flatMap(generateDecls)
   }
 }

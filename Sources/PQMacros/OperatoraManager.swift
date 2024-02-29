@@ -131,6 +131,6 @@ public struct WellknownOperatorsMacro: MemberMacro {
       }
     }
 
-    return opMap.allOperatorNames.map(generateDecl)
+    return opMap.allOperatorNames.sorted().map(generateDecl)
   }
 }
