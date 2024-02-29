@@ -51,6 +51,22 @@ public struct _BinaryInfixOperatorInvocationMacroOperand: ExpressibleByStringLit
 @freestanding(expression)
 public macro binOp(_ value: _BinaryInfixOperatorInvocationMacroResult) -> BinaryInfixOperatorInvocation = #externalMacro(module: "PQMacros", type: "BinaryInfixOperatorInvocationMacro")
 
+/// Overload of `binOp` which takes one expression.
+/// You can use this macro when, for example, an operator is invalid from the point of view of Swift syntax.
+///
+///     #binOp("n", "=", 2)
+///
+///  will expand to
+///
+///     BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .equalTo, SingleToken.integer(2))
+///
+@freestanding(expression)
+public macro binOp(
+  _ left: _BinaryInfixOperatorInvocationMacroOperand,
+  _ operator: String,
+  _ right: _BinaryInfixOperatorInvocationMacroOperand
+) -> BinaryInfixOperatorInvocation = #externalMacro(module: "PQMacros", type: "BinaryInfixOperatorInvocationMacro")
+
 
 @attached(member, names: arbitrary)
 internal macro _WellknownOperators() = #externalMacro(module: "PQMacros", type: "WellknownOperatorsMacro")

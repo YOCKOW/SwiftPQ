@@ -140,6 +140,7 @@ final class PQTests: XCTestCase {
 
     XCTAssertEqual(#binOp("identifier" + "'string literal'").description, "identifier + 'string literal'")
     XCTAssertEqual(#binOp("some_value" < 2.34).description, "some_value < 2.34")
+    XCTAssertEqual(#binOp("n", "=", 2).description, "n = 2")
 
     let unaryPrefixOperator1 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(2))
     XCTAssertEqual(unaryPrefixOperator1.description, "-2")

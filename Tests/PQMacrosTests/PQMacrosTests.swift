@@ -39,6 +39,24 @@ final class PQMacrosTests: XCTestCase {
       """,
       macros: testMacros
     )
+    assertMacroExpansion(
+      """
+      #binOp("n", "=", 2)
+      """,
+      expandedSource: """
+      BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .equalTo, SingleToken.integer(2))
+      """,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      """
+      #binOp("n", "||||||||||", 2)
+      """,
+      expandedSource: """
+      BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .single(.init("||||||||||")), SingleToken.integer(2))
+      """,
+      macros: testMacros
+    )
     #else
     throw XCTSkip("macros are only supported when running tests for the host platform")
     #endif

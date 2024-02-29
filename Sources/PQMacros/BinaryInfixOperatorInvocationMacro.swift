@@ -13,7 +13,8 @@ private func _operatorConstuctorExpr(for operator: String, dotSyntax: Bool = fal
   if let name = OperatorMap.map.name(of: `operator`) {
     return dotSyntax ? ".\(raw: name)" : "Operator.\(raw: name)"
   }
-  return dotSyntax ? ".single(.init(\"\(raw: `operator`)\"))" : "Operator.single(SQLToken.Operator(\"\(raw: `operator`)\"))"
+  let operatorStringLiteral = StringLiteralExprSyntax(content: `operator`)
+  return dotSyntax ? ".single(.init(\(operatorStringLiteral)))" : "Operator.single(SQLToken.Operator(\(operatorStringLiteral)))"
 }
 
 /// Implementation of the `binOp` macro, which takes an binary infix operator expression
@@ -26,11 +27,11 @@ private func _operatorConstuctorExpr(for operator: String, dotSyntax: Bool = fal
 /// `#binOp("a" + "'b'")` | `BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .plus, SingleToken.string("b"))`
 /// `#binOp(1 + 2.3)`     | `BinaryInfixOperatorInvocation(SingleToken.integer(1), .plus, SingleToken.float(2.3))`
 /// `#binOp("c" < 4.5)`   | `BinaryInfixOperatorInvocation(SingleToken.identifier("c"), .lessThan, SingleToken.float(4.5))`
+/// `#binOp("n", "=", 2)` | `BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .equalTo, SingleToken.integer(2))`
 ///
 public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
-  public enum MacroError: Error {
-    case missingArgument
-    case superfluousArguments
+  public enum Error: Swift.Error {
+    case unexpectedNumberOfArguments
     case unsupportedExpression
     case unsupportedOperand
     case unsupportedOperator
@@ -40,29 +41,30 @@ public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
     of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
     in context: some SwiftSyntaxMacros.MacroExpansionContext
   ) throws -> SwiftSyntax.ExprSyntax {
-    switch node.argumentList.count {
-    case ..<1:
-      throw MacroError.missingArgument
-    case 2...:
-      throw MacroError.superfluousArguments
-    default:
-      break
-    }
-
-    guard let infixOpExpr = node.argumentList.first!.expression.as(InfixOperatorExprSyntax.self) else {
-      throw MacroError.unsupportedExpression
-    }
-
-    let left = infixOpExpr.leftOperand
-    let op = infixOpExpr.operator
-    let right = infixOpExpr.rightOperand
+    let (left, op, right): (ExprSyntax, ExprSyntax, ExprSyntax) = try ({
+      switch node.argumentList.count {
+      case 1:
+        guard let infixOpExpr = node.argumentList.first!.expression.as(InfixOperatorExprSyntax.self) else {
+          throw Error.unsupportedExpression
+        }
+        return (infixOpExpr.leftOperand, infixOpExpr.operator, infixOpExpr.rightOperand)
+      case 3:
+        return (
+          node.argumentList.first!.expression,
+          node.argumentList[node.argumentList.index(after: node.argumentList.startIndex)].expression,
+          node.argumentList.last!.expression
+        )
+      default:
+        throw Error.unexpectedNumberOfArguments
+      }
+    })()
 
     func __modifyOperand(_ operand: ExprSyntax) throws -> ExprSyntax {
       if let stringLiteralExpr = operand.as(StringLiteralExprSyntax.self) {
         guard stringLiteralExpr.segments.count == 1,
               let stringSegment = stringLiteralExpr.segments.first!.as(StringSegmentSyntax.self)
         else {
-          throw MacroError.unsupportedOperand
+          throw Error.unsupportedOperand
         }
         let textContent = stringSegment.content.text
 
@@ -80,14 +82,19 @@ public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
       if let floatLiteralExpr = operand.as(FloatLiteralExprSyntax.self) {
         return "SingleToken.float(\(floatLiteralExpr.trimmed))"
       }
-      throw MacroError.unsupportedOperand
+      throw Error.unsupportedOperand
     }
 
     func __modifyOperator(_ operator: ExprSyntax) throws -> ExprSyntax {
-      guard let binOp = `operator`.as(BinaryOperatorExprSyntax.self) else {
-        throw MacroError.unsupportedOperator
+      if let binOp = `operator`.as(BinaryOperatorExprSyntax.self) {
+        return _operatorConstuctorExpr(for: binOp.operator.text, dotSyntax: true)
       }
-      return _operatorConstuctorExpr(for: binOp.operator.text, dotSyntax: true)
+      if let binOpDescLiteral = `operator`.as(StringLiteralExprSyntax.self),
+         binOpDescLiteral.segments.count == 1,
+         let binOpDescSegment = binOpDescLiteral.segments.first?.as(StringSegmentSyntax.self) {
+        return _operatorConstuctorExpr(for: binOpDescSegment.content.text, dotSyntax: true)
+      }
+      throw Error.unsupportedOperator
     }
 
     return try "BinaryInfixOperatorInvocation(\(__modifyOperand(left)), \(__modifyOperator(op)), \(__modifyOperand(right)))"
