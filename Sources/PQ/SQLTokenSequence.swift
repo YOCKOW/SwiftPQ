@@ -364,6 +364,7 @@ public struct FieldSelection: SQLTokenSequence {
   }
 }
 
+@_WellknownOperators
 public enum Operator: SQLTokenSequence {
   case single(SQLToken.Operator)
   case qualified(schema: String, operator: SQLToken.Operator)
@@ -390,48 +391,6 @@ public enum Operator: SQLTokenSequence {
       return [.not]
     }
   }
-
-  public static let lessThan: Operator = .single(.lessThan)
-
-  public static let greaterThan: Operator = .single(.greaterThan)
-
-  public static let lessThanOrEqualTo: Operator = .single(.lessThanOrEqualTo)
-
-  public static let greaterThanOrEqualTo: Operator = .single(.greaterThanOrEqualTo)
-
-  public static let equalTo: Operator = .single(.equalTo)
-
-  public static let notEqualTo: Operator = .single(.notEqualTo)
-
-  public static let plus: Operator = .single(.plus)
-
-  public static let minus: Operator = .single(.minus)
-
-  public static let multiply: Operator = .single(.multiply)
-
-  public static let divide: Operator = .single(.divide)
-
-  public static let modulo: Operator = .single(.modulo)
-
-  public static let exponent: Operator = .single(.exponent)
-
-  public static let squareRoot: Operator = .single(.squareRoot)
-
-  public static let cubeRoot: Operator = .single(.cubeRoot)
-
-  public static let absoluteValue: Operator = .single(.absoluteValue)
-
-  public static let bitwiseAnd: Operator = .single(.bitwiseAnd)
-
-  public static let bitwiseOr: Operator = .single(.bitwiseOr)
-
-  public static let bitwiseExclusiveOr: Operator = .single(.bitwiseExclusiveOr)
-
-  public static let bitwiseNot: Operator = .single(.bitwiseNot)
-
-  public static let bitwiseShiftLeft: Operator = .single(.bitwiseShiftLeft)
-
-  public static let bitwiseShiftRight: Operator = .single(.bitwiseShiftRight)
 }
 
 /// A type that represents a binary infix operator invocation.

@@ -135,6 +135,7 @@ public class SQLToken: CustomStringConvertible, Equatable {
     }
   }
 
+  @_WellknownOperators
   public class Operator: SQLToken {
     public enum Error: Swift.Error {
       case empty
@@ -190,48 +191,6 @@ public class SQLToken: CustomStringConvertible, Equatable {
 
       self.init(rawValue: operatorName)
     }
-
-    public static let lessThan: Operator = .init(rawValue: "<")
-
-    public static let greaterThan: Operator = .init(rawValue: ">")
-
-    public static let lessThanOrEqualTo: Operator = .init(rawValue: "<=")
-
-    public static let greaterThanOrEqualTo: Operator = .init(rawValue: ">=")
-
-    public static let equalTo: Operator = .init(rawValue: "=")
-
-    public static let notEqualTo: Operator = .init(rawValue: "<>")
-
-    public static let plus: Operator = .init(rawValue: "+")
-
-    public static let minus: Operator = .init(rawValue: "-")
-
-    public static let multiply: Operator = .init(rawValue: "*")
-
-    public static let divide: Operator = .init(rawValue: "/")
-
-    public static let modulo: Operator = .init(rawValue: "%")
-
-    public static let exponent: Operator = .init(rawValue: "^")
-
-    public static let squareRoot: Operator = .init(rawValue: "|/")
-
-    public static let cubeRoot: Operator = .init(rawValue: "||/")
-
-    public static let absoluteValue: Operator = .init(rawValue: "@")
-
-    public static let bitwiseAnd: Operator = .init(rawValue: "&")
-
-    public static let bitwiseOr: Operator = .init(rawValue: "|")
-
-    public static let bitwiseExclusiveOr: Operator = .init(rawValue: "#")
-
-    public static let bitwiseNot: Operator = .init(rawValue: "~")
-
-    public static let bitwiseShiftLeft: Operator = .init(rawValue: "<<")
-
-    public static let bitwiseShiftRight: Operator = .init(rawValue: ">>")
   }
 
   public class SpecialCharacter: SQLToken {}
