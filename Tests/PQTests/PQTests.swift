@@ -138,8 +138,9 @@ final class PQTests: XCTestCase {
     let binaryOperator2 = SQLToken.numeric(2).plus(SQLToken.numeric(3))
     XCTAssertEqual(binaryOperator2.description, "2 + 3")
 
-    XCTAssertEqual(try #binOp("identifier" + "'string literal'").description, "identifier + 'string literal'")
-    XCTAssertEqual(try #binOp("some_value" < 2.34).description, "some_value < 2.34")
+    XCTAssertEqual(#binOp("identifier" + "'string literal'").description, "identifier + 'string literal'")
+    XCTAssertEqual(#binOp("some_value" < 2.34).description, "some_value < 2.34")
+    XCTAssertEqual(#binOp("n", "=", 2).description, "n = 2")
 
     let unaryPrefixOperator1 = UnaryPrefixOperatorInvocation(.minus, SingleToken.integer(2))
     XCTAssertEqual(unaryPrefixOperator1.description, "-2")

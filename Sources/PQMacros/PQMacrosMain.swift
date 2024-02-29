@@ -1,15 +1,18 @@
 /* *************************************************************************************************
- SQLTokenSequence+BinaryInfixOperatorInvocation.swift
+ PQMacrosMain.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import SwiftCompilerPlugin
+import SwiftSyntaxMacros
 
-@_BinaryInfixOperatorInvocationShortcut
-extension SQLTokenSequence {
-}
-
-@_BinaryInfixOperatorInvocationShortcut
-extension SQLToken {
+@main
+struct PQMacrosPlugin: CompilerPlugin {
+  let providingMacros: [Macro.Type] = [
+    BinaryInfixOperatorInvocationMacro.self,
+    BinaryInfixOperatorInvocationShortcutMacro.self,
+    WellknownOperatorsMacro.self,
+  ]
 }
