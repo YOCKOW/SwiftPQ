@@ -30,8 +30,9 @@ private let _operatorNames: [String: String] = [
   "<<": "bitwiseShiftLeft",
   ">>": "bitwiseShiftRight",
 ]
+
 private func _operatorConstuctorExpr(for operator: String, dotSyntax: Bool = false) -> ExprSyntax {
-  if let name = _operatorNames[`operator`] {
+  if let name = OperatorMap.map.name(of: `operator`) {
     return dotSyntax ? ".\(raw: name)" : "Operator.\(raw: name)"
   }
   return dotSyntax ? ".single(.init(\"\(raw: `operator`)\"))" : "Operator.single(SQLToken.Operator(\"\(raw: `operator`)\"))"
