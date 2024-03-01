@@ -61,7 +61,7 @@ CREATE TABLE products (
 
 ```Swift
 let result = try await connection.execute(.rawSQL("""
-CREATE TABLE \(.identifier("my_products#1")) (
+CREATE TABLE \(identifier: "my_products#1") (
   product_no integer,
   name text,
   price numeric
@@ -96,7 +96,7 @@ let result = try await connection.execute(.rawSQL("DROP TABLE my_table;"))
 #### SQL with String Interpolation
 
 ```Swift
-let result = try await connection.execute(.rawSQL("DROP TABLE \(.identifier(userInput));"))
+let result = try await connection.execute(.rawSQL("DROP TABLE \(identifier: "my_table#1");"))
 ```
 
 ### Swifty way
