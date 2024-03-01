@@ -485,6 +485,21 @@ final class PQTests: XCTestCase {
     )
   }
 
+  func test_query_StringInterpolation() {
+    XCTAssertEqual(
+      Query.rawSQL("SELECT \(identifier: "a") FROM \(TableName(schema: "public", name: "my_table"));").command,
+      "SELECT a FROM public.my_table;"
+    )
+    XCTAssertEqual(
+      Query.rawSQL("ROW(\(1), \(2.3), \(literal: "foo bar"))").command,
+      "ROW(1, 2.3, 'foo bar')"
+    )
+    XCTAssertEqual(
+      Query.rawSQL("WHERE \(#binOp("n" < 1000))").command,
+      "WHERE n < 1000"
+    )
+  }
+
   func test_query() async throws {
     let connection = try Connection(
       host: .localhost,

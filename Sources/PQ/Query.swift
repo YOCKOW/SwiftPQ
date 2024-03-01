@@ -9,6 +9,97 @@ import CLibPQ
 
 /// A type representing SQL.
 public struct Query {
+  public struct RawSQL: RawRepresentable,
+                        ExpressibleByStringLiteral,
+                        ExpressibleByStringInterpolation {
+    public typealias RawValue = String
+    public typealias StringLiteralType = String
+
+    public let rawValue: String
+
+    public init(rawValue: String) {
+      self.rawValue = rawValue
+    }
+
+    public init(stringLiteral value: String) {
+      self.init(rawValue: value)
+    }
+
+    public struct StringInterpolation: StringInterpolationProtocol {
+      public typealias StringLiteralType = String
+
+      fileprivate enum _Element {
+        case string(String)
+        case token(SQLToken)
+        case tokenSequence(any SQLTokenSequence)
+
+        var description: String {
+          switch self {
+          case .string(let string):
+            return string.description
+          case .token(let token):
+            return token.description
+          case .tokenSequence(let sequence):
+            return sequence.description
+          }
+        }
+      }
+
+      fileprivate var _elements: [_Element]
+
+      public init(literalCapacity: Int, interpolationCount: Int) {
+        self._elements = .init()
+        self._elements.reserveCapacity(literalCapacity + interpolationCount + 1)
+      }
+
+      public mutating func appendLiteral(_ literal: String) {
+        _elements.append(.string(literal))
+      }
+
+      public mutating func appendInterpolation<S>(raw string: S) where S: StringProtocol {
+        _elements.append(.string(String(string)))
+      }
+
+      public mutating func appendInterpolation(_ token: SQLToken) {
+        _elements.append(.token(token))
+      }
+
+      public mutating func appendInterpolation<T>(_ tokens: T) where T: SQLTokenSequence {
+        _elements.append(.tokenSequence(tokens))
+      }
+
+      @inlinable
+      public mutating func appendInterpolation<S>(
+        identifier: S,
+        forceQuoting: Bool = false,
+        encodingIsUTF8: Bool = true
+      ) where S: StringProtocol {
+        self.appendInterpolation(
+          .identifier(String(identifier), forceQuoting: forceQuoting, encodingIsUTF8: encodingIsUTF8)
+        )
+      }
+
+      @inlinable
+      public mutating func appendInterpolation<S>(literal: S, encodingIsUTF8: Bool = true) where S: StringProtocol {
+        self.appendInterpolation(.string(String(literal), encodingIsUTF8: encodingIsUTF8))
+      }
+
+      @inlinable
+      public mutating func appendInterpolation<T>(_ integer: T) where T: SQLIntegerType {
+        self.appendInterpolation(.numeric(integer))
+      }
+
+      @inlinable
+      public mutating func appendInterpolation<T>(_ float: T) where T: SQLFloatType {
+        self.appendInterpolation(.numeric(float))
+      }
+    }
+
+    public init(stringInterpolation: StringInterpolation) {
+      self.init(rawValue: stringInterpolation._elements.reduce(into: "", { $0 += $1.description }))
+    }
+  }
+
   public let command: String
 
   private init(_ command: String) {
@@ -19,8 +110,8 @@ public struct Query {
   ///
   /// - Warning: This method does NOT escape any characters contained in `command`.
   ///   It is fraught with risk of SQL injection. Avoid using this method directly if possible.
-  public static func rawSQL(_ command: String) -> Query {
-    return .init(command)
+  public static func rawSQL(_ command: RawSQL) -> Query {
+    return .init(command.rawValue)
   }
 
   /// Create a query concatenating `tokens`.
@@ -41,16 +132,6 @@ public struct Query {
                    S2: Sequence, S2.Element == SQLToken
   {
     return query(from: tokenSequences.joined(separator: separator), addStatementTerminator: addStatementTerminator)
-  }
-}
-
-extension String.StringInterpolation {
-  public mutating func appendInterpolation(_ token: SQLToken) {
-    self.appendLiteral(token.description)
-  }
-
-  public mutating func appendInterpolation<T>(_ tokens: T) where T: SQLTokenSequence {
-    self.appendLiteral(tokens.description)
   }
 }
 
