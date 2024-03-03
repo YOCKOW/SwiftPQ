@@ -1,5 +1,5 @@
 /* *************************************************************************************************
- SQLTokenSequence+IdentifierName.swift
+ IdentifierName.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
@@ -193,9 +193,9 @@ public struct CollationName: SchemaQualifiedIdentifier {
 /// A type name defined by a user, for example, in `CREATE TYPE`.
 public struct TypeName: SchemaQualifiedIdentifier {
   public var schema: SQLIdentifierConvertibleString?
-  
+
   public var name: SQLIdentifierConvertibleString
-  
+
   public init(schema: SQLIdentifierConvertibleString? = nil, name: SQLIdentifierConvertibleString) {
     self.schema = schema
     self.name = name
