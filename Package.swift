@@ -15,7 +15,7 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(name: "CLibPQ", targets: ["CLibPQ"]),
-    .library(name: "SwiftPQ", targets: ["PQ"]),
+    .library(name: "SwiftPQ", targets: ["SQLGrammar", "PQ"]),
   ],
   dependencies: [
     .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
@@ -44,6 +44,13 @@ let package = Package(
       ]
     ),
     .target(
+      name: "SQLGrammar",
+      dependencies: [
+        "SwiftUnicodeSupplement",
+        "PQMacros",
+      ]
+    ),
+    .target(
       name: "PQ",
       dependencies: [
         "CLibPQ",
@@ -53,7 +60,6 @@ let package = Package(
         "PQMacros",
       ]
     ),
-    .testTarget(name: "PQTests", dependencies: ["PQ"]),
     .testTarget(
       name: "PQMacrosTests",
       dependencies: [
@@ -61,6 +67,11 @@ let package = Package(
         .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ]
     ),
+    .testTarget(
+      name: "SQLGrammarTests",
+      dependencies: ["SQLGrammar"]
+    ),
+    .testTarget(name: "PQTests", dependencies: ["PQ"]),
   ]
 )
 
