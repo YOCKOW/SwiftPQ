@@ -252,12 +252,12 @@ extension SQLToken {
   }
 
   /// Create a numeric constant token.
-  public static func numeric<T>(_ integer: T) -> SQLToken where T: SQLIntegerType {
+  public static func integer<T>(_ integer: T) -> SQLToken where T: SQLIntegerType {
     return NumericConstant(integer)
   }
 
   /// Create a numeric constant token.
-  public static func numeric<T>(_ float: T) -> SQLToken where T: SQLFloatType {
+  public static func float<T>(_ float: T) -> SQLToken where T: SQLFloatType {
     return NumericConstant(float)
   }
 
