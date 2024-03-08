@@ -16,7 +16,7 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
     separator: Separator? = nil
   ) where S: Sequence, S.Element == any SQLTokenSequence, Separator: Sequence, Separator.Element: SQLToken {
     self._sequences = Array<any SQLTokenSequence>(sequences)
-    self.separator = separator.map({ $0.map({ $0 as SQLToken }) })
+    self.separator = separator.map({ Array<SQLToken>($0) })
   }
 
   public init<S, Separator>(
@@ -24,7 +24,6 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
     separator: Separator? = nil
   ) where S: Sequence, S.Element: SQLTokenSequence, Separator: Sequence, Separator.Element: SQLToken {
     self.init(sequences.map({ $0 as any SQLTokenSequence }), separator: separator)
-
   }
 
   public init<each S, Separator>(_ sequence: repeat each S, separator: Separator? = nil) where repeat each S: SQLTokenSequence, Separator: Sequence, Separator.Element: SQLToken {
