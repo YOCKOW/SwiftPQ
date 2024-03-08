@@ -3,16 +3,17 @@
 # Download gram.y file from PostgreSQL (mirror) repository
 # and let 'bison' parse the file to make it easy to read.
 
-set -u
+set -eu
 
 local -r assetsDir="$(cd "$(dirname $0)" && pwd -L)"
 local -r grammarsDir="${assetsDir}/grammars"
-local -r gramyURL="https://raw.githubusercontent.com/postgres/postgres/master/src/backend/parser/gram.y"
-local -r gramyPath="${grammarsDir}/gram.y"
+local -r postgresBranch="REL_16_2"
+local -r gramyURL="https://raw.githubusercontent.com/postgres/postgres/${postgresBranch}/src/backend/parser/gram.y"
+local -r gramyPath="${grammarsDir}/gram.${postgresBranch}.y"
 
-set -ex
+set -x
 mkdir -p "$grammarsDir"
 curl -sSL "$gramyURL" >"$gramyPath"
 cd "$grammarsDir"
-bison -v gram.y
+bison -v "gram.${postgresBranch}.y"
 ls -ahl .
