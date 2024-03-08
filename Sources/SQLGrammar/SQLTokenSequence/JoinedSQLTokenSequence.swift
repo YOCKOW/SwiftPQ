@@ -37,7 +37,7 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
     public typealias Element = SQLToken
 
     private let _joinedSequence: JoinedSQLTokenSequence
-    private var _currentIndex: Array<any SQLTokenSequence>.Index
+    private var _currentIndex: Int
     private var _currentIterator: Optional<AnySQLTokenSequenceIterator>
     private var _currentSequenceIsSeparator: Bool
 
@@ -50,26 +50,37 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
 
     private var _sequences: [any SQLTokenSequence] { _joinedSequence._sequences }
 
-    private var _separator: (any Sequence<SQLToken>)? { _joinedSequence.separator }
+    private var _separator: Array<SQLToken>? { _joinedSequence.separator }
 
     public mutating func next() -> SQLToken? {
-      guard let currentIterator = _currentIterator else { return nil }
-      if let nextToken = currentIterator.next() {
-        return nextToken
-      }
-      if let separator = _separator, !_currentSequenceIsSeparator {
-        _currentIterator = .init(separator)
-        _currentSequenceIsSeparator = true
-      } else {
-        _currentIndex = _sequences.index(after: _currentIndex)
-        if _currentIndex == _sequences.endIndex {
-          _currentIterator = nil
-          return nil
+      func __next() -> SQLToken? {
+        guard let currentIterator = _currentIterator else { return nil }
+        if let nextToken = currentIterator.next() {
+          return nextToken
         }
-        _currentIterator = _sequences[_currentIndex]._opening({ AnySQLTokenSequenceIterator($0) })
-        _currentSequenceIsSeparator = false
+
+        switch (_currentSequenceIsSeparator, _separator) {
+        case (false, let separator?):
+          guard _currentIndex < _sequences.endIndex - 1 else {
+            _currentIterator = nil
+            return nil
+          }
+          _currentIterator = AnySQLTokenSequenceIterator(separator)
+          _currentSequenceIsSeparator = true
+        case (false, nil), (true, _?):
+          _currentIndex += 1
+          if _currentIndex == _sequences.endIndex {
+            _currentIterator = nil
+            return nil
+          }
+          _currentIterator = _sequences[_currentIndex]._opening({ AnySQLTokenSequenceIterator($0) })
+          _currentSequenceIsSeparator = false
+        case (true, nil):
+          fatalError("What happened?!")
+        }
+        return __next()
       }
-      return next()
+      return __next()
     }
   }
 
