@@ -18,7 +18,10 @@ public protocol SQLTokenSequence: Sequence {
 }
 
 /// A type representing a statement which is expressed as `stmt` in "gram.y".
-public protocol SQLStatement: SQLTokenSequence {}
+public protocol Statement: SQLTokenSequence {}
+
+/// A type representing an expression whish is expressed as `a_expr`, `b_expr`, or `c_expr`.
+public protocol Expression: SQLTokenSequence {}
 
 extension SQLTokenSequence where Self.Tokens == Self {
   /// Provide itself as a sequence of tokens.

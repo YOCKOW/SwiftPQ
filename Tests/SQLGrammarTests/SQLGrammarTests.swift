@@ -25,7 +25,7 @@ final class SQLGrammarTests: XCTestCase {
   }
 
   func test_TerminatedStatement() {
-    struct __PseudoStatement: SQLStatement {
+    struct __PseudoStatement: Statement {
       let tokens: [SQLToken] = [.drop, .table, .identifier("my_table")]
     }
     let statement = __PseudoStatement()
