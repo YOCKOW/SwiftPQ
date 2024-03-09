@@ -17,6 +17,9 @@ public protocol SQLTokenSequence: Sequence {
   var tokens: Tokens { get }
 }
 
+/// A type representing a statement which is expressed as `stmt` in "gram.y".
+public protocol SQLStatement: SQLTokenSequence {}
+
 extension SQLTokenSequence where Self.Tokens == Self {
   /// Provide itself as a sequence of tokens.
   public var tokens: Self {

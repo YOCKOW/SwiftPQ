@@ -23,4 +23,13 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(tokens.joined().description, "0 1 2")
     XCTAssertEqual(tokens.joinedByCommas().description, "0, 1, 2")
   }
+
+  func test_TerminatedStatement() {
+    struct __PseudoStatement: SQLStatement {
+      let tokens: [SQLToken] = [.drop, .table, .identifier("my_table")]
+    }
+    let statement = __PseudoStatement()
+    XCTAssertEqual(statement.description, "DROP TABLE my_table")
+    XCTAssertEqual(statement.terminated.description, "DROP TABLE my_table;")
+  }
 }

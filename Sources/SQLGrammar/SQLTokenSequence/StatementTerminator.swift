@@ -13,3 +13,46 @@ public final class StatementTerminator: SQLTokenSequence {
 
 /// Statement terminator (;)
 public let statementTerminator: StatementTerminator = .statementTerminator
+
+/// A type representing terminated statement.
+public struct TerminatedStatement<Statement>: SQLTokenSequence where Statement: SQLStatement {
+  public typealias Element = SQLToken
+
+  public let statement: Statement
+
+  public init(_ statement: Statement) {
+    self.statement = statement
+  }
+
+  public struct Iterator: IteratorProtocol {
+    public typealias Element = SQLToken
+
+    private var _statementIterator: Statement.Iterator?
+    private var _terminatorIterator: StatementTerminator.Iterator
+
+    fileprivate init(_ base: TerminatedStatement) {
+      self._statementIterator = base.statement.makeIterator()
+      self._terminatorIterator = statementTerminator.makeIterator()
+    }
+
+
+    public mutating func next() -> Element? {
+      guard let statementToken = _statementIterator?.next() else {
+        _statementIterator = nil
+        return _terminatorIterator.next()
+      }
+      return statementToken
+    }
+  }
+
+  public func makeIterator() -> Iterator {
+    return .init(self)
+  }
+}
+
+extension SQLStatement {
+  /// Sequence of tokens where `;` is added to `self`.
+  public var terminated: TerminatedStatement<Self> {
+    return .init(self)
+  }
+}
