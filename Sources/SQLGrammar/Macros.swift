@@ -69,6 +69,9 @@ public struct _BinaryInfixOperatorInvocationMacroOperand: ExpressibleByStringLit
 
 
 @attached(member, names: arbitrary)
+internal macro _ExpandStaticKeywords() = #externalMacro(module: "PQMacros", type: "StaticKeywordExpander")
+
+@attached(member, names: arbitrary)
 internal macro _WellknownOperators() = #externalMacro(module: "PQMacros", type: "WellknownOperatorsMacro")
 
 @attached(member, names: arbitrary)

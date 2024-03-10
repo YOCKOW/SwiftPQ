@@ -65,9 +65,12 @@ private extension String {
 }
 
 /// A type representing SQL token.
-public class SQLToken: CustomStringConvertible, Equatable {
+@_ExpandStaticKeywords
+public class SQLToken: CustomStringConvertible {
+  @usableFromInline
   internal let _rawValue: String
 
+  @inlinable
   internal init(rawValue: String) {
     self._rawValue = rawValue
   }
@@ -76,12 +79,40 @@ public class SQLToken: CustomStringConvertible, Equatable {
     return _rawValue
   }
 
-  public static func ==(lhs: SQLToken, rhs: SQLToken) -> Bool {
-    guard Swift.type(of: lhs) == Swift.type(of: rhs) else { return false }
-    return lhs._rawValue == rhs._rawValue
-  }
+  /// A token that is able to be recognized as a keyword.
+  public class Keyword: SQLToken {
+    /// A boolean value indicating whether or not it is an `unreserved_keyword`.
+    public let isUnreserved: Bool
 
-  public class Keyword: SQLToken {}
+    /// A boolean value indicating whether or not it is an `col_name_keyword`.
+    public let isAvailableAsColumnName: Bool
+
+    /// A boolean value indicating whether or not it is an `type_func_name_keyword`.
+    public let isAvailableAsTypeOrFunctionName: Bool
+
+    /// A boolean value indicating whether or not it is an `reserved_keyword`.
+    public let isReserved: Bool
+
+    /// A boolean value indicating whether or not it is an `bare_label_keyword`.
+    public let isBareLabel: Bool
+
+    @inlinable
+    internal init(
+      rawValue: String,
+      isUnreserved: Bool = false,
+      isAvailableAsColumnName: Bool = false,
+      isAvailableAsTypeOrFunctionName: Bool = false,
+      isReserved: Bool = false,
+      isBareLabel: Bool = false
+    ) {
+      self.isUnreserved = isUnreserved
+      self.isAvailableAsColumnName = isAvailableAsColumnName
+      self.isAvailableAsTypeOrFunctionName = isAvailableAsTypeOrFunctionName
+      self.isReserved = isReserved
+      self.isBareLabel = isBareLabel
+      super.init(rawValue: rawValue)
+    }
+  }
 
   public class Identifier: SQLToken {}
 
@@ -200,6 +231,14 @@ public class SQLToken: CustomStringConvertible, Equatable {
   /// A token to remove whitespace.
   public final class Joiner: SQLToken {
     fileprivate static let singleton: Joiner = .init(rawValue: "")
+  }
+}
+
+/// Workaround for https://github.com/apple/swift/issues/70087
+extension SQLToken: Equatable {
+  public static func ==(lhs: SQLToken, rhs: SQLToken) -> Bool {
+    guard Swift.type(of: lhs) == Swift.type(of: rhs) else { return false }
+    return lhs._rawValue == rhs._rawValue
   }
 }
 
