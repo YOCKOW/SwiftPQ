@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Foundation
 @_spi(RawSyntax) import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
@@ -970,7 +971,7 @@ private extension String {
     }
     var result = first.lowercased()
     for word in splitted.dropFirst() {
-      result += word.capitalized
+      result += String(word).capitalized
     }
     return result
   }
