@@ -85,10 +85,10 @@ public class SQLToken: CustomStringConvertible {
     public let isUnreserved: Bool
 
     /// A boolean value indicating whether or not it is an `col_name_keyword`.
-    public let isAvailableAsColumnName: Bool
+    public let isAvailableForColumnName: Bool
 
     /// A boolean value indicating whether or not it is an `type_func_name_keyword`.
-    public let isAvailableAsTypeOrFunctionName: Bool
+    public let isAvailableForTypeOrFunctionName: Bool
 
     /// A boolean value indicating whether or not it is an `reserved_keyword`.
     public let isReserved: Bool
@@ -100,14 +100,14 @@ public class SQLToken: CustomStringConvertible {
     internal init(
       rawValue: String,
       isUnreserved: Bool = false,
-      isAvailableAsColumnName: Bool = false,
-      isAvailableAsTypeOrFunctionName: Bool = false,
+      isAvailableForColumnName: Bool = false,
+      isAvailableForTypeOrFunctionName: Bool = false,
       isReserved: Bool = false,
       isBareLabel: Bool = false
     ) {
       self.isUnreserved = isUnreserved
-      self.isAvailableAsColumnName = isAvailableAsColumnName
-      self.isAvailableAsTypeOrFunctionName = isAvailableAsTypeOrFunctionName
+      self.isAvailableForColumnName = isAvailableForColumnName
+      self.isAvailableForTypeOrFunctionName = isAvailableForTypeOrFunctionName
       self.isReserved = isReserved
       self.isBareLabel = isBareLabel
       super.init(rawValue: rawValue)
@@ -116,7 +116,7 @@ public class SQLToken: CustomStringConvertible {
 
   public class Identifier: SQLToken {}
 
-  public class DelimitedIdentifier: SQLToken {
+  public class DelimitedIdentifier: Identifier {
     private let _isUTF8: Bool
 
     private lazy var _description: String = _rawValue._quoted(mark: "\"", isUTF8: _isUTF8)
@@ -248,7 +248,11 @@ extension SQLToken {
   public static func identifier(_ string: String, forceQuoting: Bool = false, encodingIsUTF8: Bool = true) -> SQLToken {
     var requireQuoting = forceQuoting
 
-    CHECK_REQUIRE_QUOTING: if !forceQuoting {
+    if keyword(from: string) != nil {
+      requireQuoting = true
+    }
+
+    CHECK_REQUIRE_QUOTING: if !requireQuoting {
       func __scalarIs(_ scalar: UnicodeScalar, _ property: KeyPath<Unicode.Scalar.LatestProperties, Bool>) -> Bool {
         if !encodingIsUTF8 {
           guard scalar.isASCII else { return false }

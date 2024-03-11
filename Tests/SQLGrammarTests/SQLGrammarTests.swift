@@ -17,6 +17,13 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertNil(SQLToken.keyword(from: "hogehoge"))
   }
 
+  func test_ColumnIdentifier() {
+    XCTAssertNotNil(ColumnIdentifier(.identifier("my_column")))
+    XCTAssertNotNil(ColumnIdentifier(.xml))
+    XCTAssertNotNil(ColumnIdentifier(.identifier("DO")))
+    XCTAssertNil(ColumnIdentifier(.do))
+  }
+
   func test_JoinedSQLTokenSequence() {
     var tokens: [SQLToken] = []
     XCTAssertEqual(tokens.joined().description, "")

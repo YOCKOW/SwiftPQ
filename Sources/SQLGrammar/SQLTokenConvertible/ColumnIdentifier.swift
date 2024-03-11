@@ -10,6 +10,13 @@ public struct ColumnIdentifier: LosslessTokenConvertible {
   public let token: SQLToken
 
   public init?(_ token: SQLToken) {
-    self.token = token
+    switch token {
+    case is SQLToken.Identifier:
+      self.token = token
+    case let keyword as SQLToken.Keyword where (keyword.isUnreserved || keyword.isAvailableForColumnName):
+      self.token = keyword
+    default:
+      return nil
+    }
   }
 }

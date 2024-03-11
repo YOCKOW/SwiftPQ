@@ -1023,8 +1023,8 @@ public struct StaticKeywordExpander: MemberMacro {
       public static let \(swiftIdentifier): SQLToken = Keyword(
         rawValue: \(StringLiteralExprSyntax(content: keyword)),
         isUnreserved: \(BooleanLiteralExprSyntax(unreserved)),
-        isAvailableAsColumnName: \(BooleanLiteralExprSyntax(columnName)),
-        isAvailableAsTypeOrFunctionName: \(BooleanLiteralExprSyntax(typeFunc)),
+        isAvailableForColumnName: \(BooleanLiteralExprSyntax(columnName)),
+        isAvailableForTypeOrFunctionName: \(BooleanLiteralExprSyntax(typeFunc)),
         isReserved: \(BooleanLiteralExprSyntax(reserved)),
         isBareLabel: \(BooleanLiteralExprSyntax(bareLabel))
       )
