@@ -10,6 +10,13 @@ import XCTest
 @testable import SQLGrammar
 
 final class SQLGrammarTests: XCTestCase {
+  func test_keywords() {
+    XCTAssertNotNil(SQLToken.keyword(from: "CREATE"))
+    XCTAssertNotNil(SQLToken.keyword(from: "Drop"))
+    XCTAssertNotNil(SQLToken.keyword(from: "none"))
+    XCTAssertNil(SQLToken.keyword(from: "hogehoge"))
+  }
+
   func test_JoinedSQLTokenSequence() {
     var tokens: [SQLToken] = []
     XCTAssertEqual(tokens.joined().description, "")

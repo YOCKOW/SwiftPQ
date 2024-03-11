@@ -961,7 +961,15 @@ final class KeywordManager {
 }
 
 private extension String {
-  var _swiftyIdentifier: String {
+  var _isSwiftKeyword: Bool {
+    mutating get {
+      return self.withSyntaxText {
+        return SwiftSyntax.Keyword($0) != nil
+      }
+    }
+  }
+
+  var _swiftIdentifier: IdentifierPatternSyntax {
     let splitted = self.split(whereSeparator: {
       guard $0.isASCII else { fatalError("Non-ASCII character is contained.") }
       return !$0.isLetter && !$0.isNumber
@@ -969,19 +977,14 @@ private extension String {
     guard let first = splitted.first else {
       fatalError("Empty keyword?!")
     }
-    var result = first.lowercased()
+    var idDesc = first.lowercased()
     for word in splitted.dropFirst() {
-      result += String(word).capitalized
+      idDesc += String(word).capitalized
     }
-    return result
-  }
-
-  var _isSwiftKeyword: Bool {
-    mutating get {
-      return self.withSyntaxText {
-        return SwiftSyntax.Keyword($0) != nil
-      }
+    if idDesc._isSwiftKeyword {
+      idDesc = "`\(idDesc)`"
     }
+    return .init(identifier: TokenSyntax(.identifier(idDesc), presence: .present))
   }
 }
 
@@ -1004,21 +1007,20 @@ public struct StaticKeywordExpander: MemberMacro {
     let allKeywords = manager.allKeywords.sorted()
 
     var result: [DeclSyntax] = []
+    var initialMap: [Character: [(String, IdentifierPatternSyntax)]] = [:]
     for keyword in allKeywords {
       let unreserved = manager.unreservedKeywords.contains(keyword)
       let columnName = manager.columnNameKeywords.contains(keyword)
       let typeFunc = manager.typeFunctionNameKeywords.contains(keyword)
       let reserved = manager.reservedKeywords.contains(keyword)
       let bareLabel = manager.bareLabelKeywords.contains(keyword)
-
-      var swiftyIdentifierDesc = keyword._swiftyIdentifier
-      if swiftyIdentifierDesc._isSwiftKeyword {
-        swiftyIdentifierDesc = "`\(swiftyIdentifierDesc)`"
-      }
+      let swiftIdentifier = keyword._swiftIdentifier
+      let initial = keyword.first!
+      initialMap[initial] = (initialMap[initial] ?? []) + [(keyword, swiftIdentifier)]
 
       result.append("""
       /// A token of keyword "\(raw: keyword)".
-      public static let \(IdentifierPatternSyntax(identifier: .init(.identifier(swiftyIdentifierDesc), presence: .present))): SQLToken = SQLToken.Keyword(
+      public static let \(swiftIdentifier): SQLToken = Keyword(
         rawValue: \(StringLiteralExprSyntax(content: keyword)),
         isUnreserved: \(BooleanLiteralExprSyntax(unreserved)),
         isAvailableAsColumnName: \(BooleanLiteralExprSyntax(columnName)),
@@ -1028,6 +1030,151 @@ public struct StaticKeywordExpander: MemberMacro {
       )
       """)
     }
+
+    ADD_KEYWORD_JUDGEMENT:
+    do {
+      /*
+
+       Add a type like below:
+
+       ```
+       private struct __Keyword {
+       static let closures: [Character: (String) -> Keyword?] = [
+           "A": { // Inital A
+           switch $0.dropFirst() {
+           case "BORT": return .abort
+           case "BSENT": return .absent
+           :
+           default: return nil
+           }
+           },
+           :
+           :
+           "Z": { // Initial Z
+           ...
+           },
+         ]
+       }
+       ```
+
+       */
+
+      func __closure(of initial: Character) -> ClosureExprSyntax {
+        let returnNilStmt = ReturnStmtSyntax(
+          returnKeyword: .keyword(.return, trailingTrivia: .space),
+          expression: NilLiteralExprSyntax(nilKeyword: .keyword(.nil))
+        )
+        let returnNilCodeBlockItem = CodeBlockItemSyntax(item: .init(returnNilStmt))
+
+        guard let keywordAndIdentifierList = initialMap[initial] else {
+          return ClosureExprSyntax(statements: [returnNilCodeBlockItem])
+        }
+
+        let switchSubject: FunctionCallExprSyntax = ({
+          let dollar0DeclRefExpr = DeclReferenceExprSyntax(baseName: .dollarIdentifier("$0"))
+          let dropFirstDeclRefExpr = DeclReferenceExprSyntax(baseName: .identifier("dropFirst"))
+          let dropFirstMemberExpr = MemberAccessExprSyntax(
+            base: dollar0DeclRefExpr,
+            period: .periodToken(),
+            declName: dropFirstDeclRefExpr
+          )
+          return FunctionCallExprSyntax(
+            calledExpression: dropFirstMemberExpr,
+            leftParen: .leftParenToken(),
+            arguments: [],
+            rightParen: .rightParenToken()
+          )
+        })()
+
+        let switchCaseList: SwitchCaseListSyntax = ({
+          func __case(for keyword: String, identifier: IdentifierPatternSyntax) -> SwitchCaseSyntax {
+            let label: SwitchCaseLabelSyntax = ({
+              let expr = ExpressionPatternSyntax(expression: StringLiteralExprSyntax(content: String(keyword.dropFirst())))
+              let item = SwitchCaseItemSyntax(pattern: expr)
+              return SwitchCaseLabelSyntax(
+                caseKeyword: .keyword(.case, trailingTrivia: .space),
+                caseItems: [item],
+                trailingTrivia: .space
+              )
+            })()
+            let statements: CodeBlockItemListSyntax = ({
+              var memberExpr = MemberAccessExprSyntax(period: .periodToken(), name: identifier.identifier)
+              if identifier.identifier.text == "none" || identifier.identifier.text == "`none`" {
+                // It doesn't mean `nil`!
+                memberExpr.base = .init(DeclReferenceExprSyntax(baseName: .identifier("SQLToken")))
+              }
+              let returnMemberStmt = ReturnStmtSyntax(
+                returnKeyword: .keyword(.return, trailingTrivia: .space),
+                expression: memberExpr
+              )
+              let item = CodeBlockItemSyntax(item: .init(returnMemberStmt))
+              return [item]
+            })()
+            return SwitchCaseSyntax(
+              label: .init(label),
+              statements: statements,
+              trailingTrivia: .newline
+            )
+          }
+
+          let defaultReturnNilCase = SwitchCaseSyntax(
+            label: .default(.init(trailingTrivia: .space)),
+            statements: [returnNilCodeBlockItem],
+            trailingTrivia: .newline
+          )
+
+          var switchCaseList: SwitchCaseListSyntax = keywordAndIdentifierList.reduce(into: []) {
+            $0.append(.init(__case(for: $1.0, identifier: $1.1)))
+          }
+          switchCaseList.append(.init(defaultReturnNilCase))
+          return switchCaseList
+        })()
+
+        let switchExpr = SwitchExprSyntax(
+          switchKeyword: .keyword(.switch, trailingTrivia: .space),
+          subject: switchSubject,
+          leftBrace: .leftBraceToken(leadingTrivia: .space, trailingTrivia: .newline),
+          cases: switchCaseList
+        )
+        return ClosureExprSyntax(statements: [.init(item: .init(switchExpr))])
+      }
+
+      func __dictionaryElement(of initial: Character) -> DictionaryElementSyntax {
+        let keyLiteral = StringLiteralExprSyntax(content: String(initial))
+        return DictionaryElementSyntax(
+          key: keyLiteral,
+          value: __closure(of: initial),
+          trailingComma: .commaToken(trailingTrivia: .newline)
+        )
+      }
+
+      let dictionaryElementList: DictionaryElementListSyntax = initialMap.keys.sorted().reduce(into: []) {
+        $0.append(__dictionaryElement(of: $1))
+      }
+
+      let dictionaryExpr = DictionaryExprSyntax(
+        leftSquare: .leftSquareToken(trailingTrivia: .newline),
+        content: .elements(dictionaryElementList),
+        rightSquare: .rightSquareToken(trailingTrivia: .newline)
+      )
+
+      result.append("""
+      private struct __Keyword {
+        static let closures: [Character: (String) -> SQLToken?] = \(dictionaryExpr)
+      }
+      """)
+    }
+
+    result.append("""
+    /// Returns an instance of `Keyword` represented by `string` if exists.
+    public static func keyword(from string: String) -> Keyword? {
+      let uc = string.uppercased()
+      guard let initial = uc.first else { return nil }
+      guard let judge = __Keyword.closures[initial] else { return nil }
+      return judge(uc) as? Keyword
+    }
+    """)
+
     return result
   }
 }
