@@ -11,7 +11,7 @@ public protocol SQLTokenSequence: Sequence {
   associatedtype Element: SQLToken = SQLToken
 
   /// A type representing a sequence of tokens.
-  associatedtype Tokens: Sequence = Self where Self.Tokens.Element == Self.Element
+  associatedtype Tokens: Sequence where Self.Tokens.Element == Self.Element
 
   /// A type that provides the sequence's iteration interface.
   associatedtype Iterator: IteratorProtocol = Self.Tokens.Iterator where Self.Iterator.Element == Self.Element
