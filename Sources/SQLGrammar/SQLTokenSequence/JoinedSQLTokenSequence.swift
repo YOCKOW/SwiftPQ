@@ -35,6 +35,31 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
     self.init(sequences, separator: separator)
   }
 
+  public static func compacting<S, Separator>(
+    _ sequence: S,
+    separator: Separator? = Optional<Array<SQLToken>>.none
+  ) -> JoinedSQLTokenSequence where S: Sequence, S.Element == (any SQLTokenSequence)?,
+                                    Separator: Sequence, Separator.Element: SQLToken
+  {
+    return .init(sequence.compactMap({ $0 }), separator: separator)
+  }
+
+  public static func compacting<each S, Separator>(
+    _ sequence: repeat Optional<each S>,
+    separator: Separator?  = Optional<Array<SQLToken>>.none
+  ) -> JoinedSQLTokenSequence where repeat each S: SQLTokenSequence,
+                                    Separator: Sequence, Separator.Element: SQLToken
+  {
+    var sequences: [any SQLTokenSequence] = []
+    func __appendIfNotNil(_ sequence: (any SQLTokenSequence)?) {
+      if let sequence {
+        sequences.append(sequence)
+      }
+    }
+    repeat (__appendIfNotNil(each sequence))
+    return .init(sequences, separator: separator)
+  }
+
   public struct Iterator: IteratorProtocol {
     public typealias Element = SQLToken
 

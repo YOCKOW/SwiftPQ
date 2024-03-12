@@ -6,6 +6,8 @@
  ************************************************************************************************ */
 
 /// A type representing a column identifier which is described as `ColId` in "gram.y".
+///
+/// - Note: `ColId` is not always used as a name of column in "gram.y".
 public struct ColumnIdentifier: LosslessTokenConvertible {
   public let token: SQLToken
 
@@ -18,5 +20,13 @@ public struct ColumnIdentifier: LosslessTokenConvertible {
     default:
       return nil
     }
+  }
+}
+
+extension ColumnIdentifier: ExpressibleByStringLiteral {
+  public typealias StringLiteralType = String
+
+  public init(stringLiteral value: String) {
+    self.init(.identifier(value))!
   }
 }

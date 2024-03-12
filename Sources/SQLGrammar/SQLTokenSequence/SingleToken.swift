@@ -9,8 +9,14 @@
 public struct SingleToken: SQLTokenSequence {
   public let token: SQLToken
 
+  @inlinable
   internal init(_ token: SQLToken) {
     self.token = token
+  }
+
+  @inlinable
+  internal init<T>(_ object: T) where T: CustomTokenConvertible {
+    self.init(object.token)
   }
 
   public struct Iterator: IteratorProtocol {

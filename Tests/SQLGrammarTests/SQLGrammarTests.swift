@@ -53,4 +53,15 @@ final class SQLGrammarTests: XCTestCase {
       ".label0.label1"
     )
   }
+
+  func test_AnyName() {
+    XCTAssertEqual(AnyName(columnIdentifier: "my_column").description, "my_column")
+    XCTAssertEqual(
+      AnyName(
+        columnIdentifier: "my_column",
+        attributes: Attributes(names: [.columnLabel("label0"), .columnLabel("label1")])
+      ).description,
+      "my_column.label0.label1"
+    )
+  }
 }
