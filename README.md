@@ -9,7 +9,7 @@ You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way.
 
 # Requirements
 
-* Swift >= 5.9
+* Swift >= 5.10
 * libpq
 
 # Usage

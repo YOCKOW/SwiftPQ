@@ -4,6 +4,14 @@
 import PackageDescription
 import CompilerPluginSupport
 
+let swiftSyntaxVersion: Version = ({
+  #if compiler(>=5.10)
+  return "510.0.1"
+  #else
+  return "509.1.1"
+  #endif
+})()
+
 let package = Package(
   name: "PQ",
   platforms: [
@@ -23,7 +31,7 @@ let package = Package(
     .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
 
     // For Macros
-    .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.1"),
+    .package(url: "https://github.com/apple/swift-syntax.git", from: swiftSyntaxVersion),
   ],
   targets: [
       // Targets are the basic building blocks of a package, defining a module or a test suite.
