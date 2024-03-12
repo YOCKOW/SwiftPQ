@@ -23,6 +23,7 @@ jobs:
           - ubuntu-22.04
           # - macOS-13
         swift-version:
+          - '5.10'
           - '5.9.2'
         swift-compat-ver:
           - '5'
