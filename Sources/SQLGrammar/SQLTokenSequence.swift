@@ -13,6 +13,9 @@ public protocol SQLTokenSequence: Sequence {
   /// A type representing a sequence of tokens.
   associatedtype Tokens: Sequence = Self where Self.Tokens.Element == Self.Element
 
+  /// A type that provides the sequence's iteration interface.
+  associatedtype Iterator: IteratorProtocol = Self.Tokens.Iterator where Self.Iterator.Element == Self.Element
+
   /// Provide a sequence of tokens.
   var tokens: Tokens { get }
 }
@@ -31,8 +34,6 @@ extension SQLTokenSequence where Self.Tokens == Self {
 }
 
 extension SQLTokenSequence where Self.Tokens == Array<Self.Element> {
-  public typealias Iterator = Array<Element>.Iterator
-
   public func makeIterator() -> Array<Element>.Iterator {
     return tokens.makeIterator()
   }
@@ -43,6 +44,15 @@ extension SQLTokenSequence where Self.Tokens == Array<Self.Element> {
 
   public func withContiguousStorageIfAvailable<R>(_ body: (UnsafeBufferPointer<Element>) throws -> R) rethrows -> R? {
     return try tokens.withContiguousStorageIfAvailable(body)
+  }
+}
+
+// Note: `extension SQLTokenSequence where Self.Tokens: SQLTokenSequence`
+//       may induce infinite recursion if implementation is not appropriate.
+
+extension SQLTokenSequence where Self.Tokens == JoinedSQLTokenSequence {
+  public func makeIterator() -> JoinedSQLTokenSequence.Iterator {
+    return tokens.makeIterator()
   }
 }
 

@@ -90,6 +90,11 @@ public struct NonEmptyList<Item>: BidirectionalCollection, MutableCollection {
   public mutating func append<S>(contentsOf newItems: S) where S: Sequence, S.Element == Item {
     items.append(contentsOf: newItems)
   }
+
+  @inlinable
+  public func map<T>(_ transform: (Element) throws -> T) rethrows -> NonEmptyList<T> {
+    return NonEmptyList<T>(items: try items.map(transform))!
+  }
 }
 
 extension NonEmptyList: ExpressibleByArrayLiteral {

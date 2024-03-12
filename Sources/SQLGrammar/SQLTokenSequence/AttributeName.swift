@@ -34,3 +34,11 @@ public enum AttributeName: SQLTokenSequence {
     }
   }
 }
+
+internal protocol _AttributeNameConvertible {
+  var _attributeName: AttributeName { get }
+}
+extension ColumnLabel: _AttributeNameConvertible {
+  @inlinable
+  var _attributeName: AttributeName { .init(self) }
+}

@@ -17,13 +17,6 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertNil(SQLToken.keyword(from: "hogehoge"))
   }
 
-  func test_ColumnIdentifier() {
-    XCTAssertNotNil(ColumnIdentifier(.identifier("my_column")))
-    XCTAssertNotNil(ColumnIdentifier(.xml))
-    XCTAssertNotNil(ColumnIdentifier(.identifier("DO")))
-    XCTAssertNil(ColumnIdentifier(.do))
-  }
-
   func test_JoinedSQLTokenSequence() {
     var tokens: [SQLToken] = []
     XCTAssertEqual(tokens.joined().description, "")
@@ -45,5 +38,19 @@ final class SQLGrammarTests: XCTestCase {
     let statement = __PseudoStatement()
     XCTAssertEqual(statement.description, "DROP TABLE my_table")
     XCTAssertEqual(statement.terminated.description, "DROP TABLE my_table;")
+  }
+
+  func test_ColumnIdentifier() {
+    XCTAssertNotNil(ColumnIdentifier(.identifier("my_column")))
+    XCTAssertNotNil(ColumnIdentifier(.xml))
+    XCTAssertNotNil(ColumnIdentifier(.identifier("DO")))
+    XCTAssertNil(ColumnIdentifier(.do))
+  }
+
+  func test_Attributes() {
+    XCTAssertEqual(
+      Attributes(names: [.columnLabel("label0"), .columnLabel("label1")]).description,
+      ".label0.label1"
+    )
   }
 }

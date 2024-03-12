@@ -250,7 +250,7 @@ extension SQLToken {
   public static func identifier(_ string: String, forceQuoting: Bool = false, encodingIsUTF8: Bool = true) -> SQLToken {
     var requireQuoting = forceQuoting
 
-    if keyword(from: string) != nil {
+    if !requireQuoting && keyword(from: string) != nil {
       requireQuoting = true
     }
 

@@ -26,3 +26,10 @@ public struct ColumnLabel: LosslessTokenConvertible {
   }
 }
 
+extension ColumnLabel: ExpressibleByStringLiteral {
+  public typealias StringLiteralType = String
+
+  public init(stringLiteral value: String) {
+    self.init(.identifier(value))!
+  }
+}
