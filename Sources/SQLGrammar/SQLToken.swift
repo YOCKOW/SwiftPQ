@@ -64,6 +64,8 @@ private extension String {
   }
 }
 
+// TODO: Drop 'SQL' prefix!
+
 /// A type representing SQL token.
 @_ExpandStaticKeywords
 public class SQLToken: CustomStringConvertible {
