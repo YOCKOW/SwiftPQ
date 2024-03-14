@@ -64,4 +64,23 @@ final class SQLGrammarTests: XCTestCase {
       "my_column.label0.label1"
     )
   }
+
+  func test_DropTable() {
+    XCTAssertEqual(
+      DropTable(
+        ifExists: false,
+        names: [.init(columnIdentifier: "my_table")],
+        behavior: nil
+      ).description,
+      "DROP TABLE my_table"
+    )
+    XCTAssertEqual(
+      DropTable(
+        ifExists: true,
+        names: [.init(columnIdentifier: "my_table1"), .init(columnIdentifier: "my_table2")],
+        behavior: .restrict
+      ).description,
+      "DROP TABLE IF EXISTS my_table1, my_table2 RESTRICT"
+    )
+  }
 }

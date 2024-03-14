@@ -26,6 +26,9 @@ public protocol Statement: SQLTokenSequence {}
 /// A type representing an expression whish is expressed as `a_expr`, `b_expr`, or `c_expr`.
 public protocol Expression: SQLTokenSequence {}
 
+/// A type representing some kind of token sequence that is, for example, a part of a statement.
+public protocol Segment: SQLTokenSequence {}
+
 extension SQLTokenSequence where Self.Tokens == Self {
   /// Provide itself as a sequence of tokens.
   public var tokens: Self {

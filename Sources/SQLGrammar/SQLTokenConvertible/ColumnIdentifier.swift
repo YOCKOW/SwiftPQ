@@ -7,7 +7,8 @@
 
 /// A type representing a column identifier which is described as `ColId` in "gram.y".
 ///
-/// - Note: `ColId` is not always used as a name of column in "gram.y".
+/// - Note: `ColId` is not always used as a name of column.
+///         It means a name that can be column, table, or others' name.
 public struct ColumnIdentifier: LosslessTokenConvertible {
   public let token: SQLToken
 

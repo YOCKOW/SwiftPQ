@@ -17,3 +17,15 @@ public struct AnyNameList: SQLTokenSequence {
     return names.joinedByCommas()
   }
 }
+
+extension AnyNameList: ExpressibleByArrayLiteral {
+  public typealias ArrayLiteralElement = AnyName
+
+  @inlinable
+  public init(arrayLiteral elements: AnyName...) {
+    guard let names = NonEmptyList<AnyName>(items: elements) else {
+      fatalError("List must not be empty.")
+    }
+    self.init(names: names)
+  }
+}
