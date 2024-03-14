@@ -15,22 +15,22 @@ public final class StatementTerminator: SQLTokenSequence {
 public let statementTerminator: StatementTerminator = .statementTerminator
 
 /// A type representing terminated statement.
-public struct TerminatedStatement<T>: SQLTokenSequence where T: Statement {
+public struct Terminated<Statement>: SQLTokenSequence where Statement: SQLGrammar.Statement {
   public typealias Element = SQLToken
 
-  public let statement: T
+  public let statement: Statement
 
-  public init(_ statement: T) {
+  public init(_ statement: Statement) {
     self.statement = statement
   }
 
   public struct Iterator: IteratorProtocol {
     public typealias Element = SQLToken
 
-    private var _statementIterator: T.Iterator?
+    private var _statementIterator: Statement.Iterator?
     private var _terminatorIterator: StatementTerminator.Iterator
 
-    fileprivate init(_ base: TerminatedStatement) {
+    fileprivate init(_ base: Terminated<Statement>) {
       self._statementIterator = base.statement.makeIterator()
       self._terminatorIterator = statementTerminator.makeIterator()
     }
@@ -52,7 +52,7 @@ public struct TerminatedStatement<T>: SQLTokenSequence where T: Statement {
 
 extension Statement {
   /// Sequence of tokens where `;` is added to `self`.
-  public var terminated: TerminatedStatement<Self> {
+  public var terminated: Terminated<Self> {
     return .init(self)
   }
 }
