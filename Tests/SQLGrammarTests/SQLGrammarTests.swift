@@ -65,6 +65,17 @@ final class SQLGrammarTests: XCTestCase {
     )
   }
 
+  func test_Indirection() {
+    XCTAssertEqual(
+      Indirection([
+        .attributeName(AttributeName(ColumnLabel("label0"))),
+        .attributeName(AttributeName(ColumnLabel("label1"))),
+        .any,
+      ]).description,
+      ".label0.label1.*"
+    )
+  }
+
   func test_DropTable() {
     XCTAssertEqual(
       DropTable(

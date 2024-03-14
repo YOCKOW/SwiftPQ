@@ -23,8 +23,17 @@ public protocol SQLTokenSequence: Sequence {
 /// A type representing a statement which is expressed as `stmt` in "gram.y".
 public protocol Statement: SQLTokenSequence {}
 
-/// A type representing an expression whish is expressed as `a_expr`, `b_expr`, or `c_expr`.
+/// A type representing an expression.
 public protocol Expression: SQLTokenSequence {}
+
+/// A type representing an expression that is described as `a_expr` in "gram.y".
+public protocol GeneralExpression: Expression {}
+
+/// A type representing an expression that is described as `b_expr` in "gram.y".
+public protocol RestrictedExpression: Expression {}
+
+/// A type representing an expression that is described as `c_expr` in "gram.y".
+public protocol ProductionExpression: Expression {}
 
 /// A type representing some kind of token sequence that is, for example, a part of a statement.
 public protocol Segment: SQLTokenSequence {}
@@ -116,5 +125,33 @@ internal final class AnySQLTokenSequenceIterator: IteratorProtocol {
 
   func next() -> SQLToken? {
     return self._box.next()
+  }
+}
+
+/// A type erasure to be sed in the case that `any SQLTokenSequence` is not available.
+internal final class AnySQLTokenSequence: SQLTokenSequence {
+  typealias Element = SQLToken
+  typealias Tokens = AnySQLTokenSequence
+  typealias Iterator = AnySQLTokenSequenceIterator
+
+  private class _Box {
+    func makeIterator() -> AnySQLTokenSequenceIterator { fatalError("Must be overriden.") }
+  }
+  private class _Base<T>: _Box where T: SQLTokenSequence {
+    let _base: T
+    init(_ base: T) { self._base = base }
+    override func makeIterator() -> AnySQLTokenSequenceIterator {
+      return .init(_base)
+    }
+  }
+
+  private let _box: _Box
+
+  init<T>(_ base: T) where T: SQLTokenSequence {
+    self._box = _Base<T>(base)
+  }
+
+  func makeIterator() -> AnySQLTokenSequenceIterator {
+    return _box.makeIterator()
   }
 }
