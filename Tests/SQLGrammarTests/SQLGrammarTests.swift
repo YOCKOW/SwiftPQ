@@ -55,10 +55,10 @@ final class SQLGrammarTests: XCTestCase {
   }
 
   func test_AnyName() {
-    XCTAssertEqual(AnyName(columnIdentifier: "my_column").description, "my_column")
+    XCTAssertEqual(AnyName(identifier: "my_column").description, "my_column")
     XCTAssertEqual(
       AnyName(
-        columnIdentifier: "my_column",
+        identifier: "my_column",
         attributes: Attributes(names: [.columnLabel("label0"), .columnLabel("label1")])
       ).description,
       "my_column.label0.label1"
@@ -80,7 +80,7 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(
       DropTable(
         ifExists: false,
-        names: [.init(columnIdentifier: "my_table")],
+        names: [.init(identifier: "my_table")],
         behavior: nil
       ).description,
       "DROP TABLE my_table"
@@ -88,7 +88,7 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(
       DropTable(
         ifExists: true,
-        names: [.init(columnIdentifier: "my_table1"), .init(columnIdentifier: "my_table2")],
+        names: [.init(identifier: "my_table1"), .init(identifier: "my_table2")],
         behavior: .restrict
       ).description,
       "DROP TABLE IF EXISTS my_table1, my_table2 RESTRICT"
