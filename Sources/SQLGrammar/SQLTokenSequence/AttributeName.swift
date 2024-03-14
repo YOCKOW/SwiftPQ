@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing an attribute name which is described as `attr_name` in "gram.y".
-public enum AttributeName: SQLTokenSequence {
+public enum AttributeName: NameRepresentation {
   case columnLabel(ColumnLabel)
 
   public init(_ label: ColumnLabel) {

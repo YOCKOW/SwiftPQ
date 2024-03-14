@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing a name that is described as `any_name` in "gram.y".
-public struct AnyName: SQLTokenSequence {
+public struct AnyName: NameRepresentation {
   public let columnIdentifier: ColumnIdentifier
 
   public let attributes: Attributes?

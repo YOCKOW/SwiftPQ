@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing a name which is described as `object_type_any_name` in "gram.y".
-public enum ObjectTypeAnyName: SQLTokenSequence {
+public enum ObjectTypeAnyName: NameRepresentation {
   case table
   case sequence
   case view
