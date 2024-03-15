@@ -24,6 +24,15 @@ public struct ColumnLabel: LosslessTokenConvertible {
       return nil
     }
   }
+
+  public init(_ description: String) {
+    if let keyword = SQLToken.keyword(from: description),
+       let id = Self(keyword) {
+      self = id
+      return
+    }
+    self.token = .identifier(description)
+  }
 }
 
 extension ColumnLabel: ExpressibleByStringLiteral {

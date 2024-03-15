@@ -22,12 +22,21 @@ public struct ColumnIdentifier: LosslessTokenConvertible {
       return nil
     }
   }
+
+  public init(_ description: String) {
+    if let keyword = SQLToken.keyword(from: description),
+       let id = Self(keyword) {
+      self = id
+      return
+    }
+    self.token = .identifier(description)
+  }
 }
 
 extension ColumnIdentifier: ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
 
   public init(stringLiteral value: String) {
-    self.init(.identifier(value))!
+    self.init(value)
   }
 }

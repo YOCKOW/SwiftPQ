@@ -61,4 +61,26 @@ public struct DropTable: DropObjectTypeAnyName {
     self.names = names
     self.behavior = behavior
   }
+
+  @inlinable
+  public init?<C>(
+    names: C,
+    ifExists: Bool = false,
+    behavior: DropBehavior? = nil
+  ) where C: Collection, C.Element == TableName {
+    guard let list = NonEmptyList<any AnyName>(items: names.map({ $0 as any AnyName })) else {
+      return nil
+    }
+    self.init(ifExists: ifExists, names: AnyNameList(names: list), behavior: behavior)
+  }
+
+  @inlinable
+  public init<T>(ifExists: Bool = false, name: T, behavior: DropBehavior? = nil) where T: AnyName {
+    self.init(ifExists: ifExists, names: AnyNameList(names: [name]), behavior: behavior)
+  }
+
+  @inlinable
+  public init(ifExists: Bool = false, name: TableName, behavior: DropBehavior? = nil) {
+    self.init(ifExists: ifExists, names: AnyNameList(names: [name]), behavior: behavior)
+  }
 }

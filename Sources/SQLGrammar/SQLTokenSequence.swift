@@ -35,9 +35,6 @@ public protocol RestrictedExpression: Expression {}
 /// A type representing an expression that is described as `c_expr` in "gram.y".
 public protocol ProductionExpression: Expression {}
 
-/// A type that represents a kind of name.
-public protocol NameRepresentation: SQLTokenSequence {}
-
 /// A type representing some kind of token sequence that is, for example, a part of a statement.
 public protocol Segment: SQLTokenSequence {}
 

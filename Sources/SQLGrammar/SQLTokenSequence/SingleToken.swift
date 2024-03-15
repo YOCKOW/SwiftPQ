@@ -24,7 +24,7 @@ public struct SingleToken: SQLTokenSequence {
 
     public let token: SQLToken
     private var _end: Bool = false
-    fileprivate init(_ token: SQLToken) {
+    internal init(_ token: SQLToken) {
       self.token = token
     }
 

@@ -49,17 +49,26 @@ final class SQLGrammarTests: XCTestCase {
 
   func test_Attributes() {
     XCTAssertEqual(
-      Attributes(names: [.columnLabel("label0"), .columnLabel("label1")]).description,
+      AttributeList(names: [.columnLabel("label0"), .columnLabel("label1")]).description,
       ".label0.label1"
     )
   }
 
   func test_AnyName() {
-    XCTAssertEqual(AnyName(identifier: "my_column").description, "my_column")
+    struct __PseudoAnyName: AnyName {
+      let identifier: ColumnIdentifier
+      let attributes: AttributeList?
+      init(identifier: ColumnIdentifier, attributes: AttributeList? = nil) {
+        self.identifier = identifier
+        self.attributes = attributes
+      }
+    }
+
+    XCTAssertEqual(__PseudoAnyName(identifier: "my_column").description, "my_column")
     XCTAssertEqual(
-      AnyName(
+      __PseudoAnyName(
         identifier: "my_column",
-        attributes: Attributes(names: [.columnLabel("label0"), .columnLabel("label1")])
+        attributes: AttributeList(names: [.columnLabel("label0"), .columnLabel("label1")])
       ).description,
       "my_column.label0.label1"
     )
@@ -77,21 +86,38 @@ final class SQLGrammarTests: XCTestCase {
   }
 
   func test_DropTable() {
-    XCTAssertEqual(
+    func __assert(
+      _ dropTable: DropTable,
+      _ expectedDescription: String,
+      file: StaticString = #filePath, line: UInt = #line
+    ) {
+      XCTAssertEqual(dropTable.description, expectedDescription, file: file, line: line)
+    }
+
+    __assert(
       DropTable(
         ifExists: false,
-        names: [.init(identifier: "my_table")],
+        name: "my_table",
         behavior: nil
-      ).description,
+      ),
       "DROP TABLE my_table"
     )
-    XCTAssertEqual(
+    __assert(
       DropTable(
         ifExists: true,
-        names: [.init(identifier: "my_table1"), .init(identifier: "my_table2")],
+        names: [TableName("my_table1"), TableName("my_table2")],
         behavior: .restrict
-      ).description,
+      ),
       "DROP TABLE IF EXISTS my_table1, my_table2 RESTRICT"
+    )
+    __assert(
+      DropTable(
+        names: [
+          TableName(schema: "my_schema", name: "my_private_table1"),
+          TableName(schema: "my_schema", name: "my_private_table2"),
+        ]
+      ),
+      "DROP TABLE my_schema.my_private_table1, my_schema.my_private_table2"
     )
   }
 }

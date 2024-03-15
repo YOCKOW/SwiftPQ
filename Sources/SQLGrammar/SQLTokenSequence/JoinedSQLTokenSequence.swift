@@ -130,8 +130,9 @@ extension Collection where Element: SQLToken {
   }
 }
 
-extension Array where Element == any SQLTokenSequence {
+extension Collection where Element == any SQLTokenSequence {
   /// Returns joined tokens with `separator`.
+  @inlinable
   public func joined<S>(separator: S? = Optional<Array<SQLToken>>.none) -> JoinedSQLTokenSequence where S: Sequence, S.Element: SQLToken {
     return JoinedSQLTokenSequence(self, separator: separator)
   }

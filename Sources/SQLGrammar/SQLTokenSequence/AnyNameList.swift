@@ -7,14 +7,14 @@
 
 /// A type representing a list that is described as `any_name_list` in "gram.y".
 public struct AnyNameList: SQLTokenSequence {
-  public let names: NonEmptyList<AnyName>
+  public let names: NonEmptyList<any AnyName>
 
-  public init(names: NonEmptyList<AnyName>) {
+  public init(names: NonEmptyList<any AnyName>) {
     self.names = names
   }
 
   public var tokens: JoinedSQLTokenSequence {
-    return names.joinedByCommas()
+    return names.map({ $0 as any SQLTokenSequence }).joinedByCommas()
   }
 }
 
@@ -22,8 +22,8 @@ extension AnyNameList: ExpressibleByArrayLiteral {
   public typealias ArrayLiteralElement = AnyName
 
   @inlinable
-  public init(arrayLiteral elements: AnyName...) {
-    guard let names = NonEmptyList<AnyName>(items: elements) else {
+  public init(arrayLiteral elements: (any AnyName)...) {
+    guard let names = NonEmptyList<any AnyName>(items: elements) else {
       fatalError("List must not be empty.")
     }
     self.init(names: names)
