@@ -35,6 +35,11 @@ public protocol RestrictedExpression: Expression {}
 /// A type representing an expression that is described as `c_expr` in "gram.y".
 public protocol ProductionExpression: Expression {}
 
+/// A type representing "value expression".
+///
+/// Reference: [PostgreSQL Documentation §4.2. Value Expressions](https://www.postgresql.org/docs/current/sql-expressions.html)
+public protocol ValueExpression: Expression {}
+
 /// A type representing some kind of token sequence that is, for example, a part of a statement.
 public protocol Segment: SQLTokenSequence {}
 
