@@ -85,6 +85,18 @@ final class SQLGrammarTests: XCTestCase {
     )
   }
 
+  func test_c_expr() {
+    XCTAssertEqual(ColumnReference(columnName: "my_column").description, "my_column")
+    XCTAssertEqual(
+      ColumnReference(
+        tableName: TableName(schema: "public", name: "my_table"),
+        columnName: "my_column"
+      ).description,
+      "public.my_table.my_column"
+    )
+  }
+
+
   func test_DropTable() {
     func __assert(
       _ dropTable: DropTable,

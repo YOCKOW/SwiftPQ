@@ -81,6 +81,16 @@ public struct Indirection: SQLTokenSequence {
       get { return elements[position] }
       set { elements[position] = newValue }
     }
+
+    @inlinable
+    public mutating func append(_ newElement: Element) {
+      elements.append(newElement)
+    }
+
+    @inlinable
+    public mutating func append<S>(contentsOf newElements: S) where S: Sequence, S.Element == Element {
+      elements.append(contentsOf: newElements)
+    }
   }
 
   public var list: List
