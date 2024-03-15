@@ -13,7 +13,7 @@ public struct Indirection: SQLTokenSequence {
     public enum Element: SQLTokenSequence {
       case attributeName(AttributeName)
       case any
-      case expression(any GeneralExpression)
+      case `subscript`(any GeneralExpression)
       case slice(lowerBound: (any GeneralExpression)?, upperBound: (any GeneralExpression)?)
 
       public var tokens: JoinedSQLTokenSequence {
@@ -22,7 +22,7 @@ public struct Indirection: SQLTokenSequence {
           return JoinedSQLTokenSequence(dotJoiner, attributeName)
         case .any:
           return JoinedSQLTokenSequence(dotJoiner, SingleToken(.asterisk))
-        case .expression(let expression):
+        case .subscript(let expression):
           return JoinedSQLTokenSequence(
             SingleToken(.joiner),
             SingleToken(.leftSquareBracket),
