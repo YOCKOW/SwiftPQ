@@ -58,19 +58,32 @@ public struct ColumnReference: ProductionExpression,
 /// It is described as `AexprConst` in "gram.y".
 public protocol ConstantExpression: ProductionExpression {}
 
+/// A type of constant expression that contains only one token.
+public protocol SingleTokenConstantExpression: ConstantExpression
+where Tokens == Array<Element>,
+      Iterator == SingleTokenIterator<Element> {
+  var token: Element { get }
+  init?(_ token: SQLToken)
+}
+
+extension SingleTokenConstantExpression {
+  public var tokens: Tokens {
+    return [self.token]
+  }
+
+  public func makeIterator() -> Iterator {
+    return .init(self.token)
+  }
+}
+
 /// Unsigned integer constant representation, which is described as `Iconst` (`ICONST`) in "gram.y".
-public struct UnsignedIntegerConstantExpression: ConstantExpression, ExpressibleByIntegerLiteral {
+public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
+                                                 ExpressibleByIntegerLiteral {
   public typealias IntegerLiteralType = UInt64
 
   public typealias Element = SQLToken.NumericConstant
 
   public let token: SQLToken.NumericConstant
-
-  public var tokens: Array<SQLToken.NumericConstant> { return [token] }
-
-  public func makeIterator() -> SingleTokenIterator<SQLToken.NumericConstant> {
-    return SingleTokenIterator<SQLToken.NumericConstant>(token)
-  }
 
   public init?(_ token: SQLToken) {
     guard
@@ -91,39 +104,41 @@ public struct UnsignedIntegerConstantExpression: ConstantExpression, Expressible
   }
 }
 
-/// Float constant representation, which is described as `FCONST` in "gram.y".
-public struct FloatConstantExpression: ConstantExpression, ExpressibleByFloatLiteral {
+/// Unsigned float constant representation, which is described as `FCONST` in "gram.y".
+public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression {
   public typealias FloatLiteralType = Double
   public typealias Element = SQLToken.NumericConstant
 
   public let token: SQLToken.NumericConstant
 
-  public var tokens: Array<SQLToken.NumericConstant> { return [token] }
-
-  public func makeIterator() -> SingleTokenIterator<SQLToken.NumericConstant> {
-    return .init(token)
+  public init?(_ token: SQLToken) {
+    guard
+      case let numericConstantToken as SQLToken.NumericConstant = token,
+      numericConstantToken.isFloat, !numericConstantToken.isNegative
+    else {
+      return nil
+    }
+    self.token = numericConstantToken
   }
 
-  public init<T>(_ float: T) where T: SQLFloatType {
+  public init?<T>(_ float: T) where T: SQLFloatType {
+    if float < 0 {
+      return nil
+    }
     self.token = SQLToken.NumericConstant(float)
-  }
-
-  public init(floatLiteral value: FloatLiteralType) {
-    self.init(value)
   }
 }
 
 /// String constant representation, which is described as `Sconst` (`SCONST`) in "gram.y".
-public struct StringConstantExpression: ConstantExpression, ExpressibleByStringLiteral {
+public struct StringConstantExpression: SingleTokenConstantExpression, ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
   public typealias Element = SQLToken.StringConstant
 
   public let token: SQLToken.StringConstant
 
-  public var tokens: Array<SQLToken.StringConstant> { return [token] }
-
-  public func makeIterator() -> SingleTokenIterator<SQLToken.StringConstant> {
-    return .init(token)
+  public init?(_ token: SQLToken) {
+    guard case let strToken as SQLToken.StringConstant = token else { return nil }
+    self.token = strToken
   }
 
   public init<S>(_ string: S, encodingIsUTF8: Bool = true) where S: StringProtocol {
@@ -137,16 +152,10 @@ public struct StringConstantExpression: ConstantExpression, ExpressibleByStringL
 
 
 /// Bit-string constant representation, which is described as `BCONST` in "gram.y".
-public struct BitStringConstantExpression: ConstantExpression {
+public struct BitStringConstantExpression: SingleTokenConstantExpression {
   public typealias Element = SQLToken.BitStringConstant
 
   public let token: SQLToken.BitStringConstant
-
-  public var tokens: Array<SQLToken.BitStringConstant> { return [token] }
-
-  public func makeIterator() -> SingleTokenIterator<SQLToken.BitStringConstant> {
-    return .init(token)
-  }
   
   public init?(_ token: SQLToken) {
     guard case let bToken as SQLToken.BitStringConstant = token else { return nil }
