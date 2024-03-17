@@ -151,7 +151,7 @@ public struct StringConstantExpression: SingleTokenConstantExpression, Expressib
 }
 
 
-/// Bit-string constant representation, which is described as `BCONST` in "gram.y".
+/// Bit-string constant representation, which is described as `BCONST` and `XCONST` in "gram.y".
 public struct BitStringConstantExpression: SingleTokenConstantExpression {
   public typealias Element = SQLToken.BitStringConstant
 
