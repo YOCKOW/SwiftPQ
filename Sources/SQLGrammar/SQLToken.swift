@@ -72,6 +72,10 @@ public class SQLToken: CustomStringConvertible {
   @usableFromInline
   internal let _rawValue: String
 
+  fileprivate func isEqual(to other: SQLToken) -> Bool {
+    return Swift.type(of: self) == Swift.type(of: other) && self._rawValue == other._rawValue
+  }
+
   @inlinable
   internal init(rawValue: String) {
     self._rawValue = rawValue
@@ -283,8 +287,7 @@ public class SQLToken: CustomStringConvertible {
 /// Workaround for https://github.com/apple/swift/issues/70087
 extension SQLToken: Equatable {
   public static func ==(lhs: SQLToken, rhs: SQLToken) -> Bool {
-    guard Swift.type(of: lhs) == Swift.type(of: rhs) else { return false }
-    return lhs._rawValue == rhs._rawValue
+    return lhs.isEqual(to: rhs)
   }
 }
 
