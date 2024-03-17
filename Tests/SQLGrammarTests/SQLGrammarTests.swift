@@ -88,14 +88,21 @@ final class SQLGrammarTests: XCTestCase {
 
 final class SQLGrammarExpressionTests: XCTestCase {
   func test_c_expr() {
-    XCTAssertEqual(ColumnReference(columnName: "my_column").description, "my_column")
-    XCTAssertEqual(
-      ColumnReference(
-        tableName: TableName(schema: "public", name: "my_table"),
-        columnName: "my_column"
-      ).description,
-      "public.my_table.my_column"
-    )
+  columnref:
+      do {
+      XCTAssertEqual(ColumnReference(columnName: "my_column").description, "my_column")
+      XCTAssertEqual(
+        ColumnReference(
+          tableName: TableName(schema: "public", name: "my_table"),
+          columnName: "my_column"
+        ).description,
+        "public.my_table.my_column"
+      )
+    }
+  AexprConst:
+    do {
+      XCTAssertEqual(UnsignedIntegerConstantExpression(12345).description, "12345")
+    }
   }
 }
 

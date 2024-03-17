@@ -5,6 +5,23 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+public struct SingleTokenIterator<T>: IteratorProtocol where T: SQLToken {
+  public let token: T
+  private var _finished: Bool = false
+
+  internal init(_ token: T) {
+    self.token = token
+  }
+
+  public mutating func next() -> T? {
+    if _finished {
+      return nil
+    }
+    _finished = true
+    return token
+  }
+}
+
 /// A type that contains only one token, but conforms to `SQLTokenSequence`.
 public struct SingleToken: SQLTokenSequence {
   public let token: SQLToken
@@ -19,21 +36,7 @@ public struct SingleToken: SQLTokenSequence {
     self.init(object.token)
   }
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-
-    public let token: SQLToken
-    private var _end: Bool = false
-    internal init(_ token: SQLToken) {
-      self.token = token
-    }
-
-    public mutating func next() -> Element? {
-      guard !_end else { return nil }
-      _end = true
-      return token
-    }
-  }
+  public typealias Iterator = SingleTokenIterator<SQLToken>
 
   public func makeIterator() -> Iterator {
     return .init(token)

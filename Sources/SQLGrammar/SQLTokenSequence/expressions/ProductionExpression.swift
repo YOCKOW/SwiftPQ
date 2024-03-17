@@ -53,3 +53,42 @@ public struct ColumnReference: ProductionExpression,
     self.init(columnName: value)
   }
 }
+
+/// A type representing a constant as an expression.
+/// It is described as `AexprConst` in "gram.y".
+public protocol ConstantExpression: ProductionExpression {}
+
+/// Unsigned integer constant representation, which is described as `Iconst` (`ICONST`) in "gram.y".
+public struct UnsignedIntegerConstantExpression: ConstantExpression, ExpressibleByIntegerLiteral {
+  public typealias IntegerLiteralType = UInt64
+
+  public typealias Element = SQLToken.NumericConstant
+
+  public let token: SQLToken.NumericConstant
+
+  public var tokens: Array<SQLToken.NumericConstant> { return [token] }
+
+  public func makeIterator() -> SingleTokenIterator<SQLToken.NumericConstant> {
+    return SingleTokenIterator<SQLToken.NumericConstant>(token)
+  }
+
+  public init?(_ token: SQLToken) {
+    guard
+      case let numericConstantToken as SQLToken.NumericConstant = token,
+      numericConstantToken.isInteger, !numericConstantToken.isNegative
+    else {
+      return nil
+    }
+    self.token = numericConstantToken
+  }
+
+  public init<T>(_ uint: T) where T: UnsignedInteger & SQLIntegerType {
+    self.token = SQLToken.NumericConstant(uint)
+  }
+
+  public init(integerLiteral value: UInt64) {
+    self.init(value)
+  }
+}
+
+
