@@ -102,6 +102,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
   AexprConst:
     do {
       XCTAssertEqual(UnsignedIntegerConstantExpression(12345).description, "12345")
+      XCTAssertEqual(FloatConstantExpression(1.2345).description, "1.2345")
     }
   }
 }

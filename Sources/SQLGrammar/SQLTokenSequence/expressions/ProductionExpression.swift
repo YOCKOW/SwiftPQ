@@ -91,4 +91,24 @@ public struct UnsignedIntegerConstantExpression: ConstantExpression, Expressible
   }
 }
 
+/// Float constant representation, which is described as `FCONST` in "gram.y".
+public struct FloatConstantExpression: ConstantExpression, ExpressibleByFloatLiteral {
+  public typealias FloatLiteralType = Double
+  public typealias Element = SQLToken.NumericConstant
 
+  public let token: SQLToken.NumericConstant
+
+  public var tokens: Array<SQLToken.NumericConstant> { return [token] }
+
+  public func makeIterator() -> SingleTokenIterator<SQLToken.NumericConstant> {
+    return .init(token)
+  }
+
+  public init<T>(_ float: T) where T: SQLFloatType {
+    self.token = SQLToken.NumericConstant(float)
+  }
+
+  public init(floatLiteral value: FloatLiteralType) {
+    self.init(value)
+  }
+}
