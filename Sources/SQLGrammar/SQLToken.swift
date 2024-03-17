@@ -168,6 +168,50 @@ public class SQLToken: CustomStringConvertible {
     }
   }
 
+  public class BitStringConstant: SQLToken {
+    public enum Style {
+      case binary
+      case hexadecimal
+    }
+
+    public enum Error: Swift.Error {
+      case invalidNotation
+    }
+
+    public let style: Style
+
+    public override var description: String {
+      switch style {
+      case .binary:
+        return "B'\(_rawValue)'"
+      case .hexadecimal:
+        return "X'\(_rawValue.uppercased())'"
+      }
+    }
+
+    public init(_ rawValue: String, style: Style) throws {
+      switch style {
+      case .binary:
+        guard rawValue.unicodeScalars.allSatisfy({ $0 == "0" || $0 == "1" }) else {
+          throw Error.invalidNotation
+        }
+      case .hexadecimal:
+        guard rawValue.unicodeScalars.allSatisfy({
+          switch $0 {
+          case "0"..."9", "A"..."F", "a"..."f":
+            return true
+          default:
+            return false
+          }
+        }) else {
+          throw Error.invalidNotation
+        }
+      }
+      self.style = style
+      super.init(rawValue: rawValue)
+    }
+  }
+
   @_WellknownOperators
   public class Operator: SQLToken {
     public enum Error: Swift.Error {
@@ -304,6 +348,13 @@ extension SQLToken {
   /// Create a numeric constant token.
   public static func float<T>(_ float: T) -> SQLToken where T: SQLFloatType {
     return NumericConstant(float)
+  }
+
+  public static func bitString(
+    _ string: String,
+    style: SQLToken.BitStringConstant.Style
+  ) throws -> SQLToken {
+    return try BitStringConstant(string, style: style)
   }
 
   /// Create an operator token.

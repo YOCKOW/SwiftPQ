@@ -134,3 +134,22 @@ public struct StringConstantExpression: ConstantExpression, ExpressibleByStringL
     self.init(value)
   }
 }
+
+
+/// Bit-string constant representation, which is described as `BCONST` in "gram.y".
+public struct BitStringConstantExpression: ConstantExpression {
+  public typealias Element = SQLToken.BitStringConstant
+
+  public let token: SQLToken.BitStringConstant
+
+  public var tokens: Array<SQLToken.BitStringConstant> { return [token] }
+
+  public func makeIterator() -> SingleTokenIterator<SQLToken.BitStringConstant> {
+    return .init(token)
+  }
+  
+  public init?(_ token: SQLToken) {
+    guard case let bToken as SQLToken.BitStringConstant = token else { return nil }
+    self.token = bToken
+  }
+}

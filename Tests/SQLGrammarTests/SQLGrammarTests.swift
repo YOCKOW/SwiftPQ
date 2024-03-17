@@ -104,6 +104,14 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertEqual(UnsignedIntegerConstantExpression(12345).description, "12345")
       XCTAssertEqual(FloatConstantExpression(1.2345).description, "1.2345")
       XCTAssertEqual(StringConstantExpression("string").description, "'string'")
+      XCTAssertEqual(
+        BitStringConstantExpression(try .bitString("010", style: .binary))?.description,
+        "B'010'"
+      )
+      XCTAssertEqual(
+        BitStringConstantExpression(try .bitString("1FF", style: .hexadecimal))?.description,
+        "X'1FF'"
+      )
     }
   }
 }
