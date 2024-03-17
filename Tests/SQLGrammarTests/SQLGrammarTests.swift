@@ -84,6 +84,11 @@ final class SQLGrammarTests: XCTestCase {
       ".label0.label1.*"
     )
   }
+
+  func test_FunctionName() {
+    XCTAssertEqual(FunctionName("my_func").description, "my_func")
+    XCTAssertEqual(FunctionName(ColumnReference(tableName: "s", columnName: "f")).description, "s.f")
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {

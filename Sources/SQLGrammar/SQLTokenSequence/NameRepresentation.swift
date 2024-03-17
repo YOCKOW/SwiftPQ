@@ -71,6 +71,90 @@ public struct DatabaseName: NameRepresentation {
   }
 }
 
+/// A type representing a function name that is described as `func_name` in "gram.y".
+public struct FunctionName: NameRepresentation {
+  /// An identifier that can be a function name.
+  public struct Identifier: LosslessTokenConvertible {
+    public let token: SQLToken
+
+    public init?(_ token: SQLToken) {
+      switch token {
+      case is SQLToken.Identifier:
+        self.token = token
+      case let keyword as SQLToken.Keyword where (
+        keyword.isUnreserved || keyword.isAvailableForTypeOrFunctionName
+      ):
+        self.token = token
+      default:
+        return nil
+      }
+    }
+  }
+
+  private enum _Type {
+    case identifier(Identifier)
+    case qualifiedName(any QualifiedName)
+  }
+
+  private let _type: _Type
+
+  public struct Tokens: Sequence {
+    public typealias Element = SQLToken
+
+    private let _name: FunctionName
+
+    fileprivate init(_ name: FunctionName) {
+      self._name = name
+    }
+
+    public struct Iterator: IteratorProtocol {
+      private var _iterator: AnySQLTokenSequenceIterator
+
+      fileprivate init<S>(_ seq: S) where S: Sequence, S.Element: SQLToken {
+        self._iterator = AnySQLTokenSequenceIterator(seq)
+      }
+
+      public func next() -> Element? {
+        return _iterator.next()
+      }
+    }
+
+    public func makeIterator() -> Iterator {
+      switch _name._type {
+      case .identifier(let identifier):
+        return .init(SingleToken(identifier))
+      case .qualifiedName(let qualifiedName):
+        return .init(qualifiedName)
+      }
+    }
+  }
+
+  public var tokens: Tokens {
+    return .init(self)
+  }
+
+  public func makeIterator() -> Tokens.Iterator {
+    return tokens.makeIterator()
+  }
+
+  /// Creates a name with given token. Returns `nil` if invalid token was given.
+  public init?(_ token: SQLToken) {
+    guard let identifier = Identifier(token) else { return nil }
+    self._type = .identifier(identifier)
+  }
+
+  public init(_ string: String) {
+    guard let instance = Self.init(.identifier(string)) else {
+      fatalError("Failed to create an identifier?!")
+    }
+    self = instance
+  }
+
+  public init<Q>(_ otherName: Q) where Q: QualifiedName {
+    self._type = .qualifiedName(otherName)
+  }
+}
+
 /// A type representing a name which is described as `object_type_any_name` in "gram.y".
 public enum ObjectTypeAnyName: NameRepresentation {
   case table
