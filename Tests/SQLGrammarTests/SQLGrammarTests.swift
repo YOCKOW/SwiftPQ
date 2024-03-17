@@ -84,7 +84,9 @@ final class SQLGrammarTests: XCTestCase {
       ".label0.label1.*"
     )
   }
+}
 
+final class SQLGrammarExpressionTests: XCTestCase {
   func test_c_expr() {
     XCTAssertEqual(ColumnReference(columnName: "my_column").description, "my_column")
     XCTAssertEqual(
@@ -95,8 +97,9 @@ final class SQLGrammarTests: XCTestCase {
       "public.my_table.my_column"
     )
   }
+}
 
-
+final class SQLGrammarStatementTests: XCTestCase {
   func test_DropTable() {
     func __assert(
       _ dropTable: DropTable,
