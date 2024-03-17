@@ -112,3 +112,25 @@ public struct FloatConstantExpression: ConstantExpression, ExpressibleByFloatLit
     self.init(value)
   }
 }
+
+/// String constant representation, which is described as `Sconst` (`SCONST`) in "gram.y".
+public struct StringConstantExpression: ConstantExpression, ExpressibleByStringLiteral {
+  public typealias StringLiteralType = String
+  public typealias Element = SQLToken.StringConstant
+
+  public let token: SQLToken.StringConstant
+
+  public var tokens: Array<SQLToken.StringConstant> { return [token] }
+
+  public func makeIterator() -> SingleTokenIterator<SQLToken.StringConstant> {
+    return .init(token)
+  }
+
+  public init<S>(_ string: S, encodingIsUTF8: Bool = true) where S: StringProtocol {
+    self.token = SQLToken.StringConstant(rawValue: String(string), encodingIsUTF8: encodingIsUTF8)
+  }
+
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(value)
+  }
+}

@@ -142,7 +142,7 @@ public class SQLToken: CustomStringConvertible {
       return _description
     }
 
-    fileprivate init(rawValue: String, encodingIsUTF8: Bool) {
+    internal init(rawValue: String, encodingIsUTF8: Bool) {
       self._isUTF8 = encodingIsUTF8
       super.init(rawValue: rawValue)
     }
