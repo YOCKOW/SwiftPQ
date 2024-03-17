@@ -16,6 +16,12 @@ public struct ColumnReference: ProductionExpression,
 
   public let columnName: String
 
+  /// Additional elements of indirection.
+  ///
+  /// This property can make an instance compatible with PostgreSQL's parser
+  /// because `columnref` is defined as `ColId | ColId indirection` in "gram.y".
+  public var trailingIndirection: Indirection? = nil
+
   public var identifier: ColumnIdentifier {
     return tableName?.identifier ?? ColumnIdentifier(columnName)
   }
@@ -23,11 +29,19 @@ public struct ColumnReference: ProductionExpression,
   public var indirection: Indirection? {
     guard let tableName else { return nil }
     let colElem = Indirection.List.Element.attributeName(AttributeName(ColumnLabel(columnName)))
-    guard var indirection = tableName.indirection else {
-      return [colElem]
+    if var indirection = tableName.indirection {
+      indirection.list.append(colElem)
+      if let trailingIndirection {
+        indirection.list.append(contentsOf: trailingIndirection.list)
+      }
+      return indirection
+    } else {
+      var list = NonEmptyList<Indirection.List.Element>(item: colElem)
+      if let trailingIndirection {
+        list.append(contentsOf: trailingIndirection.list)
+      }
+      return Indirection(Indirection.List(list))
     }
-    indirection.list.append(colElem)
-    return indirection
   }
 
   public init(tableName: TableName? = nil, columnName: String) {
