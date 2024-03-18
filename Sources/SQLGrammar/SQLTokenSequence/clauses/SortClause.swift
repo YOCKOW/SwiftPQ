@@ -31,3 +31,24 @@ public enum SortDirection: LosslessTokenConvertible {
     }
   }
 }
+
+/// A type that represents nulls order.
+public enum NullOrdering: Segment {
+  /// NULLS FIRST
+  case first
+
+  /// NULLS LAST
+  case last
+
+  private static let _nullsFirst: Array<SQLToken> = [.nulls, .first]
+  private static let _nullsLast: Array<SQLToken> = [.nulls, .last]
+
+  public var tokens: Array<SQLToken> {
+    switch self {
+    case .first:
+      return Self._nullsFirst
+    case .last:
+      return Self._nullsLast
+    }
+  }
+}
