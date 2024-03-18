@@ -217,7 +217,7 @@ public class SQLToken: CustomStringConvertible {
   }
 
   @_WellknownOperators
-  public class Operator: SQLToken {
+  public final class Operator: SQLToken {
     public enum Error: Swift.Error {
       case empty
       case invalidCharacter
@@ -225,7 +225,23 @@ public class SQLToken: CustomStringConvertible {
       case endInPlusOrMinus
     }
 
+    public let isMathOperator: Bool
+
     private override init(rawValue: String) {
+      self.isMathOperator = (
+        rawValue == "+" ||
+        rawValue == "-" ||
+        rawValue == "*" ||
+        rawValue == "/" ||
+        rawValue == "%" ||
+        rawValue == "^" ||
+        rawValue == "<" ||
+        rawValue == ">" ||
+        rawValue == "=" ||
+        rawValue == "<=" ||
+        rawValue == ">=" ||
+        rawValue == "<>"
+      )
       super.init(rawValue: rawValue)
     }
 

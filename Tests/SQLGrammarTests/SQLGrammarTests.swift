@@ -89,6 +89,11 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(FunctionName("my_func").description, "my_func")
     XCTAssertEqual(FunctionName(ColumnReference(tableName: "s", columnName: "f")).description, "s.f")
   }
+
+  func test_LabeledOperator() {
+    XCTAssertEqual(LabeledOperator(.minus).description, "-")
+    XCTAssertEqual(LabeledOperator(schema: "pg_catalog", .plus).description, "pg_catalog.+")
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {
