@@ -94,6 +94,14 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(LabeledOperator(.minus).description, "-")
     XCTAssertEqual(LabeledOperator(schema: "pg_catalog", .plus).description, "pg_catalog.+")
   }
+
+  func test_QualifiedOperator() throws {
+    XCTAssertEqual(QualifiedOperator(try XCTUnwrap(MathOperator(.minus))).description, "-")
+    XCTAssertEqual(
+      QualifiedOperator(LabeledOperator(schema: "pg_catalog", .plus)).description,
+      "OPERATOR(pg_catalog.+)"
+    )
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {

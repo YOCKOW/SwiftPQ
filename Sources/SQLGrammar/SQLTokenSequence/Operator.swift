@@ -80,3 +80,66 @@ public struct LabeledOperator: SQLTokenSequence {
     self.init(labels: [schema.identifier], `operator`)
   }
 }
+
+/// An `OPERATOR` constructor.
+public struct OperatorConstructor: SQLTokenSequence {
+  public let `operator`: LabeledOperator
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(
+      SingleToken(.operator), SingleToken(.joiner),
+      self.operator.parenthesized
+    )
+  }
+
+  public init(_ `operator`: LabeledOperator) {
+    self.operator = `operator`
+  }
+}
+
+/// Qualified operator described as `qual_all_Op` in "gram.y".
+public struct QualifiedOperator: SQLTokenSequence {
+  private enum _Type {
+    case bare(any OperatorTokenConvertible)
+    case constructor(OperatorConstructor)
+  }
+
+  private let _type: _Type
+
+  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible {
+    self._type = .bare(`operator`)
+  }
+
+  public init(_ labeledOperator: LabeledOperator) {
+    self._type = .constructor(OperatorConstructor(labeledOperator))
+  }
+
+  public init(_ constructor: OperatorConstructor) {
+    self._type = .constructor(constructor)
+  }
+
+  public struct Iterator: IteratorProtocol {
+    public typealias Element = SQLToken
+
+    private var _iterator: AnySQLTokenSequenceIterator
+
+    fileprivate init(_ qualifiedOperator: QualifiedOperator) {
+      switch qualifiedOperator._type {
+      case .bare(let someOperator):
+        self._iterator = AnySQLTokenSequenceIterator(
+          SingleTokenIterator<SQLToken.Operator>(someOperator.token)
+        )
+      case .constructor(let operatorConstructor):
+        self._iterator = AnySQLTokenSequenceIterator(operatorConstructor)
+      }
+    }
+
+    public mutating func next() -> SQLToken? {
+      return _iterator.next()
+    }
+  }
+
+  public func makeIterator() -> Iterator {
+    return .init(self)
+  }
+}
