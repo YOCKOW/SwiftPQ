@@ -7,7 +7,7 @@
 
 /// A type that represents an operator described as `all_Op` in "gram.y".
 ///
-/// Conforming types are `MathOperator` and `NonMathOperator`.
+/// Conforming types are `MathOperator` and `GeneralOperator`.
 public protocol OperatorTokenConvertible: LosslessTokenConvertible where Token == SQLToken.Operator {
   // This requirement should be automatically inherited from the parent protocol,
   // but this initializer cannot be favored from extension without this explicit requirement.
@@ -32,7 +32,7 @@ public struct MathOperator: OperatorTokenConvertible {
 }
 
 /// An operator that consists of only one token that is not a math operator.
-public struct NonMathOperator: OperatorTokenConvertible {
+public struct GeneralOperator: OperatorTokenConvertible {
   public let token: SQLToken.Operator
 
   @inlinable
@@ -68,7 +68,7 @@ public struct LabeledOperator: SQLTokenSequence {
     if let mathOp = MathOperator(`operator`) {
       self.init(labels: labels, mathOp)
     } else {
-      self.init(labels: labels, NonMathOperator(`operator`)!)
+      self.init(labels: labels, GeneralOperator(`operator`)!)
     }
   }
 
