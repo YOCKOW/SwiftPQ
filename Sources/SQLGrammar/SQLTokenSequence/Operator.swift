@@ -143,3 +143,30 @@ public struct QualifiedOperator: SQLTokenSequence {
     return .init(self)
   }
 }
+
+/// Qualified general operator described as `qual_Op` in "gram.y".
+public struct QualifiedGeneralOperator: SQLTokenSequence {
+  public typealias Element = QualifiedOperator.Element
+  public typealias Tokens = QualifiedOperator
+  public typealias Iterator = QualifiedOperator.Iterator
+
+  private let _qualifiedOperator: QualifiedOperator
+
+  public var tokens: QualifiedOperator { return _qualifiedOperator }
+
+  public func makeIterator() -> QualifiedOperator.Iterator {
+    return _qualifiedOperator.makeIterator()
+  }
+
+  public init(_ generalOperator: GeneralOperator) {
+    self._qualifiedOperator = .init(generalOperator)
+  }
+
+  public init(_ labeledOperator: LabeledOperator) {
+    self._qualifiedOperator = .init(labeledOperator)
+  }
+
+  public init(_ constructor: OperatorConstructor) {
+    self._qualifiedOperator = .init(constructor)
+  }
+}
