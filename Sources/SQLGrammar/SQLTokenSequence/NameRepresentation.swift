@@ -75,19 +75,13 @@ public struct DatabaseName: NameRepresentation {
 public struct FunctionName: NameRepresentation {
   /// An identifier that can be a function name.
   public struct Identifier: LosslessTokenConvertible {
-    public let token: SQLToken
+    private let _name: TypeOrFunctionName
+
+    public var token: SQLToken { return _name.token }
 
     public init?(_ token: SQLToken) {
-      switch token {
-      case is SQLToken.Identifier:
-        self.token = token
-      case let keyword as SQLToken.Keyword where (
-        keyword.isUnreserved || keyword.isAvailableForTypeOrFunctionName
-      ):
-        self.token = token
-      default:
-        return nil
-      }
+      guard let name = TypeOrFunctionName(token) else { return nil }
+      self._name = name
     }
   }
 
