@@ -104,6 +104,30 @@ final class SQLGrammarTests: XCTestCase {
   }
 }
 
+final class SQLGrammarClauseTests: XCTestCase {
+  func test_SortClause() throws {
+    struct __PseudoAexpr: GeneralExpression {
+      let ref: ColumnReference
+      var tokens: ColumnReference.Tokens { ref.tokens }
+    }
+    let sortByExpr1 = SortBy<__PseudoAexpr>(.init(ref: "col1"))
+    let sortByExpr2 = SortBy<__PseudoAexpr>(
+      .init(ref: "col2"),
+      direction: .descending,
+      nullOrdering: .last
+    )
+    let sortByExpr3 = SortBy<__PseudoAexpr>(
+      .init(ref: "col3"),
+      using: .init(try XCTUnwrap(MathOperator(.lessThan)))
+    )
+    let sortClause = SortClause(sortByExpr1, sortByExpr2, sortByExpr3)
+    XCTAssertEqual(
+      sortClause.description,
+      "ORDER BY col1, col2 DESC NULLS LAST, col3 USING <"
+    )
+  }
+}
+
 final class SQLGrammarExpressionTests: XCTestCase {
   func test_c_expr() {
   columnref:
