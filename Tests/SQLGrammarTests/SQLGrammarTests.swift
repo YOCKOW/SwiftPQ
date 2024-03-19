@@ -102,6 +102,10 @@ final class SQLGrammarTests: XCTestCase {
       "OPERATOR(pg_catalog.+)"
     )
   }
+
+  func test_ParamterName() {
+    XCTAssertEqual(ParameterName(.identifier("my_variable"))?.description, "my_variable")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

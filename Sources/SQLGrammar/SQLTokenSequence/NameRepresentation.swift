@@ -197,6 +197,28 @@ public enum ObjectTypeAnyName: NameRepresentation {
   }
 }
 
+/// A name for parameter, that is described as `param_name` in "gram.y".
+public struct ParameterName: NameRepresentation, LosslessTokenConvertible {
+  private let _name: TypeOrFunctionName
+
+  public var token: SQLToken {
+    return _name.token
+  }
+
+  public var tokens: SingleToken {
+    return .init(_name.token)
+  }
+
+  public func makeIterator() -> SingleToken.Iterator {
+    return tokens.makeIterator()
+  }
+
+  public init?(_ token: SQLToken) {
+    guard let name = TypeOrFunctionName(token) else { return nil }
+    self._name = name
+  }
+}
+
 /// A type representing a name of schema.
 public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
   public typealias StringLiteralType = String
