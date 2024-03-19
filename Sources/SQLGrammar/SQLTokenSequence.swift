@@ -33,7 +33,11 @@ public protocol GeneralExpression: Expression {}
 public protocol RestrictedExpression: Expression {}
 
 /// A type representing an expression that is described as `c_expr` in "gram.y".
-public protocol ProductionExpression: Expression {}
+///
+/// - Note: `a_expr` (`GeneralExpression` in this module) is defined as `c_expr | ...`,
+/// and `b_expr` (`RestrictedExpression` in  this module) is also defined as `c_expr | ...`,
+/// that means `c_expr` can be `a_expr` or `b_expr` per se.
+public protocol ProductionExpression: Expression, GeneralExpression, RestrictedExpression {}
 
 /// A type representing "value expression".
 ///
