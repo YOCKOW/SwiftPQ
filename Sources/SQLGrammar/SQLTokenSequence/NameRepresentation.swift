@@ -147,6 +147,11 @@ public struct FunctionName: NameRepresentation {
   public init<Q>(_ otherName: Q) where Q: QualifiedName {
     self._type = .qualifiedName(otherName)
   }
+
+  /// Returns an instance of `TypeName` with the same name.
+  public var asTypeName: TypeName {
+    return .init(self)
+  }
 }
 
 /// A type representing a name which is described as `object_type_any_name` in "gram.y".
@@ -311,5 +316,53 @@ public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
 
   public init(stringLiteral value: StringLiteralType) {
     self.init(name: value)
+  }
+}
+
+/// A name of a type.
+///
+/// There is no corresponding value in "gram.y" because it is the same with `func_name`.
+/// In this module, this type exists to distinguish a name of type from one of function.
+public struct TypeName: NameRepresentation {
+  public typealias Element = SQLToken
+
+  private let _name: FunctionName
+
+  public struct Iterator: IteratorProtocol {
+    private var _iterator: FunctionName.Iterator
+    fileprivate init(_ iterator: FunctionName.Iterator) { self._iterator = iterator }
+    public mutating func next() -> SQLToken? {
+      return _iterator.next()
+    }
+  }
+
+  public func makeIterator() -> Iterator {
+    return .init(_name.makeIterator())
+  }
+
+  /// Returns an instance of `FunctionName` with the same name.
+  public var asFunctionName: FunctionName {
+    return _name
+  }
+
+  fileprivate init(_ name: FunctionName) {
+    self._name = name
+  }
+
+  /// Creates a name with given token. Returns `nil` if invalid token was given.
+  public init?(_ token: SQLToken) {
+    guard let name = FunctionName(token) else { return nil }
+    self.init(name)
+  }
+
+  public init(_ string: String) {
+    guard let instance = Self.init(.identifier(string)) else {
+      fatalError("Failed to create an identifier?!")
+    }
+    self = instance
+  }
+
+  public init<Q>(_ otherName: Q) where Q: QualifiedName {
+    self._name = FunctionName(otherName)
   }
 }
