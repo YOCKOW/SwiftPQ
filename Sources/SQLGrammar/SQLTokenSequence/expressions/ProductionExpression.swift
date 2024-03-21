@@ -54,9 +54,13 @@ public struct ColumnReference: ProductionExpression,
   }
 }
 
+// MARK: - ConstantExpression
+
 /// A type representing a constant as an expression.
 /// It is described as `AexprConst` in "gram.y".
 public protocol ConstantExpression: ProductionExpression {}
+
+// MARK: - SingleTokenConstantExpression
 
 /// A type of constant expression that contains only one token.
 public protocol SingleTokenConstantExpression: ConstantExpression
@@ -168,5 +172,61 @@ public struct BitStringConstantExpression: SingleTokenConstantExpression {
   public init?(_ token: SQLToken) {
     guard case let bToken as SQLToken.BitStringConstant = token else { return nil }
     self.token = bToken
+  }
+}
+
+// MARK: /SingleTokenConstantExpression -
+
+/// Representation of a generic type syntax,  that is described as `func_name Sconst` or
+/// `func_name '(' func_arg_list opt_sort_clause ')' Sconst` in "gram.y".
+///
+/// - Note: While "generic syntax with a type modifier" is defined as
+///         `func_name '(' func_arg_list opt_sort_clause ')' Sconst`,
+///         named argument or sort clause are not allowed here.
+public struct GenericTypeLiteralSyntax: ConstantExpression {
+  /// A name of type.
+  ///
+  /// - Note: Since defined as `func_name` in "gram.y", its type is `FunctionName` here.
+  public let typeName: FunctionName
+
+  public let modifiers: FunctionArgumentList?
+
+  public let string: SQLToken.StringConstant
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence.compacting(
+      typeName,
+      modifiers?.parenthesized,
+      StringConstantExpression(string)
+    )
+  }
+
+  public init(
+    typeName: FunctionName,
+    modifiers: FunctionArgumentList? = nil,
+    string: SQLToken.StringConstant
+  ) {
+    self.typeName = typeName
+    self.modifiers = modifiers
+    self.string = string
+  }
+
+  public init?(
+    typeName: FunctionName,
+    modifiers: FunctionArgumentList? = nil,
+    string: SQLToken
+  ) {
+    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+      return nil
+    }
+    self.init(typeName: typeName, modifiers: modifiers, string: stringConstantToken)
+  }
+
+  public init?(
+    typeName: FunctionName,
+    modifiers: FunctionArgumentList? = nil,
+    string: String
+  ) {
+    self.init(typeName: typeName, modifiers: modifiers, string: SQLToken.string(string))
   }
 }

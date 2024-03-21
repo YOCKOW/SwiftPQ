@@ -166,6 +166,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
         BitStringConstantExpression(try .bitString("1FF", style: .hexadecimal))?.description,
         "X'1FF'"
       )
+      XCTAssertEqual(
+        GenericTypeLiteralSyntax(typeName: .init("MY_TYPE"), string: "value")?.description,
+        "MY_TYPE 'value'"
+      )
+      XCTAssertEqual(
+        GenericTypeLiteralSyntax(
+          typeName: .init("MY_TYPE"),
+          modifiers: .init([UnsignedIntegerConstantExpression(0).asFunctionArgument]),
+          string: "value"
+        )?.description,
+        "MY_TYPE (0) 'value'"
+      )
     }
   }
 }
