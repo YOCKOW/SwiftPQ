@@ -85,12 +85,9 @@ final class SQLGrammarTests: XCTestCase {
     )
   }
 
-  func test_FunctionName_TypeName() {
+  func test_FunctionName() {
     XCTAssertEqual(FunctionName("my_func").description, "my_func")
     XCTAssertEqual(FunctionName(ColumnReference(tableName: "s", columnName: "f")).description, "s.f")
-
-    XCTAssertEqual(TypeName("my_type").description, "my_type")
-    XCTAssertEqual(TypeName(ColumnReference(tableName: "m", columnName: "t")).description, "m.t")
   }
 
   func test_LabeledOperator() {
