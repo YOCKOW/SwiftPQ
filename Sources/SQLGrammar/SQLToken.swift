@@ -288,6 +288,12 @@ public class SQLToken: CustomStringConvertible {
 
       self.init(rawValue: operatorName)
     }
+
+    /// Create a ':=' token.
+    internal static let colonEquals: Operator = Operator(rawValue: ":=") // Skip validation.
+
+    /// Create a '=>' token.
+    internal static let arrowSign: Operator = Operator(rawValue: "=>")
   }
 
   public class SpecialCharacter: SQLToken {}
@@ -416,4 +422,3 @@ extension SQLToken {
   /// Create a joiner token.
   public static let joiner: SQLToken = Joiner.singleton
 }
-

@@ -198,7 +198,9 @@ public enum ObjectTypeAnyName: NameRepresentation {
 }
 
 /// A name for parameter, that is described as `param_name` in "gram.y".
-public struct ParameterName: NameRepresentation, LosslessTokenConvertible {
+public struct ParameterName: NameRepresentation,
+                             LosslessTokenConvertible,
+                             ExpressibleByStringLiteral {
   private let _name: TypeOrFunctionName
 
   public var token: SQLToken {
@@ -216,6 +218,10 @@ public struct ParameterName: NameRepresentation, LosslessTokenConvertible {
   public init?(_ token: SQLToken) {
     guard let name = TypeOrFunctionName(token) else { return nil }
     self._name = name
+  }
+
+  public init(stringLiteral value: String) {
+    self.init(.identifier(value))!
   }
 }
 

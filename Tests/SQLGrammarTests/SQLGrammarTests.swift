@@ -106,6 +106,14 @@ final class SQLGrammarTests: XCTestCase {
   func test_ParamterName() {
     XCTAssertEqual(ParameterName(.identifier("my_variable"))?.description, "my_variable")
   }
+
+  func test_FunctionArgumentList() throws {
+    let list = try XCTUnwrap(FunctionArgumentList([
+      nil: UnsignedIntegerConstantExpression(0),
+      "parameter_name": StringConstantExpression("value"),
+    ]))
+    XCTAssertEqual(list.description, "0, parameter_name => 'value'")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
