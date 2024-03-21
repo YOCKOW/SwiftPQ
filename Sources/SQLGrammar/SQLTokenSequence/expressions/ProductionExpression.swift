@@ -105,7 +105,8 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
 }
 
 /// Unsigned float constant representation, which is described as `FCONST` in "gram.y".
-public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression {
+public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
+                                               ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Double
   public typealias Element = SQLToken.NumericConstant
 
@@ -126,6 +127,13 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression {
       return nil
     }
     self.token = SQLToken.NumericConstant(float)
+  }
+
+  public init(floatLiteral value: FloatLiteralType) {
+    guard let expression = Self.init(value) else {
+      fatalError("Unepxected float value: \(value)")
+    }
+    self = expression
   }
 }
 
