@@ -111,3 +111,38 @@ public enum NumericTypeName: ConstantTypeName {
     }
   }
 }
+
+/// A name of bit string type, that is described as `ConstBit` in "gram.y".
+public enum ConstantBitStringTypeName: ConstantTypeName {
+  /// Fixed-length bit string
+  case fixed(length: Int? = nil)
+
+  public static let fixed: ConstantBitStringTypeName = .fixed()
+
+  /// Variable-length bit string
+  case varying(length: Int? = nil)
+
+  public static let varying: ConstantBitStringTypeName = .varying()
+
+
+
+  @inlinable
+  public var tokens: JoinedSQLTokenSequence {
+    var tokens: [any SQLTokenSequence] = [SingleToken(.bit)]
+
+    func __append(length: Int) {
+      tokens.append(SingleToken.joiner)
+      tokens.append(SingleToken(.integer(length)).parenthesized)
+    }
+
+    switch self {
+    case .fixed(let length):
+      length.map(__append(length:))
+    case .varying(let length):
+      tokens.append(SingleToken(.varying))
+      length.map(__append(length:))
+    }
+
+    return JoinedSQLTokenSequence(tokens)
+  }
+}

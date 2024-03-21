@@ -81,6 +81,8 @@ public struct SingleToken: SQLTokenSequence {
   public static func string(_ string: String) -> SingleToken {
     return .init(.string(string))
   }
+
+  public static let joiner: SingleToken = .init(.joiner)
 }
 
 internal extension SQLToken {
