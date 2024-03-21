@@ -114,6 +114,15 @@ final class SQLGrammarTests: XCTestCase {
     ]))
     XCTAssertEqual(list.description, "0, parameter_name => 'value'")
   }
+
+  func test_ConstantTypeName() {
+    XCTAssertEqual(
+      NumericTypeName.decimal(
+        modifiers: GeneralExpressionList(UnsignedIntegerConstantExpression(123))
+      ).description,
+      "DECIMAL(123)"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
