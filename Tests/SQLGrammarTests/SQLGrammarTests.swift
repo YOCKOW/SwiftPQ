@@ -197,16 +197,23 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "X'1FF'"
       )
       XCTAssertEqual(
-        GenericTypeLiteralSyntax(typeName: .init("MY_TYPE"), string: "value")?.description,
+        GenericTypeCastStringLiteralSyntax(typeName: .init("MY_TYPE"), string: "value")?.description,
         "MY_TYPE 'value'"
       )
       XCTAssertEqual(
-        GenericTypeLiteralSyntax(
+        GenericTypeCastStringLiteralSyntax(
           typeName: .init("MY_TYPE"),
           modifiers: .init([UnsignedIntegerConstantExpression(0).asFunctionArgument]),
           string: "value"
         )?.description,
         "MY_TYPE (0) 'value'"
+      )
+      XCTAssertEqual(
+        ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+          constantTypeName: .timestamp(precision: 3, withTimeZone: true),
+          string: "2004-10-19 10:23:54+02"
+        )?.description,
+        "TIMESTAMP(3) WITH TIME ZONE '2004-10-19 10:23:54+02'"
       )
     }
   }

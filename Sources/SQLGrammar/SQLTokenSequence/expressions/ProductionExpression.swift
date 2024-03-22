@@ -183,7 +183,7 @@ public struct BitStringConstantExpression: SingleTokenConstantExpression {
 /// - Note: While "generic syntax with a type modifier" is defined as
 ///         `func_name '(' func_arg_list opt_sort_clause ')' Sconst`,
 ///         named argument or sort clause are not allowed here.
-public struct GenericTypeLiteralSyntax: ConstantExpression {
+public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
   /// A name of type.
   ///
   /// - Note: Since defined as `func_name` in "gram.y", its type is `FunctionName` here.
@@ -228,5 +228,34 @@ public struct GenericTypeLiteralSyntax: ConstantExpression {
     string: String
   ) {
     self.init(typeName: typeName, modifiers: modifiers, string: SQLToken.string(string))
+  }
+}
+
+/// String constant type cast for constants, that is described as `ConstTypename Sconst`.
+public struct ConstantTypeCastStringLiteralSyntax<Const>: ConstantExpression
+where Const: ConstantTypeName {
+  
+  public let constantTypeName: Const
+
+  public let string: SQLToken.StringConstant
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(constantTypeName, StringConstantExpression(string)!)
+  }
+
+  public init(constantTypeName: Const, string: SQLToken.StringConstant) {
+    self.constantTypeName = constantTypeName
+    self.string = string
+  }
+
+  public init?(constantTypeName: Const, string: SQLToken) {
+    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+      return nil
+    }
+    self.init(constantTypeName: constantTypeName, string: stringConstantToken)
+  }
+
+  public init?(constantTypeName: Const, string: String) {
+    self.init(constantTypeName: constantTypeName, string: SQLToken.string(string))
   }
 }
