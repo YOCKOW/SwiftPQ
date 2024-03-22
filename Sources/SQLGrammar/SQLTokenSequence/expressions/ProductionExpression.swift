@@ -405,3 +405,25 @@ public struct PositionalParameterExpression: ProductionExpression {
     self.indirection = indirection
   }
 }
+
+/// An expression of parenthesized `a_expr` with optional `indirection`.
+public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpression {
+  public let expression: any GeneralExpression
+
+  public let indirection: Indirection?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence.compacting(
+      AnySQLTokenSequence(expression).parenthesized,
+      indirection
+    )
+  }
+
+  public init<Expr>(
+    _ expression: Expr,
+    indirection: Indirection? = nil
+  ) where Expr: GeneralExpression {
+    self.expression = expression
+    self.indirection = indirection
+  }
+}

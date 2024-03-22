@@ -246,6 +246,16 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertEqual(PositionalParameterExpression(1).description, "$1")
       XCTAssertEqual(PositionalParameterExpression(2, indirection: [.any]).description, "$2.*")
     }
+  lparen_aexpr_rparen_opt_indirection:
+    do {
+      XCTAssertEqual(
+        ParenthesizedGeneralExpressionWithIndirection(
+          UnsignedIntegerConstantExpression(1 as UInt),
+          indirection: [.attributeName(.columnLabel("foo"))]
+        ).description,
+        "(1).foo"
+      )
+    }
   }
 }
 
