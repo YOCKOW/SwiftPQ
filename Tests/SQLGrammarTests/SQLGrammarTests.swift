@@ -144,6 +144,14 @@ final class SQLGrammarTests: XCTestCase {
       "TIME(6) WITH TIME ZONE"
     )
   }
+
+  func test_IntervalFieldsPhrase() {
+    XCTAssertEqual(IntervalFieldsPhrase.year.description, "YEAR")
+    XCTAssertEqual(IntervalFieldsPhrase.second.description, "SECOND")
+    XCTAssertEqual(IntervalFieldsPhrase.second(precision: 3).description, "SECOND(3)")
+    XCTAssertEqual(IntervalFieldsPhrase.hourToSecond.description, "HOUR TO SECOND")
+    XCTAssertEqual(IntervalFieldsPhrase.hourToSecond(precision: 6).description, "HOUR TO SECOND(6)")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
