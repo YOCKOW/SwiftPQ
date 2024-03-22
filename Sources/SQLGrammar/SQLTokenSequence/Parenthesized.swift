@@ -37,3 +37,11 @@ extension SQLTokenSequence {
     return Parenthesized<Self>(self)
   }
 }
+
+extension SQLTokenSequence {
+  public func followedBy<T>(
+    parenthesized expression: T
+  ) -> JoinedSQLTokenSequence where T: SQLTokenSequence {
+    return JoinedSQLTokenSequence(self, expression.parenthesized, separator: [.joiner])
+  }
+}
