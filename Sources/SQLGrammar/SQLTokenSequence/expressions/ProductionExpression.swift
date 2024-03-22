@@ -259,3 +259,83 @@ where Const: ConstantTypeName {
     self.init(constantTypeName: constantTypeName, string: SQLToken.string(string))
   }
 }
+
+/// Constant `INTERVAL` type cast of 'literal' syntax, that is described as
+/// `ConstInterval Sconst opt_interval` or `ConstInterval '(' Iconst ')' Sconst`.
+public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
+  public enum Option {
+    case fields(IntervalFieldsPhrase)
+    case precision(Int)
+  }
+
+  public let string: SQLToken.StringConstant
+
+  public let option: Option?
+
+  public var tokens: JoinedSQLTokenSequence {
+    guard let strExpr = StringConstantExpression(string) else {
+      fatalError("Failed to create a string constant expression?!")
+    }
+    let intervalToken = SingleToken(.interval)
+
+    switch option {
+    case .fields(let phrase):
+      return JoinedSQLTokenSequence(intervalToken, strExpr, phrase)
+    case .precision(let p):
+      return JoinedSQLTokenSequence(
+        intervalToken.followedBy(parenthesized: SingleToken.integer(p)),
+        strExpr
+      )
+    case nil:
+      return JoinedSQLTokenSequence(intervalToken, strExpr)
+    }
+  }
+
+  public init(string: SQLToken.StringConstant, option: Option? = nil) {
+    self.string = string
+    self.option = option
+  }
+
+  public init?(string: SQLToken, option: Option? = nil) {
+    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+      return nil
+    }
+    self.init(string: stringConstantToken, option: option)
+  }
+
+  public init?(string: String, option: Option? = nil) {
+    self.init(string: SQLToken.string(string), option: option)
+  }
+
+  public init(string: SQLToken.StringConstant, fields: IntervalFieldsPhrase) {
+    self.string = string
+    self.option = .fields(fields)
+  }
+
+  public init?(string: SQLToken, fields: IntervalFieldsPhrase) {
+    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+      return nil
+    }
+    self.init(string: stringConstantToken, fields: fields)
+  }
+
+  public init?(string: String, fields: IntervalFieldsPhrase) {
+    self.init(string: SQLToken.string(string), fields: fields)
+  }
+
+  public init(string: SQLToken.StringConstant, precision: Int) {
+    self.string = string
+    self.option = .precision(precision)
+  }
+
+  public init?(string: SQLToken, precision: Int) {
+    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+      return nil
+    }
+    self.init(string: stringConstantToken, precision: precision)
+  }
+
+  public init?(string: String, precision: Int) {
+    self.init(string: SQLToken.string(string), precision: precision)
+  }
+}

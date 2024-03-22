@@ -223,6 +223,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
         )?.description,
         "TIMESTAMP(3) WITH TIME ZONE '2004-10-19 10:23:54+02'"
       )
+      XCTAssertEqual(
+        ConstantIntervalTypeCastStringLiteralSyntax(
+          string: "3 4:05:06",
+          fields: .dayToSecond(precision: 3)
+        )?.description,
+        "INTERVAL '3 4:05:06' DAY TO SECOND(3)"
+      )
+      XCTAssertEqual(
+        ConstantIntervalTypeCastStringLiteralSyntax(
+          string: "3 4:05:06",
+          precision: 6
+        )?.description,
+        "INTERVAL(6) '3 4:05:06'"
+      )
     }
   }
 }
