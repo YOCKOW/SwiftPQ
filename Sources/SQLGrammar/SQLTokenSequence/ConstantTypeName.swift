@@ -272,3 +272,92 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   /// Create fixed-length `NCHAR` type without specifying length.
   public static let nchar: ConstantCharacterTypeName = .nchar()
 }
+
+private final class WithTimeZone: Segment {
+  let tokens: [SQLToken] = [.with, .time, .zone]
+  static let withTimeZone: WithTimeZone = .init()
+}
+
+private final class WithoutTimeZone: Segment {
+  let tokens: [SQLToken] = [.without, .time, .zone]
+  static let withoutTimeZone: WithoutTimeZone = .init()
+}
+
+/// A name of date-time type, that is described as `ConstantDatetime` in "gram.y".
+public struct ConstantDateTimeTypeName: ConstantTypeName {
+  public enum DateTimeType {
+    case timestamp
+    case time
+
+    var token: SQLToken {
+      switch self {
+      case .timestamp:
+        return .timestamp
+      case .time:
+        return .time
+      }
+    }
+  }
+
+  public let type: DateTimeType
+
+  /// The number of fractional digits.
+  public let precision: Int?
+
+  public let withTimeZone: Bool?
+
+  public var tokens: JoinedSQLTokenSequence {
+    var seqCollection: [any SQLTokenSequence] = []
+    if let precision {
+      seqCollection.append(
+        SingleToken(type.token).followedBy(parenthesized: SingleToken.integer(precision))
+      )
+    } else {
+      seqCollection.append(SingleToken(type.token))
+    }
+    if let withTimeZone {
+      if withTimeZone {
+        seqCollection.append(WithTimeZone.withTimeZone)
+      } else {
+        seqCollection.append(WithoutTimeZone.withoutTimeZone)
+      }
+    }
+    return JoinedSQLTokenSequence(seqCollection)
+  }
+
+  private init(type: DateTimeType, precision: Int?, withTimeZone: Bool?) {
+    self.type = type
+    self.precision = precision
+    self.withTimeZone = withTimeZone
+  }
+
+  /// Create "TIMESTAMP" type.
+  public static func timestamp(
+    precision: Int? = nil,
+    withTimeZone: Bool? = nil
+  ) -> ConstantDateTimeTypeName {
+    return ConstantDateTimeTypeName(
+      type: .timestamp,
+      precision: precision,
+      withTimeZone: withTimeZone
+    )
+  }
+
+  /// Create "TIMESTAMP" type without any options.
+  public static let timestamp: ConstantDateTimeTypeName = .timestamp()
+
+  /// Create "TIME" type.
+  public static func time(
+    precision: Int? = nil,
+    withTimeZone: Bool? = nil
+  ) -> ConstantDateTimeTypeName {
+    return ConstantDateTimeTypeName(
+      type: .time,
+      precision: precision,
+      withTimeZone: withTimeZone
+    )
+  }
+
+  /// Create "TIME" type without any options.
+  public static let time: ConstantDateTimeTypeName = .time()
+}

@@ -138,6 +138,11 @@ final class SQLGrammarTests: XCTestCase {
       ConstantCharacterTypeName.character(varying: true, length: 4).description,
       "CHARACTER VARYING(4)"
     )
+    XCTAssertEqual(ConstantDateTimeTypeName.timestamp.description, "TIMESTAMP")
+    XCTAssertEqual(
+      ConstantDateTimeTypeName.time(precision: 6, withTimeZone: true).description,
+      "TIME(6) WITH TIME ZONE"
+    )
   }
 }
 
