@@ -237,6 +237,8 @@ final class SQLGrammarExpressionTests: XCTestCase {
         )?.description,
         "INTERVAL(6) '3 4:05:06'"
       )
+      XCTAssertEqual(BooleanConstantExpression.true.description, "TRUE")
+      XCTAssertEqual(BooleanConstantExpression.false.description, "FALSE")
     }
   }
 }

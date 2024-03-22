@@ -339,3 +339,31 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
     self.init(string: SQLToken.string(string), precision: precision)
   }
 }
+
+/// A boolean constant as an expression: `TRUE` or `FALSE`.
+public class BooleanConstantExpression: ConstantExpression {
+  public let value: Bool
+  public let tokens: Array<SQLToken>
+
+  private init(_ value: Bool) {
+    self.value = value
+    self.tokens = value ? [.true] : [.false]
+  }
+
+
+  /// `TRUE` as an expression.
+  public final class True: BooleanConstantExpression {
+    fileprivate init() { super.init(true) }
+  }
+
+  /// `FALSE` as an expression.
+  public final class False: BooleanConstantExpression {
+    fileprivate init() { super.init(false) }
+  }
+
+  /// An instance of `TRUE` as an expression.
+  public static let `true`: BooleanConstantExpression = True()
+
+  /// An instance of `FALSE` as an expression.
+  public static let `false`: BooleanConstantExpression = False()
+}
