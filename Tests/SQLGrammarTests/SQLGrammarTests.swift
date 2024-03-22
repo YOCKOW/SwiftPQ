@@ -241,6 +241,11 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertEqual(BooleanConstantExpression.false.description, "FALSE")
       XCTAssertEqual(NullConstantExpression.null.description, "NULL")
     }
+  PARAM_opt_indirection:
+    do {
+      XCTAssertEqual(PositionalParameterExpression(1).description, "$1")
+      XCTAssertEqual(PositionalParameterExpression(2, indirection: [.any]).description, "$2.*")
+    }
   }
 }
 

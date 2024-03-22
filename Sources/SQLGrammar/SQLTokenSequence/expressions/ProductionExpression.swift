@@ -375,3 +375,33 @@ public final class NullConstantExpression: ConstantExpression {
 }
 
 // MARK: /ConstantExpression -
+
+/// An expression of positional paramter and its indirection,
+///  that is described as `PARAM opt_indirection` in "gram.y".
+public struct PositionalParameterExpression: ProductionExpression {
+  public let parameter: SQLToken.PositionalParameter
+
+  public let indirection: Indirection?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence.compacting(SingleToken(parameter), indirection)
+  }
+
+  public init(_ parameter: SQLToken.PositionalParameter, indirection: Indirection? = nil) {
+    self.parameter = parameter
+    self.indirection = indirection
+  }
+
+  public init?(_ token: SQLToken, indirection: Indirection? = nil) {
+    guard case let parameterToken as SQLToken.PositionalParameter = token else {
+      return nil
+    }
+    self.parameter = parameterToken
+    self.indirection = indirection
+  }
+
+  public init(_ position: UInt, indirection: Indirection? = nil) {
+    self.parameter = .init(position)
+    self.indirection = indirection
+  }
+}

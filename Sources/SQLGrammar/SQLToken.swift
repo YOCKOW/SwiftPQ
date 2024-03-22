@@ -298,7 +298,12 @@ public class SQLToken: CustomStringConvertible {
 
   public class SpecialCharacter: SQLToken {}
 
-  public class PositionalParameter: SpecialCharacter {}
+  /// A '$n' token.
+  public final class PositionalParameter: SpecialCharacter {
+    public init(_ position: UInt) {
+      super.init(rawValue: "$\(position)")
+    }
+  }
 
   /// A token to remove whitespace.
   public final class Joiner: SQLToken {
@@ -388,8 +393,8 @@ extension SQLToken {
   }
 
   /// Create a positional parameter token.
-  public static func positionalParameter(_ position: UInt) throws -> SQLToken {
-    return PositionalParameter(rawValue: "$\(position)")
+  public static func positionalParameter(_ position: UInt) -> SQLToken {
+    return PositionalParameter(position)
   }
 
   /// Create a '(' token.
