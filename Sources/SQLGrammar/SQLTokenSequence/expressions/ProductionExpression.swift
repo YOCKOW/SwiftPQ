@@ -367,3 +367,11 @@ public class BooleanConstantExpression: ConstantExpression {
   /// An instance of `FALSE` as an expression.
   public static let `false`: BooleanConstantExpression = False()
 }
+
+/// `NULL` as an expression.
+public final class NullConstantExpression: ConstantExpression {
+  public let tokens: Array<SQLToken> = [.null]
+  public static let null: NullConstantExpression = .init()
+}
+
+// MARK: /ConstantExpression -

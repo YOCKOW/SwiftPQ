@@ -239,6 +239,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
       )
       XCTAssertEqual(BooleanConstantExpression.true.description, "TRUE")
       XCTAssertEqual(BooleanConstantExpression.false.description, "FALSE")
+      XCTAssertEqual(NullConstantExpression.null.description, "NULL")
     }
   }
 }
