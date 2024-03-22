@@ -126,6 +126,11 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(ConstantBitStringTypeName.varying.description, "BIT VARYING")
     XCTAssertEqual(ConstantBitStringTypeName.fixed(length: 4).description, "BIT(4)")
     XCTAssertEqual(ConstantBitStringTypeName.varying(length: 4).description, "BIT VARYING(4)")
+    XCTAssertEqual(ConstantCharacterTypeName.character.description, "CHARACTER")
+    XCTAssertEqual(
+      ConstantCharacterTypeName.character(varying: true, length: 4).description,
+      "CHARACTER VARYING(4)"
+    )
   }
 }
 

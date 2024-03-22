@@ -146,3 +146,129 @@ public enum ConstantBitStringTypeName: ConstantTypeName {
     return JoinedSQLTokenSequence(tokens)
   }
 }
+
+/// A name of constant character, that is described as `ConstCharacter` in "gram.y".
+public struct ConstantCharacterTypeName: ConstantTypeName {
+  public enum CharacterType: SQLTokenSequence {
+    case character
+    case char
+    case varchar
+    case nationalCharacter
+    case nationalChar
+    case nchar
+
+    fileprivate var canBeVarying: Bool {
+      switch self {
+      case .varchar:
+        return false
+      default:
+        return true
+      }
+    }
+
+    public var tokens: Array<SQLToken> {
+      switch self {
+      case .character:
+        return [.character]
+      case .char:
+        return [.char]
+      case .varchar:
+        return [.varchar]
+      case .nationalCharacter:
+        return [.national, .character]
+      case .nationalChar:
+        return [.national, .char]
+      case .nchar:
+        return [.nchar]
+      }
+    }
+  }
+  
+  public let type: CharacterType
+
+  public let varying: Bool
+
+  private let length: Int?
+
+  public var tokens: JoinedSQLTokenSequence {
+    var seqCollection: [any SQLTokenSequence] = [type]
+    if varying {
+      seqCollection.append(SingleToken(.varying))
+    }
+    if let length = self.length {
+      seqCollection.append(SingleToken.joiner)
+      seqCollection.append(SingleToken(.integer(length)).parenthesized)
+    }
+    return JoinedSQLTokenSequence(seqCollection)
+  }
+
+  private init(type: CharacterType, varying: Bool, length: Int?) {
+    assert(!varying || type.canBeVarying, "'VARYING' is not available.")
+    self.type = type
+    self.varying = varying
+    self.length = length
+  }
+
+  /// Create `CHARACTER` type.
+  public static func character(
+    varying: Bool = false,
+    length: Int? = nil
+  ) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .character, varying: varying, length: length)
+  }
+
+  /// Create fixed-length `CHARACTER` type without specifying length.
+  public static let character: ConstantCharacterTypeName = .character()
+
+  /// Create `CHAR` type.
+  public static func char(
+    varying: Bool = false,
+    length: Int? = nil
+  ) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .char, varying: varying, length: length)
+  }
+
+  /// Create fixed-length `CHAR` type without specifying length.
+  public static let char: ConstantCharacterTypeName = .char()
+
+  /// Create `VARCHAR` type.
+  public static func varchar(length: Int? = nil) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .varchar, varying: false, length: length)
+  }
+
+  /// Create fixed-length `VARCHAR` type without specifying length.
+  public static let varchar: ConstantCharacterTypeName = .varchar()
+
+  /// Create `NATIONAL CHARACTER` type.
+  public static func nationalCharacter(
+    varying: Bool = false,
+    length: Int? = nil
+  ) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .nationalCharacter, varying: varying, length: length)
+  }
+
+  /// Create fixed-length `NATIONAL CHARACTER` type without specifying length.
+  public static let nationalCharacter: ConstantCharacterTypeName = .nationalCharacter()
+
+  /// Create `NATIONAL CHAR` type.
+  public static func nationalChar(
+    varying: Bool = false,
+    length: Int? = nil
+  ) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .nationalChar, varying: varying, length: length)
+  }
+
+  /// Create fixed-length `NATIONAL CHAR` type without specifying length.
+  public static let nationalChar: ConstantCharacterTypeName = .nationalChar()
+
+  /// Create `NCHAR` type.
+  public static func nchar(
+    varying: Bool = false,
+    length: Int? = nil
+  ) -> ConstantCharacterTypeName {
+    return ConstantCharacterTypeName(type: .nchar, varying: varying, length: length)
+  }
+
+  /// Create fixed-length `NCHAR` type without specifying length.
+  public static let nchar: ConstantCharacterTypeName = .nchar()
+}
