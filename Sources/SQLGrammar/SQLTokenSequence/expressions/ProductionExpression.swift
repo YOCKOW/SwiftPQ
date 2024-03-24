@@ -427,3 +427,84 @@ public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpressio
     self.indirection = indirection
   }
 }
+
+/// `CASE` expression that is described as `case_expr` in "gram.y".
+public struct CaseExpression: ProductionExpression {
+  /// A `CASE` argument to be compared with each `WHEN` condition.
+  public let argument: Optional<any GeneralExpression>
+
+  /// A list of `WHEN ... THEN ...`.
+  public let conditionalValues: WhenClauseList
+
+  /// A result in `ELSE ...` clause.
+  public let defaultValue: Optional<any GeneralExpression>
+
+  private var _defaultValueTokens: JoinedSQLTokenSequence? {
+    guard let defaultValue else { return nil }
+    return JoinedSQLTokenSequence([
+      SingleToken(.else),
+      defaultValue as any SQLTokenSequence
+    ])
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence.compacting([
+      SingleToken(.case), argument,
+      conditionalValues,
+      _defaultValueTokens,
+      SingleToken(.end)
+    ] as Array<(any SQLTokenSequence)?>)
+  }
+
+  public init(
+    argument: Optional<any GeneralExpression> = nil,
+    conditionalValues: WhenClauseList,
+    defaultValue: Optional<any GeneralExpression> = nil
+  ) {
+    self.argument = argument
+    self.conditionalValues = conditionalValues
+    self.defaultValue = defaultValue
+  }
+
+  @inlinable
+  public init<Condition, Result, each OptionalCondition, each OptionalResult>(
+    argument: Optional<any GeneralExpression> = nil,
+    _ firstWhenClause: WhenClause<Condition, Result>,
+    _ optionalWhenClause: repeat WhenClause<each OptionalCondition, each OptionalResult>,
+    `else` defaultValue: Optional<any GeneralExpression> = nil
+  ) {
+    var list = WhenClauseList(firstWhenClause)
+    repeat (list.append(each optionalWhenClause))
+    
+    self.argument = argument
+    self.conditionalValues = list
+    self.defaultValue = defaultValue
+  }
+
+  @inlinable
+  public init<Condition, Result, each OptionalCondition, each OptionalResult>(
+    argument: Optional<any GeneralExpression> = nil,
+    _ firstWhenClauseSeed: (when: Condition, then: Result),
+    _ optionalWhenClauseSeed: repeat (when: each OptionalCondition, then: each OptionalResult),
+    `else` defaultValue: Optional<any GeneralExpression> = nil
+  ) where Condition: GeneralExpression, Result: GeneralExpression,
+          repeat each OptionalCondition: GeneralExpression,
+          repeat each OptionalResult: GeneralExpression
+  {
+    var list = WhenClauseList(
+      WhenClause(when: firstWhenClauseSeed.when, then: firstWhenClauseSeed.then)
+    )
+    repeat (
+      list.append(
+        WhenClause(
+          when: (each optionalWhenClauseSeed).when,
+          then: (each optionalWhenClauseSeed).then
+        )
+      )
+    )
+
+    self.argument = argument
+    self.conditionalValues = list
+    self.defaultValue = defaultValue
+  }
+}

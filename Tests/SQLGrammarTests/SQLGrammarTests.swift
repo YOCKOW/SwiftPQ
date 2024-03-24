@@ -256,6 +256,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "(1).foo"
       )
     }
+  case_expr:
+    do {
+      XCTAssertEqual(
+        CaseExpression(
+          argument: ColumnReference(columnName: "a"),
+          (when: UnsignedIntegerConstantExpression(1), then: StringConstantExpression("one")),
+          (when: UnsignedIntegerConstantExpression(2), then: StringConstantExpression("two")),
+          else: StringConstantExpression("other")
+        ).description,
+        "CASE a WHEN 1 THEN 'one' WHEN 2 THEN 'two' ELSE 'other' END"
+      )
+    }
   }
 }
 
