@@ -86,5 +86,6 @@ public struct SingleToken: SQLTokenSequence {
 }
 
 internal extension SQLToken {
+  @inlinable @usableFromInline
   var asSequence: some SQLTokenSequence { return SingleToken(self) }
 }

@@ -152,6 +152,16 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(IntervalFieldsPhrase.hourToSecond.description, "HOUR TO SECOND")
     XCTAssertEqual(IntervalFieldsPhrase.hourToSecond(precision: 6).description, "HOUR TO SECOND(6)")
   }
+
+  func test_TargetList() {
+    XCTAssertEqual(
+      TargetList([
+        .init(ColumnReference(columnName: "a"), as: ColumnLabel("alias_a")),
+        .init(ColumnReference(columnName: "b"), BareColumnLabel("alias_b")),
+      ]).description,
+      "a AS alias_a, b alias_b"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
