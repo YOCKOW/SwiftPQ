@@ -5,9 +5,8 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-/// Representation of a `SELECT` statement.
-///
-/// In "gram.y", `SelectStmt` is defined as `select_no_parens | select_with_parens`.
-/// However, `Parenthesized<SelectStatement>` can represent `select_with_parens` in this module, so
-/// `SelectStatement` represents only `select_no_parens`.
+/// Representation of a `SELECT` statement, that is described as `SelectStmt` in "gram.y".
 public protocol SelectStatement: Statement {}
+
+// Represents `select_with_parens`.
+extension Parenthesized: Statement, SelectStatement where EnclosedTokens: SelectStatement {}
