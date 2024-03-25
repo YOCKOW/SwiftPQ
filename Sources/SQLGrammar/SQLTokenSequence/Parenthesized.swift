@@ -45,3 +45,9 @@ extension SQLTokenSequence {
     return JoinedSQLTokenSequence(self, expression.parenthesized, separator: [.joiner])
   }
 }
+
+/// A statement that can be also a statement even if parenthesized.
+public protocol ParenthesizableStatement: Statement {}
+
+extension Parenthesized: Statement,
+                         ParenthesizableStatement where EnclosedTokens: ParenthesizableStatement {}
