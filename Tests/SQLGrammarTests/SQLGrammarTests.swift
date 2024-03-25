@@ -162,6 +162,13 @@ final class SQLGrammarTests: XCTestCase {
       "a AS alias_a, b alias_b"
     )
   }
+
+  func test_TemporaryTableName() {
+    XCTAssertEqual(
+      TemporaryTableName(table: "my_temp_table").description,
+      "TEMPORARY TABLE my_temp_table"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

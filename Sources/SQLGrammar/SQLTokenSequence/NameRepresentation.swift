@@ -313,3 +313,68 @@ public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
     self.init(name: value)
   }
 }
+
+/// A name of a temporary table, that is described as `OptTempTableName` in "gram.y".
+public struct TemporaryTableName: NameRepresentation {
+  public enum TemporarinessType: Segment {
+    /// `LOCAL TEMPORARY`
+    case localTempoary
+
+    /// `GLOBAL TEMPORARY`
+    case globalTemporary
+
+    /// `LOCAL TEMP`
+    case localTemp
+
+    /// `GLOBAL TEMP`
+    case globalTemp
+
+    /// `TEMPORARY`
+    case temporary
+
+    /// `TMP`
+    case temp
+
+    /// `UNLOGGED`
+    case unlogged
+
+    @inlinable
+    public var tokens: Array<SQLToken> {
+      switch self {
+      case .localTempoary:
+        return [.local, .temporary]
+      case .globalTemporary:
+        return [.global, .temporary]
+      case .localTemp:
+        return [.local, .temp]
+      case .globalTemp:
+        return [.global, .temp]
+      case .temporary:
+        return [.temporary]
+      case .temp:
+        return [.temp]
+      case .unlogged:
+        return [.unlogged]
+      }
+    }
+  }
+
+  public let prefix: TemporarinessType?
+
+  public var omitTableToken: Bool = false
+
+  public let name: TableName
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence.compacting(
+      prefix,
+      omitTableToken ? nil : SingleToken(.table),
+      name
+    )
+  }
+
+  public init(_ prefix: TemporarinessType? = .temporary, table name: TableName) {
+    self.prefix = prefix
+    self.name = name
+  }
+}
