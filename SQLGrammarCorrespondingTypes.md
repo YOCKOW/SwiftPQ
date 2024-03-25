@@ -58,6 +58,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 | gram.y               | Swift                                  |
 |----------------------|----------------------------------------|
+| `into_clause`        | `struct IntoClause`                    |
 | `opt_asc_desc`       | `enum SortDirection`                   |
 | `opt_nulls_order`    | `enum NullOrdering`                    |
 | `sortby`             | `struct SortBy<Expression>`            |

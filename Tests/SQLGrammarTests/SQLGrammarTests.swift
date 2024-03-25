@@ -172,6 +172,13 @@ final class SQLGrammarTests: XCTestCase {
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
+  func test_IntoCause() {
+    XCTAssertEqual(
+      IntoClause(.init(table: "my_temp_table")).description,
+      "INTO TEMPORARY TABLE my_temp_table"
+    )
+  }
+
   func test_SortClause() throws {
     struct __PseudoAexpr: GeneralExpression {
       let ref: ColumnReference
