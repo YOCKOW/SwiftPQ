@@ -63,7 +63,7 @@ public struct SingleToken: SQLTokenSequence {
   }
 
   public static func positionalParameter(_ position: UInt) throws -> SingleToken {
-    return .init(try .positionalParameter(position))
+    return .init(.positionalParameter(position))
   }
 
   public static func identifier(_ string: String, forceQuoting: Bool = false) -> SingleToken {
@@ -86,6 +86,6 @@ public struct SingleToken: SQLTokenSequence {
 }
 
 internal extension SQLToken {
-  @inlinable @usableFromInline
+  @inlinable
   var asSequence: some SQLTokenSequence { return SingleToken(self) }
 }
