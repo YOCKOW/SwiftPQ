@@ -1,7 +1,9 @@
 # What is `SwiftPQ`?
 
 `SwiftPQ` is a simple wrapper of [libpq](https://www.postgresql.org/docs/current/libpq.html) that is a C-API to PostgreSQL.
-You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way.
+You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way[^1].
+
+[^1]: See also [SQLGrammarCorrespondingTypes.md](./SQLGrammarCorrespondingTypes.md)
 
 > [!WARNING]  
 >
