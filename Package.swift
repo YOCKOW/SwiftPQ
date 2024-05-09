@@ -77,7 +77,10 @@ let package = Package(
     ),
     .testTarget(
       name: "SQLGrammarTests",
-      dependencies: ["SQLGrammar"]
+      dependencies: [
+        "SwiftNetworkGear",
+        "SQLGrammar",
+      ]
     ),
     .testTarget(name: "PQTests", dependencies: ["PQ"]),
   ]

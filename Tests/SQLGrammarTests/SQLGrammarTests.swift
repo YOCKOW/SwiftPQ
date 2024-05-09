@@ -203,6 +203,27 @@ final class SQLGrammarClauseTests: XCTestCase {
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {
+  func test_RelationExpression() {
+    XCTAssertEqual(
+      RelationExpression(tableName: .init(schema: "my_schema", name: "my_table")).description,
+      "my_schema.my_table"
+    )
+    XCTAssertEqual(
+      RelationExpression(
+        tableName: .init(schema: "my_schema", name: "my_table"),
+        includeDescendantTables: true
+      ).description,
+      "my_schema.my_table *"
+    )
+    XCTAssertEqual(
+      RelationExpression(
+        tableName: .init(schema: "my_schema", name: "my_table"),
+        includeDescendantTables: false
+      ).description,
+      "ONLY my_schema.my_table"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {
