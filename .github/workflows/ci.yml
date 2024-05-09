@@ -24,7 +24,7 @@ jobs:
           - macOS-14
         swift-version:
           - '5.10'
-          - '5.9.2'
+          # - '5.9.2'
         swift-compat-ver:
           - '5'
           # - '4.2'
