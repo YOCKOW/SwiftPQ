@@ -130,6 +130,21 @@ extension Collection where Element: SQLToken {
   }
 }
 
+extension Collection where Element: LosslessTokenConvertible {
+  /// Returns joined tokens with `separator`.
+  @inlinable
+  public func joined<Separator>(
+    separator: Separator? = Optional<Array<SQLToken>>.none
+  ) -> JoinedSQLTokenSequence where Separator: Sequence, Separator.Element == SQLToken {
+    return JoinedSQLTokenSequence(self.map({ $0.asSequence }), separator: separator)
+  }
+
+  @inlinable
+  public func joinedByCommas() -> JoinedSQLTokenSequence {
+    return self.joined(separator: commaSeparator)
+  }
+}
+
 extension Collection where Element == any SQLTokenSequence {
   /// Returns joined tokens with `separator`.
   @inlinable

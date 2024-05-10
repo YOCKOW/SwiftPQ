@@ -172,6 +172,17 @@ final class SQLGrammarTests: XCTestCase {
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
+  func test_AliasClause() {
+    XCTAssertEqual(
+      AliasClause(alias: "foo").description,
+      "AS foo"
+    )
+    XCTAssertEqual(
+      AliasClause(alias: "foo", columnAliases: ["bar", "baz"]).description,
+      "AS foo (bar, baz)"
+    )
+  }
+
   func test_IntoCause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
