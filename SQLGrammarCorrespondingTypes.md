@@ -76,6 +76,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `b_expr`             | `protocol RestrictedExpression`        |
 | `c_expr`             | `protocol ProductionExpression`        |
 | `func_arg_expr`      | `struct FunctionArgumentExpression`    |
+| `relation_expr`      | `struct RelationExpression`            |
 | n/a                  | `protocol ValueExpression`             |
 
 
