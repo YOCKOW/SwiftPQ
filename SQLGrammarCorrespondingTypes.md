@@ -56,16 +56,18 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Clauses
 
-| gram.y               | Swift                                  |
-|----------------------|----------------------------------------|
-| `alias_clause`       | `struct AliasClause`                   |
-| `into_clause`        | `struct IntoClause`                    |
-| `opt_asc_desc`       | `enum SortDirection`                   |
-| `opt_nulls_order`    | `enum NullOrdering`                    |
-| `sortby`             | `struct SortBy<Expression>`            |
-| `sort_clause`        | `struct SortClause`                    |
-| `when_clause`        | `struct WhenClause<Condition, Result>` | 
-| `when_clause_list`   | `struct WhenClauseList`                |
+| gram.y                  | Swift                                  |
+|-------------------------|----------------------------------------|
+| `alias_clause`          | `struct AliasClause`                   |
+| `into_clause`           | `struct IntoClause`                    |
+| `opt_asc_desc`          | `enum SortDirection`                   |
+| `opt_nulls_order`       | `enum NullOrdering`                    |
+| `opt_repeatable_clause` | `struct RepeatableClause<Seed>`        |
+| `sortby`                | `struct SortBy<Expression>`            |
+| `sort_clause`           | `struct SortClause`                    |
+| `tablesample_clause`    | `struct TableSampleClause`             |
+| `when_clause`           | `struct WhenClause<Condition, Result>` | 
+| `when_clause_list`      | `struct WhenClauseList`                |
 
 
 ## Expressions

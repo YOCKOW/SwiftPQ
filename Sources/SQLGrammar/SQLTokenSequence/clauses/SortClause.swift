@@ -136,7 +136,7 @@ final class OrderBy: Segment {
 }
 
 /// A type that represents `ORDER BY` clause described as `sort_clause` in "gram.y".
-public struct SortClause: SQLTokenSequence {
+public struct SortClause: Clause {
   /// A list of `SortBy` instances. It is described as `sortby_list` in "gram.y".
   public struct List: SQLTokenSequence {
     private var _list: NonEmptyList<_AnySortBy>

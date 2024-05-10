@@ -211,6 +211,24 @@ final class SQLGrammarClauseTests: XCTestCase {
       "ORDER BY col1, col2 DESC NULLS LAST, col3 USING <"
     )
   }
+
+  func test_TableSampleClause() {
+    XCTAssertEqual(
+      TableSampleClause(
+        samplingMethod: FunctionName("sampling"),
+        arguments: .init(BooleanConstantExpression.true)
+      ).description,
+      "TABLESAMPLE sampling(TRUE)"
+    )
+    XCTAssertEqual(
+      TableSampleClause(
+        samplingMethod: FunctionName("sampling"),
+        arguments: .init(BooleanConstantExpression.false),
+        repeatable: RepeatableClause<UnsignedIntegerConstantExpression>(seed: 1)
+      ).description,
+      "TABLESAMPLE sampling(FALSE) REPEATABLE(1)"
+    )
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {

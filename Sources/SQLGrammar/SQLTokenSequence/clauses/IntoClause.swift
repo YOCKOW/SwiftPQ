@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// `INTO ...` clause used in `SELECT` statement.
-public struct IntoClause: SQLTokenSequence {
+public struct IntoClause: Clause {
   public let name: TemporaryTableName
 
   public var tokens: JoinedSQLTokenSequence {

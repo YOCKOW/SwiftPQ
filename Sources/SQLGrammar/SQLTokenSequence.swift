@@ -47,6 +47,9 @@ public protocol ValueExpression: Expression {}
 /// A type representing some kind of token sequence that is, for example, a part of a statement.
 public protocol Segment: SQLTokenSequence {}
 
+/// A type representing a kind of a clause.
+public protocol Clause: Segment {}
+
 extension SQLTokenSequence where Self.Tokens == Self {
   /// Provide itself as a sequence of tokens.
   public var tokens: Self {

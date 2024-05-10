@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 /// A `WHEN ... THEN ...` clause used in `CaseExpression`.
-public struct WhenClause<Condition, Result>: SQLTokenSequence where Condition: GeneralExpression,
-                                                                    Result: GeneralExpression {
+public struct WhenClause<Condition, Result>: Clause where Condition: GeneralExpression,
+                                                          Result: GeneralExpression {
 
   public let condition: Condition
 
@@ -27,7 +27,7 @@ public struct WhenClause<Condition, Result>: SQLTokenSequence where Condition: G
 }
 
 /// A type-erasure for `WhenClause`.
-struct AnyWhenClause: SQLTokenSequence {
+struct AnyWhenClause: Clause {
   private class _Box {
     var condition: any GeneralExpression { fatalError("Must be overridden.") }
     var result: any GeneralExpression { fatalError("Must be overridden.") }

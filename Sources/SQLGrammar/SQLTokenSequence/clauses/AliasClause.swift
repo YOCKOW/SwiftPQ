@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A clause described as `alias_clause` in "gram.y".
-public struct AliasClause: SQLTokenSequence {
+public struct AliasClause: Clause {
   /// Alias name.
   public let alias: ColumnIdentifier
 
