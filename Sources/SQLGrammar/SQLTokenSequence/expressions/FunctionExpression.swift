@@ -217,3 +217,83 @@ public struct FunctionApplication: WindowlessFunctionExpression {
     )
   }
 }
+
+// MARK: - CommonFunctionSubexpression a.k.a. func_expr_common_subexpr
+
+private final class _CollationFor: Segment {
+  let tokens: Array<SQLToken> = [.collation, .for]
+  static let collationFor: _CollationFor = .init()
+}
+
+/// A representation of `COLLATION FOR '(' a_expr ')'`.
+public struct CollationFor<Expression>: CommonFunctionSubexpression where Expression: GeneralExpression {
+  public let expression: Expression
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(_CollationFor.collationFor, expression.parenthesized)
+  }
+
+  public init(_ expression: Expression) {
+    self.expression = expression
+  }
+}
+
+/// A representation of `CURRENT_DATE`.
+public final class CurrentDate: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.currentDate]
+  public static let currentDate: CurrentDate = .init()
+}
+
+/// A type of function that returns value related to the current date and time.
+public protocol CurrentTimeExpression: CommonFunctionSubexpression {
+  var function: SQLToken { get }
+  var precision: UnsignedIntegerConstantExpression? { get }
+}
+extension CurrentTimeExpression {
+  public var tokens: JoinedSQLTokenSequence {
+    if let precision = self.precision {
+      return function.asSequence.followedBy(parenthesized: precision)
+    }
+    return JoinedSQLTokenSequence(function.asSequence)
+  }
+}
+
+/// A representation of `CURRENT_TIME` or `CURRENT_TIME(precision)`
+public struct CurrentTime: CurrentTimeExpression, CommonFunctionSubexpression {
+  public let function: SQLToken = .currentTime
+  public let precision: UnsignedIntegerConstantExpression?
+
+  public init(precision: UnsignedIntegerConstantExpression? = nil) {
+    self.precision = precision
+  }
+}
+
+/// A representation of `CURRENT_TIMESTAMP` or `CURRENT_TIMESTAMP(precision)`
+public struct CurrentTimestamp: CurrentTimeExpression, CommonFunctionSubexpression {
+  public let function: SQLToken = .currentTimestamp
+  public let precision: UnsignedIntegerConstantExpression?
+
+  public init(precision: UnsignedIntegerConstantExpression? = nil) {
+    self.precision = precision
+  }
+}
+
+/// A representation of `LOCALTIME` or `LOCALTIME(precision)`
+public struct LocalTime: CurrentTimeExpression, CommonFunctionSubexpression {
+  public let function: SQLToken = .localtime
+  public let precision: UnsignedIntegerConstantExpression?
+
+  public init(precision: UnsignedIntegerConstantExpression? = nil) {
+    self.precision = precision
+  }
+}
+
+/// A representation of `LOCALTIMESTAMP` or `LOCALTIMESTAMP(precision)`
+public struct LocalTimestamp: CurrentTimeExpression, CommonFunctionSubexpression {
+  public let function: SQLToken = .localtimestamp
+  public let precision: UnsignedIntegerConstantExpression?
+
+  public init(precision: UnsignedIntegerConstantExpression? = nil) {
+    self.precision = precision
+  }
+}

@@ -140,7 +140,7 @@ internal final class AnySQLTokenSequenceIterator: IteratorProtocol {
   }
 }
 
-/// A type erasure to be sed in the case that `any SQLTokenSequence` is not available.
+/// A type erasure to be used in the case that `any SQLTokenSequence` is not available.
 internal final class AnySQLTokenSequence: SQLTokenSequence {
   typealias Element = SQLToken
   typealias Tokens = AnySQLTokenSequence
