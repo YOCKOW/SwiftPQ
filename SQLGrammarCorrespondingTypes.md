@@ -72,14 +72,18 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Expressions
 
-| gram.y               | Swift                                  |
-|----------------------|----------------------------------------|
-| `a_expr`             | `protocol GeneralExpression`           |
-| `b_expr`             | `protocol RestrictedExpression`        |
-| `c_expr`             | `protocol ProductionExpression`        |
-| `func_arg_expr`      | `struct FunctionArgumentExpression`    |
-| `relation_expr`      | `struct RelationExpression`            |
-| n/a                  | `protocol ValueExpression`             |
+| gram.y                     | Swift                                   |
+|----------------------------|-----------------------------------------|
+| `a_expr`                   | `protocol GeneralExpression`            |
+| `b_expr`                   | `protocol RestrictedExpression`         |
+| `c_expr`                   | `protocol ProductionExpression`         |
+| `func_application`         | `struct FunctionApplication`            |
+| `func_arg_expr`            | `struct FunctionArgumentExpression`     |
+| `func_expr`                | `protocol FunctionExpression`           |
+| `func_expr_common_subexpr` | `protocol CommonFunctionSubexpression`  |
+| `func_expr_windowless`     | `protocol WindowlessFunctionExpression` |
+| `relation_expr`            | `struct RelationExpression`             |
+| n/a                        | `protocol ValueExpression`              |
 
 
 ## Statements
@@ -100,7 +104,6 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `any_name_list`      | `struct AnyNameList`                   |
 | `attrs`              | `struct AttributeList`                 |
 | `expr_list`          | `struct GeneralExpressionList`         |
-| `func_application`   | `struct FunctionApplication`           |
 | `func_arg_list`      | `struct FunctionArgumentList`          |
 | `indirection`        | `struct Indirection`                   |
 | `indirection_el`     | `enum Indirection.List.Element`        |

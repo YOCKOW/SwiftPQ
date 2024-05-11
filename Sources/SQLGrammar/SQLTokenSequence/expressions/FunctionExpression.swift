@@ -1,12 +1,23 @@
 /* *************************************************************************************************
- FunctionApplication.swift
+ FunctionExpression.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+/// A type representing an expression described as `func_expr` in "gram.y"
+public protocol FunctionExpression: ProductionExpression {}
+
+/// A type representing an expression of function that does not accept WINDOW functions directly
+/// and is described as `func_expr_windowless` in "gram.y"
+public protocol WindowlessFunctionExpression: Expression {}
+
+/// A type representing a special expression that is considered to be function and
+/// described as `func_expr_common_subexpr` in "gram.y"
+public protocol CommonFunctionSubexpression: FunctionExpression, WindowlessFunctionExpression {}
+
 /// A type that represents `func_application` described in "gram.y".
-public struct FunctionApplication: SQLTokenSequence {
+public struct FunctionApplication: WindowlessFunctionExpression {
   public struct ArgumentList: SQLTokenSequence {
     public enum AggregatePattern: LosslessTokenConvertible {
       case all
@@ -119,7 +130,7 @@ public struct FunctionApplication: SQLTokenSequence {
   /// Enclosed expression(s) as argument list.
   public enum Arguments: SQLTokenSequence {
     case any
-    
+
     case list(ArgumentList)
 
     public var tokens: JoinedSQLTokenSequence {
@@ -156,7 +167,7 @@ public struct FunctionApplication: SQLTokenSequence {
     orderBy: SortClause? = nil
   ) {
     self.init(
-      functionName, 
+      functionName,
       arguments: .list(ArgumentList(arguments: arguments, orderBy: orderBy))
     )
   }
