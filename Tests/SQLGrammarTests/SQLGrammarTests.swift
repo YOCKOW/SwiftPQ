@@ -9,6 +9,14 @@ import NetworkGear
 import XCTest
 @testable import SQLGrammar
 
+func assertDescription<T>(
+  _ tokens: T, _ expectedDescription: String,
+  _ message: @autoclosure () -> String = "",
+  file: StaticString = #filePath, line: UInt = #line
+) where T: SQLTokenSequence {
+  XCTAssertEqual(tokens.description, expectedDescription, message(), file: file, line: line)
+}
+
 final class SQLGrammarTests: XCTestCase {
   func test_keywords() {
     XCTAssertNotNil(SQLToken.keyword(from: "CREATE"))
@@ -90,6 +98,45 @@ final class SQLGrammarTests: XCTestCase {
       ]).description,
       ".label0.label1.*"
     )
+  }
+
+  func test_FunctionApplication() {
+    assertDescription(FunctionApplication(FunctionName("f"), arguments: nil), "f()")
+    assertDescription(
+      FunctionApplication(
+        FunctionName("f"),
+        arguments: FunctionArgumentList([UnsignedIntegerConstantExpression(0).asFunctionArgument])
+      ),
+      "f(0)"
+    )
+    assertDescription(
+      FunctionApplication(
+        FunctionName("f"),
+        variadicArgument: UnsignedIntegerConstantExpression(0).asFunctionArgument,
+        orderBy: SortClause(SortBy(ColumnReference(columnName: "col1")))
+      ),
+      "f(VARIADIC 0 ORDER BY col1)"
+    )
+    assertDescription(
+      FunctionApplication(
+        FunctionName("f"),
+        arguments: FunctionArgumentList([UnsignedIntegerConstantExpression(0).asFunctionArgument]),
+        variadicArgument: UnsignedIntegerConstantExpression(1).asFunctionArgument
+      ),
+      "f(0, VARIADIC 1)"
+    )
+    assertDescription(
+      FunctionApplication(
+        FunctionName("f"),
+        aggregate: .distinct,
+        arguments: FunctionArgumentList([
+          UnsignedIntegerConstantExpression(0).asFunctionArgument,
+          UnsignedIntegerConstantExpression(1).asFunctionArgument
+        ])
+      ),
+      "f(DISTINCT 0, 1)"
+    )
+    assertDescription(FunctionApplication(FunctionName("f"), arguments: .any), "f(*)")
   }
 
   func test_FunctionName() {

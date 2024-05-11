@@ -100,6 +100,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `any_name_list`      | `struct AnyNameList`                   |
 | `attrs`              | `struct AttributeList`                 |
 | `expr_list`          | `struct GeneralExpressionList`         |
+| `func_application`   | `struct FunctionApplication`           |
 | `func_arg_list`      | `struct FunctionArgumentList`          |
 | `indirection`        | `struct Indirection`                   |
 | `indirection_el`     | `enum Indirection.List.Element`        |
