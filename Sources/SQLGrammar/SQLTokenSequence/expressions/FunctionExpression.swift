@@ -328,7 +328,12 @@ public final class User: CommonFunctionSubexpression {
   public static let user: CurrentDate = .init()
 }
 
-// TODO: Implement a type for `CURRENT_CATALOG`
+/// A representation of `CURRENT_CATALOG`.
+public final class CurrentCatalog: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.currentCatalog]
+  public static let currentCatalog: CurrentDate = .init()
+}
+
 // TODO: Implement a type for `CURRENT_SCHEMA`
 // TODO: Implement a type for `CAST '(' a_expr AS Typename ')'`
 // TODO: Implement a type for `EXTRACT '(' extract_list ')'`
