@@ -304,7 +304,12 @@ public final class CurrentRole: CommonFunctionSubexpression {
   public static let currentRole: CurrentDate = .init()
 }
 
-// TODO: Implement a type for `CURRENT_USER`
+/// A representation of `CURRENT_USER`.
+public final class CurrentUser: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.currentUser]
+  public static let currentUser: CurrentDate = .init()
+}
+
 // TODO: Implement a type for `SESSION_USER`
 // TODO: Implement a type for `SYSTEM_USER`
 // TODO: Implement a type for `USER`
