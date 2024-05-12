@@ -334,7 +334,13 @@ public final class CurrentCatalog: CommonFunctionSubexpression {
   public static let currentCatalog: CurrentDate = .init()
 }
 
-// TODO: Implement a type for `CURRENT_SCHEMA`
+/// A representation of `CURRENT_SCHEMA`.
+public final class CurrentSchema: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.currentSchema]
+  public static let currentSchema: CurrentDate = .init()
+}
+
+
 // TODO: Implement a type for `CAST '(' a_expr AS Typename ')'`
 // TODO: Implement a type for `EXTRACT '(' extract_list ')'`
 // TODO: Implement a type for `NORMALIZE '(' a_expr ')'`
