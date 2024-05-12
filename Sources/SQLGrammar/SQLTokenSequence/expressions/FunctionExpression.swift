@@ -310,7 +310,12 @@ public final class CurrentUser: CommonFunctionSubexpression {
   public static let currentUser: CurrentDate = .init()
 }
 
-// TODO: Implement a type for `SESSION_USER`
+/// A representation of `SESSION_USER`.
+public final class SessionUser: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.sessionUser]
+  public static let sessionUser: CurrentDate = .init()
+}
+
 // TODO: Implement a type for `SYSTEM_USER`
 // TODO: Implement a type for `USER`
 // TODO: Implement a type for `CURRENT_CATALOG`
