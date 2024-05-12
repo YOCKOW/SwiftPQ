@@ -297,3 +297,50 @@ public struct LocalTimestamp: CurrentTimeExpression, CommonFunctionSubexpression
     self.precision = precision
   }
 }
+
+// TODO: Implement a type for `CURRENT_ROLE`
+// TODO: Implement a type for `CURRENT_USER`
+// TODO: Implement a type for `SESSION_USER`
+// TODO: Implement a type for `SYSTEM_USER`
+// TODO: Implement a type for `USER`
+// TODO: Implement a type for `CURRENT_CATALOG`
+// TODO: Implement a type for `CURRENT_SCHEMA`
+// TODO: Implement a type for `CAST '(' a_expr AS Typename ')'`
+// TODO: Implement a type for `EXTRACT '(' extract_list ')'`
+// TODO: Implement a type for `NORMALIZE '(' a_expr ')'`
+// TODO: Implement a type for `NORMALIZE '(' a_expr ',' unicode_normal_form ')'`
+// TODO: Implement a type for `OVERLAY '(' overlay_list ')'`
+// TODO: Implement a type for `OVERLAY '(' func_arg_list_opt ')'`
+// TODO: Implement a type for `POSITION '(' position_list ')'`
+// TODO: Implement a type for `SUBSTRING '(' substr_list ')'`
+// TODO: Implement a type for `SUBSTRING '(' func_arg_list_opt ')'`
+// TODO: Implement a type for `TREAT '(' a_expr AS Typename ')'`
+// TODO: Implement a type for `TRIM '(' BOTH trim_list ')'`
+// TODO: Implement a type for `TRIM '(' LEADING trim_list ')'`
+// TODO: Implement a type for `TRIM '(' TRAILING trim_list ')'`
+// TODO: Implement a type for `TRIM '(' trim_list ')'`
+// TODO: Implement a type for `NULLIF '(' a_expr ',' a_expr ')'`
+// TODO: Implement a type for `COALESCE '(' expr_list ')'`
+// TODO: Implement a type for `GREATEST '(' expr_list ')'`
+// TODO: Implement a type for `LEAST '(' expr_list ')'`
+// TODO: Implement a type for `XMLCONCAT '(' expr_list ')'`
+// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ')'`
+// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' xml_attributes ')'`
+// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' expr_list ')'`
+// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' xml_attributes ',' expr_list ')'`
+// TODO: Implement a type for `XMLEXISTS '(' c_expr xmlexists_argument ')'`
+// TODO: Implement a type for `XMLFOREST '(' xml_attribute_list ')'`
+// TODO: Implement a type for `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'`
+// TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ')'`
+// TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ',' a_expr ')'`
+// TODO: Implement a type for `XMLROOT '(' a_expr ',' xml_root_version opt_xml_root_standalone ')'`
+// TODO: Implement a type for `XMLSERIALIZE '(' document_or_content a_expr AS SimpleTypename xml_indent_option ')'`
+// TODO: Implement a type for `JSON_OBJECT '(' func_arg_list ')'`
+// TODO: Implement a type for `JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'`
+// TODO: Implement a type for `JSON_OBJECT '(' json_output_clause_opt ')'`
+// TODO: Implement a type for `JSON_ARRAY '(' json_value_expr_list json_array_constructor_null_clause_opt json_output_clause_opt ')'`
+// TODO: Implement a type for `JSON_ARRAY '(' select_no_parens json_format_clause_opt json_output_clause_opt ')'`
+// TODO: Implement a type for `JSON_ARRAY '(' json_output_clause_opt ')'`
+
+
+// MARK: END OF CommonFunctionSubexpression a.k.a. func_expr_common_subexpr -
