@@ -316,7 +316,12 @@ public final class SessionUser: CommonFunctionSubexpression {
   public static let sessionUser: CurrentDate = .init()
 }
 
-// TODO: Implement a type for `SYSTEM_USER`
+/// A representation of `SYSTEM_USER`.
+public final class SystemUser: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.systemUser]
+  public static let systemUser: CurrentDate = .init()
+}
+
 // TODO: Implement a type for `USER`
 // TODO: Implement a type for `CURRENT_CATALOG`
 // TODO: Implement a type for `CURRENT_SCHEMA`
