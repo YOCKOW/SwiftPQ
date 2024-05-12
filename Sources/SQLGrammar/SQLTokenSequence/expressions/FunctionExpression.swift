@@ -298,7 +298,12 @@ public struct LocalTimestamp: CurrentTimeExpression, CommonFunctionSubexpression
   }
 }
 
-// TODO: Implement a type for `CURRENT_ROLE`
+/// A representation of `CURRENT_ROLE`.
+public final class CurrentRole: CommonFunctionSubexpression {
+  public let tokens: Array<SQLToken> = [.currentRole]
+  public static let currentRole: CurrentDate = .init()
+}
+
 // TODO: Implement a type for `CURRENT_USER`
 // TODO: Implement a type for `SESSION_USER`
 // TODO: Implement a type for `SYSTEM_USER`
