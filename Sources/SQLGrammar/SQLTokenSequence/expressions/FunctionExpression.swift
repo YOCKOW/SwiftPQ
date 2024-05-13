@@ -545,7 +545,27 @@ public struct OverlayFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `POSITION '(' position_list ')'`
+/// A representation of `POSITION '(' position_list ')'`.
+public struct PositionFunction: CommonFunctionSubexpression {
+  public let substring: any RestrictedExpression
+
+  public let text: any RestrictedExpression
+
+  public var tokens: JoinedSQLTokenSequence {
+    let list = JoinedSQLTokenSequence([
+      substring,
+      SingleToken(.in),
+      text,
+    ] as [any SQLTokenSequence])
+    return SingleToken(.position).followedBy(parenthesized: list)
+  }
+
+  public init(_ substring: any RestrictedExpression, `in` text: any RestrictedExpression) {
+    self.substring = substring
+    self.text = text
+  }
+}
+
 // TODO: Implement a type for `SUBSTRING '(' substr_list ')'`
 // TODO: Implement a type for `SUBSTRING '(' func_arg_list_opt ')'`
 // TODO: Implement a type for `TREAT '(' a_expr AS Typename ')'`

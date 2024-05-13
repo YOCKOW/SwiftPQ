@@ -331,6 +331,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_PositionFunction() {
+    assertDescription(
+      PositionFunction(StringConstantExpression("yo"), in: StringConstantExpression("yockow")),
+      "POSITION('yo' IN 'yockow')"
+    )
+  }
+
   func test_RelationExpression() {
     XCTAssertEqual(
       RelationExpression(tableName: .init(schema: "my_schema", name: "my_table")).description,
