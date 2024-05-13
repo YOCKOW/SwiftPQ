@@ -72,3 +72,9 @@ public enum IntervalFieldsPhrase: Segment {
     }
   }
 }
+
+/// An option for `INTERVAL`'s `opt_interval` or `'(' Iconst ')'`
+public enum IntervalOption {
+  case fields(IntervalFieldsPhrase)
+  case precision(Int)
+}

@@ -340,8 +340,26 @@ public final class CurrentSchema: CommonFunctionSubexpression {
   public static let currentSchema: CurrentDate = .init()
 }
 
+/// A representation of `CAST '(' a_expr AS Typename ')'`
+public struct TypeCastFunction: CommonFunctionSubexpression, ValueExpression {
+  public let value: any GeneralExpression
 
-// TODO: Implement a type for `CAST '(' a_expr AS Typename ')'`
+  public let typeName: TypeName
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.cast).followedBy(parenthesized: JoinedSQLTokenSequence([
+      value,
+      SingleToken(.as),
+      typeName
+    ] as [any SQLTokenSequence]))
+  }
+
+  public init(_ value: any GeneralExpression, `as` typeName: TypeName) {
+    self.value = value
+    self.typeName = typeName
+  }
+}
+
 // TODO: Implement a type for `EXTRACT '(' extract_list ')'`
 // TODO: Implement a type for `NORMALIZE '(' a_expr ')'`
 // TODO: Implement a type for `NORMALIZE '(' a_expr ',' unicode_normal_form ')'`

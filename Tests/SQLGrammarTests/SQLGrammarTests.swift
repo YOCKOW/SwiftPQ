@@ -216,6 +216,17 @@ final class SQLGrammarTests: XCTestCase {
       "TEMPORARY TABLE my_temp_table"
     )
   }
+
+  func test_TypeName() {
+    assertDescription(
+      TypeName(NumericTypeName.int, arrayModifier: .oneDimensionalArray(size: 3)),
+      "INT ARRAY[3]"
+    )
+    assertDescription(
+      TypeName(CharacterTypeName.char, arrayModifier: .multipleDimensionalArray([nil, 3])),
+      "CHAR[][3]"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
@@ -302,6 +313,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         includeDescendantTables: false
       ).description,
       "ONLY my_schema.my_table"
+    )
+  }
+
+  func test_TypeCastFunction() {
+    assertDescription(
+      TypeCastFunction(UnsignedIntegerConstantExpression(0), as: NumericTypeName.bigInt.typeName),
+      "CAST(0 AS BIGINT)"
     )
   }
 

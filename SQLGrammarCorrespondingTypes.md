@@ -30,17 +30,23 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `type_function_name` | `struct TypeOrFunctionName`(internal) |
 
 
-## Constant Types
+## Type Names
 
-| gram.y               | Swift                                 |
-|----------------------|---------------------------------------|
-| n/a                  | `protocol ConstantTypeName`           |
-| `ConstBit`           | `enum ConstantBitStringTypeName`      |
-| `ConstCharacter`     | `struct ConstantCharacterTypeName`    |
-| `ConstDatetime`      | `struct ConstantDateTimeTypeName`     |
-| `Numeric`            | `enum NumericTypeName`                |
+| gram.y                                        | Swift                              |
+|-----------------------------------------------|------------------------------------|
+| n/a                                           | `protocol ConstantTypeName`        |
+| `Bit`                                         | `enum BitStringTypeName`           |
+| `Character`                                   | `struct CharacterTypeName`         |
+| `ConstBit`                                    | `struct ConstantBitStringTypeName` |
+| `ConstCharacter`                              | `struct ConstantCharacterTypeName` |
+| `ConstDatetime`                               | `struct ConstantDateTimeTypeName`  |
+| `ConstInterval [opt_interval|'(' Iconst ')']` | `struct ConstantIntervalTypeName`  |
+| `GenericType`                                 | `struct GenericTypeName`           |
+| `Numeric`                                     | `enum NumericTypeName`             |
+| `SimpleTypename`                              | `protocol SimpleTypeName`          |
+| `Typename`                                    | `struct TypeName`                  |
 
-## Names
+## Other Names
 
 | gram.y                 | Swift                                 |
 |------------------------|---------------------------------------|
@@ -107,6 +113,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_arg_list`      | `struct FunctionArgumentList`          |
 | `indirection`        | `struct Indirection`                   |
 | `indirection_el`     | `enum Indirection.List.Element`        |
+| `opt_array_bounds`   | `struct ArrayBoundList`                |
 | `opt_interval`       | `enum IntervalFieldsPhrase`            |
 | `target_el`          | `struct TargetElement`                 |
 | `target_list`        | `struct TargetList`                    |

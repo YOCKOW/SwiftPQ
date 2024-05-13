@@ -263,10 +263,7 @@ where Const: ConstantTypeName {
 /// Constant `INTERVAL` type cast of 'literal' syntax, that is described as
 /// `ConstInterval Sconst opt_interval` or `ConstInterval '(' Iconst ')' Sconst`.
 public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
-  public enum Option {
-    case fields(IntervalFieldsPhrase)
-    case precision(Int)
-  }
+  public typealias Option = IntervalOption
 
   public let string: SQLToken.StringConstant
 
