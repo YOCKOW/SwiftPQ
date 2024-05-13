@@ -34,19 +34,19 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Type Names
 
-| gram.y                                        | Swift                              |
-|-----------------------------------------------|------------------------------------|
-| n/a                                           | `protocol ConstantTypeName`        |
-| `Bit`                                         | `enum BitStringTypeName`           |
-| `Character`                                   | `struct CharacterTypeName`         |
-| `ConstBit`                                    | `struct ConstantBitStringTypeName` |
-| `ConstCharacter`                              | `struct ConstantCharacterTypeName` |
-| `ConstDatetime`                               | `struct ConstantDateTimeTypeName`  |
-| `ConstInterval [opt_interval|'(' Iconst ')']` | `struct ConstantIntervalTypeName`  |
-| `GenericType`                                 | `struct GenericTypeName`           |
-| `Numeric`                                     | `enum NumericTypeName`             |
-| `SimpleTypename`                              | `protocol SimpleTypeName`          |
-| `Typename`                                    | `struct TypeName`                  |
+| gram.y                                         | Swift                              |
+|------------------------------------------------|------------------------------------|
+| n/a                                            | `protocol ConstantTypeName`        |
+| `Bit`                                          | `enum BitStringTypeName`           |
+| `Character`                                    | `struct CharacterTypeName`         |
+| `ConstBit`                                     | `struct ConstantBitStringTypeName` |
+| `ConstCharacter`                               | `struct ConstantCharacterTypeName` |
+| `ConstDatetime`                                | `struct ConstantDateTimeTypeName`  |
+| `ConstInterval [opt_interval\|'(' Iconst ')']` | `struct ConstantIntervalTypeName`  |
+| `GenericType`                                  | `struct GenericTypeName`           |
+| `Numeric`                                      | `enum NumericTypeName`             |
+| `SimpleTypename`                               | `protocol SimpleTypeName`          |
+| `Typename`                                     | `struct TypeName`                  |
 
 ## Other Names
 
