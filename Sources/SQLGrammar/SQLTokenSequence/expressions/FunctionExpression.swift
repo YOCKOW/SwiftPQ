@@ -360,7 +360,84 @@ public struct TypeCastFunction: CommonFunctionSubexpression, ValueExpression {
   }
 }
 
-// TODO: Implement a type for `EXTRACT '(' extract_list ')'`
+/// A function that is described as `EXTRACT '(' extract_list ')'`.
+public struct ExtractFunction: CommonFunctionSubexpression {
+  /// A token that selects what field to extract from the source value.
+  /// It corresponds to `extract_arg` in "gram.y".
+  public struct Field: LosslessTokenConvertible {
+    public let token: SQLToken
+
+    public init?(_ token: SQLToken) {
+      switch token {
+      case is SQLToken.Identifier:
+        self.token = token
+      case let keyword as SQLToken.Keyword:
+        guard (
+          keyword == .year ||
+          keyword == .month ||
+          keyword == .day ||
+          keyword == .hour ||
+          keyword == .minute ||
+          keyword == .second
+        ) else {
+          return nil
+        }
+        self.token = keyword
+      case is SQLToken.StringConstant:
+        self.token = token
+      default:
+        return nil
+      }
+    }
+
+    /// `YEAR`
+    public static let year: Field = .init(.year)!
+
+    /// `MONTH`
+    public static let month: Field = .init(.month)!
+
+    /// `DAY`
+    public static let day: Field = .init(.day)!
+
+    /// `HOUR`
+    public static let hour: Field = .init(.hour)!
+
+    /// `MINUTE`
+    public static let minute: Field = .init(.minute)!
+
+    /// `SECOND`
+    public static let second: Field = .init(.second)!
+  }
+
+  /// A representation of `extract_list`.
+  private struct _List: Segment {
+    let field: Field
+    let source: any GeneralExpression
+    var tokens: JoinedSQLTokenSequence {
+      return JoinedSQLTokenSequence([
+        field.asSequence,
+        SingleToken(.from),
+        source,
+      ] as [any SQLTokenSequence])
+    }
+  }
+
+  private let _list: _List
+
+  public var field: Field { return _list.field }
+
+  public var source: any GeneralExpression { return _list.source }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.extract).followedBy(parenthesized: _list)
+  }
+
+  /// Creates a sequence of tokens such as `EXTRACT(field FROM source)`.
+  public init(field: Field, from source: any GeneralExpression) {
+    self._list = _List(field: field, source: source)
+  }
+}
+
 // TODO: Implement a type for `NORMALIZE '(' a_expr ')'`
 // TODO: Implement a type for `NORMALIZE '(' a_expr ',' unicode_normal_form ')'`
 // TODO: Implement a type for `OVERLAY '(' overlay_list ')'`

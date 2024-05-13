@@ -405,7 +405,7 @@ public struct CharacterTypeName: SimpleTypeName {
   public static let nchar: CharacterTypeName = .nchar()
 }
 
-/// A name of date-time type, that is described as `ConstantDatetime` in "gram.y".
+/// A name of date-time type, that is described as `ConstDatetime` in "gram.y".
 public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
   public enum DateTimeType {
     case timestamp

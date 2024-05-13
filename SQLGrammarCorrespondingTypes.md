@@ -27,6 +27,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `ColId`              | `struct ColumnIdentifier`             |
 | `ColLabel`           | `struct ColumnLabel`                  |
 | `opt_drop_behavior`  | `enum DropBehavior`                   |
+| `extract_arg`        | `struct ExtractFunction.Field`        |
 | `type_function_name` | `struct TypeOrFunctionName`(internal) |
 
 
@@ -105,17 +106,18 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Others
 
-| gram.y               | Swift                                  |
-|----------------------|----------------------------------------|
-| `any_name_list`      | `struct AnyNameList`                   |
-| `attrs`              | `struct AttributeList`                 |
-| `expr_list`          | `struct GeneralExpressionList`         |
-| `func_arg_list`      | `struct FunctionArgumentList`          |
-| `indirection`        | `struct Indirection`                   |
-| `indirection_el`     | `enum Indirection.List.Element`        |
-| `opt_array_bounds`   | `struct ArrayBoundList`                |
-| `opt_interval`       | `enum IntervalFieldsPhrase`            |
-| `target_el`          | `struct TargetElement`                 |
-| `target_list`        | `struct TargetList`                    |
+| gram.y               | Swift                                            |
+|----------------------|--------------------------------------------------|
+| `any_name_list`      | `struct AnyNameList`                             |
+| `attrs`              | `struct AttributeList`                           |
+| `expr_list`          | `struct GeneralExpressionList`                   |
+| `extract_list`       | `struct ExtractFunction._List` (private)         |
+| `func_arg_list`      | `struct FunctionArgumentList`                    |
+| `indirection`        | `struct Indirection`                             |
+| `indirection_el`     | `enum Indirection.List.Element`                  |
+| `opt_array_bounds`   | `struct ArrayBoundList`                          |
+| `opt_interval`       | `enum IntervalFieldsPhrase`                      |
+| `target_el`          | `struct TargetElement`                           |
+| `target_list`        | `struct TargetList`                              |
 
 
