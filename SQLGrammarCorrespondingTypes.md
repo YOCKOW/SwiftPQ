@@ -20,15 +20,16 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## One-token symbols
 
-| gram.y               | Swift                                 |
-|----------------------|---------------------------------------|
-| `attr_name`          | `enum AttributeName`                  |
-| `BareColLabel`       | `struct BareColumnLabel`              |
-| `ColId`              | `struct ColumnIdentifier`             |
-| `ColLabel`           | `struct ColumnLabel`                  |
-| `opt_drop_behavior`  | `enum DropBehavior`                   |
-| `extract_arg`        | `struct ExtractFunction.Field`        |
-| `type_function_name` | `struct TypeOrFunctionName`(internal) |
+| gram.y                | Swift                                 |
+|-----------------------|---------------------------------------|
+| `attr_name`           | `enum AttributeName`                  |
+| `BareColLabel`        | `struct BareColumnLabel`              |
+| `ColId`               | `struct ColumnIdentifier`             |
+| `ColLabel`            | `struct ColumnLabel`                  |
+| `opt_drop_behavior`   | `enum DropBehavior`                   |
+| `extract_arg`         | `struct ExtractFunction.Field`        |
+| `type_function_name`  | `struct TypeOrFunctionName`(internal) |
+| `unicode_normal_form` | `enum UnicodeNormalizationForm`       |
 
 
 ## Type Names

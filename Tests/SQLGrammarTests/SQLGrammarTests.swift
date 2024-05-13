@@ -308,6 +308,17 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_NormalizeFunction() {
+    assertDescription(
+      NormalizeFunction(text: StringConstantExpression("text")),
+      "NORMALIZE('text')"
+    )
+    assertDescription(
+      NormalizeFunction(text: StringConstantExpression("text"), form: .nfc),
+      "NORMALIZE('text', NFC)"
+    )
+  }
+
   func test_RelationExpression() {
     XCTAssertEqual(
       RelationExpression(tableName: .init(schema: "my_schema", name: "my_table")).description,

@@ -438,8 +438,31 @@ public struct ExtractFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `NORMALIZE '(' a_expr ')'`
-// TODO: Implement a type for `NORMALIZE '(' a_expr ',' unicode_normal_form ')'`
+/// A representation of `NORMALIZE '(' a_expr ')'` or
+/// `NORMALIZE '(' a_expr ',' unicode_normal_form ')'`.
+public struct NormalizeFunction: CommonFunctionSubexpression {
+  public let text: any GeneralExpression
+
+  public let form: UnicodeNormalizationForm?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.normalize).followedBy(
+      parenthesized: JoinedSQLTokenSequence.compacting(
+        [
+          text,
+          form.map(SingleToken.init),
+        ] as [(any SQLTokenSequence)?],
+        separator: commaSeparator
+      )
+    )
+  }
+
+  public init(text: any GeneralExpression, form: UnicodeNormalizationForm? = nil) {
+    self.text = text
+    self.form = form
+  }
+}
+
 // TODO: Implement a type for `OVERLAY '(' overlay_list ')'`
 // TODO: Implement a type for `OVERLAY '(' func_arg_list_opt ')'`
 // TODO: Implement a type for `POSITION '(' position_list ')'`
