@@ -319,6 +319,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_OverlayFunction() {
+    assertDescription(
+      OverlayFunction(
+        targetText: StringConstantExpression("Txxxxas"),
+        replacementText: StringConstantExpression("hom"),
+        startIndex: UnsignedIntegerConstantExpression(2),
+        length: UnsignedIntegerConstantExpression(4)
+      ),
+      "OVERLAY('Txxxxas' PLACING 'hom' FROM 2 FOR 4)"
+    )
+  }
+
   func test_RelationExpression() {
     XCTAssertEqual(
       RelationExpression(tableName: .init(schema: "my_schema", name: "my_table")).description,

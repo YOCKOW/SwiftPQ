@@ -463,8 +463,88 @@ public struct NormalizeFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `OVERLAY '(' overlay_list ')'`
-// TODO: Implement a type for `OVERLAY '(' func_arg_list_opt ')'`
+/// A representation of `OVERLAY '(' overlay_list ')'` or `OVERLAY '(' func_arg_list_opt ')'`.
+public struct OverlayFunction: CommonFunctionSubexpression {
+  /// A representation of `overlay_list`.
+  public struct List: SQLTokenSequence {
+    public let targetText: any GeneralExpression
+
+    public let replacementText: any GeneralExpression
+
+    public let startIndex: any GeneralExpression
+
+    public let length: (any GeneralExpression)?
+
+    public var tokens: JoinedSQLTokenSequence {
+      return .compacting([
+        targetText,
+        SingleToken(.placing),
+        replacementText,
+        SingleToken(.from),
+        startIndex,
+        length.map({ JoinedSQLTokenSequence([SingleToken(.for), $0] as [any SQLTokenSequence]) }),
+      ] as [(any SQLTokenSequence)?])
+    }
+
+    public init(
+      targetText: any GeneralExpression,
+      replacementText: any GeneralExpression,
+      startIndex: any GeneralExpression,
+      length: (any GeneralExpression)?
+    ) {
+      self.targetText = targetText
+      self.replacementText = replacementText
+      self.startIndex = startIndex
+      self.length = length
+    }
+  }
+
+  private enum _Arguments: SQLTokenSequence {
+    case list(List)
+    case functionArgumentList(FunctionArgumentList?)
+
+    var tokens: JoinedSQLTokenSequence {
+      switch self {
+      case .list(let list):
+        return list.tokens
+      case .functionArgumentList(let list):
+        return list?.tokens ?? JoinedSQLTokenSequence()
+      }
+    }
+  }
+
+  private let _arguments: _Arguments
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.overlay).followedBy(parenthesized: _arguments)
+  }
+
+  public init(_ list: List) {
+    self._arguments = .list(list)
+  }
+
+  public init(_ list: FunctionArgumentList?) {
+    self._arguments = .functionArgumentList(list)
+  }
+
+  /// Creates an overlay function call such as
+  /// `OVERLAY (targetText PLACING replacementText FROM startIndex FOR length)`.
+  public init(
+    targetText: any GeneralExpression,
+    replacementText: any GeneralExpression,
+    startIndex: any GeneralExpression,
+    length: (any GeneralExpression)? = nil
+  ) {
+    let list = List(
+      targetText: targetText,
+      replacementText: replacementText,
+      startIndex: startIndex,
+      length: length
+    )
+    self._arguments = .list(list)
+  }
+}
+
 // TODO: Implement a type for `POSITION '(' position_list ')'`
 // TODO: Implement a type for `SUBSTRING '(' substr_list ')'`
 // TODO: Implement a type for `SUBSTRING '(' func_arg_list_opt ')'`
