@@ -290,6 +290,17 @@ final class SQLGrammarClauseTests: XCTestCase {
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {
+  func test_CoalesceFunction() {
+    assertDescription(
+      CoalesceFunction([
+        ColumnReference(columnName: "foo"),
+        ColumnReference(columnName: "bar"),
+        StringConstantExpression("Hello"),
+      ]),
+      "COALESCE(foo, bar, 'Hello')"
+    )
+  }
+
   func test_CurrentTime() {
     assertDescription(CurrentTime(), "CURRENT_TIME")
     assertDescription(CurrentTime(precision: 6), "CURRENT_TIME(6)")

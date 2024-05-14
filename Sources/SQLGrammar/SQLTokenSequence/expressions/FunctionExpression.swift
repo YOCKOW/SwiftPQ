@@ -920,7 +920,23 @@ public struct NullIfFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `COALESCE '(' expr_list ')'`
+/// A representation of `COALESCE '(' expr_list ')'`.
+public struct CoalesceFunction: CommonFunctionSubexpression {
+  public let expressions: GeneralExpressionList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.coalesce).followedBy(parenthesized: expressions)
+  }
+
+  public init(_ expressions: GeneralExpressionList) {
+    self.expressions = expressions
+  }
+
+  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
+    self.expressions = GeneralExpressionList(expressions)
+  }
+}
+
 // TODO: Implement a type for `GREATEST '(' expr_list ')'`
 // TODO: Implement a type for `LEAST '(' expr_list ')'`
 // TODO: Implement a type for `XMLCONCAT '(' expr_list ')'`
