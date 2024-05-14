@@ -738,7 +738,26 @@ public struct SubstringFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `TREAT '(' a_expr AS Typename ')'`
+/// A representation of `TREAT '(' a_expr AS Typename ')'`
+public struct TreatFunction: CommonFunctionSubexpression {
+  public let value: any GeneralExpression
+
+  public let typeName: TypeName
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.treat).followedBy(parenthesized: JoinedSQLTokenSequence([
+      value,
+      SingleToken(.as),
+      typeName
+    ] as [any SQLTokenSequence]))
+  }
+
+  public init(_ value: any GeneralExpression, `as` typeName: TypeName) {
+    self.value = value
+    self.typeName = typeName
+  }
+}
+
 // TODO: Implement a type for `TRIM '(' BOTH trim_list ')'`
 // TODO: Implement a type for `TRIM '(' LEADING trim_list ')'`
 // TODO: Implement a type for `TRIM '(' TRAILING trim_list ')'`
