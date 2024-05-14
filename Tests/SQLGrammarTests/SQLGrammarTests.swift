@@ -378,6 +378,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_TrimFunction() {
+    assertDescription(
+      TrimFunction(trimmingEnd: .both, trimCharacters: "hoge", from: "hogeYOCKOWhoge"),
+      "TRIM(BOTH 'hoge' FROM 'hogeYOCKOWhoge')"
+    )
+  }
+
   func test_TypeCastFunction() {
     assertDescription(
       TypeCastFunction(UnsignedIntegerConstantExpression(0), as: NumericTypeName.bigInt.typeName),

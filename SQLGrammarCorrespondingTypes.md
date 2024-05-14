@@ -121,5 +121,6 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `substr_list`        | `struct SubstringFunction.List`                  |
 | `target_el`          | `struct TargetElement`                           |
 | `target_list`        | `struct TargetList`                              |
+| `trim_list`          | `struct TrimFunction.List`                       |
 
 

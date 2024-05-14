@@ -758,10 +758,153 @@ public struct TreatFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `TRIM '(' BOTH trim_list ')'`
-// TODO: Implement a type for `TRIM '(' LEADING trim_list ')'`
-// TODO: Implement a type for `TRIM '(' TRAILING trim_list ')'`
-// TODO: Implement a type for `TRIM '(' trim_list ')'`
+/// A representation `TRIM '(' [BOTH|LEADING|TRAILING] trim_list ')'`
+public struct TrimFunction: CommonFunctionSubexpression {
+  public enum TrimmingEnd: LosslessTokenConvertible {
+    case leading
+    case trailing
+    case both
+
+    public var token: SQLToken {
+      switch self {
+      case .leading:
+        return .leading
+      case .trailing:
+        return .trailing
+      case .both:
+        return .both
+      }
+    }
+
+    public init?(_ token: SQLToken) {
+      switch token {
+      case .leading:
+        self = .leading
+      case .trailing:
+        self = .trailing
+      case .both:
+        self = .both
+      default:
+        return nil
+      }
+    }
+  }
+
+  /// A representation of `trim_list`.
+  public struct List: SQLTokenSequence {
+    private enum _Style {
+      case trimFromTarget(any GeneralExpression, GeneralExpressionList)
+      case from(GeneralExpressionList)
+      case onlyList(GeneralExpressionList)
+    }
+
+    private let _style: _Style
+
+    public var tokens: JoinedSQLTokenSequence {
+      switch _style {
+      case .trimFromTarget(let trimCharacters, let target):
+        return JoinedSQLTokenSequence([
+          trimCharacters,
+          SingleToken(.from),
+          target,
+        ] as [any SQLTokenSequence])
+      case .from(let list):
+        return JoinedSQLTokenSequence(SingleToken(.from), list)
+      case .onlyList(let list):
+        return JoinedSQLTokenSequence(list)
+      }
+    }
+
+    public var trimCharacters: GeneralExpressionList? {
+      switch _style {
+      case .trimFromTarget(let trimCharacters, _):
+        return GeneralExpressionList(NonEmptyList<any GeneralExpression>(item: trimCharacters))
+      case .from(let list), .onlyList(let list):
+        return NonEmptyList<any GeneralExpression>(items: list.expressions.items.dropFirst()).map {
+          GeneralExpressionList($0)
+        }
+      }
+    }
+
+    public var targetText: GeneralExpressionList {
+      switch _style {
+      case .trimFromTarget(_, let target):
+        return target
+      case .from(let list), .onlyList(let list):
+        return GeneralExpressionList(
+          NonEmptyList<any GeneralExpression>(item: list.expressions.first)
+        )
+      }
+    }
+
+    private init(style: _Style) {
+      self._style = style
+    }
+
+    public init(trimCharacters: any GeneralExpression, targetText: GeneralExpressionList) {
+      self._style = .trimFromTarget(trimCharacters, targetText)
+    }
+
+    public static func nonstandardSyntax(
+      includeFromKeyword: Bool,
+      arguments: GeneralExpressionList
+    ) -> List {
+      if includeFromKeyword {
+        return .init(style: .from(arguments))
+      }
+      return .init(style: .onlyList(arguments))
+    }
+  }
+
+  public let trimmingEnd: TrimmingEnd?
+
+  private let _list: List
+
+  public var trimCharacters: GeneralExpressionList? {
+    return _list.trimCharacters
+  }
+
+  public var targetText: GeneralExpressionList {
+    return _list.targetText
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.trim).followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+      trimmingEnd.map(SingleToken.init),
+      _list
+    ))
+  }
+
+  public init(trimmingEnd: TrimmingEnd? = nil, _ list: List) {
+    self.trimmingEnd = trimmingEnd
+    self._list = list
+  }
+
+  public init(
+    trimmingEnd: TrimmingEnd? = nil,
+    trimCharacters: any GeneralExpression,
+    from targetText: GeneralExpressionList
+  ) {
+    self.init(
+      trimmingEnd: trimmingEnd,
+      List(trimCharacters: trimCharacters, targetText: targetText)
+    )
+  }
+
+  /// Create a function call such as `TRIM(BOTH trimCharacters FROM targetText)`.
+  public init(
+    trimmingEnd: TrimmingEnd? = nil,
+    trimCharacters: StringConstantExpression,
+    from targetText: StringConstantExpression
+  ) {
+    self.init(
+      trimmingEnd: trimmingEnd,
+      trimCharacters: trimCharacters,
+      from: GeneralExpressionList([targetText])
+    )
+  }
+}
+
 // TODO: Implement a type for `NULLIF '(' a_expr ',' a_expr ')'`
 // TODO: Implement a type for `COALESCE '(' expr_list ')'`
 // TODO: Implement a type for `GREATEST '(' expr_list ')'`
