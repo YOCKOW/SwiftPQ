@@ -410,6 +410,17 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLElementFunction() {
+    assertDescription(
+      XMLElementFunction(
+        name: "foo",
+        attributes: .init([XMLAttribute(name: "bar", value: "baz")]),
+        contents: GeneralExpressionList([StringConstantExpression("content")])
+      ),
+      "XMLELEMENT(NAME foo, XMLATTRIBUTES('baz' AS bar), 'content')"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {

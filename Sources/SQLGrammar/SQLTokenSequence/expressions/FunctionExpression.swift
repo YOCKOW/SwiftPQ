@@ -988,10 +988,44 @@ public struct XMLConcatenateFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ')'`
-// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' xml_attributes ')'`
-// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' expr_list ')'`
-// TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' xml_attributes ',' expr_list ')'`
+/// A representation of `XMLELEMENT ( ... )`.
+public struct XMLElementFunction: CommonFunctionSubexpression {
+  public let name: ColumnLabel
+
+  private var _nameTokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(SingleToken(.name), SingleToken(name))
+  }
+
+  public let attributes: XMLAttributeList?
+
+  private var _attributesTokens: JoinedSQLTokenSequence? {
+    return attributes.map {
+      return SingleToken(.xmlattributes).followedBy(parenthesized: $0)
+    }
+  }
+
+  public let contents: GeneralExpressionList?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlelement).followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+      _nameTokens,
+      _attributesTokens,
+      contents,
+      separator: commaSeparator
+    ))
+  }
+
+  public init(
+    name: ColumnLabel,
+    attributes: XMLAttributeList? = nil,
+    contents: GeneralExpressionList? = nil
+  ) {
+    self.name = name
+    self.attributes = attributes
+    self.contents = contents
+  }
+}
+
 // TODO: Implement a type for `XMLEXISTS '(' c_expr xmlexists_argument ')'`
 // TODO: Implement a type for `XMLFOREST '(' xml_attribute_list ')'`
 // TODO: Implement a type for `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'`
