@@ -319,6 +319,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_NullIfFunction() {
+    assertDescription(
+      NullIfFunction(ColumnReference(columnName: "someValue"), StringConstantExpression("foo")),
+      "NULLIF(someValue, 'foo')"
+    )
+  }
+
   func test_OverlayFunction() {
     assertDescription(
       OverlayFunction(

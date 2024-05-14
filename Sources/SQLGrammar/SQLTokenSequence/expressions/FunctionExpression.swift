@@ -905,7 +905,21 @@ public struct TrimFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `NULLIF '(' a_expr ',' a_expr ')'`
+/// A representation of `NULLIF '(' a_expr ',' a_expr ')'`
+public struct NullIfFunction: CommonFunctionSubexpression {
+  public let leftValue: any GeneralExpression
+  public let rightValue: any GeneralExpression
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.nullif).followedBy(parenthesized: [leftValue, rightValue].joinedByCommas())
+  }
+
+  public init(_ leftValue: any GeneralExpression, _ rightValue: any GeneralExpression) {
+    self.leftValue = leftValue
+    self.rightValue = rightValue
+  }
+}
+
 // TODO: Implement a type for `COALESCE '(' expr_list ')'`
 // TODO: Implement a type for `GREATEST '(' expr_list ')'`
 // TODO: Implement a type for `LEAST '(' expr_list ')'`
