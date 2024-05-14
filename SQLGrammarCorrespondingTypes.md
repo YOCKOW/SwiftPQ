@@ -110,14 +110,15 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | gram.y               | Swift                                            |
 |----------------------|--------------------------------------------------|
 | `any_name_list`      | `struct AnyNameList`                             |
+| `opt_array_bounds`   | `struct ArrayBoundList`                          |
 | `attrs`              | `struct AttributeList`                           |
 | `expr_list`          | `struct GeneralExpressionList`                   |
 | `extract_list`       | `struct ExtractFunction._List` (private)         |
 | `func_arg_list`      | `struct FunctionArgumentList`                    |
 | `indirection`        | `struct Indirection`                             |
 | `indirection_el`     | `enum Indirection.List.Element`                  |
-| `opt_array_bounds`   | `struct ArrayBoundList`                          |
 | `opt_interval`       | `enum IntervalFieldsPhrase`                      |
+| `substr_list`        | `struct SubstringFunction.List`                  |
 | `target_el`          | `struct TargetElement`                           |
 | `target_list`        | `struct TargetList`                              |
 

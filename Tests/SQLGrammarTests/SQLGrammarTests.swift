@@ -359,6 +359,25 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_SubstringFunction() {
+    assertDescription(
+      SubstringFunction(
+        targetText: StringConstantExpression("YOCKOW"),
+        from: UnsignedIntegerConstantExpression(2),
+        for: UnsignedIntegerConstantExpression(3)
+      ),
+      "SUBSTRING('YOCKOW' FROM 2 FOR 3)"
+    )
+    assertDescription(
+      SubstringFunction(
+        targetText: StringConstantExpression("YOCKOW"),
+        similar: StringConstantExpression(###"%#"O_K#"_"###),
+        escape: StringConstantExpression("#")
+      ),
+      ###"SUBSTRING('YOCKOW' SIMILAR '%#"O_K#"_' ESCAPE '#')"###
+    )
+  }
+
   func test_TypeCastFunction() {
     assertDescription(
       TypeCastFunction(UnsignedIntegerConstantExpression(0), as: NumericTypeName.bigInt.typeName),

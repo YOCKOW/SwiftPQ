@@ -566,8 +566,178 @@ public struct PositionFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `SUBSTRING '(' substr_list ')'`
-// TODO: Implement a type for `SUBSTRING '(' func_arg_list_opt ')'`
+/// A representation of `SUBSTRING '(' substr_list ')'` or `SUBSTRING '(' func_arg_list_opt ')'`.
+public struct SubstringFunction: CommonFunctionSubexpression {
+  /// A representation of `substr_list`.
+  public struct List: SQLTokenSequence {
+    private enum _Pattern {
+      case range(startIndex: (any GeneralExpression)?, length: (any GeneralExpression)?)
+      case sqlRegularExpression(pattern: any GeneralExpression, escapeCharacter: any GeneralExpression)
+    }
+
+    public let targetText: any GeneralExpression
+
+    private let _pattern: _Pattern
+
+    public var startIndex: (any GeneralExpression)? {
+      guard case .range(let startIndex, _) = _pattern else {
+        return nil
+      }
+      return startIndex
+    }
+
+    public var length: (any GeneralExpression)? {
+      guard case .range(_, let length) = _pattern else {
+        return nil
+      }
+      return length
+    }
+
+    public var sqlRegularExpression: (any GeneralExpression)? {
+      guard case .sqlRegularExpression(let pattern, _) = _pattern else {
+        return nil
+      }
+      return pattern
+    }
+
+    public var sqlReqularExpressionEscapeCharacter: (any GeneralExpression)? {
+      guard case .sqlRegularExpression(_, let escapeCharacter) = _pattern else {
+        return nil
+      }
+      return escapeCharacter
+    }
+
+    public var tokens: JoinedSQLTokenSequence {
+      var sequences: [any SQLTokenSequence] = [targetText]
+      switch _pattern {
+      case .range(let startIndex, let length):
+        assert(startIndex != nil || length != nil, "Invalid range?!")
+        if let startIndex {
+          sequences.append(SingleToken(.from))
+          sequences.append(startIndex)
+        }
+        if let length {
+          sequences.append(SingleToken(.for))
+          sequences.append(length)
+        }
+      case .sqlRegularExpression(let pattern, let escapeCharacter):
+        sequences.append(contentsOf: [
+          SingleToken(.similar),
+          pattern,
+          SingleToken(.escape),
+          escapeCharacter,
+        ] as [any SQLTokenSequence])
+      }
+      return JoinedSQLTokenSequence(sequences)
+    }
+
+    private init(targetText: any GeneralExpression, pattern: _Pattern) {
+      self.targetText = targetText
+      self._pattern = pattern
+    }
+
+    public init(
+      targetText: any GeneralExpression,
+      from startIndex: any GeneralExpression
+    ) {
+      self.init(targetText: targetText, pattern: .range(startIndex: startIndex, length: nil))
+    }
+
+    public init(
+      targetText: any GeneralExpression,
+      for length: any GeneralExpression
+    ) {
+      self.init(targetText: targetText, pattern: .range(startIndex: nil, length: length))
+    }
+
+    public init(
+      targetText: any GeneralExpression,
+      from startIndex: any GeneralExpression,
+      for length: any GeneralExpression
+    ) {
+      self.init(targetText: targetText, pattern: .range(startIndex: startIndex, length: length))
+    }
+
+    public init(
+      targetText: any GeneralExpression,
+      similar pattern: any GeneralExpression,
+      escape escapeCharacter: any GeneralExpression
+    ) {
+      self.init(
+        targetText: targetText,
+        pattern: .sqlRegularExpression(pattern: pattern, escapeCharacter: escapeCharacter)
+      )
+    }
+  }
+
+  private enum _Arguments: SQLTokenSequence {
+    case list(List)
+    case functionArgumentList(FunctionArgumentList?)
+
+    var tokens: JoinedSQLTokenSequence {
+      switch self {
+      case .list(let list):
+        return list.tokens
+      case .functionArgumentList(let list):
+        return list?.tokens ?? JoinedSQLTokenSequence()
+      }
+    }
+  }
+
+  private let _arguments: _Arguments
+
+  public var list: List? {
+    guard case .list(let list) = _arguments else { return nil }
+    return list
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.substring).followedBy(parenthesized: _arguments)
+  }
+
+  public init(_ list: List) {
+    self._arguments = .list(list)
+  }
+
+  public init(_ list: FunctionArgumentList?) {
+    self._arguments = .functionArgumentList(list)
+  }
+
+  /// Creates a function call such as `SUBSTRING(targetText FROM startIndex)`.
+  @inlinable public init(
+    targetText: any GeneralExpression,
+    from startIndex: any GeneralExpression
+  ) {
+    self.init(List(targetText: targetText, from: startIndex))
+  }
+
+  /// Creates a function call such as `SUBSTRING(targetText FOR length)`.
+  @inlinable public init(
+    targetText: any GeneralExpression,
+    for length: any GeneralExpression
+  ) {
+    self.init(List(targetText: targetText, for: length))
+  }
+
+  /// Creates a function call such as `SUBSTRING(targetText FROM startIndex FOR length)`.
+  @inlinable public init(
+    targetText: any GeneralExpression,
+    from startIndex: any GeneralExpression,
+    for length: any GeneralExpression
+  ) {
+    self.init(List(targetText: targetText, from: startIndex, for: length))
+  }
+
+  /// Creates a function call such as `SUBSTRING(targetText SIMILAR pattern ESCAPE escapeCharacter)`.
+  @inlinable public init(
+    targetText: any GeneralExpression,
+    similar pattern: any GeneralExpression,
+    escape escapeCharacter: any GeneralExpression
+  ) {
+    self.init(List(targetText: targetText, similar: pattern, escape: escapeCharacter))
+  }
+}
+
 // TODO: Implement a type for `TREAT '(' a_expr AS Typename ')'`
 // TODO: Implement a type for `TRIM '(' BOTH trim_list ')'`
 // TODO: Implement a type for `TRIM '(' LEADING trim_list ')'`
