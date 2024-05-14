@@ -937,9 +937,57 @@ public struct CoalesceFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `GREATEST '(' expr_list ')'`
-// TODO: Implement a type for `LEAST '(' expr_list ')'`
-// TODO: Implement a type for `XMLCONCAT '(' expr_list ')'`
+/// A representation of `GREATEST '(' expr_list ')'`.
+public struct GreatestFunction: CommonFunctionSubexpression {
+  public let expressions: GeneralExpressionList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.greatest).followedBy(parenthesized: expressions)
+  }
+
+  public init(_ expressions: GeneralExpressionList) {
+    self.expressions = expressions
+  }
+
+  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
+    self.expressions = GeneralExpressionList(expressions)
+  }
+}
+
+/// A representation of `LEAST '(' expr_list ')'`.
+public struct LeastFunction: CommonFunctionSubexpression {
+  public let expressions: GeneralExpressionList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.least).followedBy(parenthesized: expressions)
+  }
+
+  public init(_ expressions: GeneralExpressionList) {
+    self.expressions = expressions
+  }
+
+  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
+    self.expressions = GeneralExpressionList(expressions)
+  }
+}
+
+/// A representation of `XMLCONCAT '(' expr_list ')'`.
+public struct XMLConcatenateFunction: CommonFunctionSubexpression {
+  public let expressions: GeneralExpressionList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlconcat).followedBy(parenthesized: expressions)
+  }
+
+  public init(_ expressions: GeneralExpressionList) {
+    self.expressions = expressions
+  }
+
+  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
+    self.expressions = GeneralExpressionList(expressions)
+  }
+}
+
 // TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ')'`
 // TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' xml_attributes ')'`
 // TODO: Implement a type for `XMLELEMENT '(' NAME_P ColLabel ',' expr_list ')'`
