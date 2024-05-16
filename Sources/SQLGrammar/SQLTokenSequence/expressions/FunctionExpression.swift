@@ -1133,7 +1133,84 @@ public struct XMLPIFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLROOT '(' a_expr ',' xml_root_version opt_xml_root_standalone ')'`
+/// A function call described as `XMLROOT '(' a_expr ',' xml_root_version opt_xml_root_standalone ')'` in "gram.y".
+public struct XMLRootFunction: CommonFunctionSubexpression {
+  /// A type corresponding to `xml_root_version` in "gram.y".
+  public enum Version: Segment {
+    case version(any GeneralExpression)
+    case noValue
+
+    private final class _NoValue: Segment {
+      let tokens: Array<SQLToken> = [.version, .no, .value]
+      static let noValue: _NoValue = .init()
+    }
+    private static let _noValueTokens: JoinedSQLTokenSequence = .init(_NoValue.noValue)
+
+    public var tokens: JoinedSQLTokenSequence {
+      switch self {
+      case .version(let expr):
+        return JoinedSQLTokenSequence([SingleToken(.version), expr] as [any SQLTokenSequence])
+      case .noValue:
+        return XMLRootFunction.Version._noValueTokens
+      }
+    }
+  }
+
+  /// A value that indicates whether or not the document is standalone.
+  /// It is described as `opt_xml_root_standalone` in "gram.y".
+  public enum Standalone: Segment {
+    case yes
+    case no
+    case noValue
+
+    private static let _yesTokens: Array<SQLToken> = [.standalone, .yes]
+    private static let _noTokens: Array<SQLToken> = [.standalone, .no]
+    private static let _noValueTokens: Array<SQLToken> = [.standalone, .no, .value]
+
+    public var tokens: Array<SQLToken> {
+      switch self {
+      case .yes:
+        return Standalone._yesTokens
+      case .no:
+        return Standalone._noTokens
+      case .noValue:
+        return Standalone._noValueTokens
+      }
+    }
+  }
+
+  public let xml: (any GeneralExpression)
+
+  public let version: Version
+
+  public let standalone: Standalone?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlroot).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+      xml,
+      commaSeparator,
+      version,
+      standalone.map({ JoinedSQLTokenSequence(commaSeparator, $0) }),
+    ] as [(any SQLTokenSequence)?]))
+  }
+
+  public init(xml: any GeneralExpression, version: Version, standalone: Standalone?) {
+    self.xml = xml
+    self.version = version
+    self.standalone = standalone
+  }
+
+  public init(
+    xml: StringConstantExpression,
+    version: StringConstantExpression,
+    standalone: Standalone? = nil
+  ) {
+    self.xml = xml
+    self.version = .version(version)
+    self.standalone = standalone
+  }
+}
+
 // TODO: Implement a type for `XMLSERIALIZE '(' document_or_content a_expr AS SimpleTypename xml_indent_option ')'`
 // TODO: Implement a type for `JSON_OBJECT '(' func_arg_list ')'`
 // TODO: Implement a type for `JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'`

@@ -461,6 +461,17 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLRootFunction() {
+    assertDescription(
+      XMLRootFunction(
+        xml: "<content>foo</content>",
+        version: "1.0",
+        standalone: .yes
+      ),
+      "XMLROOT('<content>foo</content>', VERSION '1.0', STANDALONE YES)"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {

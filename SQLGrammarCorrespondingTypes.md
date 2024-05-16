@@ -127,12 +127,14 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ### XML-Related
 
-| gram.y                  | Swift                                            |
-|-------------------------|--------------------------------------------------|
-| `xml_attribute_el`      | `struct XMLAttribute`                            |
-| `xml_attribute_list`    | `struct XMLAttributeList`                        |
-| `xmlexists_argument`    | `struct XMLPassingArgument`                      |
-| `xml_passing_mech`      | `enum XMLPassingArgumentMechanism`               |
-| `xml_whitespace_option` | `enum XMLWhitespaceOption`                       |
+| gram.y                    | Swift                                            |
+|---------------------------|--------------------------------------------------|
+| `xml_attribute_el`        | `struct XMLAttribute`                            |
+| `xml_attribute_list`      | `struct XMLAttributeList`                        |
+| `xmlexists_argument`      | `struct XMLPassingArgument`                      |
+| `xml_passing_mech`        | `enum XMLPassingArgumentMechanism`               |
+| `opt_xml_root_standalone` | `enum XMLRootFunction.Standalone`                |
+| `xml_root_version`        | `enum XMLRootFunction.Version`                   |
+| `xml_whitespace_option`   | `enum XMLWhitespaceOption`                       |
 
 
