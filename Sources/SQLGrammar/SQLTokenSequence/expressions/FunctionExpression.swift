@@ -1106,8 +1106,33 @@ public struct XMLParseFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ')'`
-// TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ',' a_expr ')'`
+/// A function call consisted of tokens such as `XMLPI ( NAME someName [, content] )`.
+public struct XMLPIFunction: CommonFunctionSubexpression {
+  public let name: ColumnLabel
+
+  public let content: (any GeneralExpression)?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlpi).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+      SingleToken(.name),
+      SingleToken(name),
+      content.map({
+        JoinedSQLTokenSequence([commaSeparator, $0] as [any SQLTokenSequence])
+      }),
+    ] as [(any SQLTokenSequence)?]))
+  }
+
+  public init(name: ColumnLabel, content: (any GeneralExpression)?) {
+    self.name = name
+    self.content = content
+  }
+
+  public init(name: ColumnLabel, content: StringConstantExpression) {
+    self.name = name
+    self.content = content
+  }
+}
+
 // TODO: Implement a type for `XMLROOT '(' a_expr ',' xml_root_version opt_xml_root_standalone ')'`
 // TODO: Implement a type for `XMLSERIALIZE '(' document_or_content a_expr AS SimpleTypename xml_indent_option ')'`
 // TODO: Implement a type for `JSON_OBJECT '(' func_arg_list ')'`

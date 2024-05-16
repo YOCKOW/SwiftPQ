@@ -454,6 +454,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLPIFunction() {
+    assertDescription(
+      XMLPIFunction(name: "php", content: #"echo "hello world";"#),
+      #"XMLPI(NAME php, 'echo "hello world";')"#
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {
