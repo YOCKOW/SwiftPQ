@@ -448,7 +448,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
     assertDescription(
       XMLParseFunction(
         .document,
-        xml: #"<?xml version="1.0"?><foo><bar>hoge</bar><baz>fuga</baz></foo>"#
+        text: #"<?xml version="1.0"?><foo><bar>hoge</bar><baz>fuga</baz></foo>"#
       ),
       #"XMLPARSE(DOCUMENT '<?xml version="1.0"?><foo><bar>hoge</bar><baz>fuga</baz></foo>')"#
     )
@@ -464,11 +464,23 @@ final class SQLGrammarExpressionTests: XCTestCase {
   func test_XMLRootFunction() {
     assertDescription(
       XMLRootFunction(
-        xml: "<content>foo</content>",
+        xml: XMLParseFunction(.document, text: "<content>foo</content>"),
         version: "1.0",
         standalone: .yes
       ),
-      "XMLROOT('<content>foo</content>', VERSION '1.0', STANDALONE YES)"
+      "XMLROOT(XMLPARSE(DOCUMENT '<content>foo</content>'), VERSION '1.0', STANDALONE YES)"
+    )
+  }
+
+  func test_XMLSerializeFunction() throws {
+    assertDescription(
+      XMLSerializeFunction(
+        .content,
+        xml: XMLParseFunction(.content, text: "<content>foo</content>"),
+        as: try XCTUnwrap(GenericTypeName(.text)),
+        indentOption: .noIndent
+      ),
+      "XMLSERIALIZE(CONTENT XMLPARSE(CONTENT '<content>foo</content>') AS TEXT NO INDENT)"
     )
   }
 

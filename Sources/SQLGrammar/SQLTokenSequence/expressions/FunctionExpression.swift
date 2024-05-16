@@ -1073,35 +1073,35 @@ public struct XMLForestFunction: CommonFunctionSubexpression {
 public struct XMLParseFunction: CommonFunctionSubexpression {
   public let option: XMLOption
 
-  public let xml: any GeneralExpression
+  public let text: any GeneralExpression
 
   public let whitespaceOption: XMLWhitespaceOption?
 
   public var tokens: JoinedSQLTokenSequence {
     return SingleToken(.xmlparse).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
       SingleToken(option),
-      xml,
+      text,
       whitespaceOption,
     ] as [(any SQLTokenSequence)?]))
   }
 
   public init(
     _ option: XMLOption,
-    xml: any GeneralExpression,
+    text: any GeneralExpression,
     whitespaceOption: XMLWhitespaceOption? = nil
   ) {
     self.option = option
-    self.xml = xml
+    self.text = text
     self.whitespaceOption = whitespaceOption
   }
 
   public init(
     _ option: XMLOption,
-    xml: StringConstantExpression,
+    text: StringConstantExpression,
     whitespaceOption: XMLWhitespaceOption? = nil
   ) {
     self.option = option
-    self.xml = xml
+    self.text = text
     self.whitespaceOption = whitespaceOption
   }
 }
@@ -1201,7 +1201,7 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
   }
 
   public init(
-    xml: StringConstantExpression,
+    xml: any GeneralExpression,
     version: StringConstantExpression,
     standalone: Standalone? = nil
   ) {
@@ -1211,7 +1211,57 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLSERIALIZE '(' document_or_content a_expr AS SimpleTypename xml_indent_option ')'`
+/// A function call described as`XMLSERIALIZE '(' document_or_content a_expr AS SimpleTypename xml_indent_option ')'` in "gram.y".
+public struct XMLSerializeFunction: CommonFunctionSubexpression {
+  /// An option of indentation, described as `xml_indent_option` in "gram.y".
+  public enum IndentOption: Segment {
+    case indent
+    case noIndent
+
+    private static let _indentTokens: Array<SQLToken> = [.indent]
+    private static let _noIndentTokens: Array<SQLToken> = [.no, .indent]
+
+    public var tokens: Array<SQLToken> {
+      switch self {
+      case .indent:
+        return IndentOption._indentTokens
+      case .noIndent:
+        return IndentOption._noIndentTokens
+      }
+    }
+  }
+
+  public let option: XMLOption
+
+  public let xml: any GeneralExpression
+
+  public let typeName: any SimpleTypeName
+
+  public let indentOption: IndentOption?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlserialize).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+      option.asSequence,
+      xml,
+      SingleToken(.as),
+      typeName,
+      indentOption,
+    ] as [(any SQLTokenSequence)?]))
+  }
+
+  public init(
+    _ option: XMLOption,
+    xml: any GeneralExpression,
+    `as` typeName: any SimpleTypeName,
+    indentOption: IndentOption? = nil
+  ) {
+    self.option = option
+    self.xml = xml
+    self.typeName = typeName
+    self.indentOption = indentOption
+  }
+}
+
 // TODO: Implement a type for `JSON_OBJECT '(' func_arg_list ')'`
 // TODO: Implement a type for `JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'`
 // TODO: Implement a type for `JSON_OBJECT '(' json_output_clause_opt ')'`
