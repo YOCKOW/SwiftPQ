@@ -124,5 +124,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `trim_list`          | `struct TrimFunction.List`                       |
 | `xml_attribute_el`   | `struct XMLAttribute`                            |
 | `xml_attribute_list` | `struct XMLAttributeList`                        |
+| `xmlexists_argument` | `struct XMLPassingArgument`                      |
+| `xml_passing_mech`   | `enum XMLPassingArgumentMechanism`               |
 
 

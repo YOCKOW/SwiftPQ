@@ -1026,7 +1026,34 @@ public struct XMLElementFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLEXISTS '(' c_expr xmlexists_argument ')'`
+/// A function call descrebed as `XMLEXISTS '(' c_expr xmlexists_argument ')'` in "gram.y".
+public struct XMLExistsFunction: CommonFunctionSubexpression {
+  /// An expression in the XML Query language.
+  ///
+  /// - Note: PostgreSQL allows only an XPath 1.0 expression.
+  ///         See [D.3.1. Queries Are Restricted to XPath 1.0](https://www.postgresql.org/docs/current/xml-limits-conformance.html#FUNCTIONS-XML-LIMITS-XPATH1).
+  public let xmlQuery: any ProductionExpression
+
+  public let argument: XMLPassingArgument
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlexists).followedBy(parenthesized: JoinedSQLTokenSequence([
+      xmlQuery,
+      argument,
+    ] as [any SQLTokenSequence]))
+  }
+
+  public init(xmlQuery: any ProductionExpression, argument: XMLPassingArgument) {
+    self.xmlQuery = xmlQuery
+    self.argument = argument
+  }
+
+  public init(xmlQuery: StringConstantExpression, argument: XMLPassingArgument) {
+    self.xmlQuery = xmlQuery
+    self.argument = argument
+  }
+}
+
 // TODO: Implement a type for `XMLFOREST '(' xml_attribute_list ')'`
 // TODO: Implement a type for `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'`
 // TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ')'`

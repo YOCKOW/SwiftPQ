@@ -421,6 +421,19 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLExistsFunction() {
+    assertDescription(
+      XMLExistsFunction(
+        xmlQuery: "//town[text() = 'Toronto']",
+        argument: .init(
+          defaultMechanism: .byValue,
+          xml: "<towns><town>Toronto</town><town>Ottawa</town></towns>"
+        )
+      ),
+      "XMLEXISTS('//town[text() = ''Toronto'']' PASSING BY VALUE '<towns><town>Toronto</town><town>Ottawa</town></towns>')"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {
