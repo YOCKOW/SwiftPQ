@@ -1068,7 +1068,44 @@ public struct XMLForestFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'`
+/// A function call describeda as
+/// `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'` in "gram.y".
+public struct XMLParseFunction: CommonFunctionSubexpression {
+  public let option: XMLOption
+
+  public let xml: any GeneralExpression
+
+  public let whitespaceOption: XMLWhitespaceOption?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlparse).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+      SingleToken(option),
+      xml,
+      whitespaceOption,
+    ] as [(any SQLTokenSequence)?]))
+  }
+
+  public init(
+    _ option: XMLOption,
+    xml: any GeneralExpression,
+    whitespaceOption: XMLWhitespaceOption? = nil
+  ) {
+    self.option = option
+    self.xml = xml
+    self.whitespaceOption = whitespaceOption
+  }
+
+  public init(
+    _ option: XMLOption,
+    xml: StringConstantExpression,
+    whitespaceOption: XMLWhitespaceOption? = nil
+  ) {
+    self.option = option
+    self.xml = xml
+    self.whitespaceOption = whitespaceOption
+  }
+}
+
 // TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ')'`
 // TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ',' a_expr ')'`
 // TODO: Implement a type for `XMLROOT '(' a_expr ',' xml_root_version opt_xml_root_standalone ')'`

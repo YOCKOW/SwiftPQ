@@ -26,6 +26,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `BareColLabel`        | `struct BareColumnLabel`              |
 | `ColId`               | `struct ColumnIdentifier`             |
 | `ColLabel`            | `struct ColumnLabel`                  |
+| `document_or_content` | `enum XMLOption`                      |
 | `opt_drop_behavior`   | `enum DropBehavior`                   |
 | `extract_arg`         | `struct ExtractFunction.Field`        |
 | `type_function_name`  | `struct TypeOrFunctionName`(internal) |
@@ -122,9 +123,16 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `target_el`          | `struct TargetElement`                           |
 | `target_list`        | `struct TargetList`                              |
 | `trim_list`          | `struct TrimFunction.List`                       |
-| `xml_attribute_el`   | `struct XMLAttribute`                            |
-| `xml_attribute_list` | `struct XMLAttributeList`                        |
-| `xmlexists_argument` | `struct XMLPassingArgument`                      |
-| `xml_passing_mech`   | `enum XMLPassingArgumentMechanism`               |
+
+
+### XML-Related
+
+| gram.y                  | Swift                                            |
+|-------------------------|--------------------------------------------------|
+| `xml_attribute_el`      | `struct XMLAttribute`                            |
+| `xml_attribute_list`    | `struct XMLAttributeList`                        |
+| `xmlexists_argument`    | `struct XMLPassingArgument`                      |
+| `xml_passing_mech`      | `enum XMLPassingArgumentMechanism`               |
+| `xml_whitespace_option` | `enum XMLWhitespaceOption`                       |
 
 

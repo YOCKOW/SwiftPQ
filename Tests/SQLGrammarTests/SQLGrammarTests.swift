@@ -444,6 +444,16 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLParseFunction() {
+    assertDescription(
+      XMLParseFunction(
+        .document,
+        xml: #"<?xml version="1.0"?><foo><bar>hoge</bar><baz>fuga</baz></foo>"#
+      ),
+      #"XMLPARSE(DOCUMENT '<?xml version="1.0"?><foo><bar>hoge</bar><baz>fuga</baz></foo>')"#
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {
