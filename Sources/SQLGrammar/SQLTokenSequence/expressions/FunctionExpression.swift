@@ -1054,7 +1054,20 @@ public struct XMLExistsFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `XMLFOREST '(' xml_attribute_list ')'`
+/// A function call described as `XMLFOREST '(' xml_attribute_list ')'` in "gram.y".
+public struct XMLForestFunction: CommonFunctionSubexpression {
+  /// Names and contents.
+  public let elements: XMLAttributeList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.xmlforest).followedBy(parenthesized: elements)
+  }
+
+  public init(_ elements: XMLAttributeList) {
+    self.elements = elements
+  }
+}
+
 // TODO: Implement a type for `XMLPARSE '(' document_or_content a_expr xml_whitespace_option ')'`
 // TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ')'`
 // TODO: Implement a type for `XMLPI '(' NAME_P ColLabel ',' a_expr ')'`

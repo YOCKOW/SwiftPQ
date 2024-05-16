@@ -434,6 +434,16 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLForestFunction() {
+    assertDescription(
+      XMLForestFunction(XMLAttributeList([
+        XMLAttribute(name: "someString", value: "value"),
+        XMLAttribute(name: "someInteger", value: UnsignedIntegerConstantExpression(123)),
+      ])),
+      "XMLFOREST('value' AS someString, 123 AS someInteger)"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {
