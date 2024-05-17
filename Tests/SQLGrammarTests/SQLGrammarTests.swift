@@ -319,6 +319,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_JSONArrayFunction() {
+    assertDescription(
+      JSONArrayFunction(
+        values: JSONValueExpressionList(values: [
+          JSONValueExpression(value: StringConstantExpression("string")),
+          JSONValueExpression(value: UnsignedIntegerConstantExpression(1)),
+        ]),
+        nullOption: .absentOnNull,
+        outputType: .init(typeName: TypeName(GenericTypeName.text))
+      ),
+      "JSON_ARRAY('string', 1 ABSENT ON NULL RETURNING TEXT)"
+    )
+  }
+
   func test_JSONObjectFunction() {
     assertDescription(
       JSONObjectFunction(

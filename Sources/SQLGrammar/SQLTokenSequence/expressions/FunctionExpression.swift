@@ -1365,9 +1365,94 @@ public struct JSONObjectFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `JSON_ARRAY '(' json_value_expr_list json_array_constructor_null_clause_opt json_output_clause_opt ')'`
-// TODO: Implement a type for `JSON_ARRAY '(' select_no_parens json_format_clause_opt json_output_clause_opt ')'`
-// TODO: Implement a type for `JSON_ARRAY '(' json_output_clause_opt ')'`
+/// A representation of `JSON_ARRAY( ... )`.
+public struct JSONArrayFunction: CommonFunctionSubexpression {
+  private enum _Arguments: SQLTokenSequence {
+    case valueList(
+      JSONValueExpressionList,
+      nullOption: JSONArrayConstructorNullOption?,
+      outputType: JSONOutputTypeClause?
+    )
+    case selectStatement(
+      any BareSelectStatement,
+      format: JSONFormatClause?,
+      outputType: JSONOutputTypeClause?
+    )
+    case outputType(JSONOutputTypeClause?)
+
+    public var tokens: JoinedSQLTokenSequence {
+      switch self {
+      case .valueList(let list, let nullOption, let outputType):
+        return .compacting(list, nullOption, outputType)
+      case .selectStatement(let query, let format, let outputType):
+        return .compacting([query, format, outputType] as [(any SQLTokenSequence)?])
+      case .outputType(let outputType):
+        return .compacting(outputType)
+      }
+    }
+  }
+
+  private let _arguments: _Arguments
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.jsonArray).followedBy(parenthesized: _arguments)
+  }
+
+  public var values: JSONValueExpressionList? {
+    guard case .valueList(let list, _, _) = _arguments else { return nil }
+    return list
+  }
+
+  public var nullOption: JSONArrayConstructorNullOption? {
+    guard case .valueList(_, let nullOption, _) = _arguments else { return nil }
+    return nullOption
+  }
+
+  public var outputType: JSONOutputTypeClause? {
+    switch _arguments {
+    case .valueList(_, _, let outputType):
+      return outputType
+    case .selectStatement(_, _, let outputType):
+      return outputType
+    case .outputType(let outputType):
+      return outputType
+    }
+  }
+
+  public var query: (any BareSelectStatement)? {
+    guard case .selectStatement(let bareSelectStatement, _,_) = _arguments else {
+      return nil
+    }
+    return bareSelectStatement
+  }
+
+  public var format: JSONFormatClause? {
+    guard case .selectStatement(_, let format, _) = _arguments else {
+      return nil
+    }
+    return format
+  }
+
+  public init(
+    values: JSONValueExpressionList,
+    nullOption: JSONArrayConstructorNullOption? = nil,
+    outputType: JSONOutputTypeClause? = nil
+  ) {
+    self._arguments = .valueList(values, nullOption: nullOption, outputType: outputType)
+  }
+
+  public init(
+    query: any BareSelectStatement,
+    format: JSONFormatClause? = nil,
+    outputType: JSONOutputTypeClause? = nil
+  ) {
+    self._arguments = .selectStatement(query, format: format, outputType: outputType)
+  }
+
+  public init(outputType: JSONOutputTypeClause?) {
+    self._arguments = .outputType(outputType)
+  }
+}
 
 
 // MARK: END OF CommonFunctionSubexpression a.k.a. func_expr_common_subexpr -

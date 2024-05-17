@@ -107,6 +107,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `DropStmt`                      | `protocol DropStatement`               |
 | `DROP object_type_any_name ...` | `protocol DropObjectTypeAnyName`       |
 | `DROP TABLE ...`                | `struct DropTable`                     |
+| `select_no_parens`              | `protocol BareSelectStatement`         |
 | `SelectStmt`                    | `protocol SelectStatement`             |
 | `stmt`                          | `protocol Statement`                   |
 
