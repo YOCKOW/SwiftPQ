@@ -18,7 +18,7 @@ public protocol CommonFunctionSubexpression: FunctionExpression, WindowlessFunct
 
 /// A type representing JSON aggregate function,
 /// that is described as `json_aggregate_func` in "gram.y"
-public protocol JSONAggregateFunctionExpression: CommonFunctionSubexpression {}
+public protocol JSONAggregateFunctionExpression: WindowlessFunctionExpression {}
 
 /// A type that represents `func_application` described in "gram.y".
 public struct FunctionApplication: WindowlessFunctionExpression {
