@@ -178,3 +178,25 @@ public struct SortClause: Clause {
     self.init(list)
   }
 }
+
+/// A clause that is described as `json_array_aggregate_order_by_clause_opt` in "gram.y".
+public struct JSONArrayAggregateSortClause: Clause {
+  public var list: SortClause.List
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(OrderBy.orderBy, list)
+  }
+
+  public init(_ list: SortClause.List) {
+    self.list = list
+  }
+
+  public init<FirstSortByExpr, each OptionalSortByExpr>(
+    _ firstSortBy: SortBy<FirstSortByExpr>,
+    _ optionalSortBy: repeat SortBy<each OptionalSortByExpr>
+  ) where FirstSortByExpr: GeneralExpression, repeat each OptionalSortByExpr: GeneralExpression {
+    var list = SortClause.List(firstSortBy)
+    repeat (list.append(each optionalSortBy))
+    self.init(list)
+  }
+}

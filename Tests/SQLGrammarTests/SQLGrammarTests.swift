@@ -319,6 +319,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_JSONArrayAggregateFunction() {
+    assertDescription(
+      JSONArrayAggregateFunction(
+        value: JSONValueExpression(value: UnsignedIntegerConstantExpression(1)),
+        orderBy: JSONArrayAggregateSortClause(SortBy(ColumnReference(columnName: "col1"))),
+        nullOption: .nullOnNull,
+        outputType: JSONOutputTypeClause(typeName: TypeName(GenericTypeName.json))
+      ),
+      "JSON_ARRAYAGG(1 ORDER BY col1 NULL ON NULL RETURNING JSON)"
+    )
+  }
+
   func test_JSONArrayFunction() {
     assertDescription(
       JSONArrayFunction(

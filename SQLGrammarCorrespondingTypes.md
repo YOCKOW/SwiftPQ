@@ -65,22 +65,23 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Clauses
 
-| gram.y                                    | Swift                                  |
-|-------------------------------------------|----------------------------------------|
-| `alias_clause`                            | `struct AliasClause`                   |
-| `into_clause`                             | `struct IntoClause`                    |
-| `opt_asc_desc`                            | `enum SortDirection`                   |
-| `json_encoding_clause_opt`                | `struct JSONEncodingClause`            |
-| `json_format_clause_opt`                  | `struct JSONFormatClause`              |
-| `json_object_constructor_null_clause_opt` | `enum JSONObjectConstructorNullOption` |
-| `json_output_clause_opt`                  | `struct JSONOutputTypeClause`          |
-| `opt_nulls_order`                         | `enum NullOrdering`                    |
-| `opt_repeatable_clause`                   | `struct RepeatableClause<Seed>`        |
-| `sortby`                                  | `struct SortBy<Expression>`            |
-| `sort_clause`                             | `struct SortClause`                    |
-| `tablesample_clause`                      | `struct TableSampleClause`             |
-| `when_clause`                             | `struct WhenClause<Condition, Result>` | 
-| `when_clause_list`                        | `struct WhenClauseList`                |
+| gram.y                                      | Swift                                  |
+|---------------------------------------------|----------------------------------------|
+| `alias_clause`                              | `struct AliasClause`                   |
+| `into_clause`                               | `struct IntoClause`                    |
+| `opt_asc_desc`                              | `enum SortDirection`                   |
+| `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`  |
+| `json_encoding_clause_opt`                  | `struct JSONEncodingClause`            |
+| `json_format_clause_opt`                    | `struct JSONFormatClause`              |
+| `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption` |
+| `json_output_clause_opt`                    | `struct JSONOutputTypeClause`          |
+| `opt_nulls_order`                           | `enum NullOrdering`                    |
+| `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`        |
+| `sortby`                                    | `struct SortBy<Expression>`            |
+| `sort_clause`                               | `struct SortClause`                    |
+| `tablesample_clause`                        | `struct TableSampleClause`             |
+| `when_clause`                               | `struct WhenClause<Condition, Result>` | 
+| `when_clause_list`                          | `struct WhenClauseList`                |
 
 
 ## Expressions

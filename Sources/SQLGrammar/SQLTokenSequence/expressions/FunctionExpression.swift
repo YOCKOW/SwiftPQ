@@ -1495,4 +1495,36 @@ public struct JSONObjectAggregateFunction: JSONAggregateFunctionExpression {
   }
 }
 
+/// A `JSON_ARRAYAGG` function call.
+public struct JSONArrayAggregateFunction: JSONAggregateFunctionExpression {
+  public let value: JSONValueExpression
+
+  public let orderBy: JSONArrayAggregateSortClause?
+
+  public let nullOption: JSONArrayConstructorNullOption?
+
+  public let outputType: JSONOutputTypeClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.jsonArrayagg).followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+      value,
+      orderBy,
+      nullOption,
+      outputType
+    ))
+  }
+
+  public init(
+    value: JSONValueExpression,
+    orderBy: JSONArrayAggregateSortClause? = nil,
+    nullOption: JSONArrayConstructorNullOption? = nil,
+    outputType: JSONOutputTypeClause? = nil
+  ) {
+    self.value = value
+    self.orderBy = orderBy
+    self.nullOption = nullOption
+    self.outputType = outputType
+  }
+}
+
 // MARK: END OF JSONAggregateFunctionExpression a.k.a. json_aggregate_func -
