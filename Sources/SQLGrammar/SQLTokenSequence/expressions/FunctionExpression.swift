@@ -16,6 +16,10 @@ public protocol WindowlessFunctionExpression: Expression {}
 /// described as `func_expr_common_subexpr` in "gram.y"
 public protocol CommonFunctionSubexpression: FunctionExpression, WindowlessFunctionExpression {}
 
+/// A type representing JSON aggregate function,
+/// that is described as `json_aggregate_func` in "gram.y"
+public protocol JSONAggregateFunctionExpression: CommonFunctionSubexpression {}
+
 /// A type that represents `func_application` described in "gram.y".
 public struct FunctionApplication: WindowlessFunctionExpression {
   public struct ArgumentList: SQLTokenSequence {
@@ -1456,3 +1460,39 @@ public struct JSONArrayFunction: CommonFunctionSubexpression {
 
 
 // MARK: END OF CommonFunctionSubexpression a.k.a. func_expr_common_subexpr -
+
+// MARK: - JSONAggregateFunctionExpression a.k.a. json_aggregate_func
+
+/// A `JSON_OBJECTAGG` function call.
+public struct JSONObjectAggregateFunction: JSONAggregateFunctionExpression {
+  public let keyValuePair: JSONKeyValuePair
+
+  public let nullOption: JSONObjectConstructorNullOption?
+
+  public let keyUniquenessOption: JSONKeyUniquenessOption?
+
+  public let outputType: JSONOutputTypeClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.jsonObjectagg).followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+      keyValuePair,
+      nullOption,
+      keyUniquenessOption,
+      outputType
+    ))
+  }
+
+  public init(
+    keyValuePair: JSONKeyValuePair,
+    nullOption: JSONObjectConstructorNullOption? = nil,
+    keyUniquenessOption: JSONKeyUniquenessOption? = nil,
+    outputType: JSONOutputTypeClause? = nil
+  ) {
+    self.keyValuePair = keyValuePair
+    self.nullOption = nullOption
+    self.keyUniquenessOption = keyUniquenessOption
+    self.outputType = outputType
+  }
+}
+
+// MARK: END OF JSONAggregateFunctionExpression a.k.a. json_aggregate_func -

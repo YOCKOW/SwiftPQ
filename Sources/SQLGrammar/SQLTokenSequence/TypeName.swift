@@ -141,6 +141,8 @@ public struct GenericTypeName: SimpleTypeName {
     self.init(SQLToken.identifier(name), attributes: attributes, modifiers: modifiers)!
   }
 
+  public static let json: GenericTypeName = .init(.json)!
+
   public static let text: GenericTypeName = .init(.text)!
 }
 

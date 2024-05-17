@@ -333,6 +333,21 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_JSONObjectAggregateFunction() {
+    assertDescription(
+      JSONObjectAggregateFunction(
+        keyValuePair: JSONKeyValuePair(
+          key: StringConstantExpression("key"),
+          value: JSONValueExpression(value: StringConstantExpression("value"))
+        ),
+        nullOption: .absentOnNull,
+        keyUniquenessOption: .withoutUniqueKeys,
+        outputType: JSONOutputTypeClause(typeName: TypeName(GenericTypeName.json))
+      ),
+      "JSON_OBJECTAGG('key' : 'value' ABSENT ON NULL WITHOUT UNIQUE KEYS RETURNING JSON)"
+    )
+  }
+
   func test_JSONObjectFunction() {
     assertDescription(
       JSONObjectFunction(
