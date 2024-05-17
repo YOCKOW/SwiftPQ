@@ -140,6 +140,8 @@ public struct GenericTypeName: SimpleTypeName {
   ) {
     self.init(SQLToken.identifier(name), attributes: attributes, modifiers: modifiers)!
   }
+
+  public static let text: GenericTypeName = .init(.text)!
 }
 
 /// A type representing a name of numeric.

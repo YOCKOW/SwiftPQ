@@ -1262,9 +1262,109 @@ public struct XMLSerializeFunction: CommonFunctionSubexpression {
   }
 }
 
-// TODO: Implement a type for `JSON_OBJECT '(' func_arg_list ')'`
-// TODO: Implement a type for `JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'`
-// TODO: Implement a type for `JSON_OBJECT '(' json_output_clause_opt ')'`
+/// A representation of `JSON_OBJECT ( ... )`.
+public struct JSONObjectFunction: CommonFunctionSubexpression {
+  public struct Arguments: SQLTokenSequence {
+    public let keyValuePairs: JSONKeyValuePairList?
+
+    public let nullOption: JSONObjectConstructorNullOption?
+
+    public let keyUniquenessOption: JSONKeyUniquenessOption?
+
+    public let outputType: JSONOutputTypeClause?
+
+    public var tokens: JoinedSQLTokenSequence {
+      return .compacting(keyValuePairs, nullOption, keyUniquenessOption, outputType)
+    }
+
+    public init(
+      keyValuePairs: JSONKeyValuePairList,
+      nullOption: JSONObjectConstructorNullOption? = nil,
+      keyUniquenessOption: JSONKeyUniquenessOption? = nil,
+      outputType: JSONOutputTypeClause? = nil
+    ) {
+      self.keyValuePairs = keyValuePairs
+      self.nullOption = nullOption
+      self.keyUniquenessOption = keyUniquenessOption
+      self.outputType = outputType
+    }
+
+    public init(outputType: JSONOutputTypeClause?) {
+      self.keyValuePairs = nil
+      self.nullOption = nil
+      self.keyUniquenessOption = nil
+      self.outputType = outputType
+    }
+  }
+
+  private enum _ArgumentList {
+    case arguments(Arguments)
+    case functionArgumentList(FunctionArgumentList)
+  }
+
+  private let _argumentList: _ArgumentList
+
+  public var tokens: JoinedSQLTokenSequence {
+    switch _argumentList {
+    case .arguments(let arguments):
+      return SingleToken(.jsonObject).followedBy(parenthesized: arguments)
+    case .functionArgumentList(let argumentList):
+      return SingleToken(.jsonObject).followedBy(parenthesized: argumentList)
+    }
+  }
+
+  public var arguments: Arguments? {
+    guard case .arguments(let arguments) = _argumentList else {
+      return nil
+    }
+    return arguments
+  }
+
+  public var keyValuePairs: JSONKeyValuePairList? {
+    return arguments?.keyValuePairs
+  }
+
+  public var nullOption: JSONObjectConstructorNullOption? {
+    return arguments?.nullOption
+  }
+
+  public var keyUniquenessOption: JSONKeyUniquenessOption? {
+    return arguments?.keyUniquenessOption
+  }
+
+  public var outputType: JSONOutputTypeClause? {
+    return arguments?.outputType
+  }
+
+  public init(_ arguments: Arguments) {
+    self._argumentList = .arguments(arguments)
+  }
+
+  public init(argumentList: FunctionArgumentList) {
+    self._argumentList = .functionArgumentList(argumentList)
+  }
+
+  public init(
+    keyValuePairs: JSONKeyValuePairList,
+    nullOption: JSONObjectConstructorNullOption? = nil,
+    keyUniquenessOption: JSONKeyUniquenessOption? = nil,
+    outputType: JSONOutputTypeClause? = nil
+  ) {
+    self._argumentList = .arguments(
+      Arguments(
+        keyValuePairs: keyValuePairs,
+        nullOption: nullOption,
+        keyUniquenessOption: keyUniquenessOption,
+        outputType: outputType
+      )
+    )
+  }
+
+  public init(outputType: JSONOutputTypeClause?) {
+    self._argumentList = .arguments(Arguments(outputType: outputType))
+  }
+}
+
 // TODO: Implement a type for `JSON_ARRAY '(' json_value_expr_list json_array_constructor_null_clause_opt json_output_clause_opt ')'`
 // TODO: Implement a type for `JSON_ARRAY '(' select_no_parens json_format_clause_opt json_output_clause_opt ')'`
 // TODO: Implement a type for `JSON_ARRAY '(' json_output_clause_opt ')'`

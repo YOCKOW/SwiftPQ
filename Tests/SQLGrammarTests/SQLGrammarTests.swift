@@ -319,6 +319,23 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_JSONObjectFunction() {
+    assertDescription(
+      JSONObjectFunction(
+        keyValuePairs: [
+          StringConstantExpression("key"): JSONValueExpression(value: StringConstantExpression("value")),
+        ],
+        nullOption: .nullOnNull,
+        keyUniquenessOption: .withUniqueKeys,
+        outputType: JSONOutputTypeClause(
+          typeName: TypeName(GenericTypeName.text),
+          format: JSONFormatClause(encoding: JSONEncodingClause.utf8)
+        )
+      ),
+      "JSON_OBJECT('key' : 'value' NULL ON NULL WITH UNIQUE KEYS RETURNING TEXT FORMAT JSON ENCODING UTF8)"
+    )
+  }
+
   func test_NormalizeFunction() {
     assertDescription(
       NormalizeFunction(text: StringConstantExpression("text")),

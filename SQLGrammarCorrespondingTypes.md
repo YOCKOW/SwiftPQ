@@ -65,18 +65,22 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Clauses
 
-| gram.y                  | Swift                                  |
-|-------------------------|----------------------------------------|
-| `alias_clause`          | `struct AliasClause`                   |
-| `into_clause`           | `struct IntoClause`                    |
-| `opt_asc_desc`          | `enum SortDirection`                   |
-| `opt_nulls_order`       | `enum NullOrdering`                    |
-| `opt_repeatable_clause` | `struct RepeatableClause<Seed>`        |
-| `sortby`                | `struct SortBy<Expression>`            |
-| `sort_clause`           | `struct SortClause`                    |
-| `tablesample_clause`    | `struct TableSampleClause`             |
-| `when_clause`           | `struct WhenClause<Condition, Result>` | 
-| `when_clause_list`      | `struct WhenClauseList`                |
+| gram.y                                    | Swift                                  |
+|-------------------------------------------|----------------------------------------|
+| `alias_clause`                            | `struct AliasClause`                   |
+| `into_clause`                             | `struct IntoClause`                    |
+| `opt_asc_desc`                            | `enum SortDirection`                   |
+| `json_encoding_clause_opt`                | `struct JSONEncodingClause`            |
+| `json_format_clause_opt`                  | `struct JSONFormatClause`              |
+| `json_object_constructor_null_clause_opt` | `enum JSONObjectConstructorNullOption` |
+| `json_output_clause_opt`                  | `struct JSONOutputTypeClause`          |
+| `opt_nulls_order`                         | `enum NullOrdering`                    |
+| `opt_repeatable_clause`                   | `struct RepeatableClause<Seed>`        |
+| `sortby`                                  | `struct SortBy<Expression>`            |
+| `sort_clause`                             | `struct SortClause`                    |
+| `tablesample_clause`                      | `struct TableSampleClause`             |
+| `when_clause`                             | `struct WhenClause<Condition, Result>` | 
+| `when_clause_list`                        | `struct WhenClauseList`                |
 
 
 ## Expressions
@@ -91,6 +95,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_expr`                | `protocol FunctionExpression`           |
 | `func_expr_common_subexpr` | `protocol CommonFunctionSubexpression`  |
 | `func_expr_windowless`     | `protocol WindowlessFunctionExpression` |
+| `json_value_expr`          | `struct JSONValueExpression`            |
 | `relation_expr`            | `struct RelationExpression`             |
 | n/a                        | `protocol ValueExpression`              |
 
@@ -123,6 +128,17 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `target_el`          | `struct TargetElement`                           |
 | `target_list`        | `struct TargetList`                              |
 | `trim_list`          | `struct TrimFunction.List`                       |
+
+
+### JSON-related
+
+| gram.y                                    | Swift                                            |
+|-------------------------------------------|--------------------------------------------------|
+| `json_array_constructor_null_clause_opt`  | `enum JSONArrayConstructorNullOption`            |
+| `json_key_uniqueness_constraint_opt`      | `enum JSONKeyUniquenessOption`                   |
+| `json_name_and_value`                     | `struct JSONKeyValuePair`                        |
+| `json_name_and_value_list`                | `struct JSONKeyValuePairList`                    |
+| `json_value_expr_list`                    | `struct JSONValueExpressionList`                 |
 
 
 ### XML-Related
