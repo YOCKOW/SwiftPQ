@@ -68,20 +68,25 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | gram.y                                      | Swift                                  |
 |---------------------------------------------|----------------------------------------|
 | `alias_clause`                              | `struct AliasClause`                   |
-| `into_clause`                               | `struct IntoClause`                    |
 | `opt_asc_desc`                              | `enum SortDirection`                   |
+| `filter_clause`                             | `struct FilterClause`                  |
+| `opt_frame_clause`                          | `struct FrameClause`                   |
+| `into_clause`                               | `struct IntoClause`                    |
 | `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`  |
 | `json_encoding_clause_opt`                  | `struct JSONEncodingClause`            |
 | `json_format_clause_opt`                    | `struct JSONFormatClause`              |
 | `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption` |
 | `json_output_clause_opt`                    | `struct JSONOutputTypeClause`          |
 | `opt_nulls_order`                           | `enum NullOrdering`                    |
+| `over_clause`                               | `struct OverClause`                    |
+| `opt_partition_clause`                      | `struct PartitionClause`               |
 | `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`        |
 | `sortby`                                    | `struct SortBy<Expression>`            |
 | `sort_clause`                               | `struct SortClause`                    |
 | `tablesample_clause`                        | `struct TableSampleClause`             |
-| `when_clause`                               | `struct WhenClause<Condition, Result>` | 
-| `when_clause_list`                          | `struct WhenClauseList`                |
+| `when_clause`                               | `struct WhenClause<Condition, Result>` |
+| `opt_window_exclusion_clause`               | `enum WindowExclusionClause`           |
+| `within_group_clause`                       | `struct WithinGroupClause`             |
 
 
 ## Expressions
@@ -116,21 +121,25 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Others
 
-| gram.y               | Swift                                            |
-|----------------------|--------------------------------------------------|
-| `any_name_list`      | `struct AnyNameList`                             |
-| `opt_array_bounds`   | `struct ArrayBoundList`                          |
-| `attrs`              | `struct AttributeList`                           |
-| `expr_list`          | `struct GeneralExpressionList`                   |
-| `extract_list`       | `struct ExtractFunction._List` (private)         |
-| `func_arg_list`      | `struct FunctionArgumentList`                    |
-| `indirection`        | `struct Indirection`                             |
-| `indirection_el`     | `enum Indirection.List.Element`                  |
-| `opt_interval`       | `enum IntervalFieldsPhrase`                      |
-| `substr_list`        | `struct SubstringFunction.List`                  |
-| `target_el`          | `struct TargetElement`                           |
-| `target_list`        | `struct TargetList`                              |
-| `trim_list`          | `struct TrimFunction.List`                       |
+| gram.y                 | Swift                                            |
+|------------------------|--------------------------------------------------|
+| `any_name_list`        | `struct AnyNameList`                             |
+| `opt_array_bounds`     | `struct ArrayBoundList`                          |
+| `attrs`                | `struct AttributeList`                           |
+| `expr_list`            | `struct GeneralExpressionList`                   |
+| `extract_list`         | `struct ExtractFunction._List` (private)         |
+| `frame_bound`          | `enum FrameBound`                                |
+| `frame_extent`         | `struct FrameExtent`                             |
+| `func_arg_list`        | `struct FunctionArgumentList`                    |
+| `indirection`          | `struct Indirection`                             |
+| `indirection_el`       | `enum Indirection.List.Element`                  |
+| `opt_interval`         | `enum IntervalFieldsPhrase`                      |
+| `substr_list`          | `struct SubstringFunction.List`                  |
+| `target_el`            | `struct TargetElement`                           |
+| `target_list`          | `struct TargetList`                              |
+| `trim_list`            | `struct TrimFunction.List`                       | 
+| `when_clause_list`     | `struct WhenClauseList`                          |
+| `window_specification` | `struct WindowSpecification`                     |
 
 
 ### JSON-related

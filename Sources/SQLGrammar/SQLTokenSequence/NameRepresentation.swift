@@ -72,7 +72,7 @@ public struct DatabaseName: NameRepresentation {
 }
 
 /// A type representing a function name that is described as `func_name` in "gram.y".
-public struct FunctionName: NameRepresentation {
+public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   /// An identifier that can be a function name.
   public struct Identifier: LosslessTokenConvertible {
     private let _name: TypeOrFunctionName
@@ -137,8 +137,8 @@ public struct FunctionName: NameRepresentation {
     self._type = .identifier(identifier)
   }
 
-  public init(_ string: String) {
-    guard let instance = Self.init(.identifier(string)) else {
+  public init(stringLiteral value: String) {
+    guard let instance = Self.init(.identifier(value)) else {
       fatalError("Failed to create an identifier?!")
     }
     self = instance

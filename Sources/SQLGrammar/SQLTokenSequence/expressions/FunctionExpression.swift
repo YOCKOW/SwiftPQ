@@ -222,6 +222,36 @@ public struct FunctionApplication: WindowlessFunctionExpression {
   }
 }
 
+/// A kind of function call described as
+/// `func_application within_group_clause filter_clause over_clause` in "gram.y".
+/// It's a union of [Aggregate Expression](https://www.postgresql.org/docs/16/sql-expressions.html#SYNTAX-AGGREGATES)
+/// and [Window Function Call](https://www.postgresql.org/docs/16/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS).
+public struct AggregateWindowFunction: FunctionExpression, ValueExpression {
+  public let application: FunctionApplication
+
+  public let withinGroup: WithinGroupClause?
+
+  public let filter: FilterClause?
+
+  public let window: OverClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(application, withinGroup, filter, window)
+  }
+
+  public init(
+    application: FunctionApplication,
+    withinGroup: WithinGroupClause? = nil,
+    filter: FilterClause? = nil,
+    window: OverClause? = nil
+  ) {
+    self.application = application
+    self.withinGroup = withinGroup
+    self.filter = filter
+    self.window = window
+  }
+}
+
 // MARK: - CommonFunctionSubexpression a.k.a. func_expr_common_subexpr
 
 private final class _CollationFor: Segment {

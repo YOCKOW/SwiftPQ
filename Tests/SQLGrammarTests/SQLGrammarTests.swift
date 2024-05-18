@@ -290,6 +290,46 @@ final class SQLGrammarClauseTests: XCTestCase {
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {
+  func test_AggregateWindowFunction() {
+    assertDescription(
+      AggregateWindowFunction(
+        application: FunctionApplication(
+          "myAggFunc",
+          arguments: FunctionArgumentList([
+            FunctionArgumentExpression(StringConstantExpression("arg"))
+          ])
+        ),
+        withinGroup: WithinGroupClause(
+          orderBy: SortClause(SortBy<ColumnReference>(ColumnReference(columnName: "col1")))
+        )
+      ),
+      "myAggFunc('arg') WITHIN GROUP(ORDER BY col1)"
+    )
+    assertDescription(
+      AggregateWindowFunction(
+        application: FunctionApplication(
+          "myFunc",
+          arguments: FunctionArgumentList([
+            FunctionArgumentExpression(StringConstantExpression("arg"))
+          ]),
+          orderBy: SortClause(SortBy<ColumnReference>(ColumnReference(columnName: "col1")))
+        ),
+        filter: FilterClause(where: BooleanConstantExpression.true),
+        window: OverClause(windowSpecification: WindowSpecification(
+          name: "myWindow",
+          partitionBy: PartitionClause(.init([ColumnReference(columnName: "myPart")])),
+          orderBy: nil,
+          frame: FrameClause(
+            mode: .range,
+            extent: .init(start: .unboundedPreceding, end: .currentRow),
+            exclusion: .excludeNoOthers
+          )
+        ))
+      ),
+      "myFunc('arg' ORDER BY col1) FILTER(WHERE TRUE) OVER (myWindow PARTITION BY myPart RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE NO OTHERS)"
+    )
+  }
+
   func test_CoalesceFunction() {
     assertDescription(
       CoalesceFunction([
@@ -568,12 +608,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "X'1FF'"
       )
       XCTAssertEqual(
-        GenericTypeCastStringLiteralSyntax(typeName: .init("MY_TYPE"), string: "value")?.description,
+        GenericTypeCastStringLiteralSyntax(typeName: "MY_TYPE", string: "value")?.description,
         "MY_TYPE 'value'"
       )
       XCTAssertEqual(
         GenericTypeCastStringLiteralSyntax(
-          typeName: .init("MY_TYPE"),
+          typeName: "MY_TYPE",
           modifiers: .init([UnsignedIntegerConstantExpression(0).asFunctionArgument]),
           string: "value"
         )?.description,
