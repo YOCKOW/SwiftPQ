@@ -359,6 +359,19 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_JSONAggregateWindowFunction() {
+    assertDescription(
+      JSONAggregateWindowFunction(
+        JSONArrayAggregateFunction(
+          value: JSONValueExpression(value: StringConstantExpression("foo"))
+        ),
+        filter: FilterClause(where: BooleanConstantExpression.true),
+        window: .init(windowName: "myWindow")
+      ),
+      "JSON_ARRAYAGG('foo') FILTER(WHERE TRUE) OVER myWindow"
+    )
+  }
+
   func test_JSONArrayAggregateFunction() {
     assertDescription(
       JSONArrayAggregateFunction(

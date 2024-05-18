@@ -1558,3 +1558,26 @@ public struct JSONArrayAggregateFunction: JSONAggregateFunctionExpression {
 }
 
 // MARK: END OF JSONAggregateFunctionExpression a.k.a. json_aggregate_func -
+
+/// A representation of `json_aggregate_func filter_clause over_clause`.
+public struct JSONAggregateWindowFunction: FunctionExpression {
+  public let function: any JSONAggregateFunctionExpression
+
+  public let filter: FilterClause?
+
+  public let window: OverClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting([function, filter, window] as [(any SQLTokenSequence)?])
+  }
+
+  public init(
+    _ function: any JSONAggregateFunctionExpression,
+    filter: FilterClause? = nil,
+    window: OverClause? = nil
+  ) {
+    self.function = function
+    self.filter = filter
+    self.window = window
+  }
+}
