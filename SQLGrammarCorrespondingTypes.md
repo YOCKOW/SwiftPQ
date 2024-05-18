@@ -59,6 +59,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `OptTempTableName`     | `struct TemporaryTableName`           |
 | `param_name`           | `struct ParameterName`                |
 | `qualified_name`       | `protocol QualifiedName`              |
+| n/a                    | `struct CollationName`                |
 | n/a                    | `struct DatabaseName`                 |
 | n/a                    | `struct SchemaName`                   |
 | n/a                    | `struct TableName`                    |
@@ -69,6 +70,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 |---------------------------------------------|----------------------------------------|
 | `alias_clause`                              | `struct AliasClause`                   |
 | `opt_asc_desc`                              | `enum SortDirection`                   |
+| `opt_collate_clause`                        | `struct CollateClause`                 |
 | `filter_clause`                             | `struct FilterClause`                  |
 | `opt_frame_clause`                          | `struct FrameClause`                   |
 | `into_clause`                               | `struct IntoClause`                    |

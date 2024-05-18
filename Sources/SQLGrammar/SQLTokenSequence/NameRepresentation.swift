@@ -45,8 +45,119 @@ extension QualifiedName where Self: AnyName, Self.Tokens == JoinedSQLTokenSequen
   }
 }
 
+private struct _DatabaseSchemaQualifiedName {
+  let database: DatabaseName?
+
+  let schema: SchemaName?
+
+  let name: SQLToken.Identifier
+
+  var nameAsColumnIdentifier: ColumnIdentifier { ColumnIdentifier(name)! }
+
+  var nameAsColumnLabel: ColumnLabel { ColumnLabel(name)! }
+
+  var identifier: ColumnIdentifier {
+    switch (database, schema) {
+    case (nil, nil):
+      return nameAsColumnIdentifier
+    case (nil, let schema?):
+      return schema.identifier
+    case (let database?, _?):
+      return database.identifier
+    default:
+      fatalError("Unexpected combination of properties?!")
+    }
+  }
+
+  var attributes: AttributeList? {
+    switch (database, schema) {
+    case (nil, nil):
+      return nil
+    case (nil, _?):
+      return [.columnLabel(nameAsColumnLabel)]
+    case (_?, let schema?):
+      let schemaLabel = ColumnLabel(schema.identifier.token) ?? ColumnLabel(schema.identifier.token._rawValue)
+      return [
+        .columnLabel(schemaLabel),
+        .columnLabel(nameAsColumnLabel),
+      ]
+    default:
+      fatalError("Unexpected combination of properties?!")
+    }
+  }
+
+  init(database: DatabaseName, schema: SchemaName, name: SQLToken.Identifier) {
+    self.database = database
+    self.schema = schema
+    self.name = name
+  }
+
+  init(schema: SchemaName, name: SQLToken.Identifier) {
+    self.database = nil
+    self.schema = schema
+    self.name = name
+  }
+
+  init(name: SQLToken.Identifier) {
+    self.database = nil
+    self.schema = nil
+    self.name = name
+  }
+}
 
 // MARK: - Detail Implementations
+
+public struct CollationName: AnyName {
+  public typealias StringLiteralType = String
+
+  private let _name: _DatabaseSchemaQualifiedName
+
+  public var database: DatabaseName? { _name.database }
+
+  public var schema: SchemaName? { _name.schema }
+
+  public var name: SQLToken.Identifier { _name.name }
+
+  public var identifier: ColumnIdentifier { _name.identifier }
+
+  public var attributes: AttributeList? { _name.attributes }
+
+  public init(
+    database: DatabaseName,
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._name = .init(
+      database: database,
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._name = .init(
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(name: String, caseSensitive: Bool = false) {
+    self._name = .init(
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(name: value)
+  }
+
+  public static let c: CollationName = .init(name: "C", caseSensitive: true)
+}
 
 /// A type representing a name of database.
 /// No corresponding expression exists in "gram.y",
@@ -255,58 +366,46 @@ public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
 public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
   public typealias StringLiteralType = String
 
-  public let database: DatabaseName?
+  private let _name: _DatabaseSchemaQualifiedName
 
-  public let schema: SchemaName?
+  public var database: DatabaseName? { _name.database }
 
-  public let name: String
+  public var schema: SchemaName? { _name.schema }
 
-  public var identifier: ColumnIdentifier {
-    switch (database, schema) {
-    case (nil, nil):
-      return ColumnIdentifier(name)
-    case (nil, let schema?):
-      return schema.identifier
-    case (let database?, _?):
-      return database.identifier
-    default:
-      fatalError("Unexpected combination of properties?!")
-    }
+  public var name: SQLToken.Identifier { _name.name }
+
+  public var identifier: ColumnIdentifier { _name.identifier }
+
+  public var attributes: AttributeList? { _name.attributes }
+
+  public init(
+    database: DatabaseName,
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._name = .init(
+      database: database,
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
   }
 
-  public var attributes: AttributeList? {
-    switch (database, schema) {
-    case (nil, nil):
-      return nil
-    case (nil, _?):
-      return [.columnLabel(ColumnLabel(name))]
-    case (_?, let schema?):
-      let schemaLabel = ColumnLabel(schema.identifier.token) ?? ColumnLabel(schema.identifier.token._rawValue)
-      return [
-        .columnLabel(schemaLabel),
-        .columnLabel(ColumnLabel(name)),
-      ]
-    default:
-      fatalError("Unexpected combination of properties?!")
-    }
+  public init(
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._name = .init(
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
   }
 
-  public init(database: DatabaseName, schema: SchemaName, name: String) {
-    self.database = database
-    self.schema = schema
-    self.name = name
-  }
-
-  public init(schema: SchemaName, name: String) {
-    self.database = nil
-    self.schema = schema
-    self.name = name
-  }
-
-  public init(name: String) {
-    self.database = nil
-    self.schema = nil
-    self.name = name
+  public init(name: String, caseSensitive: Bool = false) {
+    self._name = .init(
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
   }
 
   public init(stringLiteral value: StringLiteralType) {

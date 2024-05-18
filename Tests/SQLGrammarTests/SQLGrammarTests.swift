@@ -241,6 +241,13 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_CollateClause() {
+    assertDescription(
+      CollateClause(name: .c),
+      #"COLLATE "C""#
+    )
+  }
+
   func test_IntoCause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
