@@ -137,6 +137,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `indirection_el`       | `enum Indirection.List.Element`                  |
 | `opt_interval`         | `enum IntervalFieldsPhrase`                      |
 | `substr_list`          | `struct SubstringFunction.List`                  |
+| `TableFuncElement`     | `struct TableFunctionElement`                    |
+| `TableFuncElementList` | `struct TableFunctionElementLit`                 |
 | `target_el`            | `struct TargetElement`                           |
 | `target_list`          | `struct TargetList`                              |
 | `trim_list`            | `struct TrimFunction.List`                       | 
