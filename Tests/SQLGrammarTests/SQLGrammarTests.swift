@@ -268,6 +268,25 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_FunctionAliasClause() {
+    assertDescription(
+      FunctionAliasClause(
+        alias: "myAlias",
+        columnAliases: ["colAlias1"]
+      ),
+      "AS myAlias (colAlias1)"
+    )
+    assertDescription(
+      FunctionAliasClause(
+        alias: "myAlias",
+        columnDefinitions: [
+          TableFunctionElement(column: "myCol1", type: TypeName(GenericTypeName.text))
+        ]
+      ),
+      "AS myAlias (myCol1 TEXT)"
+    )
+  }
+
   func test_IntoCause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
