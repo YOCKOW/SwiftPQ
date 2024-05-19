@@ -227,6 +227,26 @@ final class SQLGrammarTests: XCTestCase {
       "CHAR[][3]"
     )
   }
+
+  func test_TableFunction() {
+    assertDescription(
+      TableFunction(functionCall: CurrentDate.currentDate, withOrdinality: true),
+      "CURRENT_DATE WITH ORDINALITY"
+    )
+    assertDescription(
+      TableFunction(
+        rowsFrom: TableFunction.RowsFromSyntax([
+          TableFunction.RowsFromSyntax.Item(
+            functionCall: CurrentUser.currentUser,
+            columnDefinitions: [
+              TableFunctionElement(column: "col1", type: TypeName(GenericTypeName.text))
+            ]
+          )
+        ])
+      ),
+      "ROWS FROM(CURRENT_USER AS (col1 TEXT))"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

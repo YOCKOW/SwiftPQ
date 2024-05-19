@@ -341,37 +341,37 @@ public final class CurrentRole: CommonFunctionSubexpression {
 /// A representation of `CURRENT_USER`.
 public final class CurrentUser: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.currentUser]
-  public static let currentUser: CurrentDate = .init()
+  public static let currentUser: CurrentUser = .init()
 }
 
 /// A representation of `SESSION_USER`.
 public final class SessionUser: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.sessionUser]
-  public static let sessionUser: CurrentDate = .init()
+  public static let sessionUser: SessionUser = .init()
 }
 
 /// A representation of `SYSTEM_USER`.
 public final class SystemUser: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.systemUser]
-  public static let systemUser: CurrentDate = .init()
+  public static let systemUser: SystemUser = .init()
 }
 
 /// A representation of `USER`.
 public final class User: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.user]
-  public static let user: CurrentDate = .init()
+  public static let user: User = .init()
 }
 
 /// A representation of `CURRENT_CATALOG`.
 public final class CurrentCatalog: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.currentCatalog]
-  public static let currentCatalog: CurrentDate = .init()
+  public static let currentCatalog: CurrentCatalog = .init()
 }
 
 /// A representation of `CURRENT_SCHEMA`.
 public final class CurrentSchema: CommonFunctionSubexpression {
   public let tokens: Array<SQLToken> = [.currentSchema]
-  public static let currentSchema: CurrentDate = .init()
+  public static let currentSchema: CurrentSchema = .init()
 }
 
 /// A representation of `CAST '(' a_expr AS Typename ')'`

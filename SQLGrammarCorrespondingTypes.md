@@ -80,6 +80,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption` |
 | `json_output_clause_opt`                    | `struct JSONOutputTypeClause`          |
 | `opt_nulls_order`                           | `enum NullOrdering`                    |
+| `opt_ordinality`                            | `class WithOrdinalityClause` (private) |
 | `over_clause`                               | `struct OverClause`                    |
 | `opt_partition_clause`                      | `struct PartitionClause`               |
 | `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`        |
@@ -128,11 +129,13 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `any_name_list`        | `struct AnyNameList`                             |
 | `opt_array_bounds`     | `struct ArrayBoundList`                          |
 | `attrs`                | `struct AttributeList`                           |
+| `opt_col_def_list`     | `struct ColumnDefinitionList`                    |
 | `expr_list`            | `struct GeneralExpressionList`                   |
 | `extract_list`         | `struct ExtractFunction._List` (private)         |
 | `frame_bound`          | `enum FrameBound`                                |
 | `frame_extent`         | `struct FrameExtent`                             |
 | `func_arg_list`        | `struct FunctionArgumentList`                    |
+| `func_table`           | `struct TableFunction`                           |
 | `indirection`          | `struct Indirection`                             |
 | `indirection_el`       | `enum Indirection.List.Element`                  |
 | `opt_interval`         | `enum IntervalFieldsPhrase`                      |
@@ -141,7 +144,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `TableFuncElementList` | `struct TableFunctionElementLit`                 |
 | `target_el`            | `struct TargetElement`                           |
 | `target_list`          | `struct TargetList`                              |
-| `trim_list`            | `struct TrimFunction.List`                       | 
+| `trim_list`            | `struct TrimFunction.List`                       |
+| `rowsfrom_item`        | `struct TableFunction.RowsFromSyntax.Item`       | 
+| `rowsfrom_list`        | `struct TableFunction.RowsFromSyntax.List`       |
 | `when_clause_list`     | `struct WhenClauseList`                          |
 | `window_specification` | `struct WindowSpecification`                     |
 
