@@ -641,6 +641,31 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_XMLTableExpression() {
+    assertDescription(
+      XMLTableExpression(
+        namespaces: XMLNamespaceList([
+          XMLNamespaceListElement(
+            uri: StringConstantExpression("https://example.com/xml"),
+            as: "myns"
+          )
+        ]),
+        row: StringConstantExpression("//ROWS/ROW"),
+        passing: XMLPassingArgument(xml: ColumnReference(columnName: "xmlData")),
+        columns: .init([
+          .init(
+            name: "id",
+            type: TypeName(NumericTypeName.int),
+            options: [.path(StringConstantExpression("@id"))]
+          ),
+          .forOrdinality(withName: "ordinalityCol"),
+        ])
+      ),
+      "XMLTABLE(XMLNAMESPACES('https://example.com/xml' AS myns), '//ROWS/ROW' PASSING xmlData" +
+      " COLUMNS id INT PATH '@id', ordinalityCol FOR ORDINALITY)"
+    )
+  }
+
   func test_c_expr() {
   columnref:
       do {

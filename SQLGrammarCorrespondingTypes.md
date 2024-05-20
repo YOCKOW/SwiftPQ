@@ -108,6 +108,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_aggregate_func`      | `protocol JSONAggregateFunctionExpression` |
 | `json_value_expr`          | `struct JSONValueExpression`               |
 | `relation_expr`            | `struct RelationExpression`                |
+| `xmltable`                 | `struct XMLTableExpression`                |
 | n/a                        | `protocol ValueExpression`                 |
 
 
@@ -165,15 +166,21 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ### XML-Related
 
-| gram.y                    | Swift                                            |
-|---------------------------|--------------------------------------------------|
-| `xml_attribute_el`        | `struct XMLAttribute`                            |
-| `xml_attribute_list`      | `struct XMLAttributeList`                        |
-| `xmlexists_argument`      | `struct XMLPassingArgument`                      |
-| `xml_indent_option`       | `enum XMLSerializeFunction.IndentOption`         |
-| `xml_passing_mech`        | `enum XMLPassingArgumentMechanism`               |
-| `opt_xml_root_standalone` | `enum XMLRootFunction.Standalone`                |
-| `xml_root_version`        | `enum XMLRootFunction.Version`                   |
-| `xml_whitespace_option`   | `enum XMLWhitespaceOption`                       |
+| gram.y                        | Swift                                                   |
+|-------------------------------|---------------------------------------------------------|
+| `xml_attribute_el`            | `struct XMLAttribute`                                   |
+| `xml_attribute_list`          | `struct XMLAttributeList`                               |
+| `xmlexists_argument`          | `struct XMLPassingArgument`                             |
+| `xml_indent_option`           | `enum XMLSerializeFunction.IndentOption`                |
+| `xml_namespace_el`            | `struct XMLNamespaceListElement`                        |
+| `xml_namespace_list`          | `struct XMLNamespaceList`                               |
+| `xml_passing_mech`            | `enum XMLPassingArgumentMechanism`                      |
+| `opt_xml_root_standalone`     | `enum XMLRootFunction.Standalone`                       |
+| `xml_root_version`            | `enum XMLRootFunction.Version`                          |
+| `xmltable_column_el`          | `struct XMLTableExpression.ColumnsClause.ColumnElement` |
+| `xmltable_column_list`        | `struct XMLTableExpression.ColumnsClause.ColumnList`    |
+| `xmltable_column_option_el`   | `enum XMLTableExpression.ColumnsClause.Option`          |
+| `xmltable_column_option_list` | `struct XMLTableExpression.ColumnsClause.OptionList`    |
+| `xml_whitespace_option`       | `enum XMLWhitespaceOption`                              |
 
 
