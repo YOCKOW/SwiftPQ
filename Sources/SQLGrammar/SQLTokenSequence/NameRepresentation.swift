@@ -260,6 +260,47 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   }
 }
 
+/// Representation of `name` in "gram.y".
+public struct Name: NameRepresentation {
+  public let identifier: ColumnIdentifier
+
+  public var tokens: SingleToken {
+    return SingleToken(identifier)
+  }
+
+  public func makeIterator() -> SingleTokenIterator<SQLToken> {
+    return tokens.makeIterator()
+  }
+
+  public init(_ identifier: ColumnIdentifier) {
+    self.identifier = identifier
+  }
+}
+
+extension ColumnIdentifier {
+  public var asName: Name { Name(self) }
+}
+
+/// Representation of `name_list` in "gram.y".
+public struct NameList: SQLTokenSequence, ExpressibleByArrayLiteral {
+  public let names: NonEmptyList<Name>
+
+  public var tokens: JoinedSQLTokenSequence {
+    return names.joinedByCommas()
+  }
+
+  public init(_ names: NonEmptyList<Name>) {
+    self.names = names
+  }
+  
+  public init(arrayLiteral elements: Name...) {
+    guard let nonEmptyNames = NonEmptyList(items: elements) else {
+      fatalError("\(Self.self): No names?!")
+    }
+    self.init(nonEmptyNames)
+  }
+}
+
 /// A type representing a name which is described as `object_type_any_name` in "gram.y".
 public enum ObjectTypeAnyName: NameRepresentation {
   case table

@@ -55,6 +55,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 |------------------------|---------------------------------------|
 | `any_name`             | `protocol AnyName`                    |
 | `func_name`            | `struct FunctionName`                 |
+| `name`                 | `struct Name`                         |
 | `object_type_any_name` | `enum ObjectTypeAnyName`              |
 | `OptTempTableName`     | `struct TemporaryTableName`           |
 | `param_name`           | `struct ParameterName`                |
@@ -66,31 +67,32 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Clauses
 
-| gram.y                                      | Swift                                  |
-|---------------------------------------------|----------------------------------------|
-| `alias_clause`                              | `struct AliasClause`                   |
-| `opt_asc_desc`                              | `enum SortDirection`                   |
-| `opt_collate_clause`                        | `struct CollateClause`                 |
-| `filter_clause`                             | `struct FilterClause`                  |
-| `opt_frame_clause`                          | `struct FrameClause`                   |
-| `func_alias_clause`                         | `struct FunctionAliasClause`           |
-| `into_clause`                               | `struct IntoClause`                    |
-| `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`  |
-| `json_encoding_clause_opt`                  | `struct JSONEncodingClause`            |
-| `json_format_clause_opt`                    | `struct JSONFormatClause`              |
-| `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption` |
-| `json_output_clause_opt`                    | `struct JSONOutputTypeClause`          |
-| `opt_nulls_order`                           | `enum NullOrdering`                    |
-| `opt_ordinality`                            | `class WithOrdinalityClause` (private) |
-| `over_clause`                               | `struct OverClause`                    |
-| `opt_partition_clause`                      | `struct PartitionClause`               |
-| `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`        |
-| `sortby`                                    | `struct SortBy<Expression>`            |
-| `sort_clause`                               | `struct SortClause`                    |
-| `tablesample_clause`                        | `struct TableSampleClause`             |
-| `when_clause`                               | `struct WhenClause<Condition, Result>` |
-| `opt_window_exclusion_clause`               | `enum WindowExclusionClause`           |
-| `within_group_clause`                       | `struct WithinGroupClause`             |
+| gram.y                                      | Swift                                                     |
+|---------------------------------------------|-----------------------------------------------------------|
+| `alias_clause`                              | `struct AliasClause`                                      |
+| `opt_alias_clause_for_join_using`           | `class JoinCondition._AliasClauseForJoinUsing` (private)  |
+| `opt_asc_desc`                              | `enum SortDirection`                                      |
+| `opt_collate_clause`                        | `struct CollateClause`                                    |
+| `filter_clause`                             | `struct FilterClause`                                     |
+| `opt_frame_clause`                          | `struct FrameClause`                                      |
+| `func_alias_clause`                         | `struct FunctionAliasClause`                              |
+| `into_clause`                               | `struct IntoClause`                                       |
+| `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`                     |
+| `json_encoding_clause_opt`                  | `struct JSONEncodingClause`                               |
+| `json_format_clause_opt`                    | `struct JSONFormatClause`                                 |
+| `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption`                    |
+| `json_output_clause_opt`                    | `struct JSONOutputTypeClause`                             |
+| `opt_nulls_order`                           | `enum NullOrdering`                                       |
+| `opt_ordinality`                            | `class WithOrdinalityClause` (private)                    |
+| `over_clause`                               | `struct OverClause`                                       |
+| `opt_partition_clause`                      | `struct PartitionClause`                                  |
+| `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`                           |
+| `sortby`                                    | `struct SortBy<Expression>`                               |
+| `sort_clause`                               | `struct SortClause`                                       |
+| `tablesample_clause`                        | `struct TableSampleClause`                                |
+| `when_clause`                               | `struct WhenClause<Condition, Result>`                    |
+| `opt_window_exclusion_clause`               | `enum WindowExclusionClause`                              |
+| `within_group_clause`                       | `struct WithinGroupClause`                                |
 
 
 ## Expressions
@@ -105,9 +107,11 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_expr`                | `protocol FunctionExpression`              |
 | `func_expr_common_subexpr` | `protocol CommonFunctionSubexpression`     |
 | `func_expr_windowless`     | `protocol WindowlessFunctionExpression`    |
+| `joined_table`             | `protocol JoinedTableExpression`           |
 | `json_aggregate_func`      | `protocol JSONAggregateFunctionExpression` |
 | `json_value_expr`          | `struct JSONValueExpression`               |
 | `relation_expr`            | `struct RelationExpression`                |
+| `table_ref`                | `protocol TableReferenceExpression`        |
 | `xmltable`                 | `struct XMLTableExpression`                |
 | n/a                        | `protocol ValueExpression`                 |
 
@@ -141,6 +145,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `indirection`          | `struct Indirection`                             |
 | `indirection_el`       | `enum Indirection.List.Element`                  |
 | `opt_interval`         | `enum IntervalFieldsPhrase`                      |
+| `join_type`            | `enum JoinType`                                  |
+| `join_qual`            | `enum JoinCondition`                             |
+| `name_list`            | `struct NameList`                                |
 | `substr_list`          | `struct SubstringFunction.List`                  |
 | `TableFuncElement`     | `struct TableFunctionElement`                    |
 | `TableFuncElementList` | `struct TableFunctionElementLit`                 |

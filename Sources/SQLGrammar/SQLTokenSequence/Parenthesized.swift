@@ -51,3 +51,9 @@ public protocol ParenthesizableStatement: Statement {}
 
 extension Parenthesized: Statement,
                          ParenthesizableStatement where EnclosedTokens: ParenthesizableStatement {}
+
+/// An expression that can be also an expression even if parenthesized.
+public protocol ParenthesizableExpression: Expression {}
+
+extension Parenthesized: Expression,
+                         ParenthesizableExpression where EnclosedTokens: ParenthesizableExpression {}

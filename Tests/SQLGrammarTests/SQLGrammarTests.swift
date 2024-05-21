@@ -553,6 +553,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_TableReferenceExpression() {
+  table_ref:
+    do {
+      // TODO: Add tests
+    }
+
+  joined_table:
+    do {
+      // TODO: Add tests
+    }
+  }
+
   func test_TrimFunction() {
     assertDescription(
       TrimFunction(trimmingEnd: .both, trimCharacters: "hoge", from: "hogeYOCKOWhoge"),
