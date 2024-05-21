@@ -308,6 +308,10 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_HavingClause() {
+    assertDescription(HavingClause(predicate: BooleanConstantExpression.true), "HAVING TRUE")
+  }
+
   func test_IntoClause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
