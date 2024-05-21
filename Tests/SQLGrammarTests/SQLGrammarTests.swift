@@ -287,7 +287,28 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
-  func test_IntoCause() {
+  func test_GroupClause() {
+    assertDescription(
+      GroupClause(columnReferences: [
+        .expression(ColumnReference(columnName: "a")),
+        .cube(CubeClause([
+          ColumnReference(columnName: "b"),
+          ColumnReference(columnName: "c"),
+        ])),
+        .groupingSets(GroupingSetsClause([
+          GroupingElement(
+            ParenthesizedGeneralExpressionWithIndirection(ColumnReference(columnName: "d"))
+          ),
+          GroupingElement(
+            ParenthesizedGeneralExpressionWithIndirection(ColumnReference(columnName: "e"))
+          ),
+        ]))
+      ]),
+      "GROUP BY a, CUBE(b, c), GROUPING SETS((d), (e))"
+    )
+  }
+
+  func test_IntoClause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
       "INTO TEMPORARY TABLE my_temp_table"

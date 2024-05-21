@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A list of general expressions, that is described as `expr_list` in "gram.y".
-public struct GeneralExpressionList: SQLTokenSequence {
+public struct GeneralExpressionList: SQLTokenSequence, ExpressibleByArrayLiteral {
   public var expressions: NonEmptyList<any GeneralExpression>
 
   @inlinable
@@ -23,5 +23,12 @@ public struct GeneralExpressionList: SQLTokenSequence {
   ) where FirstExpr: GeneralExpression, repeat each OptionalExpr: GeneralExpression {
     self.expressions = .init(item: firstExpression)
     repeat (self.expressions.append(each optionalExpression))
+  }
+
+  public init(arrayLiteral elements: (any GeneralExpression)...) {
+    guard let nonEmptyExprs = NonEmptyList<any GeneralExpression>(items: elements) else {
+      fatalError("\(Self.self): No expressions?!")
+    }
+    self.init(nonEmptyExprs)
   }
 }

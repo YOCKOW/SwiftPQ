@@ -11,6 +11,14 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
 
   public let separator: Array<SQLToken>?
 
+  public init<Separator>(
+    _ sequences: Array<any SQLTokenSequence>,
+    separator: Separator? = Optional<Array<SQLToken>>.none
+  ) where Separator: Sequence, Separator.Element: SQLToken {
+    self._sequences = sequences
+    self.separator = separator.map({ Array<SQLToken>($0) })
+  }
+
   public init<S, Separator>(
     _ sequences: S,
     separator: Separator? = Optional<Array<SQLToken>>.none

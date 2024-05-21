@@ -29,6 +29,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `document_or_content` | `enum XMLOption`                      |
 | `opt_drop_behavior`   | `enum DropBehavior`                   |
 | `extract_arg`         | `struct ExtractFunction.Field`        |
+| `set_quantifier`      | `enum SetQuantifier`                  |
 | `type_function_name`  | `struct TypeOrFunctionName`(internal) |
 | `unicode_normal_form` | `enum UnicodeNormalizationForm`       |
 
@@ -73,10 +74,13 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_alias_clause_for_join_using`           | `class JoinCondition._AliasClauseForJoinUsing` (private)  |
 | `opt_asc_desc`                              | `enum SortDirection`                                      |
 | `opt_collate_clause`                        | `struct CollateClause`                                    |
+| `cube_clause`                               | `struct CubeClause`                                       |
 | `filter_clause`                             | `struct FilterClause`                                     |
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
 | `from_clause`                               | `struct FromClause`                                       |
 | `func_alias_clause`                         | `struct FunctionAliasClause`                              |
+| `group_clause`                              | `struct GroupClause`                                      |
+| `grouping_sets_clause`                      | `struct GroupingSetsClause`                               |
 | `into_clause`                               | `struct IntoClause`                                       |
 | `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`                     |
 | `json_encoding_clause_opt`                  | `struct JSONEncodingClause`                               |
@@ -88,6 +92,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `over_clause`                               | `struct OverClause`                                       |
 | `opt_partition_clause`                      | `struct PartitionClause`                                  |
 | `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`                           |
+| `rollup_clause`                             | `struct RollUpClause`                                     |
 | `sortby`                                    | `struct SortBy<Expression>`                               |
 | `sort_clause`                               | `struct SortClause`                                       |
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
@@ -138,6 +143,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_array_bounds`     | `struct ArrayBoundList`                          |
 | `attrs`                | `struct AttributeList`                           |
 | `opt_col_def_list`     | `struct ColumnDefinitionList`                    |
+| `empty_grouping_set`   | `class EmptyGroupingSet`                         |
 | `expr_list`            | `struct GeneralExpressionList`                   |
 | `extract_list`         | `struct ExtractFunction._List` (private)         |
 | `frame_bound`          | `enum FrameBound`                                |
@@ -145,6 +151,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `from_list`            | `struct FromList`                                |
 | `func_arg_list`        | `struct FunctionArgumentList`                    |
 | `func_table`           | `struct TableFunction`                           |
+| `group_by_item`        | `struct GroupingElement`                         |
+| `group_by_list`        | `struct GroupingList`                            |
 | `indirection`          | `struct Indirection`                             |
 | `indirection_el`       | `enum Indirection.List.Element`                  |
 | `opt_interval`         | `enum IntervalFieldsPhrase`                      |

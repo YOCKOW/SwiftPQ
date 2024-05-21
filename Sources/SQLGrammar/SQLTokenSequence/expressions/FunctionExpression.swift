@@ -965,10 +965,6 @@ public struct CoalesceFunction: CommonFunctionSubexpression {
   public init(_ expressions: GeneralExpressionList) {
     self.expressions = expressions
   }
-
-  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
-    self.expressions = GeneralExpressionList(expressions)
-  }
 }
 
 /// A representation of `GREATEST '(' expr_list ')'`.
@@ -981,10 +977,6 @@ public struct GreatestFunction: CommonFunctionSubexpression {
 
   public init(_ expressions: GeneralExpressionList) {
     self.expressions = expressions
-  }
-
-  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
-    self.expressions = GeneralExpressionList(expressions)
   }
 }
 
@@ -999,10 +991,6 @@ public struct LeastFunction: CommonFunctionSubexpression {
   public init(_ expressions: GeneralExpressionList) {
     self.expressions = expressions
   }
-
-  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
-    self.expressions = GeneralExpressionList(expressions)
-  }
 }
 
 /// A representation of `XMLCONCAT '(' expr_list ')'`.
@@ -1015,10 +1003,6 @@ public struct XMLConcatenateFunction: CommonFunctionSubexpression {
 
   public init(_ expressions: GeneralExpressionList) {
     self.expressions = expressions
-  }
-
-  public init(_ expressions: NonEmptyList<any GeneralExpression>) {
-    self.expressions = GeneralExpressionList(expressions)
   }
 }
 
