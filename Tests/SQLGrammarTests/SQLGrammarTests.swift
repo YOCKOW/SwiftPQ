@@ -362,6 +362,23 @@ final class SQLGrammarClauseTests: XCTestCase {
   func test_WhereClause() {
     assertDescription(WhereClause(condition: BooleanConstantExpression.true), "WHERE TRUE")
   }
+
+  func test_WindowClause() {
+    assertDescription(
+      WindowClause([
+        WindowDefinition(
+          name: "winName",
+          specification: WindowSpecification(
+            name: nil,
+            partitionBy: nil,
+            orderBy: SortClause(SortBy(BooleanConstantExpression.true)),
+            frame: nil
+          )
+        )
+      ]),
+      "WINDOW winName AS (ORDER BY TRUE)"
+    )
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {

@@ -99,6 +99,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
 | `when_clause`                               | `struct WhenClause<Condition, Result>`                    |
 | `where_clause`                              | `struct WhereClause`                                      |
+| `window_clause`                             | `struct WindowClause`                                     |
 | `opt_window_exclusion_clause`               | `enum WindowExclusionClause`                              |
 | `within_group_clause`                       | `struct WithinGroupClause`                                |
 
@@ -138,38 +139,40 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Others
 
-| gram.y                 | Swift                                            |
-|------------------------|--------------------------------------------------|
-| `any_name_list`        | `struct AnyNameList`                             |
-| `opt_array_bounds`     | `struct ArrayBoundList`                          |
-| `attrs`                | `struct AttributeList`                           |
-| `opt_col_def_list`     | `struct ColumnDefinitionList`                    |
-| `empty_grouping_set`   | `class EmptyGroupingSet`                         |
-| `expr_list`            | `struct GeneralExpressionList`                   |
-| `extract_list`         | `struct ExtractFunction._List` (private)         |
-| `frame_bound`          | `enum FrameBound`                                |
-| `frame_extent`         | `struct FrameExtent`                             |
-| `from_list`            | `struct FromList`                                |
-| `func_arg_list`        | `struct FunctionArgumentList`                    |
-| `func_table`           | `struct TableFunction`                           |
-| `group_by_item`        | `struct GroupingElement`                         |
-| `group_by_list`        | `struct GroupingList`                            |
-| `indirection`          | `struct Indirection`                             |
-| `indirection_el`       | `enum Indirection.List.Element`                  |
-| `opt_interval`         | `enum IntervalFieldsPhrase`                      |
-| `join_type`            | `enum JoinType`                                  |
-| `join_qual`            | `enum JoinCondition`                             |
-| `name_list`            | `struct NameList`                                |
-| `substr_list`          | `struct SubstringFunction.List`                  |
-| `TableFuncElement`     | `struct TableFunctionElement`                    |
-| `TableFuncElementList` | `struct TableFunctionElementLit`                 |
-| `target_el`            | `struct TargetElement`                           |
-| `target_list`          | `struct TargetList`                              |
-| `trim_list`            | `struct TrimFunction.List`                       |
-| `rowsfrom_item`        | `struct TableFunction.RowsFromSyntax.Item`       | 
-| `rowsfrom_list`        | `struct TableFunction.RowsFromSyntax.List`       |
-| `when_clause_list`     | `struct WhenClauseList`                          |
-| `window_specification` | `struct WindowSpecification`                     |
+| gram.y                   | Swift                                            |
+|--------------------------|--------------------------------------------------|
+| `any_name_list`          | `struct AnyNameList`                             |
+| `opt_array_bounds`       | `struct ArrayBoundList`                          |
+| `attrs`                  | `struct AttributeList`                           |
+| `opt_col_def_list`       | `struct ColumnDefinitionList`                    |
+| `empty_grouping_set`     | `class EmptyGroupingSet`                         |
+| `expr_list`              | `struct GeneralExpressionList`                   |
+| `extract_list`           | `struct ExtractFunction._List` (private)         |
+| `frame_bound`            | `enum FrameBound`                                |
+| `frame_extent`           | `struct FrameExtent`                             |
+| `from_list`              | `struct FromList`                                |
+| `func_arg_list`          | `struct FunctionArgumentList`                    |
+| `func_table`             | `struct TableFunction`                           |
+| `group_by_item`          | `struct GroupingElement`                         |
+| `group_by_list`          | `struct GroupingList`                            |
+| `indirection`            | `struct Indirection`                             |
+| `indirection_el`         | `enum Indirection.List.Element`                  |
+| `opt_interval`           | `enum IntervalFieldsPhrase`                      |
+| `join_type`              | `enum JoinType`                                  |
+| `join_qual`              | `enum JoinCondition`                             |
+| `name_list`              | `struct NameList`                                |
+| `substr_list`            | `struct SubstringFunction.List`                  |
+| `TableFuncElement`       | `struct TableFunctionElement`                    |
+| `TableFuncElementList`   | `struct TableFunctionElementLit`                 |
+| `target_el`              | `struct TargetElement`                           |
+| `target_list`            | `struct TargetList`                              |
+| `trim_list`              | `struct TrimFunction.List`                       |
+| `rowsfrom_item`          | `struct TableFunction.RowsFromSyntax.Item`       | 
+| `rowsfrom_list`          | `struct TableFunction.RowsFromSyntax.List`       |
+| `when_clause_list`       | `struct WhenClauseList`                          |
+| `window_definition`      | `struct WindowDefinition`                        |
+| `window_definition_list` | `struct WindowDefinitionList`                    |
+| `window_specification`   | `struct WindowSpecification`                     |
 
 
 ### JSON-related
