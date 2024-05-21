@@ -333,6 +333,10 @@ final class SQLGrammarClauseTests: XCTestCase {
       "TABLESAMPLE sampling(FALSE) REPEATABLE(1)"
     )
   }
+
+  func test_WhereClause() {
+    assertDescription(WhereClause(condition: BooleanConstantExpression.true), "WHERE TRUE")
+  }
 }
 
 final class SQLGrammarExpressionTests: XCTestCase {
