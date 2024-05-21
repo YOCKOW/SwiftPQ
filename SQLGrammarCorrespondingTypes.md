@@ -75,6 +75,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_collate_clause`                        | `struct CollateClause`                                    |
 | `filter_clause`                             | `struct FilterClause`                                     |
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
+| `from_clause`                               | `struct FromClause`                                       |
 | `func_alias_clause`                         | `struct FunctionAliasClause`                              |
 | `into_clause`                               | `struct IntoClause`                                       |
 | `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`                     |
@@ -140,6 +141,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `extract_list`         | `struct ExtractFunction._List` (private)         |
 | `frame_bound`          | `enum FrameBound`                                |
 | `frame_extent`         | `struct FrameExtent`                             |
+| `from_list`            | `struct FromList`                                |
 | `func_arg_list`        | `struct FunctionArgumentList`                    |
 | `func_table`           | `struct TableFunction`                           |
 | `indirection`          | `struct Indirection`                             |
