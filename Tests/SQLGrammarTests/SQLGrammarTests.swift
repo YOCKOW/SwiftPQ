@@ -268,6 +268,17 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_DistinctClause() {
+    assertDescription(DistinctClause(expressions: nil), "DISTINCT")
+    assertDescription(
+      DistinctClause(expressions: [
+        ColumnReference(columnName: "col1"),
+        ColumnReference(columnName: "col2"),
+      ]),
+      "DISTINCT ON (col1, col2)"
+    )
+  }
+
   func test_FunctionAliasClause() {
     assertDescription(
       FunctionAliasClause(

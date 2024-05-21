@@ -75,6 +75,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_asc_desc`                              | `enum SortDirection`                                      |
 | `opt_collate_clause`                        | `struct CollateClause`                                    |
 | `cube_clause`                               | `struct CubeClause`                                       |
+| `distinct_clause`                           | `struct DistinctClause`                                   |
 | `filter_clause`                             | `struct FilterClause`                                     |
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
 | `from_clause`                               | `struct FromClause`                                       |
