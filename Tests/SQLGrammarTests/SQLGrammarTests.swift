@@ -370,6 +370,17 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_ValuesClause() {
+    assertDescription(
+      ValuesClause([
+        [UnsignedIntegerConstantExpression(1), StringConstantExpression("one")],
+        [UnsignedIntegerConstantExpression(2), StringConstantExpression("two")],
+        [UnsignedIntegerConstantExpression(3), StringConstantExpression("three")],
+      ]),
+      "VALUES (1, 'one'), (2, 'two'), (3, 'three')"
+    )
+  }
+
   func test_WhereClause() {
     assertDescription(WhereClause(condition: BooleanConstantExpression.true), "WHERE TRUE")
   }
