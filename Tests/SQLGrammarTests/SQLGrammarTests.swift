@@ -642,6 +642,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
         ),
         "myTable AS myAlias"
       )
+
+      assertDescription(
+        FunctionTableReference(
+          lateral: true,
+          tableFunction: TableFunction(functionCall: CurrentDate.currentDate),
+          alias: FunctionAliasClause(AliasClause(alias: "myAlias"))
+        ),
+        "LATERAL CURRENT_DATE AS myAlias"
+      )
     }
 
   joined_table:

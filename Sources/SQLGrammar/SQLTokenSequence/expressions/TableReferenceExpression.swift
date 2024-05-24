@@ -157,7 +157,7 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
 // MARK: - Usual TableReferenceExpression types.
 
 /// One of `TableRefernceExpression`s that starts with relation expression.
-/// 
+///
 /// This type is described as `relation_expr opt_alias_clause` or
 /// `relation_expr opt_alias_clause tablesample_clause` in "gram.y".
 public struct RelationTableReference: TableReferenceExpression {
@@ -179,5 +179,22 @@ public struct RelationTableReference: TableReferenceExpression {
     self.relation = relation
     self.alias = alias
     self.tableSample = tableSample
+  }
+}
+
+/// Table reference with a table function.
+public struct FunctionTableReference: TableReferenceExpression {
+  public var lateral: Bool
+
+  public let tableFunction: TableFunction
+
+  public let alias: FunctionAliasClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      lateral ? SingleToken(.lateral) : nil,
+      tableFunction,
+      alias
+    )
   }
 }
