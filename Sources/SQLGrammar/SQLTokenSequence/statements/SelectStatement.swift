@@ -160,4 +160,28 @@ public struct SimpleSelectQuery: SimpleSelectStatement {
 
 extension ValuesClause: SimpleSelectStatement {}
 
+/// A `TABLE` command that is described as `TABLE relation_expr` in "gram.y".
+public struct TableCommandSyntax: SimpleSelectStatement {
+  public let relation: RelationExpression
+
+  public var name: TableName {
+    return relation.tableName
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(SingleToken(.table), relation)
+  }
+
+  public init(_ relation: RelationExpression) {
+    self.relation = relation
+  }
+
+  public init(tableName: TableName, includeDescendantTables: Bool? = nil) {
+    self.relation = RelationExpression(
+      tableName: tableName,
+      includeDescendantTables: includeDescendantTables
+    )
+  }
+}
+
 // MARK: END OF SimpleSelectStatement a.k.a. simple_select implementations. -

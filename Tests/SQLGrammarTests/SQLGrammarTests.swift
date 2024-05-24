@@ -896,4 +896,11 @@ final class SQLGrammarStatementTests: XCTestCase {
 
     // TODO: More gramatically-valid tests requried.
   }
+
+  func test_TableCommandSyntax() {
+    assertDescription(
+      TableCommandSyntax(tableName: "myTable"),
+      "TABLE myTable"
+    )
+  }
 }
