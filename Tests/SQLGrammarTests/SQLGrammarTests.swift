@@ -631,72 +631,73 @@ final class SQLGrammarExpressionTests: XCTestCase {
   }
 
   func test_TableReferenceExpression() {
-  table_ref:
-    do {
-      // TODO: Add more tests
+    assertDescription(
+      RelationTableReference(
+        RelationExpression(tableName: "myTable"),
+        alias: AliasClause(alias: "myAlias")
+      ),
+      "myTable AS myAlias"
+    )
 
-      assertDescription(
-        RelationTableReference(
-          RelationExpression(tableName: "myTable"),
-          alias: AliasClause(alias: "myAlias")
-        ),
-        "myTable AS myAlias"
-      )
+    assertDescription(
+      FunctionTableReference(
+        lateral: true,
+        function: TableFunction(functionCall: CurrentDate.currentDate),
+        alias: FunctionAliasClause(AliasClause(alias: "myAlias"))
+      ),
+      "LATERAL CURRENT_DATE AS myAlias"
+    )
 
-      assertDescription(
-        FunctionTableReference(
-          lateral: true,
-          function: TableFunction(functionCall: CurrentDate.currentDate),
-          alias: FunctionAliasClause(AliasClause(alias: "myAlias"))
-        ),
-        "LATERAL CURRENT_DATE AS myAlias"
-      )
-
-      assertDescription(
-        XMLTableReference(
-          lateral: true,
-          function: XMLTableExpression(
-            namespaces: XMLNamespaceList([
-              XMLNamespaceListElement(
-                uri: StringConstantExpression("https://example.com/xml"),
-                as: "myns"
-              )
-            ]),
-            row: StringConstantExpression("//ROWS/ROW"),
-            passing: XMLPassingArgument(xml: ColumnReference(columnName: "xmlData")),
-            columns: .init([
-              .init(
-                name: "id",
-                type: TypeName(NumericTypeName.int),
-                options: [.path(StringConstantExpression("@id"))]
-              ),
-              .forOrdinality(withName: "ordinalityCol"),
-            ])
-          ),
-          alias: AliasClause(alias: "xmlAlias")
-        ),
-        "LATERAL " +
-        "XMLTABLE(XMLNAMESPACES('https://example.com/xml' AS myns), '//ROWS/ROW' PASSING xmlData" +
-        " COLUMNS id INT PATH '@id', ordinalityCol FOR ORDINALITY)" +
-        " AS xmlAlias"
-      )
-
-      assertDescription(
-        SelectTableReference<ValuesClause>(
-          lateral: true,
-          parenthesizing: ValuesClause([
-            [UnsignedIntegerConstantExpression(0), StringConstantExpression("zero")]
+    assertDescription(
+      XMLTableReference(
+        lateral: true,
+        function: XMLTableExpression(
+          namespaces: XMLNamespaceList([
+            XMLNamespaceListElement(
+              uri: StringConstantExpression("https://example.com/xml"),
+              as: "myns"
+            )
           ]),
-          alias: AliasClause(alias: "myAlias")
+          row: StringConstantExpression("//ROWS/ROW"),
+          passing: XMLPassingArgument(xml: ColumnReference(columnName: "xmlData")),
+          columns: .init([
+            .init(
+              name: "id",
+              type: TypeName(NumericTypeName.int),
+              options: [.path(StringConstantExpression("@id"))]
+            ),
+            .forOrdinality(withName: "ordinalityCol"),
+          ])
         ),
-        "LATERAL (VALUES (0, 'zero')) AS myAlias"
-      )
-    }
+        alias: AliasClause(alias: "xmlAlias")
+      ),
+      "LATERAL " +
+      "XMLTABLE(XMLNAMESPACES('https://example.com/xml' AS myns), '//ROWS/ROW' PASSING xmlData" +
+      " COLUMNS id INT PATH '@id', ordinalityCol FOR ORDINALITY)" +
+      " AS xmlAlias"
+    )
 
-  joined_table:
-    do {
-      // TODO: Add tests
-    }
+    assertDescription(
+      SelectTableReference<ValuesClause>(
+        lateral: true,
+        parenthesizing: ValuesClause([
+          [UnsignedIntegerConstantExpression(0), StringConstantExpression("zero")]
+        ]),
+        alias: AliasClause(alias: "myAlias")
+      ),
+      "LATERAL (VALUES (0, 'zero')) AS myAlias"
+    )
+
+    assertDescription(
+      JoinedTableAliasReference(
+        parenthesizing: CrossJoinedTable(
+          RelationTableReference(RelationExpression(tableName: "leftTable")),
+          RelationTableReference(RelationExpression(tableName: "rightTable"))
+        ),
+        alias: AliasClause(alias: "joinedAlias")
+      ),
+      "(leftTable CROSS JOIN rightTable) AS joinedAlias"
+    )
   }
 
   func test_TrimFunction() {

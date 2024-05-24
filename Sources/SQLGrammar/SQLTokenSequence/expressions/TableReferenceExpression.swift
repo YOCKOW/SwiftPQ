@@ -264,3 +264,28 @@ public struct SelectTableReference<Select>: TableReferenceExpression where Selec
     self.alias = alias
   }
 }
+
+/// Joined table as a table reference with an alias.
+///
+/// - Note: `AliasClause` of this type is not optional.
+///         Any type conforming to `JoinedTableExpression` is available as a `TableReferenceExpression`
+///         because protocol `JoinedTableExpression` inherits from `TableReferenceExpression`.
+public struct JoinedTableAliasReference<JoinedTable>: TableReferenceExpression where JoinedTable: JoinedTableExpression {
+  public let joinedTable: Parenthesized<JoinedTable>
+
+  public let alias: AliasClause
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(joinedTable, alias)
+  }
+
+  public init(_ joinedTable: Parenthesized<JoinedTable>, alias: AliasClause) {
+    self.joinedTable = joinedTable
+    self.alias = alias
+  }
+
+  public init(parenthesizing joinedTable: JoinedTable, alias: AliasClause) {
+    self.joinedTable = joinedTable.parenthesized
+    self.alias = alias
+  }
+}
