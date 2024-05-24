@@ -330,6 +330,15 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_SelectClause() {
+    assertDescription(
+      SelectClause(ValuesClause([
+        [UnsignedIntegerConstantExpression(1), StringConstantExpression("one")],
+      ])),
+      "VALUES (1, 'one')"
+    )
+  }
+
   func test_SortClause() throws {
     struct __PseudoAexpr: GeneralExpression {
       let ref: ColumnReference

@@ -95,6 +95,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_partition_clause`                      | `struct PartitionClause`                                  |
 | `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`                           |
 | `rollup_clause`                             | `struct RollUpClause`                                     |
+| `select_clause`                             | `struct SelectClause`                                     |
 | `sortby`                                    | `struct SortBy<Expression>`                               |
 | `sort_clause`                               | `struct SortClause`                                       |
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
@@ -136,6 +137,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `DROP TABLE ...`                | `struct DropTable`                     |
 | `select_no_parens`              | `protocol BareSelectStatement`         |
 | `SelectStmt`                    | `protocol SelectStatement`             |
+| `simple_select`                 | `protocol SimpleSelectStatement`       |
 | `stmt`                          | `protocol Statement`                   |
 
 
