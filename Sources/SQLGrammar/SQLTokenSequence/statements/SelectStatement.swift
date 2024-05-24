@@ -20,4 +20,144 @@ public protocol SimpleSelectStatement: BareSelectStatement {}
 // Represents `select_with_parens`.
 extension Parenthesized: SelectStatement where EnclosedTokens: SelectStatement {}
 
+// MARK: - SimpleSelectStatement a.k.a. simple_select implementations.
+
+/// A `SELECT` statement that is one of `simple_select`(`SimpleSelectStatement`).
+public struct SimpleSelectQuery: SimpleSelectStatement {
+  public enum DuplicateRowStrategy: SQLTokenSequence {
+    /// A specifier to return all candidate rows.
+    /// Grammatically this represents `opt_all_clause` in "gram.y".
+    case all
+
+    case distinct(DistinctClause)
+
+    public var tokens: JoinedSQLTokenSequence {
+      switch self {
+      case .all:
+        return JoinedSQLTokenSequence(SingleToken(.all))
+      case .distinct(let distinctClause):
+        return distinctClause.tokens
+      }
+    }
+  }
+
+  public let duplicateRowStrategy: DuplicateRowStrategy?
+
+  public let targets: TargetList?
+
+  public let intoClause: IntoClause?
+
+  public let fromClause: FromClause?
+
+  public let whereClause: WhereClause?
+
+  public let groupClause: GroupClause?
+
+  public let havingClause: HavingClause?
+
+  public let windowClause: WindowClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      SingleToken(.select),
+      duplicateRowStrategy,
+      targets,
+      intoClause,
+      fromClause,
+      whereClause,
+      groupClause,
+      havingClause,
+      windowClause
+    )
+  }
+
+  private init(
+    duplicateRowStrategy: DuplicateRowStrategy?,
+    targets: TargetList?,
+    intoClause: IntoClause?,
+    fromClause: FromClause?,
+    whereClause: WhereClause?,
+    groupClause: GroupClause?,
+    havingClause: HavingClause?,
+    windowClause: WindowClause?
+  ) {
+    self.duplicateRowStrategy = duplicateRowStrategy
+    self.targets = targets
+    self.intoClause = intoClause
+    self.fromClause = fromClause
+    self.whereClause = whereClause
+    self.groupClause = groupClause
+    self.havingClause = havingClause
+    self.windowClause = windowClause
+  }
+
+  public init(
+    targets: TargetList? = nil,
+    into intoClause: IntoClause? = nil,
+    from fromClause: FromClause? = nil,
+    where whereClause: WhereClause? = nil,
+    group groupClause: GroupClause? = nil,
+    having havingClause: HavingClause? = nil,
+    window windowClause: WindowClause? = nil
+  ) {
+    self.init(
+      duplicateRowStrategy: nil,
+      targets: targets,
+      intoClause: intoClause,
+      fromClause: fromClause,
+      whereClause: whereClause,
+      groupClause: groupClause,
+      havingClause: havingClause,
+      windowClause: windowClause
+    )
+  }
+
+  /// Creates `SELECT ALL ...` statement.
+  public static func selectAllRows(
+    targets: TargetList? = nil,
+    into intoClause: IntoClause? = nil,
+    from fromClause: FromClause? = nil,
+    where whereClause: WhereClause? = nil,
+    group groupClause: GroupClause? = nil,
+    having havingClause: HavingClause? = nil,
+    window windowClause: WindowClause? = nil
+  ) -> SimpleSelectQuery {
+    return SimpleSelectQuery(
+      duplicateRowStrategy: .all,
+      targets: targets,
+      intoClause: intoClause,
+      fromClause: fromClause,
+      whereClause: whereClause,
+      groupClause: groupClause,
+      havingClause: havingClause,
+      windowClause: windowClause
+    )
+  }
+
+  /// Creates `SELECT DISTINCT [ON ...] ...` statement.
+  public static func selectDistinctRows(
+    on distinctClause: DistinctClause,
+    targets: TargetList, // nil not allowed!
+    into intoClause: IntoClause? = nil,
+    from fromClause: FromClause? = nil,
+    where whereClause: WhereClause? = nil,
+    group groupClause: GroupClause? = nil,
+    having havingClause: HavingClause? = nil,
+    window windowClause: WindowClause? = nil
+  ) -> SimpleSelectQuery {
+    return SimpleSelectQuery(
+      duplicateRowStrategy: .distinct(distinctClause),
+      targets: targets,
+      intoClause: intoClause,
+      fromClause: fromClause,
+      whereClause: whereClause,
+      groupClause: groupClause,
+      havingClause: havingClause,
+      windowClause: windowClause
+    )
+  }
+}
+
 extension ValuesClause: SimpleSelectStatement {}
+
+// MARK: END OF SimpleSelectStatement a.k.a. simple_select implementations. -

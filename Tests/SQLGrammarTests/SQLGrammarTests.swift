@@ -883,4 +883,17 @@ final class SQLGrammarStatementTests: XCTestCase {
       "DROP TABLE my_schema.my_private_table1, my_schema.my_private_table2"
     )
   }
+
+  func test_SimpleSelectQuery() {
+    assertDescription(
+      SimpleSelectQuery.selectAllRows(
+        targets: TargetList([
+          TargetElement(ColumnReference(columnName: "a"), as: "alias_a"),
+        ])
+      ),
+      "SELECT ALL a AS alias_a"
+    )
+
+    // TODO: More gramatically-valid tests requried.
+  }
 }
