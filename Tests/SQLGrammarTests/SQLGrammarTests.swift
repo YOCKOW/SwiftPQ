@@ -680,6 +680,17 @@ final class SQLGrammarExpressionTests: XCTestCase {
         " COLUMNS id INT PATH '@id', ordinalityCol FOR ORDINALITY)" +
         " AS xmlAlias"
       )
+
+      assertDescription(
+        SelectTableReference<ValuesClause>(
+          lateral: true,
+          parenthesizing: ValuesClause([
+            [UnsignedIntegerConstantExpression(0), StringConstantExpression("zero")]
+          ]),
+          alias: AliasClause(alias: "myAlias")
+        ),
+        "LATERAL (VALUES (0, 'zero')) AS myAlias"
+      )
     }
 
   joined_table:

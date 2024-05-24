@@ -227,3 +227,40 @@ public struct XMLTableReference: TableReferenceExpression {
     self.alias = alias
   }
 }
+
+/// Select statement as a table reference with optional alias.
+public struct SelectTableReference<Select>: TableReferenceExpression where Select: SelectStatement {
+  public var lateral: Bool
+
+  public let query: Parenthesized<Select>
+
+  public let alias: AliasClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      lateral ? SingleToken(.lateral) : nil,
+      query,
+      alias
+    )
+  }
+
+  public init(
+    lateral: Bool,
+    query: Parenthesized<Select>,
+    alias: AliasClause? = nil
+  ) {
+    self.lateral = lateral
+    self.query = query
+    self.alias = alias
+  }
+
+  public init(
+    lateral: Bool,
+    parenthesizing select: Select,
+    alias: AliasClause? = nil
+  ) {
+    self.lateral = lateral
+    self.query = select.parenthesized
+    self.alias = alias
+  }
+}
