@@ -14,18 +14,18 @@ public struct AliasClause: Clause {
   public let alias: ColumnIdentifier
 
   /// Represents `name_list`
-  public let columnAliases: [ColumnIdentifier]?
+  public let columnAliases: NameList?
 
   public var tokens: JoinedSQLTokenSequence {
     var sequences: [any SQLTokenSequence] = omitAsToken ? [] : [SingleToken(.as)]
     sequences.append(alias.asSequence)
-    if let columnAliases, !columnAliases.isEmpty {
-      sequences.append(columnAliases.joinedByCommas().parenthesized)
+    if let columnAliases {
+      sequences.append(columnAliases.parenthesized)
     }
     return JoinedSQLTokenSequence(sequences)
   }
 
-  public init(alias: ColumnIdentifier, columnAliases: [ColumnIdentifier]? = nil) {
+  public init(alias: ColumnIdentifier, columnAliases: NameList? = nil) {
     self.alias = alias
     self.columnAliases = columnAliases
   }

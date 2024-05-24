@@ -261,7 +261,7 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
 }
 
 /// Representation of `name` in "gram.y".
-public struct Name: NameRepresentation {
+public struct Name: NameRepresentation, ExpressibleByStringLiteral {
   public let identifier: ColumnIdentifier
 
   public var tokens: SingleToken {
@@ -274,6 +274,10 @@ public struct Name: NameRepresentation {
 
   public init(_ identifier: ColumnIdentifier) {
     self.identifier = identifier
+  }
+
+  public init(stringLiteral value: String) {
+    self.identifier = ColumnIdentifier(stringLiteral: value)
   }
 }
 

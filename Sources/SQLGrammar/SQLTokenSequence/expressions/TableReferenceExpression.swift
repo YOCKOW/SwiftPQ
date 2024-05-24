@@ -17,6 +17,8 @@ extension Parenthesized: JoinedTableExpression,
                          TableReferenceExpression where EnclosedTokens: JoinedTableExpression {}
 
 
+// MARK: - JoinedTableExpression a.k.a. joined_table implementations
+
 /// Representation of `join_type` (and `opt_outer`).
 public enum JoinType: SQLTokenSequence {
   case fullOuter
@@ -147,5 +149,35 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
     self.rightTable = rightTable
     self.type = type
     self.condition = condition
+  }
+}
+
+// MARK: END OF JoinedTableExpression a.k.a. joined_table implementations -
+
+// MARK: - Usual TableReferenceExpression types.
+
+/// One of `TableRefernceExpression`s that starts with relation expression.
+/// 
+/// This type is described as `relation_expr opt_alias_clause` or
+/// `relation_expr opt_alias_clause tablesample_clause` in "gram.y".
+public struct RelationTableReference: TableReferenceExpression {
+  public let relation: RelationExpression
+
+  public let alias: AliasClause?
+
+  public let tableSample: TableSampleClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(relation, alias, tableSample)
+  }
+
+  public init(
+    _ relation: RelationExpression,
+    alias: AliasClause? = nil,
+    tableSample: TableSampleClause? = nil
+  ) {
+    self.relation = relation
+    self.alias = alias
+    self.tableSample = tableSample
   }
 }

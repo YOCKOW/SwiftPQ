@@ -633,7 +633,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
   func test_TableReferenceExpression() {
   table_ref:
     do {
-      // TODO: Add tests
+      // TODO: Add more tests
+
+      assertDescription(
+        RelationTableReference(
+          RelationExpression(tableName: "myTable"),
+          alias: AliasClause(alias: "myAlias")
+        ),
+        "myTable AS myAlias"
+      )
     }
 
   joined_table:

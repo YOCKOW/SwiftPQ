@@ -68,7 +68,7 @@ public struct FunctionAliasClause: Clause {
   }
 
   /// Column aliases.
-  public var columnAliases: [ColumnIdentifier]? {
+  public var columnAliases: NameList? {
     guard case .simpleAlias(let clause) = _alias else {
       return nil
     }
@@ -89,7 +89,7 @@ public struct FunctionAliasClause: Clause {
   }
 
   /// Creates a clause which is the same with `AliasClause` from given parameters.
-  public init(alias: ColumnIdentifier, columnAliases: [ColumnIdentifier]? = nil) {
+  public init(alias: ColumnIdentifier, columnAliases: NameList? = nil) {
     self.init(AliasClause(alias: alias, columnAliases: columnAliases))
   }
 
