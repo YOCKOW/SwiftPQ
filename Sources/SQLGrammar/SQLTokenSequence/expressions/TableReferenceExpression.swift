@@ -186,15 +186,44 @@ public struct RelationTableReference: TableReferenceExpression {
 public struct FunctionTableReference: TableReferenceExpression {
   public var lateral: Bool
 
-  public let tableFunction: TableFunction
+  public let function: TableFunction
 
   public let alias: FunctionAliasClause?
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
       lateral ? SingleToken(.lateral) : nil,
-      tableFunction,
+      function,
       alias
     )
+  }
+
+  public init(lateral: Bool, function: TableFunction, alias: FunctionAliasClause? = nil) {
+    self.lateral = lateral
+    self.function = function
+    self.alias = alias
+  }
+}
+
+/// Table reference with `XMLTABLE` function.
+public struct XMLTableReference: TableReferenceExpression {
+  public var lateral: Bool
+
+  public let function: XMLTableExpression
+
+  public let alias: AliasClause?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      lateral ? SingleToken(.lateral) : nil,
+      function,
+      alias
+    )
+  }
+
+  public init(lateral: Bool, function: XMLTableExpression, alias: AliasClause? = nil) {
+    self.lateral = lateral
+    self.function = function
+    self.alias = alias
   }
 }

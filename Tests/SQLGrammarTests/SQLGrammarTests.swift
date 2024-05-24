@@ -646,10 +646,39 @@ final class SQLGrammarExpressionTests: XCTestCase {
       assertDescription(
         FunctionTableReference(
           lateral: true,
-          tableFunction: TableFunction(functionCall: CurrentDate.currentDate),
+          function: TableFunction(functionCall: CurrentDate.currentDate),
           alias: FunctionAliasClause(AliasClause(alias: "myAlias"))
         ),
         "LATERAL CURRENT_DATE AS myAlias"
+      )
+
+      assertDescription(
+        XMLTableReference(
+          lateral: true,
+          function: XMLTableExpression(
+            namespaces: XMLNamespaceList([
+              XMLNamespaceListElement(
+                uri: StringConstantExpression("https://example.com/xml"),
+                as: "myns"
+              )
+            ]),
+            row: StringConstantExpression("//ROWS/ROW"),
+            passing: XMLPassingArgument(xml: ColumnReference(columnName: "xmlData")),
+            columns: .init([
+              .init(
+                name: "id",
+                type: TypeName(NumericTypeName.int),
+                options: [.path(StringConstantExpression("@id"))]
+              ),
+              .forOrdinality(withName: "ordinalityCol"),
+            ])
+          ),
+          alias: AliasClause(alias: "xmlAlias")
+        ),
+        "LATERAL " +
+        "XMLTABLE(XMLNAMESPACES('https://example.com/xml' AS myns), '//ROWS/ROW' PASSING xmlData" +
+        " COLUMNS id INT PATH '@id', ordinalityCol FOR ORDINALITY)" +
+        " AS xmlAlias"
       )
     }
 
