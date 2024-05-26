@@ -268,6 +268,19 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_CycleClause() {
+    assertDescription(
+      CycleClause(
+        ["id"],
+        set: "is_cycle",
+        to: UnsignedIntegerConstantExpression(1),
+        default: UnsignedIntegerConstantExpression(0),
+        using: "path"
+      ),
+      "CYCLE id SET is_cycle TO 1 DEFAULT 0 USING path"
+    )
+  }
+
   func test_DistinctClause() {
     assertDescription(DistinctClause(expressions: nil), "DISTINCT")
     assertDescription(
