@@ -330,6 +330,13 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_SearchClause() {
+    assertDescription(
+      SearchClause(.breadthFirst, by: ["id"], set: "orderCol"),
+      "SEARCH BREADTH FIRST BY id SET orderCol"
+    )
+  }
+
   func test_SelectClause() {
     assertDescription(
       SelectClause(ValuesClause([
