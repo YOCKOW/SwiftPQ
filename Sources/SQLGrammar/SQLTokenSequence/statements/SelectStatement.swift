@@ -7,7 +7,7 @@
 
 /// Representation of a `SELECT` statement or a similar statement,
 /// that is described as `SelectStmt` in "gram.y".
-public protocol SelectStatement: ParenthesizableStatement {}
+public protocol SelectStatement: ParenthesizableStatement, ParenthesizablePreparableStatement {}
 
 /// Representation of `SELECT` statement without any parentheses,
 /// that is described as `select_no_parens` in "gram.y".

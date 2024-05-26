@@ -132,13 +132,17 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 | gram.y                          | Swift                                  |
 |---------------------------------|----------------------------------------|
+| `DeleteStmt`                    | `struct DeleteStatement`               |
 | `DropStmt`                      | `protocol DropStatement`               |
 | `DROP object_type_any_name ...` | `protocol DropObjectTypeAnyName`       |
 | `DROP TABLE ...`                | `struct DropTable`                     |
+| `InsertStmt`                    | `struct InsertStatement`               |
+| `PreparableStmt`                | `protocol PreparableStatement`         |
 | `select_no_parens`              | `protocol BareSelectStatement`         |
 | `SelectStmt`                    | `protocol SelectStatement`             |
 | `simple_select`                 | `protocol SimpleSelectStatement`       |
 | `stmt`                          | `protocol Statement`                   |
+| `UpdateStmt`                    | `struct UpdateStatement`               |
 
 
 ## Others

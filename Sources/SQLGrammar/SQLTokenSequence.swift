@@ -23,6 +23,9 @@ public protocol SQLTokenSequence: Sequence {
 /// A type representing a statement which is expressed as `stmt` in "gram.y".
 public protocol Statement: SQLTokenSequence {}
 
+/// A type that reprents `PreparableStmt` in "gram.y".
+public protocol PreparableStatement: Statement {}
+
 /// A type representing an expression.
 public protocol Expression: SQLTokenSequence {}
 

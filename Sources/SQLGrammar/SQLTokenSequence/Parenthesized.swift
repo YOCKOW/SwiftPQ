@@ -52,6 +52,10 @@ public protocol ParenthesizableStatement: Statement {}
 extension Parenthesized: Statement,
                          ParenthesizableStatement where EnclosedTokens: ParenthesizableStatement {}
 
+public protocol ParenthesizablePreparableStatement: PreparableStatement, ParenthesizableStatement {}
+extension Parenthesized: PreparableStatement,
+                         ParenthesizablePreparableStatement where EnclosedTokens: ParenthesizablePreparableStatement {}
+
 /// An expression that can be also an expression even if parenthesized.
 public protocol ParenthesizableExpression: Expression {}
 
