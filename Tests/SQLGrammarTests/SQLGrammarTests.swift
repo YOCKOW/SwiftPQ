@@ -906,6 +906,24 @@ final class SQLGrammarExpressionTests: XCTestCase {
 }
 
 final class SQLGrammarStatementTests: XCTestCase {
+  func test_CombinedSelectQuery() {
+    assertDescription(
+      SelectClause(ValuesClause([
+        [UnsignedIntegerConstantExpression(0)],
+        [UnsignedIntegerConstantExpression(1)],
+        [UnsignedIntegerConstantExpression(2)],
+      ])).union(
+        .all,
+        SelectClause(ValuesClause([
+          [UnsignedIntegerConstantExpression(3)],
+          [UnsignedIntegerConstantExpression(4)],
+          [UnsignedIntegerConstantExpression(5)],
+        ]))
+      ),
+      "VALUES (0), (1), (2) UNION ALL VALUES (3), (4), (5)"
+    )
+  }
+
   func test_DropTable() {
     func __assert(
       _ dropTable: DropTable,

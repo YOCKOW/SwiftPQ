@@ -184,4 +184,88 @@ public struct TableCommandSyntax: SimpleSelectStatement {
   }
 }
 
+/// A kind of select statement that consists of [combined queries](https://www.postgresql.org/docs/16/queries-union.html).
+public struct CombinedSelectQuery: SimpleSelectStatement {
+  public enum SetOperation: LosslessTokenConvertible {
+    case union
+    case intersect
+    case except
+
+    public var token: SQLToken {
+      switch self {
+      case .union:
+        return .union
+      case .intersect:
+        return .intersect
+      case .except:
+        return .except
+      }
+    }
+
+    public init?(_ token: SQLToken) {
+      switch token {
+      case .union:
+        self = .union
+      case .intersect:
+        self = .intersect
+      case .except:
+        self = .except
+      default:
+        return nil
+      }
+    }
+  }
+
+  public let leftQuery: SelectClause
+
+  public let operation: SetOperation
+
+  public let quantifier: SetQuantifier?
+
+  public let rightQuery: SelectClause
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      leftQuery,
+      operation.asSequence,
+      quantifier?.asSequence,
+      rightQuery
+    )
+  }
+
+  public init(
+    _ leftQuery: SelectClause,
+    _ operation: SetOperation,
+    _ quantifier: SetQuantifier? = nil,
+    _ rightQuery: SelectClause
+  ) {
+    self.leftQuery = leftQuery
+    self.operation = operation
+    self.quantifier = quantifier
+    self.rightQuery = rightQuery
+  }
+}
+extension SelectClause {
+  public func union(
+    _ quantifier: SetQuantifier? = nil,
+    _ other: SelectClause
+  ) -> CombinedSelectQuery {
+    return CombinedSelectQuery(self, .union, quantifier, other)
+  }
+
+  public func intersect(
+    _ quantifier: SetQuantifier? = nil,
+    _ other: SelectClause
+  ) -> CombinedSelectQuery {
+    return CombinedSelectQuery(self, .intersect, quantifier, other)
+  }
+
+  public func except(
+    _ quantifier: SetQuantifier? = nil,
+    _ other: SelectClause
+  ) -> CombinedSelectQuery {
+    return CombinedSelectQuery(self, .except, quantifier, other)
+  }
+}
+
 // MARK: END OF SimpleSelectStatement a.k.a. simple_select implementations. -
