@@ -107,3 +107,23 @@ extension NonEmptyList: ExpressibleByArrayLiteral {
     self = list
   }
 }
+
+public protocol InitializableWithNonEmptyList {
+  associatedtype NonEmptyListElement
+  init(_ list: NonEmptyList<NonEmptyListElement>)
+}
+extension InitializableWithNonEmptyList {
+  public init(_ element: NonEmptyListElement) {
+    self.init(NonEmptyList<NonEmptyListElement>(item: element))
+  }
+}
+extension InitializableWithNonEmptyList where Self: ExpressibleByArrayLiteral,
+                                              Self.NonEmptyListElement == Self.ArrayLiteralElement {
+  public init(arrayLiteral elements: Self.NonEmptyListElement...) {
+    guard let nonEmptyList = NonEmptyList(items: elements) else {
+      fatalError("\(Self.self): Missing elements.")
+    }
+    self.init(nonEmptyList)
+  }
+}
+

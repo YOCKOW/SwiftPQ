@@ -117,6 +117,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `AexprConst`               | `protocol ConstantExpression`              |
 | `b_expr`                   | `protocol RestrictedExpression`            |
 | `c_expr`                   | `protocol ProductionExpression`            |
+| `common_table_expr`        | `struct CommonTableExpression`             |
 | `func_application`         | `struct FunctionApplication`               |
 | `func_arg_expr`            | `struct FunctionArgumentExpression`        |
 | `func_expr`                | `protocol FunctionExpression`              |
@@ -158,6 +159,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_col_def_list`       | `struct ColumnDefinitionList`                    |
 | `columnElem`             | `struct ColumnListElement`                       |
 | `columnList`             | `struct ColumnList`                              |
+| `cte_list`               | `struct CommonTableExpressionList`               |
 | `empty_grouping_set`     | `class EmptyGroupingSet`                         |
 | `expr_list`              | `struct GeneralExpressionList`                   |
 | `extract_list`           | `struct ExtractFunction._List` (private)         |
@@ -174,6 +176,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `join_type`              | `enum JoinType`                                  |
 | `join_qual`              | `enum JoinCondition`                             |
 | `name_list`              | `struct NameList`                                |
+| `opt_name_list`          | `enum OptionalNameList`                          |
 | `substr_list`            | `struct SubstringFunction.List`                  |
 | `TableFuncElement`       | `struct TableFunctionElement`                    |
 | `TableFuncElementList`   | `struct TableFunctionElementLit`                 |

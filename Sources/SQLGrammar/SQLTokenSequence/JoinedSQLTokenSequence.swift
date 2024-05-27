@@ -43,6 +43,13 @@ public struct JoinedSQLTokenSequence: SQLTokenSequence {
     self.init(sequences, separator: separator)
   }
 
+  public static func compacting<Separator>(
+    _ sequences: Array<(any SQLTokenSequence)?>,
+    separator: Separator? = Optional<Array<SQLToken>>.none
+  ) -> JoinedSQLTokenSequence where Separator: Sequence, Separator.Element: SQLToken {
+    return .init(sequences.compactMap({ $0 }), separator: separator)
+  }
+
   public static func compacting<S, Separator>(
     _ sequence: S,
     separator: Separator? = Optional<Array<SQLToken>>.none

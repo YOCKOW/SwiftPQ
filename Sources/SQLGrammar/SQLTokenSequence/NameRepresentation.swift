@@ -305,6 +305,128 @@ public struct NameList: SQLTokenSequence, ExpressibleByArrayLiteral {
   }
 }
 
+/// Representation of `opt_name_list` in "gram.y".
+///
+/// This should not be represented by `Optional<NameList>`
+/// because `opt_name_list` must emit parenthesized `name_list` if it has a value.
+public enum OptionalNameList: SQLTokenSequence,
+                              ExpressibleByNilLiteral,
+                              ExpressibleByArrayLiteral {
+  case none
+  case some(NameList)
+
+  public struct Tokens: Sequence {
+    public typealias Element = SQLToken
+
+    private let _list: OptionalNameList
+
+    fileprivate init(_ list: OptionalNameList) {
+      self._list = list
+    }
+
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+
+      private let _iterator: AnySQLTokenSequenceIterator?
+
+      public mutating func next() -> Element? {
+        return _iterator?.next()
+      }
+
+      fileprivate init(_ iterator: AnySQLTokenSequenceIterator?) {
+        self._iterator = iterator
+      }
+    }
+
+    public func makeIterator() -> Iterator {
+      switch _list {
+      case .none:
+        return Iterator(nil)
+      case .some(let list):
+        return Iterator(AnySQLTokenSequenceIterator(list.parenthesized))
+      }
+    }
+  }
+
+  @inlinable
+  public var isNil: Bool {
+    switch self {
+    case .none:
+      return true
+    case .some:
+      return false
+    }
+  }
+
+  @inlinable
+  public var nameList: NameList? {
+    guard case .some(let list) = self else { return nil }
+    return list
+  }
+
+  @inlinable
+  public func map<T>(_ transform: (NameList) throws -> T) rethrows -> T? {
+    return try nameList.map(transform)
+  }
+
+  @inlinable
+  public func flatMap<T>(_ transform: (NameList) throws -> T?) rethrows -> T? {
+    return try nameList.flatMap(transform)
+  }
+
+  public var tokens: Tokens {
+    return Tokens(self)
+  }
+
+  @inlinable
+  public func tokensMap<T>(_ transform: (OptionalNameList.Tokens) throws -> T) rethrows -> T? {
+    switch self {
+    case .none:
+      return nil
+    case .some:
+      return try transform(tokens)
+    }
+  }
+
+  @inlinable
+  public func tokensFlatMap<T>(_ transform: (OptionalNameList.Tokens) throws -> T?) rethrows -> T? {
+    switch self {
+    case .none:
+      return nil
+    case .some:
+      return try transform(tokens)
+    }
+  }
+
+  @inlinable
+  public func makeIterator() -> Tokens.Iterator {
+    return tokens.makeIterator()
+  }
+
+  @inlinable
+  public init(nilLiteral: ()) {
+    self = .none
+  }
+
+  @inlinable
+  public init(arrayLiteral elements: Name...) {
+    guard let nonEmptyNames = NonEmptyList(items: elements) else {
+      fatalError("\(Self.self): No names?!")
+    }
+    self = .some(NameList(nonEmptyNames))
+  }
+
+  @inlinable
+  public init(_ optional: Optional<NameList>) {
+    switch optional {
+    case .none:
+      self = .none
+    case .some(let list):
+      self = .some(list)
+    }
+  }
+}
+
 /// A type representing a name which is described as `object_type_any_name` in "gram.y".
 public enum ObjectTypeAnyName: NameRepresentation {
   case table

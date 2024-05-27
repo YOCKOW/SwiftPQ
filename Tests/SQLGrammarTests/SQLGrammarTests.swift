@@ -484,6 +484,41 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_CommonTableExpression() {
+    assertDescription(
+      CommonTableExpression(
+        name: "withName",
+        columnNames: ["col1", "col2"],
+        materialized: .notMaterialized,
+        subquery: ValuesClause([
+          [UnsignedIntegerConstantExpression(0), StringConstantExpression("zero")],
+          [UnsignedIntegerConstantExpression(1), StringConstantExpression("one")],
+        ]),
+        search: SearchClause(.breadthFirst, by: ["col1"], set: "orderCol"),
+        cycle: CycleClause(["col1"], set: "isCycle", using: "path")
+      ),
+      "withName(col1, col2) AS NOT MATERIALIZED (VALUES (0, 'zero'), (1, 'one')) " +
+      "SEARCH BREADTH FIRST BY col1 SET orderCol " +
+      "CYCLE col1 SET isCycle USING path"
+    )
+
+    assertDescription(
+      CommonTableExpressionList([
+        CommonTableExpression(
+          name: "withName1",
+          columnNames: nil,
+          subquery: ValuesClause([[UnsignedIntegerConstantExpression(1)]])
+        ),
+        CommonTableExpression(
+          name: "withName2",
+          columnNames: nil,
+          subquery: ValuesClause([[UnsignedIntegerConstantExpression(2)]])
+        ),
+      ]),
+      "withName1 AS (VALUES (1)), withName2 AS (VALUES (2))"
+    )
+  }
+
   func test_CurrentTime() {
     assertDescription(CurrentTime(), "CURRENT_TIME")
     assertDescription(CurrentTime(precision: 6), "CURRENT_TIME(6)")
