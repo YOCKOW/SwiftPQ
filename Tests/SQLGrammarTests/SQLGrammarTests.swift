@@ -414,6 +414,22 @@ final class SQLGrammarClauseTests: XCTestCase {
     assertDescription(WhereClause(condition: BooleanConstantExpression.true), "WHERE TRUE")
   }
 
+  func test_WithClause() {
+    assertDescription(
+      WithClause(
+        recursive: true,
+        queries: [
+          CommonTableExpression(
+            name: "withName",
+            columnNames: nil,
+            subquery: ValuesClause([[UnsignedIntegerConstantExpression(0)]])
+          )
+        ]
+      ),
+      "WITH RECURSIVE withName AS (VALUES (0))"
+    )
+  }
+
   func test_WindowClause() {
     assertDescription(
       WindowClause([

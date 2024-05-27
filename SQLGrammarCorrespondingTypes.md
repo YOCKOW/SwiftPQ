@@ -106,6 +106,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `where_clause`                              | `struct WhereClause`                                      |
 | `window_clause`                             | `struct WindowClause`                                     |
 | `opt_window_exclusion_clause`               | `enum WindowExclusionClause`                              |
+| `with_clause`                               | `struct WithClause`                                       |
 | `within_group_clause`                       | `struct WithinGroupClause`                                |
 
 
