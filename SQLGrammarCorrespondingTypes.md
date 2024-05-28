@@ -78,6 +78,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_cycle_clause`                          | `struct CycleClause`                                      |
 | `distinct_clause`                           | `struct DistinctClause`                                   |
 | `filter_clause`                             | `struct FilterClause`                                     |
+| `for_locking_clause`                        | `struct LockingClause`                                    |
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
 | `from_clause`                               | `struct FromClause`                                       |
 | `func_alias_clause`                         | `struct FunctionAliasClause`                              |
@@ -164,6 +165,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `empty_grouping_set`     | `class EmptyGroupingSet`                         |
 | `expr_list`              | `struct GeneralExpressionList`                   |
 | `extract_list`           | `struct ExtractFunction._List` (private)         |
+| `for_locking_item`       | `struct LockingMode`                             |
+| `for_locking_items`      | `struct LockingModeList`                         |
+| `for_locking_strength`   | `enum LockingStrength`                           |
 | `frame_bound`            | `enum FrameBound`                                |
 | `frame_extent`           | `struct FrameExtent`                             |
 | `from_list`              | `struct FromList`                                |
@@ -176,8 +180,11 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_interval`           | `enum IntervalFieldsPhrase`                      |
 | `join_type`              | `enum JoinType`                                  |
 | `join_qual`              | `enum JoinCondition`                             |
+| `locked_rels_list`       | `struct LockedRelationList`                      |
 | `name_list`              | `struct NameList`                                |
 | `opt_name_list`          | `enum OptionalNameList`                          |
+| `opt_nowait_or_skip`     | `enum LockingWaitOption`                         |
+| `qualified_name_list`    | `struct QualifiedNameList<Q>`                    |
 | `substr_list`            | `struct SubstringFunction.List`                  |
 | `TableFuncElement`       | `struct TableFunctionElement`                    |
 | `TableFuncElementList`   | `struct TableFunctionElementLit`                 |

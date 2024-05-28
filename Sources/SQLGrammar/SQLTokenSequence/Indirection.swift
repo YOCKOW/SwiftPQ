@@ -65,6 +65,16 @@ public struct Indirection: SQLTokenSequence {
     }
 
     @inlinable
+    public var first: Element {
+      return elements.first
+    }
+
+    @inlinable
+    public var last: Element {
+      return elements.last
+    }
+
+    @inlinable
     public var startIndex: Index { return elements.startIndex }
 
     @inlinable
@@ -75,6 +85,11 @@ public struct Indirection: SQLTokenSequence {
 
     @inlinable
     public func index(before i: Index) -> Index { return elements.index(before: i) }
+
+    @inlinable
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> NonEmptyList<T> {
+      return try elements.map(transform)
+    }
 
     @inlinable
     public subscript(position: Index) -> Element {

@@ -45,17 +45,20 @@ extension QualifiedName where Self: AnyName, Self.Tokens == JoinedSQLTokenSequen
   }
 }
 
-private struct _DatabaseSchemaQualifiedName {
+struct _DatabaseSchemaQualifiedName: AnyName, QualifiedName {
   let database: DatabaseName?
 
   let schema: SchemaName?
 
   let name: SQLToken.Identifier
 
+  @inlinable
   var nameAsColumnIdentifier: ColumnIdentifier { ColumnIdentifier(name)! }
 
+  @inlinable
   var nameAsColumnLabel: ColumnLabel { ColumnLabel(name)! }
 
+  @inlinable
   var identifier: ColumnIdentifier {
     switch (database, schema) {
     case (nil, nil):
@@ -69,6 +72,7 @@ private struct _DatabaseSchemaQualifiedName {
     }
   }
 
+  @inlinable
   var attributes: AttributeList? {
     switch (database, schema) {
     case (nil, nil):
@@ -86,18 +90,21 @@ private struct _DatabaseSchemaQualifiedName {
     }
   }
 
+  @inlinable
   init(database: DatabaseName, schema: SchemaName, name: SQLToken.Identifier) {
     self.database = database
     self.schema = schema
     self.name = name
   }
 
+  @inlinable
   init(schema: SchemaName, name: SQLToken.Identifier) {
     self.database = nil
     self.schema = schema
     self.name = name
   }
 
+  @inlinable
   init(name: SQLToken.Identifier) {
     self.database = nil
     self.schema = nil
@@ -105,22 +112,108 @@ private struct _DatabaseSchemaQualifiedName {
   }
 }
 
+protocol _DatabaseSchemaQualifiedNameConvertible {
+  var _databaseSchemaQualifiedName: _DatabaseSchemaQualifiedName { get }
+}
+
+extension _DatabaseSchemaQualifiedName {
+  private init(_selfTypeName: _DatabaseSchemaQualifiedName) {
+    self = _selfTypeName
+  }
+
+  private init(_convertibleTypeName: any _DatabaseSchemaQualifiedNameConvertible) {
+    self = _convertibleTypeName._databaseSchemaQualifiedName
+  }
+
+  private init?(_identifier: ColumnIdentifier, attributes: AttributeList?) {
+    guard let attributes = attributes else {
+      guard case let name as SQLToken.Identifier = _identifier.token else {
+        return nil
+      }
+      self.init(name: name)
+      return
+    }
+    
+    switch attributes.names.count {
+    case 1:
+      guard case .columnLabel(let columnLabel) = attributes.names.first,
+            case let name as SQLToken.Identifier = columnLabel.token else {
+        return nil
+      }
+      self.init(schema: SchemaName(_identifier), name: name)
+    case 2:
+      guard case .columnLabel(let schemaAsColumnLabel) = attributes.names.first,
+            case .columnLabel(let nameAsColumnLabel) = attributes.names.last,
+            let schemaAsColId = ColumnIdentifier(schemaAsColumnLabel.token),
+            case let name as SQLToken.Identifier = nameAsColumnLabel.token else {
+        return nil
+      }
+      self.init(
+        database: DatabaseName(_identifier),
+        schema: SchemaName(schemaAsColId),
+        name: name
+      )
+    default:
+      return nil
+    }
+  }
+
+  @inlinable
+  init?<OtherName>(_ otherName: OtherName) where OtherName: AnyName {
+    switch otherName {
+    case let selfTypeName as _DatabaseSchemaQualifiedName:
+      self.init(_selfTypeName: selfTypeName)
+    case let convertibleTypeName as any _DatabaseSchemaQualifiedNameConvertible:
+      self.init(_convertibleTypeName: convertibleTypeName)
+    default:
+      self.init(_identifier: otherName.identifier, attributes: otherName.attributes)
+    }
+  }
+
+  private enum __Error: Error { case conversionFailure }
+
+  @inlinable
+  init?<OtherName>(_ otherName: OtherName) where OtherName: QualifiedName {
+    switch otherName {
+    case let selfTypeName as _DatabaseSchemaQualifiedName:
+      self.init(_selfTypeName: selfTypeName)
+    case let convertibleTypeName as any _DatabaseSchemaQualifiedNameConvertible:
+      self.init(_convertibleTypeName: convertibleTypeName)
+    default:
+      do {
+        let attributeNames = try otherName.indirection?.list.map({
+          guard case .attributeName(let attrName) = $0 else {
+            throw __Error.conversionFailure
+          }
+          return attrName
+        })
+        self.init(
+          _identifier: otherName.identifier,
+          attributes: attributeNames.map(AttributeList.init(names:))
+        )
+      } catch {
+        return nil
+      }
+    }
+  }
+}
+
 // MARK: - Detail Implementations
 
-public struct CollationName: AnyName {
+public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
   public typealias StringLiteralType = String
 
-  private let _name: _DatabaseSchemaQualifiedName
+  let _databaseSchemaQualifiedName: _DatabaseSchemaQualifiedName
 
-  public var database: DatabaseName? { _name.database }
+  public var database: DatabaseName? { _databaseSchemaQualifiedName.database }
 
-  public var schema: SchemaName? { _name.schema }
+  public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _name.name }
+  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
 
-  public var identifier: ColumnIdentifier { _name.identifier }
+  public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
-  public var attributes: AttributeList? { _name.attributes }
+  public var attributes: AttributeList? { _databaseSchemaQualifiedName.attributes }
 
   public init(
     database: DatabaseName,
@@ -128,7 +221,7 @@ public struct CollationName: AnyName {
     name: String,
     caseSensitive: Bool = false
   ) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
@@ -140,18 +233,19 @@ public struct CollationName: AnyName {
     name: String,
     caseSensitive: Bool = false
   ) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       schema: schema,
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
     )
   }
 
+  @inlinable
   public init(stringLiteral value: StringLiteralType) {
     self.init(name: value)
   }
@@ -503,6 +597,21 @@ public struct ParameterName: NameRepresentation,
   }
 }
 
+/// A list of qualified names. Described as `qualified_name_list` in "gram.y".
+public struct QualifiedNameList<Q>: SQLTokenSequence,
+                                    InitializableWithNonEmptyList,
+                                    ExpressibleByArrayLiteral where Q: QualifiedName {
+  public let names: NonEmptyList<Q>
+
+  public var tokens: JoinedSQLTokenSequence {
+    return names.joinedByCommas()
+  }
+
+  public init(_ names: NonEmptyList<Q>) {
+    self.names = names
+  }
+}
+
 /// A type representing a name of schema.
 public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
   public typealias StringLiteralType = String
@@ -530,20 +639,23 @@ public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
 }
 
 /// A type representing a name of a table.
-public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
+public struct TableName: ExpressibleByStringLiteral,
+                         AnyName,
+                         QualifiedName,
+                         _DatabaseSchemaQualifiedNameConvertible {
   public typealias StringLiteralType = String
 
-  private let _name: _DatabaseSchemaQualifiedName
+  let _databaseSchemaQualifiedName: _DatabaseSchemaQualifiedName
 
-  public var database: DatabaseName? { _name.database }
+  public var database: DatabaseName? { _databaseSchemaQualifiedName.database }
 
-  public var schema: SchemaName? { _name.schema }
+  public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _name.name }
+  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
 
-  public var identifier: ColumnIdentifier { _name.identifier }
+  public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
-  public var attributes: AttributeList? { _name.attributes }
+  public var attributes: AttributeList? { _databaseSchemaQualifiedName.attributes }
 
   public init(
     database: DatabaseName,
@@ -551,7 +663,7 @@ public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
     name: String,
     caseSensitive: Bool = false
   ) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
@@ -563,20 +675,32 @@ public struct TableName: ExpressibleByStringLiteral, AnyName, QualifiedName {
     name: String,
     caseSensitive: Bool = false
   ) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       schema: schema,
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
-    self._name = .init(
+    self._databaseSchemaQualifiedName = .init(
       name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
     )
   }
 
   public init(stringLiteral value: StringLiteralType) {
     self.init(name: value)
+  }
+
+  public init?<OtherName>(_ otherName: OtherName) where OtherName: QualifiedName {
+    switch otherName {
+    case let tableName as TableName:
+      self = tableName
+    default:
+      guard let name = _DatabaseSchemaQualifiedName(otherName) else {
+        return nil
+      }
+      self._databaseSchemaQualifiedName = name
+    }
   }
 }
 

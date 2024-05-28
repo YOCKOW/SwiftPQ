@@ -343,6 +343,18 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_LockingClause() {
+    assertDescription(LockingClause.forReadOnly, "FOR READ ONLY")
+    assertDescription(
+      LockingClause(LockingMode(for: .update, of: ["tableName1"], waitOption: .noWait)),
+      "FOR UPDATE OF tableName1 NOWAIT"
+    )
+    assertDescription(
+      LockingClause(LockingMode(for: .keyShare, of: ["tableName1"], waitOption: .skip)),
+      "FOR KEY SHARE OF tableName1 SKIP LOCKED"
+    )
+  }
+
   func test_SearchClause() {
     assertDescription(
       SearchClause(.breadthFirst, by: ["id"], set: "orderCol"),
