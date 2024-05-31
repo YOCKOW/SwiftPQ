@@ -92,15 +92,15 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
   public init?(_ token: SQLToken) {
     guard
       case let numericConstantToken as SQLToken.NumericConstant = token,
-      numericConstantToken.isInteger, !numericConstantToken.isNegative
+      numericConstantToken.isInteger
     else {
       return nil
     }
     self.token = numericConstantToken
   }
 
-  public init<T>(_ uint: T) where T: UnsignedInteger & SQLIntegerType {
-    self.token = SQLToken.NumericConstant(uint)
+  public init<T>(_ uint: T) where T: SQLIntegerType {
+    self.token = SQLToken.NumericConstant.Integer<T>(uint)
   }
 
   public init(integerLiteral value: UInt64) {
@@ -119,7 +119,7 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
   public init?(_ token: SQLToken) {
     guard
       case let numericConstantToken as SQLToken.NumericConstant = token,
-      numericConstantToken.isFloat, !numericConstantToken.isNegative
+      numericConstantToken.isFloat
     else {
       return nil
     }
@@ -130,7 +130,7 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
     if float < 0 {
       return nil
     }
-    self.token = SQLToken.NumericConstant(float)
+    self.token = SQLToken.NumericConstant.Float<T>(float)
   }
 
   public init(floatLiteral value: FloatLiteralType) {
@@ -280,7 +280,7 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
       return JoinedSQLTokenSequence(intervalToken, strExpr, phrase)
     case .precision(let p):
       return JoinedSQLTokenSequence(
-        intervalToken.followedBy(parenthesized: SingleToken.integer(p)),
+        intervalToken.followedBy(parenthesized: p),
         strExpr
       )
     case nil:
@@ -320,19 +320,19 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
     self.init(string: SQLToken.string(string), fields: fields)
   }
 
-  public init(string: SQLToken.StringConstant, precision: Int) {
+  public init(string: SQLToken.StringConstant, precision: UnsignedIntegerConstantExpression) {
     self.string = string
     self.option = .precision(precision)
   }
 
-  public init?(string: SQLToken, precision: Int) {
+  public init?(string: SQLToken, precision: UnsignedIntegerConstantExpression) {
     guard case let stringConstantToken as SQLToken.StringConstant = string else {
       return nil
     }
     self.init(string: stringConstantToken, precision: precision)
   }
 
-  public init?(string: String, precision: Int) {
+  public init?(string: String, precision: UnsignedIntegerConstantExpression) {
     self.init(string: SQLToken.string(string), precision: precision)
   }
 }

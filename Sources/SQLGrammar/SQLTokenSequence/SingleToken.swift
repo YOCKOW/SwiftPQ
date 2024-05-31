@@ -58,10 +58,6 @@ public struct SingleToken: SQLTokenSequence {
     return (token as? SQLToken.NumericConstant)?.isFloat == true
   }
 
-  public var isNegativeNumeric: Bool {
-    return (token as? SQLToken.NumericConstant)?.isNegative == true
-  }
-
   public static func positionalParameter(_ position: UInt) throws -> SingleToken {
     return .init(.positionalParameter(position))
   }

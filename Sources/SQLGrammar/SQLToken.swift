@@ -7,7 +7,7 @@
 
 import UnicodeSupplement
 
-public typealias SQLIntegerType = FixedWidthInteger
+public typealias SQLIntegerType = FixedWidthInteger & UnsignedInteger
 public typealias SQLFloatType   = BinaryFloatingPoint & CustomStringConvertible
 
 private extension String {
@@ -154,21 +154,46 @@ public class SQLToken: CustomStringConvertible {
 
   public class NumericConstant: SQLToken {
     public let isInteger: Bool
-    public let isFloat: Bool
-    public let isNegative: Bool
 
-    internal init<T>(_ integer: T) where T: SQLIntegerType {
-      self.isInteger = true
-      self.isFloat = false
-      self.isNegative = integer < 0
-      super.init(rawValue: integer.description)
+    public let isFloat: Bool
+
+    internal var isZero: Bool { fatalError("Must be overriden.") }
+
+    internal var isOne: Bool { fatalError("Must be overriden.") }
+
+    fileprivate init(isInteger: Bool, isFloat: Bool, rawValue: String) {
+      self.isInteger = isInteger
+      self.isFloat = isFloat
+      super.init(rawValue: rawValue)
     }
 
-    internal init<T>(_ float: T) where T: SQLFloatType {
-      self.isInteger = false
-      self.isFloat = true
-      self.isNegative = float < 0
-      super.init(rawValue: float.description)
+    public final class Integer<U>: NumericConstant where U: SQLIntegerType {
+      public let value: U
+
+      internal override var isZero: Bool { value == 0 }
+
+      internal override var isOne: Bool { value == 1 }
+
+      internal init(_ value: U) {
+        self.value = value
+        super.init(isInteger: true, isFloat: false, rawValue: value.description)
+      }
+    }
+
+    public final class Float<F>: NumericConstant where F: SQLFloatType {
+      public let value: F
+
+      internal override var isZero: Bool { value == 0.0 }
+
+      internal override var isOne: Bool { value == 1.0 }
+
+      internal init(_ value: F) {
+        if value < 0 {
+          fatalError("Negative value is not allowed here.")
+        }
+        self.value = value
+        super.init(isInteger: false, isFloat: true, rawValue: value.description)
+      }
     }
   }
 
@@ -372,12 +397,17 @@ extension SQLToken {
 
   /// Create a numeric constant token.
   public static func integer<T>(_ integer: T) -> SQLToken where T: SQLIntegerType {
-    return NumericConstant(integer)
+    return NumericConstant.Integer<T>(integer)
+  }
+
+  /// Create a numeric constant token.
+  public static func integer(_ integer: UInt) -> SQLToken {
+    return NumericConstant.Integer<UInt>(integer)
   }
 
   /// Create a numeric constant token.
   public static func float<T>(_ float: T) -> SQLToken where T: SQLFloatType {
-    return NumericConstant(float)
+    return NumericConstant.Float<T>(float)
   }
 
   public static func bitString(

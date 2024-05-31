@@ -164,7 +164,7 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
   case real
 
   /// `FLOAT` token
-  case float(precision: Int? = nil)
+  case float(precision: UnsignedIntegerConstantExpression? = nil)
 
   /// `FLOAT` token without precision.
   public static let float: NumericTypeName = .float()
@@ -180,7 +180,7 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
   /// `DECIMAL` type withoug modifiers.
   public static let decimal: NumericTypeName = .decimal()
 
-  public static func decimal(precision: Int) -> NumericTypeName {
+  public static func decimal(precision: UnsignedIntegerConstantExpression) -> NumericTypeName {
     fatalError("Unimplemented.")
   }
 
@@ -193,7 +193,10 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
   /// `NUMERIC` type.
   case numeric(modifiers: GeneralExpressionList? = nil)
 
-  public static func numeric(precision: Int, scale: Int? = nil) -> NumericTypeName {
+  public static func numeric(
+    precision: UnsignedIntegerConstantExpression,
+    scale: UnsignedIntegerConstantExpression? = nil
+  ) -> NumericTypeName {
     // TODO: `'-' a_expr` must be implemented.
     fatalError("Unimplemented.")
   }
@@ -218,7 +221,7 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
       var seqCollection: [any SQLTokenSequence] = [SingleToken(.float)]
       if let precision {
         seqCollection.append(SingleToken(.joiner))
-        seqCollection.append(SingleToken(.integer(precision)).parenthesized)
+        seqCollection.append(precision.parenthesized)
       }
       return JoinedSQLTokenSequence(seqCollection)
     case .doublePrecision:
@@ -253,22 +256,30 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
 /// A name of bit string type, that is described as `Bit` in "gram.y".
 public enum BitStringTypeName: SimpleTypeName {
   /// Fixed-length bit string
-  case fixed(length: Int? = nil)
+  case fixed(length: GeneralExpressionList? = nil)
 
-  public static let fixed: ConstantBitStringTypeName = .fixed()
+  public static func fixed(length: UnsignedIntegerConstantExpression) -> BitStringTypeName {
+    return .fixed(length: GeneralExpressionList([length]))
+  }
+
+  public static let fixed: BitStringTypeName = .fixed()
 
   /// Variable-length bit string
-  case varying(length: Int? = nil)
+  case varying(length: GeneralExpressionList? = nil)
 
-  public static let varying: ConstantBitStringTypeName = .varying()
+  public static func varying(length: UnsignedIntegerConstantExpression) -> BitStringTypeName {
+    return .varying(length: GeneralExpressionList([length]))
+  }
+
+  public static let varying: BitStringTypeName = .varying()
 
   @inlinable
   public var tokens: JoinedSQLTokenSequence {
     var tokens: [any SQLTokenSequence] = [SingleToken(.bit)]
 
-    func __append(length: Int) {
+    func __append(length: GeneralExpressionList) {
       tokens.append(SingleToken.joiner)
-      tokens.append(SingleToken(.integer(length)).parenthesized)
+      tokens.append(length.parenthesized)
     }
 
     switch self {
@@ -324,7 +335,7 @@ public struct CharacterTypeName: SimpleTypeName {
 
   public let varying: Bool
 
-  private let length: Int?
+  private let length: UnsignedIntegerConstantExpression?
 
   public var tokens: JoinedSQLTokenSequence {
     var seqCollection: [any SQLTokenSequence] = [type]
@@ -333,12 +344,12 @@ public struct CharacterTypeName: SimpleTypeName {
     }
     if let length = self.length {
       seqCollection.append(SingleToken.joiner)
-      seqCollection.append(SingleToken(.integer(length)).parenthesized)
+      seqCollection.append(length.parenthesized)
     }
     return JoinedSQLTokenSequence(seqCollection)
   }
 
-  fileprivate init(type: CharacterType, varying: Bool, length: Int?) {
+  fileprivate init(type: CharacterType, varying: Bool, length: UnsignedIntegerConstantExpression?) {
     assert(!varying || type.canBeVarying, "'VARYING' is not available.")
     self.type = type
     self.varying = varying
@@ -348,7 +359,7 @@ public struct CharacterTypeName: SimpleTypeName {
   /// Create `CHARACTER` type.
   public static func character(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .character, varying: varying, length: length)
   }
@@ -359,7 +370,7 @@ public struct CharacterTypeName: SimpleTypeName {
   /// Create `CHAR` type.
   public static func char(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .char, varying: varying, length: length)
   }
@@ -368,7 +379,7 @@ public struct CharacterTypeName: SimpleTypeName {
   public static let char: CharacterTypeName = .char()
 
   /// Create `VARCHAR` type.
-  public static func varchar(length: Int? = nil) -> CharacterTypeName {
+  public static func varchar(length: UnsignedIntegerConstantExpression? = nil) -> CharacterTypeName {
     return CharacterTypeName(type: .varchar, varying: false, length: length)
   }
 
@@ -378,7 +389,7 @@ public struct CharacterTypeName: SimpleTypeName {
   /// Create `NATIONAL CHARACTER` type.
   public static func nationalCharacter(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .nationalCharacter, varying: varying, length: length)
   }
@@ -389,7 +400,7 @@ public struct CharacterTypeName: SimpleTypeName {
   /// Create `NATIONAL CHAR` type.
   public static func nationalChar(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .nationalChar, varying: varying, length: length)
   }
@@ -400,7 +411,7 @@ public struct CharacterTypeName: SimpleTypeName {
   /// Create `NCHAR` type.
   public static func nchar(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .nchar, varying: varying, length: length)
   }
@@ -428,7 +439,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
   public let type: DateTimeType
 
   /// The number of fractional digits.
-  public let precision: Int?
+  public let precision: UnsignedIntegerConstantExpression?
 
   public let withTimeZone: Bool?
 
@@ -436,7 +447,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
     var seqCollection: [any SQLTokenSequence] = []
     if let precision {
       seqCollection.append(
-        SingleToken(type.token).followedBy(parenthesized: SingleToken.integer(precision))
+        SingleToken(type.token).followedBy(parenthesized: precision)
       )
     } else {
       seqCollection.append(SingleToken(type.token))
@@ -451,7 +462,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
     return JoinedSQLTokenSequence(seqCollection)
   }
 
-  private init(type: DateTimeType, precision: Int?, withTimeZone: Bool?) {
+  private init(type: DateTimeType, precision: UnsignedIntegerConstantExpression?, withTimeZone: Bool?) {
     self.type = type
     self.precision = precision
     self.withTimeZone = withTimeZone
@@ -459,7 +470,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
 
   /// Create "TIMESTAMP" type.
   public static func timestamp(
-    precision: Int? = nil,
+    precision: UnsignedIntegerConstantExpression? = nil,
     withTimeZone: Bool? = nil
   ) -> ConstantDateTimeTypeName {
     return ConstantDateTimeTypeName(
@@ -474,7 +485,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
 
   /// Create "TIME" type.
   public static func time(
-    precision: Int? = nil,
+    precision: UnsignedIntegerConstantExpression? = nil,
     withTimeZone: Bool? = nil
   ) -> ConstantDateTimeTypeName {
     return ConstantDateTimeTypeName(
@@ -497,7 +508,7 @@ public struct ConstantIntervalTypeName: SimpleTypeName {
     case .fields(let phrase):
       return JoinedSQLTokenSequence(SingleToken(.interval), phrase)
     case .precision(let p):
-      return SingleToken(.interval).followedBy(parenthesized: SingleToken.integer(p))
+      return SingleToken(.interval).followedBy(parenthesized: p)
     case nil:
       return JoinedSQLTokenSequence(SingleToken(.interval))
     }
@@ -511,7 +522,7 @@ public struct ConstantIntervalTypeName: SimpleTypeName {
     self.option = .fields(fields)
   }
 
-  public init(precision: Int) {
+  public init(precision: UnsignedIntegerConstantExpression) {
     self.option = .precision(precision)
   }
 }
@@ -529,14 +540,22 @@ public struct ConstantBitStringTypeName: ConstantTypeName {
   }
 
   /// Fixed-length bit string
-  public static func fixed(length: Int? = nil) -> ConstantBitStringTypeName {
+  public static func fixed(length: GeneralExpressionList? = nil) -> ConstantBitStringTypeName {
+    return .init(.fixed(length: length))
+  }
+
+  public static func fixed(length: UnsignedIntegerConstantExpression) -> ConstantBitStringTypeName {
     return .init(.fixed(length: length))
   }
 
   public static let fixed: ConstantBitStringTypeName = .fixed()
 
   /// Variable-length bit string
-  public static func varying(length: Int? = nil) -> ConstantBitStringTypeName {
+  public static func varying(length: GeneralExpressionList? = nil) -> ConstantBitStringTypeName {
+    return .init(.varying(length: length))
+  }
+
+  public static func varying(length: UnsignedIntegerConstantExpression) -> ConstantBitStringTypeName {
     return .init(.varying(length: length))
   }
 
@@ -558,14 +577,14 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
     self.name = name
   }
 
-  private init(type: CharacterType, varying: Bool, length: Int?) {
+  private init(type: CharacterType, varying: Bool, length: UnsignedIntegerConstantExpression?) {
     self.init(CharacterTypeName(type: type, varying: varying, length: length))
   }
 
   /// Create `CHARACTER` type.
   public static func character(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .character, varying: varying, length: length)
   }
@@ -576,7 +595,7 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   /// Create `CHAR` type.
   public static func char(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .char, varying: varying, length: length)
   }
@@ -585,7 +604,7 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   public static let char: ConstantCharacterTypeName = .char()
 
   /// Create `VARCHAR` type.
-  public static func varchar(length: Int? = nil) -> ConstantCharacterTypeName {
+  public static func varchar(length: UnsignedIntegerConstantExpression? = nil) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .varchar, varying: false, length: length)
   }
 
@@ -595,7 +614,7 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   /// Create `NATIONAL CHARACTER` type.
   public static func nationalCharacter(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .nationalCharacter, varying: varying, length: length)
   }
@@ -606,7 +625,7 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   /// Create `NATIONAL CHAR` type.
   public static func nationalChar(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .nationalChar, varying: varying, length: length)
   }
@@ -617,7 +636,7 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
   /// Create `NCHAR` type.
   public static func nchar(
     varying: Bool = false,
-    length: Int? = nil
+    length: UnsignedIntegerConstantExpression? = nil
   ) -> ConstantCharacterTypeName {
     return ConstantCharacterTypeName(type: .nchar, varying: varying, length: length)
   }

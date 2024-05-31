@@ -170,3 +170,9 @@ internal final class AnySQLTokenSequence: SQLTokenSequence {
     return _box.makeIterator()
   }
 }
+
+extension SQLTokenSequence {
+  internal var _asAny: AnySQLTokenSequence {
+    return AnySQLTokenSequence(self)
+  }
+}

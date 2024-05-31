@@ -14,22 +14,22 @@ public enum IntervalFieldsPhrase: Segment {
   case day
   case hour
   case minute
-  case second(precision: Int? = nil)
+  case second(precision: UnsignedIntegerConstantExpression? = nil)
   public static let second: IntervalFieldsPhrase = .second()
   case yearToMonth
   case dayToHour
   case dayToMinute
-  case dayToSecond(precision: Int? = nil)
+  case dayToSecond(precision: UnsignedIntegerConstantExpression? = nil)
   public static let dayToSecond: IntervalFieldsPhrase = .dayToSecond()
   case hourToMinute
-  case hourToSecond(precision: Int? = nil)
+  case hourToSecond(precision: UnsignedIntegerConstantExpression? = nil)
   public static let hourToSecond: IntervalFieldsPhrase = .hourToSecond()
-  case minuteToSecond(precision: Int? = nil)
+  case minuteToSecond(precision: UnsignedIntegerConstantExpression? = nil)
   public static let minuteToSecond: IntervalFieldsPhrase = .minuteToSecond()
 
   public var tokens: JoinedSQLTokenSequence {
     var tokens: [SQLToken] = []
-    var precision: Int? = nil
+    var precision: UnsignedIntegerConstantExpression? = nil
 
     switch self {
     case .year:
@@ -66,7 +66,7 @@ public enum IntervalFieldsPhrase: Segment {
 
     let tokensSeq = UnknownSQLTokenSequence(tokens)
     if let precision {
-      return tokensSeq.followedBy(parenthesized: SingleToken.integer(precision))
+      return tokensSeq.followedBy(parenthesized: precision)
     } else {
       return JoinedSQLTokenSequence(tokensSeq)
     }
@@ -76,5 +76,5 @@ public enum IntervalFieldsPhrase: Segment {
 /// An option for `INTERVAL`'s `opt_interval` or `'(' Iconst ')'`
 public enum IntervalOption {
   case fields(IntervalFieldsPhrase)
-  case precision(Int)
+  case precision(UnsignedIntegerConstantExpression)
 }

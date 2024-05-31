@@ -20,18 +20,20 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## One-token symbols
 
-| gram.y                | Swift                                 |
-|-----------------------|---------------------------------------|
-| `attr_name`           | `enum AttributeName`                  |
-| `BareColLabel`        | `struct BareColumnLabel`              |
-| `ColId`               | `struct ColumnIdentifier`             |
-| `ColLabel`            | `struct ColumnLabel`                  |
-| `document_or_content` | `enum XMLOption`                      |
-| `opt_drop_behavior`   | `enum DropBehavior`                   |
-| `extract_arg`         | `struct ExtractFunction.Field`        |
-| `set_quantifier`      | `enum SetQuantifier`                  |
-| `type_function_name`  | `struct TypeOrFunctionName`(internal) |
-| `unicode_normal_form` | `enum UnicodeNormalizationForm`       |
+| gram.y                | Swift                                  |
+|-----------------------|----------------------------------------|
+| `attr_name`           | `enum AttributeName`                   |
+| `BareColLabel`        | `struct BareColumnLabel`               |
+| `ColId`               | `struct ColumnIdentifier`              |
+| `ColLabel`            | `struct ColumnLabel`                   |
+| `document_or_content` | `enum XMLOption`                       |
+| `opt_drop_behavior`   | `enum DropBehavior`                    |
+| `extract_arg`         | `struct ExtractFunction.Field`         |
+| `first_or_next`       | `enum LimitClause.FetchClause.Keyword` |
+| `row_or_rows`         | `enum LimitClause.FetchClause.Unit`    |
+| `set_quantifier`      | `enum SetQuantifier`                   |
+| `type_function_name`  | `struct TypeOrFunctionName`(internal)  |
+| `unicode_normal_form` | `enum UnicodeNormalizationForm`        |
 
 
 ## Type Names
@@ -91,7 +93,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_format_clause_opt`                    | `struct JSONFormatClause`                                 |
 | `json_object_constructor_null_clause_opt`   | `enum JSONObjectConstructorNullOption`                    |
 | `json_output_clause_opt`                    | `struct JSONOutputTypeClause`                             |
+| `limit_clause`                              | `struct LimitClause`                                      |
 | `opt_nulls_order`                           | `enum NullOrdering`                                       |
+| `offset_clause`                             | `struct OffsetClause`                                     |
 | `opt_ordinality`                            | `class WithOrdinalityClause` (private)                    |
 | `over_clause`                               | `struct OverClause`                                       |
 | `opt_partition_clause`                      | `struct PartitionClause`                                  |
@@ -99,6 +103,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `rollup_clause`                             | `struct RollUpClause`                                     |
 | `opt_search_clause`                         | `struct SearchClause`                                     |
 | `select_clause`                             | `struct SelectClause`                                     |
+| `select_limit`                              | `struct SelectLimitClause`                                |
 | `sortby`                                    | `struct SortBy<Expression>`                               |
 | `sort_clause`                               | `struct SortClause`                                       |
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
@@ -153,50 +158,53 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Others
 
-| gram.y                   | Swift                                            |
-|--------------------------|--------------------------------------------------|
-| `any_name_list`          | `struct AnyNameList`                             |
-| `opt_array_bounds`       | `struct ArrayBoundList`                          |
-| `attrs`                  | `struct AttributeList`                           |
-| `opt_col_def_list`       | `struct ColumnDefinitionList`                    |
-| `columnElem`             | `struct ColumnListElement`                       |
-| `columnList`             | `struct ColumnList`                              |
-| `cte_list`               | `struct CommonTableExpressionList`               |
-| `empty_grouping_set`     | `class EmptyGroupingSet`                         |
-| `expr_list`              | `struct GeneralExpressionList`                   |
-| `extract_list`           | `struct ExtractFunction._List` (private)         |
-| `for_locking_item`       | `struct LockingMode`                             |
-| `for_locking_items`      | `struct LockingModeList`                         |
-| `for_locking_strength`   | `enum LockingStrength`                           |
-| `frame_bound`            | `enum FrameBound`                                |
-| `frame_extent`           | `struct FrameExtent`                             |
-| `from_list`              | `struct FromList`                                |
-| `func_arg_list`          | `struct FunctionArgumentList`                    |
-| `func_table`             | `struct TableFunction`                           |
-| `group_by_item`          | `struct GroupingElement`                         |
-| `group_by_list`          | `struct GroupingList`                            |
-| `indirection`            | `struct Indirection`                             |
-| `indirection_el`         | `enum Indirection.List.Element`                  |
-| `opt_interval`           | `enum IntervalFieldsPhrase`                      |
-| `join_type`              | `enum JoinType`                                  |
-| `join_qual`              | `enum JoinCondition`                             |
-| `locked_rels_list`       | `struct LockedRelationList`                      |
-| `name_list`              | `struct NameList`                                |
-| `opt_name_list`          | `enum OptionalNameList`                          |
-| `opt_nowait_or_skip`     | `enum LockingWaitOption`                         |
-| `qualified_name_list`    | `struct QualifiedNameList<Q>`                    |
-| `substr_list`            | `struct SubstringFunction.List`                  |
-| `TableFuncElement`       | `struct TableFunctionElement`                    |
-| `TableFuncElementList`   | `struct TableFunctionElementLit`                 |
-| `target_el`              | `struct TargetElement`                           |
-| `target_list`            | `struct TargetList`                              |
-| `trim_list`              | `struct TrimFunction.List`                       |
-| `rowsfrom_item`          | `struct TableFunction.RowsFromSyntax.Item`       | 
-| `rowsfrom_list`          | `struct TableFunction.RowsFromSyntax.List`       |
-| `when_clause_list`       | `struct WhenClauseList`                          |
-| `window_definition`      | `struct WindowDefinition`                        |
-| `window_definition_list` | `struct WindowDefinitionList`                    |
-| `window_specification`   | `struct WindowSpecification`                     |
+| gram.y                     | Swift                                            |
+|----------------------------|--------------------------------------------------|
+| `any_name_list`            | `struct AnyNameList`                             |
+| `opt_array_bounds`         | `struct ArrayBoundList`                          |
+| `attrs`                    | `struct AttributeList`                           |
+| `opt_col_def_list`         | `struct ColumnDefinitionList`                    |
+| `columnElem`               | `struct ColumnListElement`                       |
+| `columnList`               | `struct ColumnList`                              |
+| `cte_list`                 | `struct CommonTableExpressionList`               |
+| `empty_grouping_set`       | `class EmptyGroupingSet`                         |
+| `expr_list`                | `struct GeneralExpressionList`                   |
+| `extract_list`             | `struct ExtractFunction._List` (private)         |
+| `for_locking_item`         | `struct LockingMode`                             |
+| `for_locking_items`        | `struct LockingModeList`                         |
+| `for_locking_strength`     | `enum LockingStrength`                           |
+| `frame_bound`              | `enum FrameBound`                                |
+| `frame_extent`             | `struct FrameExtent`                             |
+| `from_list`                | `struct FromList`                                |
+| `func_arg_list`            | `struct FunctionArgumentList`                    |
+| `func_table`               | `struct TableFunction`                           |
+| `group_by_item`            | `struct GroupingElement`                         |
+| `group_by_list`            | `struct GroupingList`                            |
+| `indirection`              | `struct Indirection`                             |
+| `indirection_el`           | `enum Indirection.List.Element`                  |
+| `opt_interval`             | `enum IntervalFieldsPhrase`                      |
+| `join_type`                | `enum JoinType`                                  |
+| `join_qual`                | `enum JoinCondition`                             |
+| `locked_rels_list`         | `struct LockedRelationList`                      |
+| `name_list`                | `struct NameList`                                |
+| `opt_name_list`            | `enum OptionalNameList`                          |
+| `opt_nowait_or_skip`       | `enum LockingWaitOption`                         |
+| `qualified_name_list`      | `struct QualifiedNameList<Q>`                    |
+| `substr_list`              | `struct SubstringFunction.List`                  |
+| `TableFuncElement`         | `struct TableFunctionElement`                    |
+| `TableFuncElementList`     | `struct TableFunctionElementLit`                 |
+| `target_el`                | `struct TargetElement`                           |
+| `target_list`              | `struct TargetList`                              |
+| `trim_list`                | `struct TrimFunction.List`                       |
+| `rowsfrom_item`            | `struct TableFunction.RowsFromSyntax.Item`       | 
+| `rowsfrom_list`            | `struct TableFunction.RowsFromSyntax.List`       |
+| `select_fetch_first_value` | `struct LimitClause.FetchClause.RowCount`        |
+| `select_limit_value`       | `enum SelectLimitValue`                          |
+| `select_offset_value`      | `struct SelectOffsetValue`                       |
+| `when_clause_list`         | `struct WhenClauseList`                          |
+| `window_definition`        | `struct WindowDefinition`                        |
+| `window_definition_list`   | `struct WindowDefinitionList`                    |
+| `window_specification`     | `struct WindowSpecification`                     |
 
 
 ### JSON-related

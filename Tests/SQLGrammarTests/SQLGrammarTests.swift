@@ -371,6 +371,24 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_SelectLimitClause() {
+    assertDescription(
+      SelectLimitClause.limit(count: SelectLimitValue(10), offset: SelectOffsetValue(2)),
+      "LIMIT 10 OFFSET 2"
+    )
+    assertDescription(
+      SelectLimitClause.offset(
+        .init(UnsignedIntegerConstantExpression(2)),
+        .rows,
+        fetch: .next,
+        .init(UnsignedIntegerConstantExpression(10)),
+        .rows,
+        option: .withTies
+      ),
+      "OFFSET 2 ROWS FETCH NEXT 10 ROWS WITH TIES"
+    )
+  }
+
   func test_SortClause() throws {
     struct __PseudoAexpr: GeneralExpression {
       let ref: ColumnReference
