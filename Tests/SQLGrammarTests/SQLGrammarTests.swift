@@ -1003,6 +1003,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "CASE a WHEN 1 THEN 'one' WHEN 2 THEN 'two' ELSE 'other' END"
       )
     }
+  func_expr:
+    do {
+      // Tests are executed in other places such as `test_AggregateWindowFunction`.
+    }
+  select_with_parens_indirection:
+    do {
+      assertDescription(
+        SelectExpression(
+          parenthesizing: TableCommandSyntax("myTable"),
+          indirection: Indirection([.any])
+        ),
+        "(TABLE myTable).*"
+      )
+    }
   }
 }
 

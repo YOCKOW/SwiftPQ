@@ -505,3 +505,27 @@ public struct CaseExpression: ProductionExpression {
     self.defaultValue = defaultValue
   }
 }
+
+/// Representation of `SELECT` as an expression.
+///
+/// - Note: Described as one of `c_expr`s:
+///         `select_with_parens` or `select_with_parens indirection` in "gram.y".
+public struct SelectExpression<Select>: ProductionExpression where Select: SelectStatement {
+  public let select: Parenthesized<Select>
+
+  public let indirection: Indirection?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(select, indirection)
+  }
+
+  public init(_ select: Parenthesized<Select>, indirection: Indirection? = nil) {
+    self.select = select
+    self.indirection = indirection
+  }
+
+  public init(parenthesizing select: Select, indirection: Indirection? = nil) {
+    self.select = select.parenthesized
+    self.indirection = indirection
+  }
+}
