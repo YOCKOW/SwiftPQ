@@ -20,6 +20,38 @@ public protocol SimpleSelectStatement: BareSelectStatement {}
 // Represents `select_with_parens`.
 extension Parenthesized: SelectStatement where EnclosedTokens: SelectStatement {}
 
+/// A type-erasure for `Parenthesized<SelectStatement>`(`select`).
+internal struct AnyParenthesizedSelectStatement: SQLTokenSequence {
+  let parenthesizedSelectStatement: any SelectStatement
+
+  struct Iterator: IteratorProtocol {
+    typealias Element = SQLToken
+    private let _iterator: AnySQLTokenSequenceIterator
+    func next() -> SQLToken? { _iterator.next() }
+    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+  }
+  typealias Tokens = Self
+
+  func makeIterator() -> Iterator {
+    return Iterator(parenthesizedSelectStatement._asAny.makeIterator())
+  }
+
+  func subquery<T>(as selectStatementType: T.Type) -> T? where T: SelectStatement {
+    guard case let parenthesizedT as Parenthesized<T> = parenthesizedSelectStatement else {
+      return nil
+    }
+    return parenthesizedT.enclosedTokens
+  }
+
+  init<T>(_ parenthesizedSelectStatement: Parenthesized<T>) where T: SelectStatement {
+    self.parenthesizedSelectStatement = parenthesizedSelectStatement
+  }
+
+  init<T>(parenthesizing selectStatement: T) where T: SelectStatement {
+    self.parenthesizedSelectStatement = selectStatement.parenthesized
+  }
+}
+
 // MARK: - SimpleSelectStatement a.k.a. simple_select implementations.
 
 /// A `SELECT` statement that is one of `simple_select`(`SimpleSelectStatement`).

@@ -1017,6 +1017,21 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "(TABLE myTable).*"
       )
     }
+  EXISTS_select_with_parens:
+    do {
+      assertDescription(
+        ExistsExpression(parenthesizing: SimpleSelectQuery(
+          targets: TargetList([
+            TargetElement(UnsignedIntegerConstantExpression(1)),
+          ]),
+          from: FromClause([
+            RelationTableReference("myTable")
+          ]),
+          where: WhereClause(condition: BooleanConstantExpression.true)
+        )),
+        "EXISTS (SELECT 1 FROM myTable WHERE TRUE)"
+      )
+    }
   }
 }
 

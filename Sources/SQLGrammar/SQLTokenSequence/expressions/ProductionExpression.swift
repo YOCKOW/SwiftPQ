@@ -510,22 +510,53 @@ public struct CaseExpression: ProductionExpression {
 ///
 /// - Note: Described as one of `c_expr`s:
 ///         `select_with_parens` or `select_with_parens indirection` in "gram.y".
-public struct SelectExpression<Select>: ProductionExpression where Select: SelectStatement {
-  public let select: Parenthesized<Select>
+public struct SelectExpression: ProductionExpression  {
+  private let _subquery: AnyParenthesizedSelectStatement
+
+  public func subquery<Subquery>(as type: Subquery.Type) -> Subquery? where Subquery: SelectStatement {
+    return _subquery.subquery(as: Subquery.self)
+  }
 
   public let indirection: Indirection?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(select, indirection)
+    return .compacting(_subquery, indirection)
   }
 
-  public init(_ select: Parenthesized<Select>, indirection: Indirection? = nil) {
-    self.select = select
+  public init<Subquery>(
+    _ parenthesizedSubquery: Parenthesized<Subquery>,
+    indirection: Indirection? = nil
+  ) where Subquery: SelectStatement {
+    self._subquery = AnyParenthesizedSelectStatement(parenthesizedSubquery)
     self.indirection = indirection
   }
 
-  public init(parenthesizing select: Select, indirection: Indirection? = nil) {
-    self.select = select.parenthesized
+  public init<Subquery>(
+    parenthesizing subquery: Subquery,
+    indirection: Indirection? = nil
+  ) where Subquery: SelectStatement {
+    self._subquery = AnyParenthesizedSelectStatement(parenthesizing: subquery)
     self.indirection = indirection
+  }
+}
+
+/// An expression described as `EXISTS select_with_parens` in "gram.y".
+public struct ExistsExpression: ProductionExpression {
+  private let _subquery: AnyParenthesizedSelectStatement
+
+  public func subquery<Subquery>(as type: Subquery.Type) -> Subquery? where Subquery: SelectStatement {
+    return _subquery.subquery(as: Subquery.self)
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(SingleToken(.exists), _subquery)
+  }
+
+  public init<Subquery>(_ parenthesizedSubquery: Parenthesized<Subquery>) where Subquery: SelectStatement {
+    self._subquery = AnyParenthesizedSelectStatement(parenthesizedSubquery)
+  }
+
+  public init<Subquery>(parenthesizing subquery: Subquery) where Subquery: SelectStatement {
+    self._subquery = AnyParenthesizedSelectStatement(parenthesizing: subquery)
   }
 }

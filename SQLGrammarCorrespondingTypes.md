@@ -118,25 +118,27 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Expressions
 
-| gram.y                     | Swift                                      |
-|----------------------------|--------------------------------------------|
-| `a_expr`                   | `protocol GeneralExpression`               |
-| `AexprConst`               | `protocol ConstantExpression`              |
-| `b_expr`                   | `protocol RestrictedExpression`            |
-| `c_expr`                   | `protocol ProductionExpression`            |
-| `common_table_expr`        | `struct CommonTableExpression`             |
-| `func_application`         | `struct FunctionApplication`               |
-| `func_arg_expr`            | `struct FunctionArgumentExpression`        |
-| `func_expr`                | `protocol FunctionExpression`              |
-| `func_expr_common_subexpr` | `protocol CommonFunctionSubexpression`     |
-| `func_expr_windowless`     | `protocol WindowlessFunctionExpression`    |
-| `joined_table`             | `protocol JoinedTableExpression`           |
-| `json_aggregate_func`      | `protocol JSONAggregateFunctionExpression` |
-| `json_value_expr`          | `struct JSONValueExpression`               |
-| `relation_expr`            | `struct RelationExpression`                |
-| `table_ref`                | `protocol TableReferenceExpression`        |
-| `xmltable`                 | `struct XMLTableExpression`                |
-| n/a                        | `protocol ValueExpression`                 |
+| gram.y                           | Swift                                      |
+|----------------------------------|--------------------------------------------|
+| `a_expr`                         | `protocol GeneralExpression`               |
+| `AexprConst`                     | `protocol ConstantExpression`              |
+| `b_expr`                         | `protocol RestrictedExpression`            |
+| `c_expr`                         | `protocol ProductionExpression`            |
+| `common_table_expr`              | `struct CommonTableExpression`             |
+| `EXISTS select_with_parens`      | `struct ExistsExpression`                  |
+| `func_application`               | `struct FunctionApplication`               |
+| `func_arg_expr`                  | `struct FunctionArgumentExpression`        |
+| `func_expr`                      | `protocol FunctionExpression`              |
+| `func_expr_common_subexpr`       | `protocol CommonFunctionSubexpression`     |
+| `func_expr_windowless`           | `protocol WindowlessFunctionExpression`    |
+| `joined_table`                   | `protocol JoinedTableExpression`           |
+| `json_aggregate_func`            | `protocol JSONAggregateFunctionExpression` |
+| `json_value_expr`                | `struct JSONValueExpression`               |
+| `relation_expr`                  | `struct RelationExpression`                |
+| `select_with_parens indirection` | `struct SelectExpression`                  |
+| `table_ref`                      | `protocol TableReferenceExpression`        |
+| `xmltable`                       | `struct XMLTableExpression`                |
+| n/a                              | `protocol ValueExpression`                 |
 
 
 ## Statements
