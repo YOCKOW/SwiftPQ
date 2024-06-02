@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An expression described as `relation_expr` in "gram.y".
-public struct RelationExpression: Expression {
+public struct RelationExpression: Expression, ExpressibleByStringLiteral {
   public let tableName: TableName
 
   public let includeDescendantTables: Bool?
@@ -30,8 +30,13 @@ public struct RelationExpression: Expression {
     }
   }
 
-  public init(tableName: TableName, includeDescendantTables: Bool? = nil) {
+  public init(_ tableName: TableName, includeDescendantTables: Bool? = nil) {
     self.tableName = tableName
     self.includeDescendantTables = includeDescendantTables
+  }
+
+  @inlinable
+  public init(stringLiteral value: String) {
+    self.init(TableName(stringLiteral: value))
   }
 }

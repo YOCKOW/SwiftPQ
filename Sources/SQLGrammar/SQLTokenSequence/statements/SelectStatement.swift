@@ -178,7 +178,7 @@ public struct TableCommandSyntax: SimpleSelectStatement {
 
   public init(tableName: TableName, includeDescendantTables: Bool? = nil) {
     self.relation = RelationExpression(
-      tableName: tableName,
+      tableName,
       includeDescendantTables: includeDescendantTables
     )
   }
@@ -269,3 +269,270 @@ extension SelectClause {
 }
 
 // MARK: END OF SimpleSelectStatement a.k.a. simple_select implementations. -
+
+
+/// One of `select_no_parens`(`BareSelectStatement`) statement that
+/// starts with optional `with_clause`(`WithClause`) and
+/// contains trailing various parameters such as `sort_clause`(`SortClause`).
+public struct FullyFunctionalSelectQuery: BareSelectStatement {
+  private enum _Pattern {
+    enum _TrailingParameters: Segment {
+      case sortClause(SortClause)
+
+      case optSortClause_lockingClause_optSelectLimitClause(
+        SortClause?,
+        LockingClause,
+        SelectLimitClause?
+      )
+      
+      case optSortClause_selectLimitClause_optLockingClause(
+        SortClause?,
+        SelectLimitClause,
+        LockingClause?
+      )
+
+      var tokens: JoinedSQLTokenSequence {
+        switch self {
+        case .sortClause(let sortClause):
+          return sortClause.tokens
+        case .optSortClause_lockingClause_optSelectLimitClause(
+          let sortClause,
+          let lockingClause,
+          let selectLimitClause
+        ):
+          return .compacting(sortClause, lockingClause, selectLimitClause)
+        case .optSortClause_selectLimitClause_optLockingClause(
+          let sortClause,
+          let selectLimitClause,
+          let lockingClause
+        ):
+          return .compacting(sortClause, selectLimitClause, lockingClause)
+        }
+      }
+
+      var sortClause: SortClause? {
+        switch self {
+        case .sortClause(let sortClause):
+          return sortClause
+        case .optSortClause_lockingClause_optSelectLimitClause(let sortClause, _, _):
+          return sortClause
+        case .optSortClause_selectLimitClause_optLockingClause(let sortClause, _, _):
+          return sortClause
+        }
+      }
+
+      var lockingClause: LockingClause? {
+        switch self {
+        case .sortClause:
+          return nil
+        case .optSortClause_lockingClause_optSelectLimitClause(_, let lockingClause, _):
+          return lockingClause
+        case .optSortClause_selectLimitClause_optLockingClause(_, _, let lockingClause):
+          return lockingClause
+        }
+      }
+
+      var limitClause: SelectLimitClause? {
+        switch self {
+        case .sortClause:
+          return nil
+        case .optSortClause_lockingClause_optSelectLimitClause(_, _, let selectLimitClause):
+          return selectLimitClause
+        case .optSortClause_selectLimitClause_optLockingClause(_, let selectLimitClause, _):
+          return selectLimitClause
+        }
+      }
+    }
+
+    case selectClause(SelectClause, parameters: _TrailingParameters)
+
+    case withClause(WithClause, selectClause: SelectClause, parameters: _TrailingParameters?)
+  }
+
+  private let _pattern: _Pattern
+
+  public var tokens: JoinedSQLTokenSequence {
+    switch _pattern {
+    case .selectClause(let selectClause, let parameters):
+      return JoinedSQLTokenSequence(selectClause, parameters)
+    case .withClause(let withClause, let selectClause, let parameters):
+      return .compacting(withClause, selectClause, parameters)
+    }
+  }
+
+  public var with: WithClause? {
+    guard case .withClause(let withClause, _, _) = _pattern else {
+      return nil
+    }
+    return withClause
+  }
+
+  public var select: SelectClause {
+    switch _pattern {
+    case .selectClause(let selectClause, _):
+      return selectClause
+    case .withClause(_, let selectClause, _):
+      return selectClause
+    }
+  }
+
+  private var _trailingParameters: _Pattern._TrailingParameters? {
+    switch _pattern {
+    case .selectClause(_, let parameters):
+      return parameters
+    case .withClause(_, _, let parameters):
+      return parameters
+    }
+  }
+
+  public var orderBy: SortClause? {
+    return _trailingParameters?.sortClause
+  }
+
+  public var forLocking: LockingClause? {
+    return _trailingParameters?.lockingClause
+  }
+
+  public var limit: SelectLimitClause? {
+    return _trailingParameters?.limitClause
+  }
+
+  private init(_pattern: _Pattern) {
+    self._pattern = _pattern
+  }
+
+  public init(_ selectClause: SelectClause, orderBy sortClause: SortClause) {
+    self.init(_pattern: .selectClause(selectClause, parameters: .sortClause(sortClause)))
+  }
+
+  public init(
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    forLocking lockingClause: LockingClause,
+    limit: SelectLimitClause? = nil
+  ) {
+    self.init(_pattern: .selectClause(
+      selectClause,
+      parameters: .optSortClause_lockingClause_optSelectLimitClause(
+        sortClause,
+        lockingClause,
+        limit
+      )
+    ))
+  }
+
+  public init(
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    limit: SelectLimitClause,
+    forLocking lockingClause: LockingClause? = nil
+  ) {
+    self.init(_pattern: .selectClause(
+      selectClause,
+      parameters: .optSortClause_selectLimitClause_optLockingClause(
+        sortClause,
+        limit,
+        lockingClause
+      )
+    ))
+  }
+
+  public init(with withClause: WithClause, _ selectClause: SelectClause) {
+    self.init(_pattern: .withClause(withClause, selectClause: selectClause, parameters: nil))
+  }
+
+  public init(
+    with withClause: WithClause,
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause
+  ) {
+    self.init(_pattern: .withClause(
+      withClause,
+      selectClause: selectClause,
+      parameters: .sortClause(sortClause)
+    ))
+  }
+
+  public init(
+    with withClause: WithClause,
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    forLocking lockingClause: LockingClause,
+    limit: SelectLimitClause? = nil
+  ) {
+    self.init(_pattern: .withClause(
+      withClause,
+      selectClause: selectClause,
+      parameters: .optSortClause_lockingClause_optSelectLimitClause(
+        sortClause,
+        lockingClause,
+        limit
+      )
+    ))
+  }
+
+  public init(
+    with withClause: WithClause,
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    limit: SelectLimitClause,
+    forLocking lockingClause: LockingClause? = nil
+  ) {
+    self.init(_pattern: .withClause(
+      withClause,
+      selectClause: selectClause,
+      parameters: .optSortClause_selectLimitClause_optLockingClause(
+        sortClause,
+        limit,
+        lockingClause
+      )
+    ))
+  }
+}
+
+extension WithClause {
+  @inlinable
+  public func select(_ selectClause: SelectClause) -> FullyFunctionalSelectQuery {
+    return FullyFunctionalSelectQuery(with: self, selectClause)
+  }
+
+  @inlinable
+  public func select(
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause
+  ) -> FullyFunctionalSelectQuery {
+    return FullyFunctionalSelectQuery(with: self, selectClause, orderBy: sortClause)
+  }
+
+  @inlinable
+  public func select(
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    forLocking lockingClause: LockingClause,
+    limit: SelectLimitClause? = nil
+  ) -> FullyFunctionalSelectQuery {
+    return FullyFunctionalSelectQuery(
+      with: self,
+      selectClause,
+      orderBy: sortClause,
+      forLocking: lockingClause,
+      limit: limit
+    )
+  }
+
+  @inlinable
+  public func select(
+    _ selectClause: SelectClause,
+    orderBy sortClause: SortClause? = nil,
+    limit: SelectLimitClause,
+    forLocking lockingClause: LockingClause? = nil
+  ) -> FullyFunctionalSelectQuery {
+    return FullyFunctionalSelectQuery(
+      with: self,
+      selectClause,
+      orderBy: sortClause,
+      limit: limit,
+      forLocking: lockingClause
+    )
+  }
+}

@@ -693,19 +693,19 @@ final class SQLGrammarExpressionTests: XCTestCase {
 
   func test_RelationExpression() {
     XCTAssertEqual(
-      RelationExpression(tableName: .init(schema: "my_schema", name: "my_table")).description,
+      RelationExpression(TableName(schema: "my_schema", name: "my_table")).description,
       "my_schema.my_table"
     )
     XCTAssertEqual(
       RelationExpression(
-        tableName: .init(schema: "my_schema", name: "my_table"),
+        TableName(schema: "my_schema", name: "my_table"),
         includeDescendantTables: true
       ).description,
       "my_schema.my_table *"
     )
     XCTAssertEqual(
       RelationExpression(
-        tableName: .init(schema: "my_schema", name: "my_table"),
+        TableName(schema: "my_schema", name: "my_table"),
         includeDescendantTables: false
       ).description,
       "ONLY my_schema.my_table"
@@ -734,7 +734,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
   func test_TableReferenceExpression() {
     assertDescription(
       RelationTableReference(
-        RelationExpression(tableName: "myTable"),
+        RelationExpression("myTable"),
         alias: AliasClause(alias: "myAlias")
       ),
       "myTable AS myAlias"
@@ -792,8 +792,8 @@ final class SQLGrammarExpressionTests: XCTestCase {
     assertDescription(
       JoinedTableAliasReference(
         parenthesizing: CrossJoinedTable(
-          RelationTableReference(RelationExpression(tableName: "leftTable")),
-          RelationTableReference(RelationExpression(tableName: "rightTable"))
+          RelationTableReference(RelationExpression("leftTable")),
+          RelationTableReference(RelationExpression("rightTable"))
         ),
         alias: AliasClause(alias: "joinedAlias")
       ),
@@ -1058,6 +1058,34 @@ final class SQLGrammarStatementTests: XCTestCase {
         ]
       ),
       "DROP TABLE my_schema.my_private_table1, my_schema.my_private_table2"
+    )
+  }
+
+  func test_FullyFunctionalSelectQuery() {
+    assertDescription(
+      WithClause(
+        recursive: true,
+        queries: [
+          CommonTableExpression(
+            name: "withName",
+            columnNames: nil,
+            subquery: ValuesClause([
+              [UnsignedIntegerConstantExpression(0), StringConstantExpression("zero")],
+              [UnsignedIntegerConstantExpression(1), StringConstantExpression("one")],
+            ])
+          )
+        ]
+      ).select(
+        SimpleSelectQuery(
+          targets: TargetList([.all]),
+          from: FromClause([
+            RelationTableReference("myTable")
+          ])
+        ).asClause,
+        orderBy: SortClause(SortBy<BooleanConstantExpression>(.true))
+      ),
+      "WITH RECURSIVE withName AS (VALUES (0, 'zero'), (1, 'one')) " +
+      "SELECT * FROM myTable ORDER BY TRUE"
     )
   }
 

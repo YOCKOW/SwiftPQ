@@ -88,3 +88,16 @@ public struct SelectClause: Clause  {
   }
 }
 
+extension SimpleSelectStatement {
+  @inlinable
+  public var asClause: SelectClause {
+    return SelectClause(self)
+  }
+}
+
+extension Parenthesized where EnclosedTokens: SelectStatement {
+  @inlinable
+  public var asClause: SelectClause {
+    return SelectClause(self)
+  }
+}
