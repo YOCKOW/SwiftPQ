@@ -560,3 +560,128 @@ public struct ExistsExpression: ProductionExpression {
     self._subquery = AnyParenthesizedSelectStatement(parenthesizing: subquery)
   }
 }
+
+/// An expression described as `ARRAY select_with_parens` or `ARRAY array_expr` in "gram.y".
+public struct ArrayConstructorExpression: ProductionExpression, ValueExpression {
+  /// Representation of `array_expr` in "gram.y".
+  public struct Subscript: SQLTokenSequence {
+    /// A list of `Subscript`(`array_expr`) that is described as `array_expr_list` in "gram.y".
+    public struct List: SQLTokenSequence, InitializableWithNonEmptyList, ExpressibleByArrayLiteral {
+      public typealias NonEmptyListElement = Subscript
+      public typealias ArrayLiteralElement = Subscript
+
+      public let subscripts: NonEmptyList<Subscript>
+
+      public var tokens: JoinedSQLTokenSequence {
+        return subscripts.joinedByCommas()
+      }
+
+      public init(_ subscripts: NonEmptyList<Subscript>) {
+        self.subscripts = subscripts
+      }
+    }
+
+    private enum _Values {
+      case expressionList(GeneralExpressionList)
+      case subscriptList(List)
+      case empty
+    }
+
+    private let _values: _Values
+
+    public var tokens: JoinedSQLTokenSequence {
+      return .compacting(
+        LeftSquareBracket.leftSquareBracket,
+        ({ (values: _Values) -> JoinedSQLTokenSequence? in
+          switch values {
+          case .expressionList(let generalExpressionList):
+            return generalExpressionList.tokens
+          case .subscriptList(let subscriptList):
+            return subscriptList.tokens
+          case .empty:
+            return nil
+          }
+        })(_values),
+        RightSquareBracket.rightSquareBracket
+      )
+    }
+
+    public init(_ list: GeneralExpressionList) {
+      self._values = .expressionList(list)
+    }
+
+    public init(_ expr: any GeneralExpression) {
+      self._values = .expressionList([expr])
+    }
+
+    public init(_ list: List) {
+      self._values = .subscriptList(list)
+    }
+
+    public init(_ `subscript`: Subscript) {
+      self._values = .subscriptList([`subscript`])
+    }
+
+    public init() {
+      self._values = .empty
+    }
+
+    public static let empty: Subscript = .init()
+  }
+
+  private enum _Elements {
+    case select(AnyParenthesizedSelectStatement)
+    case `subscript`(Subscript)
+  }
+
+  private let _elements: _Elements
+
+  public func subquery<Select>(as type: Select.Type) -> Select? where Select: SelectStatement {
+    guard case .select(let parenthesizedSelectStatement) = _elements else {
+      return nil
+    }
+    return parenthesizedSelectStatement.subquery(as: Select.self)
+  }
+
+  public var `subscript`: Subscript? {
+    guard case .subscript(let `subscript`) = _elements else {
+      return nil
+    }
+    return `subscript`
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    switch _elements {
+    case .select(let parenthesizedSelectStatement):
+      return JoinedSQLTokenSequence(
+        SingleToken(.array),
+        SingleToken.joiner,
+        parenthesizedSelectStatement
+      )
+    case .subscript(let `subscript`):
+      return JoinedSQLTokenSequence(SingleToken(.array), SingleToken.joiner, `subscript`)
+    }
+  }
+
+  public init<Select>(_ parenthesizedSelect: Parenthesized<Select>) where Select: SelectStatement {
+    self._elements = .select(AnyParenthesizedSelectStatement(parenthesizedSelect))
+  }
+
+  public init<Select>(parenthesizing select: Select) where Select: SelectStatement {
+    self._elements = .select(AnyParenthesizedSelectStatement(parenthesizing: select))
+  }
+
+  public init(_ `subscript`: Subscript) {
+    self._elements = .subscript(`subscript`)
+  }
+
+  @inlinable
+  public init(_ expressions: GeneralExpressionList) {
+    self.init(Subscript(expressions))
+  }
+
+  @inlinable
+  public init(_ list: Subscript.List) {
+    self.init(Subscript(list))
+  }
+}

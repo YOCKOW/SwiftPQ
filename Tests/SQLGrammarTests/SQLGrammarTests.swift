@@ -1032,6 +1032,40 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "EXISTS (SELECT 1 FROM myTable WHERE TRUE)"
       )
     }
+  ARRAY_select_with_parens:
+    do {
+      assertDescription(
+        ArrayConstructorExpression(
+          parenthesizing: ValuesClause([
+            [UnsignedIntegerConstantExpression(0)],
+            [UnsignedIntegerConstantExpression(1)],
+            [UnsignedIntegerConstantExpression(2)],
+          ])
+        ),
+        "ARRAY(VALUES (0), (1), (2))"
+      )
+    }
+  ARRAY_array_expr:
+    do {
+      assertDescription(
+        ArrayConstructorExpression(.empty),
+        "ARRAY[]"
+      )
+      assertDescription(
+        ArrayConstructorExpression([
+          UnsignedIntegerConstantExpression(1),
+          UnsignedIntegerConstantExpression(2),
+        ]),
+        "ARRAY[1, 2]"
+      )
+      assertDescription(
+        ArrayConstructorExpression([
+          ArrayConstructorExpression.Subscript(UnsignedIntegerConstantExpression(1)),
+          ArrayConstructorExpression.Subscript(UnsignedIntegerConstantExpression(2)),
+        ]),
+        "ARRAY[[1], [2]]"
+      )
+    }
   }
 }
 
