@@ -134,6 +134,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_expr_common_subexpr`                 | `protocol CommonFunctionSubexpression`        |
 | `func_expr_windowless`                     | `protocol WindowlessFunctionExpression`       |
 | `joined_table`                             | `protocol JoinedTableExpression`              |
+| `GROUPING '(' expr_list ')'`               | `struct GroupingExpression`                   |
 | `json_aggregate_func`                      | `protocol JSONAggregateFunctionExpression`    |
 | `json_value_expr`                          | `struct JSONValueExpression`                  |
 | `relation_expr`                            | `struct RelationExpression`                   |

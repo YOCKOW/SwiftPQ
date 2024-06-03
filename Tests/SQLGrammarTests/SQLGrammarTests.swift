@@ -1085,6 +1085,16 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "(0, 1.2, 'string')"
       )
     }
+  GROUPING_expr_list:
+    do {
+      assertDescription(
+        GroupingExpression([
+          ColumnReference(columnName: "col1"),
+          ColumnReference(columnName: "col2"),
+        ]),
+        "GROUPING(col1, col2)"
+      )
+    }
   }
 }
 

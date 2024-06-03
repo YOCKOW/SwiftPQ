@@ -756,3 +756,17 @@ public struct ImplicitRowConstructorExpression: ProductionExpression {
     self.fields = GeneralExpressionList(fieldExpressions)
   }
 }
+
+
+/// Representation of `GROUPING '(' expr_list ')'` in "gram.y".
+public struct GroupingExpression: ProductionExpression {
+  public let groups: GeneralExpressionList
+
+  public var tokens: JoinedSQLTokenSequence {
+    return SingleToken(.grouping).followedBy(parenthesized: groups)
+  }
+
+  public init(_ groups: GeneralExpressionList) {
+    self.groups = groups
+  }
+}
