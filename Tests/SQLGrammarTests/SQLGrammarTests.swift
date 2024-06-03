@@ -1066,6 +1066,25 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "ARRAY[[1], [2]]"
       )
     }
+  explicit_row:
+    do {
+      assertDescription(RowConstructorExpression.empty, "ROW()")
+      assertDescription(
+        RowConstructorExpression(fields: [UnsignedIntegerConstantExpression(0)]),
+        "ROW(0)"
+      )
+    }
+  implicit_row:
+    do {
+      assertDescription(
+        ImplicitRowConstructorExpression(
+          UnsignedIntegerConstantExpression(0),
+          UnsignedFloatConstantExpression(1.2),
+          StringConstantExpression("string")
+        ),
+        "(0, 1.2, 'string')"
+      )
+    }
   }
 }
 

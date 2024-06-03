@@ -685,3 +685,74 @@ public struct ArrayConstructorExpression: ProductionExpression, ValueExpression 
     self.init(Subscript(list))
   }
 }
+
+/// A constructor of ROW that is described as `explicit_row`.
+public struct RowConstructorExpression: ProductionExpression, ValueExpression {
+  public let fields: GeneralExpressionList?
+
+  public var tokens: JoinedSQLTokenSequence {
+    if let fields = self.fields {
+      return SingleToken(.row).followedBy(parenthesized: fields)
+    }
+    return JoinedSQLTokenSequence(
+      SingleToken(.row),
+      SingleToken.joiner,
+      LeftParenthesis.leftParenthesis,
+      RightParenthesis.rightParenthesis
+    )
+  }
+
+  public init(fields: GeneralExpressionList?) {
+    self.fields = fields
+  }
+
+  public init() {
+    self.fields = nil
+  }
+
+  public static let empty: RowConstructorExpression = .init()
+}
+
+/// A constructor of ROW that is described as `implicit_row` in "gram.y".
+public struct ImplicitRowConstructorExpression: ProductionExpression {
+  /// Field values of the row.
+  ///
+  /// - Note: The number of values must be 2 or more
+  ///         because `implicit_row` is defined by `'(' expr_list ',' a_expr ')'`
+  public let fields: GeneralExpressionList
+
+  @inlinable
+  public var lastField: any GeneralExpression {
+    return fields.expressions.last
+  }
+
+  public var tokens: Parenthesized<GeneralExpressionList> {
+    assert(fields.expressions.count >= 2, "Unexpected number of fields?!")
+    return fields.parenthesized
+  }
+
+  public func makeIterator() -> Parenthesized<GeneralExpressionList>.Iterator {
+    return tokens.makeIterator()
+  }
+
+  public init(prefixFields: GeneralExpressionList, lastField: any GeneralExpression) {
+    var fields = prefixFields
+    fields.expressions.append(lastField)
+    self.fields = fields
+  }
+
+  @inlinable
+  public init<FirstField, SecondField, each OptionalField>(
+    _ firstField: FirstField,
+    _ secondField: SecondField,
+    _ optionalField: repeat each OptionalField
+  ) where FirstField: GeneralExpression,
+          SecondField: GeneralExpression,
+          repeat each OptionalField: GeneralExpression
+  {
+    var fieldExpressions = NonEmptyList<any GeneralExpression>(item: firstField)
+    fieldExpressions.append(secondField)
+    repeat fieldExpressions.append(each optionalField)
+    self.fields = GeneralExpressionList(fieldExpressions)
+  }
+}
