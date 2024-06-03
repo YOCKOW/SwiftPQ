@@ -98,9 +98,6 @@ public struct UnaryPrefixPlusOperatorInvocation<Operand>:
     self.init(operand: operand, canOmitSpace: true)
   }
 }
-
-/// An expression that can be an operand of unary prefix '+'.
-public protocol UnaryPrefixPlusOperandExpression: Expression {}
 extension UnaryPrefixPlusOperatorInvocation: Expression where Operand: Expression {}
 extension UnaryPrefixPlusOperatorInvocation: GeneralExpression where Operand: GeneralExpression {}
 extension UnaryPrefixPlusOperatorInvocation: RestrictedExpression where Operand: RestrictedExpression {}
@@ -147,9 +144,6 @@ public struct UnaryPrefixMinusOperatorInvocation<Operand>:
     self.init(operand: operand, canOmitSpace: true)
   }
 }
-
-/// An expression that can be an operand of unary prefix '-'.
-public protocol UnaryPrefixMinusOperandExpression: Expression {}
 extension UnaryPrefixMinusOperatorInvocation: Expression where Operand: Expression {}
 extension UnaryPrefixMinusOperatorInvocation: GeneralExpression where Operand: GeneralExpression {}
 extension UnaryPrefixMinusOperatorInvocation: RestrictedExpression where Operand: RestrictedExpression {}
