@@ -12,45 +12,36 @@ public struct ColumnReference: ProductionExpression,
                                ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
 
-  public let tableName: TableName?
+  public let identifier: ColumnIdentifier
 
-  public let columnName: String
+  public let indirection: Indirection?
 
-  /// Additional elements of indirection.
-  ///
-  /// This property can make an instance compatible with PostgreSQL's parser
-  /// because `columnref` is defined as `ColId | ColId indirection` in "gram.y".
-  public var trailingIndirection: Indirection? = nil
-
-  public var identifier: ColumnIdentifier {
-    return tableName?.identifier ?? ColumnIdentifier(columnName)
-  }
-
-  public var indirection: Indirection? {
-    guard let tableName else { return nil }
-    let colElem = Indirection.List.Element.attributeName(AttributeName(ColumnLabel(columnName)))
-    if var indirection = tableName.indirection {
-      indirection.list.append(colElem)
-      if let trailingIndirection {
-        indirection.list.append(contentsOf: trailingIndirection.list)
-      }
-      return indirection
-    } else {
-      var list = NonEmptyList<Indirection.List.Element>(item: colElem)
-      if let trailingIndirection {
-        list.append(contentsOf: trailingIndirection.list)
-      }
-      return Indirection(Indirection.List(list))
-    }
-  }
-
-  public init(tableName: TableName? = nil, columnName: String) {
-    self.tableName = tableName
-    self.columnName = columnName
+  public init(identifier: ColumnIdentifier, indirection: Indirection? = nil) {
+    self.identifier = identifier
+    self.indirection = indirection
   }
 
   public init(stringLiteral value: String) {
-    self.init(columnName: value)
+    self.init(identifier: ColumnIdentifier(stringLiteral: value), indirection: nil)
+  }
+
+  @inlinable
+  public init(tableName: TableName? = nil, columnName: String) {
+    if let tableName {
+      let columnNameIndirectionElement: Indirection.List.Element =
+        .attributeName(AttributeName(ColumnLabel(columnName)))
+      if var indirection = tableName.indirection {
+        indirection.list.append(columnNameIndirectionElement)
+        self.init(identifier: tableName.identifier, indirection: indirection)
+      } else {
+        self.init(
+          identifier: tableName.identifier,
+          indirection: [columnNameIndirectionElement]
+        )
+      }
+    } else {
+      self.init(identifier: ColumnIdentifier(columnName))
+    }
   }
 }
 
