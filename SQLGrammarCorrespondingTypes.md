@@ -144,6 +144,13 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | n/a                                        | `protocol ValueExpression`                    |
 
 
+### Expressions common to `a_expr` and `b_expr`
+
+| gram.y                                     | Swift                                          |
+|--------------------------------------------|------------------------------------------------|
+| `{a_expr \| b_expr} TYPECAST Typename`     | `struct BinaryInfixTypeCastOperatorInvocation` |
+
+
 ## Statements
 
 | gram.y                          | Swift                                  |

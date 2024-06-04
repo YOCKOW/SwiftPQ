@@ -914,6 +914,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_common_a_expr_b_expr() {
+  expr_TYPECAST_Typename:
+    do {
+      assertDescription(
+        BinaryInfixTypeCastOperatorInvocation(UnsignedIntegerConstantExpression(0), as: .int),
+        "0::INT"
+      )
+      assertDescription(
+        BinaryInfixTypeCastOperatorInvocation(StringConstantExpression("string"), as: .text),
+        "'string'::TEXT"
+      )
+    }
+  }
+
   func test_c_expr() {
   columnref:
       do {

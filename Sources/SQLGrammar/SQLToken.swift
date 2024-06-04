@@ -319,6 +319,9 @@ public class SQLToken: CustomStringConvertible {
 
     /// Create a '=>' token.
     internal static let arrowSign: Operator = Operator(rawValue: "=>")
+
+    /// Creates a PostgreSQL-style type-cast operator ``::``.
+    internal static let typeCast: Operator = Operator(rawValue: "::")
   }
 
   public class SpecialCharacter: SQLToken {}

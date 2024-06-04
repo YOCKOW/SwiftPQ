@@ -84,6 +84,20 @@ public struct TypeName: NameRepresentation {
       )
     )
   }
+
+  public static let int: TypeName = NumericTypeName.int.typeName
+
+  public static let bigInt: TypeName = NumericTypeName.bigInt.typeName
+
+  public static let float: TypeName = NumericTypeName.float.typeName
+
+  public static let double: TypeName = NumericTypeName.double.typeName
+
+  public static let boolean: TypeName = NumericTypeName.boolean.typeName
+
+  public static let json: TypeName = GenericTypeName.json.typeName
+
+  public static let text: TypeName = GenericTypeName.text.typeName
 }
 
 extension SimpleTypeName {
