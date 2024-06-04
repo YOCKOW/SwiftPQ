@@ -29,11 +29,16 @@ public protocol PreparableStatement: Statement {}
 /// A type representing an expression.
 public protocol Expression: SQLTokenSequence {}
 
+/// A type representing an expression that can contain itself in its definition.
+///
+/// For example, one of `a_expr` is defined as `a_expr '+' a_expr`.
+public protocol RecursiveExpression: Expression {}
+
 /// A type representing an expression that is described as `a_expr` in "gram.y".
-public protocol GeneralExpression: Expression {}
+public protocol GeneralExpression: RecursiveExpression {}
 
 /// A type representing an expression that is described as `b_expr` in "gram.y".
-public protocol RestrictedExpression: Expression {}
+public protocol RestrictedExpression: RecursiveExpression {}
 
 /// A type representing an expression that is described as `c_expr` in "gram.y".
 ///

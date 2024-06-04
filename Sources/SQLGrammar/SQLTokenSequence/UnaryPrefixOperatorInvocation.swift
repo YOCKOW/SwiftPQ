@@ -98,7 +98,7 @@ public struct UnaryPrefixPlusOperatorInvocation<Operand>:
     self.init(operand: operand, canOmitSpace: true)
   }
 }
-extension UnaryPrefixPlusOperatorInvocation: Expression where Operand: Expression {}
+extension UnaryPrefixPlusOperatorInvocation: Expression, RecursiveExpression where Operand: RecursiveExpression {}
 extension UnaryPrefixPlusOperatorInvocation: GeneralExpression where Operand: GeneralExpression {}
 extension UnaryPrefixPlusOperatorInvocation: RestrictedExpression where Operand: RestrictedExpression {}
 
@@ -144,6 +144,6 @@ public struct UnaryPrefixMinusOperatorInvocation<Operand>:
     self.init(operand: operand, canOmitSpace: true)
   }
 }
-extension UnaryPrefixMinusOperatorInvocation: Expression where Operand: Expression {}
+extension UnaryPrefixMinusOperatorInvocation: Expression, RecursiveExpression where Operand: RecursiveExpression {}
 extension UnaryPrefixMinusOperatorInvocation: GeneralExpression where Operand: GeneralExpression {}
 extension UnaryPrefixMinusOperatorInvocation: RestrictedExpression where Operand: RestrictedExpression {}
