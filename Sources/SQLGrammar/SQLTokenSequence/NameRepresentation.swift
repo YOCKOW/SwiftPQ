@@ -5,6 +5,8 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Foundation
+
 /// A type that represents a kind of name.
 public protocol NameRepresentation: SQLTokenSequence {}
 
@@ -250,7 +252,34 @@ public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
     self.init(name: value)
   }
 
+  /// Creates an instance with `locale`.
+  public init(locale: Locale) {
+    func __cldrLocaleIdentifier() -> String {
+      #if canImport(Darwin)
+      if #available(iOS 16, macOS 13, macCatalyst 16, tvOS 16, watchOS 9, visionOS 1, *) {
+        return locale.identifier(.cldr)
+      }
+      #endif
+      return String(Locale.canonicalLanguageIdentifier(from: locale.identifier).map({
+        switch $0 {
+        case "-": return "_" as Character
+        default: return $0
+        }
+      }))
+    }
+    self.init(name: __cldrLocaleIdentifier(), caseSensitive: true)
+  }
+
+  /// Creates an instance with `locale`.
+  public static func locale(_ locale: Locale) -> CollationName {
+    return CollationName(locale: locale)
+  }
+
   public static let c: CollationName = .init(name: "C", caseSensitive: true)
+
+  /// Use POSIX locale for collation.
+  public static let posix: CollationName = .init(name: "POSIX", caseSensitive: true)
+
 }
 
 /// A type representing a name of database.

@@ -928,6 +928,16 @@ final class SQLGrammarExpressionTests: XCTestCase {
     }
   }
 
+  func test_a_expr() {
+  a_expr_COLLATE_any_name:
+    do {
+      assertDescription(
+        StringConstantExpression("string").collate(.locale(Locale(identifier: "ja-JP"))),
+        #"'string' COLLATE "ja_JP""#
+      )
+    }
+  }
+
   func test_c_expr() {
   columnref:
       do {
