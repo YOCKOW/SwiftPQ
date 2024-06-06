@@ -928,12 +928,35 @@ final class SQLGrammarExpressionTests: XCTestCase {
     }
   }
 
-  func test_a_expr() {
+  func test_a_expr() throws {
   a_expr_COLLATE_any_name:
     do {
       assertDescription(
         StringConstantExpression("string").collate(.locale(Locale(identifier: "ja-JP"))),
         #"'string' COLLATE "ja_JP""#
+      )
+    }
+  a_expr_AT_TIME_ZONE_a_expr:
+    do {
+      assertDescription(
+        ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+          constantTypeName: ConstantDateTimeTypeName.timestamp,
+          string: "2024-06-06 18:18:18"
+        ).atTimeZone(
+          try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        ),
+        "TIMESTAMP '2024-06-06 18:18:18' AT TIME ZONE 'Asia/Tokyo'"
+      )
+      assertDescription(
+        ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+          constantTypeName: ConstantDateTimeTypeName.timestamp,
+          string: "2024-06-06 18:18:18"
+        ).atTimeZone(
+          try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        ).atTimeZone(
+          try XCTUnwrap(TimeZone(identifier: "America/Chicago"))
+        ),
+        "TIMESTAMP '2024-06-06 18:18:18' AT TIME ZONE 'Asia/Tokyo' AT TIME ZONE 'America/Chicago'"
       )
     }
   }
@@ -979,7 +1002,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
         ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
           constantTypeName: .timestamp(precision: 3, withTimeZone: true),
           string: "2004-10-19 10:23:54+02"
-        )?.description,
+        ).description,
         "TIMESTAMP(3) WITH TIME ZONE '2004-10-19 10:23:54+02'"
       )
       XCTAssertEqual(

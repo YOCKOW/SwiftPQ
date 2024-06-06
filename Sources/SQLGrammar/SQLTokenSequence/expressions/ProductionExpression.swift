@@ -246,8 +246,8 @@ where Const: ConstantTypeName {
     self.init(constantTypeName: constantTypeName, string: stringConstantToken)
   }
 
-  public init?(constantTypeName: Const, string: String) {
-    self.init(constantTypeName: constantTypeName, string: SQLToken.string(string))
+  public init(constantTypeName: Const, string: String) {
+    self.init(constantTypeName: constantTypeName, string: SQLToken.string(string))!
   }
 }
 
