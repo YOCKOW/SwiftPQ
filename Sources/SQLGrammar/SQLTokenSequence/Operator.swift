@@ -42,10 +42,12 @@ public struct GeneralOperator: OperatorTokenConvertible {
   }
 }
 
+/// A token sequence that represents a kind of operator.
+public protocol OperatorTokenSequence: SQLTokenSequence {}
 
 /// Representation of a schema-qualified operator name that is described as `any_operator`
 /// in "gram.y".
-public struct LabeledOperator: SQLTokenSequence {
+public struct LabeledOperator: OperatorTokenSequence {
   public let labels: [ColumnIdentifier] // Empty allowed.
 
   public let `operator`: any OperatorTokenConvertible
@@ -82,7 +84,7 @@ public struct LabeledOperator: SQLTokenSequence {
 }
 
 /// An `OPERATOR` constructor.
-public struct OperatorConstructor: SQLTokenSequence {
+public struct OperatorConstructor: OperatorTokenSequence {
   public let `operator`: LabeledOperator
 
   public var tokens: JoinedSQLTokenSequence {
@@ -98,7 +100,7 @@ public struct OperatorConstructor: SQLTokenSequence {
 }
 
 /// Qualified operator described as `qual_all_Op` in "gram.y".
-public struct QualifiedOperator: SQLTokenSequence {
+public struct QualifiedOperator: OperatorTokenSequence {
   private enum _Type {
     case bare(any OperatorTokenConvertible)
     case constructor(OperatorConstructor)
@@ -145,7 +147,7 @@ public struct QualifiedOperator: SQLTokenSequence {
 }
 
 /// Qualified general operator described as `qual_Op` in "gram.y".
-public struct QualifiedGeneralOperator: SQLTokenSequence {
+public struct QualifiedGeneralOperator: OperatorTokenSequence {
   public typealias Element = QualifiedOperator.Element
   public typealias Tokens = QualifiedOperator
   public typealias Iterator = QualifiedOperator.Iterator

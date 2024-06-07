@@ -8,29 +8,48 @@
 /// A type that represents a binary infix operator invocation.
 public protocol BinaryInfixOperatorInvocation: SQLTokenSequence {
   associatedtype LeftOperand: SQLTokenSequence
+  associatedtype Operator
   associatedtype RightOperand: SQLTokenSequence
 
   /// Left operand.
   var leftOperand: LeftOperand { get }
 
   /// Binary infix operator.
-  var `operator`: SQLToken.Operator { get }
+  var `operator`: Operator { get }
 
   /// Right operand.
   var rightOperand: RightOperand { get }
 }
 
-extension BinaryInfixOperatorInvocation where Self.Tokens == JoinedSQLTokenSequence {
+extension BinaryInfixOperatorInvocation where Operator: SQLToken.Operator,
+                                              Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
   }
 }
+
+extension BinaryInfixOperatorInvocation where Operator: OperatorTokenConvertible,
+                                              Self.Tokens == JoinedSQLTokenSequence {
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
+  }
+}
+
+extension BinaryInfixOperatorInvocation where Operator: OperatorTokenSequence,
+                                              Self.Tokens == JoinedSQLTokenSequence {
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(self.leftOperand, self.operator, self.rightOperand)
+  }
+}
+
 
 /// A PostgreSQL-style type-cast syntax like `expression::type`.
 public struct BinaryInfixTypeCastOperatorInvocation<Value>:
   BinaryInfixOperatorInvocation where Value: Expression
 {
   public typealias LeftOperand = Value
+
+  public typealias Operator = SQLToken.Operator
 
   public typealias RightOperand = TypeName
 
