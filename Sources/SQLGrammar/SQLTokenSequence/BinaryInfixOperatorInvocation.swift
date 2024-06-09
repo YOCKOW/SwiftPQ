@@ -367,3 +367,43 @@ extension RecursiveExpression {
   }
 }
 
+
+/// Representation of binary `>` operator invocation.
+public struct BinaryInfixGreaterThanOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: MathOperator = .greaterThan
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixGreaterThanOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixGreaterThanOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixGreaterThanOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
+extension RecursiveExpression {
+  /// Creates a `self '>' other` expression.
+  @inlinable
+  public func greaterThan<Other>(
+    _ other: Other
+  ) -> BinaryInfixGreaterThanOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixGreaterThanOperatorInvocation<Self, Other>(self, other)
+  }
+}
+

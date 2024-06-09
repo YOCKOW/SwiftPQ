@@ -989,6 +989,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertTrue(invocation as Any is any GeneralExpression)
       XCTAssertTrue(invocation as Any is any RestrictedExpression)
     }
+  expr_greaterThan_expr:
+    do {
+      let invocation = UnsignedIntegerConstantExpression(3).greaterThan(
+        UnsignedIntegerConstantExpression(2)
+      )
+      assertDescription(invocation, "3 > 2")
+      XCTAssertTrue(invocation as Any is any GeneralExpression)
+      XCTAssertTrue(invocation as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {

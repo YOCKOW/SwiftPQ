@@ -150,16 +150,17 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 (In this list, `a/b_expr` means `a_expr` or `b_expr`.)
 
-| gram.y                          | Swift                                          |
-|---------------------------------|------------------------------------------------|
-| `a/b_expr TYPECAST Typename`    | `struct BinaryInfixTypeCastOperatorInvocation` |
-| `a/b_expr '+' a/b_expr`         | `struct BinaryInfixPlusOperatorInvocation`     |
-| `a/b_expr '-' a/b_expr`         | `struct BinaryInfixMinusOperatorInvocation`    |
-| `a/b_expr '*' a/b_expr`         | `struct BinaryInfixMultiplyOperatorInvocation` |
-| `a/b_expr '/' a/b_expr`         | `struct BinaryInfixDivideOperatorInvocation`   |
-| `a/b_expr '%' a/b_expr`         | `struct BinaryInfixModuloOperatorInvocation`   |
-| `a/b_expr '^' a/b_expr`         | `struct BinaryInfixExponentOperatorInvocation` |
-| `a/b_expr '<' a/b_expr`         | `struct BinaryInfixLessThanOperatorInvocation` |
+| gram.y                          | Swift                                             |
+|---------------------------------|---------------------------------------------------|
+| `a/b_expr TYPECAST Typename`    | `struct BinaryInfixTypeCastOperatorInvocation`    |
+| `a/b_expr '+' a/b_expr`         | `struct BinaryInfixPlusOperatorInvocation`        |
+| `a/b_expr '-' a/b_expr`         | `struct BinaryInfixMinusOperatorInvocation`       |
+| `a/b_expr '*' a/b_expr`         | `struct BinaryInfixMultiplyOperatorInvocation`    |
+| `a/b_expr '/' a/b_expr`         | `struct BinaryInfixDivideOperatorInvocation`      |
+| `a/b_expr '%' a/b_expr`         | `struct BinaryInfixModuloOperatorInvocation`      |
+| `a/b_expr '^' a/b_expr`         | `struct BinaryInfixExponentOperatorInvocation`    |
+| `a/b_expr '<' a/b_expr`         | `struct BinaryInfixLessThanOperatorInvocation`    |
+| `a/b_expr '>' a/b_expr`         | `struct BinaryInfixGreaterThanOperatorInvocation` |
 
 
 ## Statements
