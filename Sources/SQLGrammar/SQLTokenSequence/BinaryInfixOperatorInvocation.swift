@@ -327,3 +327,43 @@ extension RecursiveExpression {
   }
 }
 
+
+/// Representation of binary `<` operator invocation.
+public struct BinaryInfixLessThanOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: MathOperator = .lessThan
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixLessThanOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixLessThanOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixLessThanOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
+extension RecursiveExpression {
+  /// Creates a `self '<' other` expression.
+  @inlinable
+  public func lessThan<Other>(
+    _ other: Other
+  ) -> BinaryInfixLessThanOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixLessThanOperatorInvocation<Self, Other>(self, other)
+  }
+}
+

@@ -47,6 +47,9 @@ public struct MathOperator: OperatorTokenConvertible {
 
   /// `^` operator.
   public static let exponent: MathOperator = .init(.exponent)!
+
+  /// `<` operator.
+  public static let lessThan: MathOperator = .init(.lessThan)!
 }
 
 /// An operator that consists of only one token that is not a math operator.
