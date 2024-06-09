@@ -998,6 +998,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertTrue(invocation as Any is any GeneralExpression)
       XCTAssertTrue(invocation as Any is any RestrictedExpression)
     }
+  expr_equalTo_expr:
+    do {
+      let invocation = UnsignedIntegerConstantExpression(7).equalTo(
+        UnsignedIntegerConstantExpression(7)
+      )
+      assertDescription(invocation, "7 = 7")
+      XCTAssertTrue(invocation as Any is any GeneralExpression)
+      XCTAssertTrue(invocation as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {
