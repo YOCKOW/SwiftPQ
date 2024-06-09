@@ -169,3 +169,42 @@ extension RecursiveExpression {
   }
 }
 
+/// Representation of binary `*` operator invocation.
+public struct BinaryInfixMultiplyOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: MathOperator = .multiply
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixMultiplyOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixMultiplyOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixMultiplyOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
+extension RecursiveExpression {
+  /// Creates a `self '*' other` expression.
+  @inlinable
+  public func multiply<Other>(
+    _ other: Other
+  ) -> BinaryInfixMultiplyOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixMultiplyOperatorInvocation<Self, Other>(self, other)
+  }
+}
+

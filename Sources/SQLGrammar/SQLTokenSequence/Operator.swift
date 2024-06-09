@@ -35,6 +35,9 @@ public struct MathOperator: OperatorTokenConvertible {
 
   /// `-` operator.
   public static let minus: MathOperator = .init(.minus)!
+
+  /// `*` operator.
+  public static let multiply: MathOperator = .init(.multiply)!
 }
 
 /// An operator that consists of only one token that is not a math operator.
