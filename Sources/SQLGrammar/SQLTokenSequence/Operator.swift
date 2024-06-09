@@ -38,6 +38,9 @@ public struct MathOperator: OperatorTokenConvertible {
 
   /// `*` operator.
   public static let multiply: MathOperator = .init(.multiply)!
+
+  /// `/` operator.
+  public static let divide: MathOperator = .init(.divide)!
 }
 
 /// An operator that consists of only one token that is not a math operator.
