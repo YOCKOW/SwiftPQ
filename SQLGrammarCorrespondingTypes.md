@@ -163,6 +163,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a/b_expr '>' a/b_expr`         | `struct BinaryInfixGreaterThanOperatorInvocation`          |
 | `a/b_expr '=' a/b_expr`         | `struct BinaryInfixEqualOperatorInvocation`                |
 | `a/b_expr '<=' a/b_expr`        | `struct BinaryInfixLessThanOrEqualToOperatorInvocation`    |
+| `a/b_expr '>=' a/b_expr`        | `struct BinaryInfixGreaterThanOrEqualToOperatorInvocation` |
 
 
 ## Statements

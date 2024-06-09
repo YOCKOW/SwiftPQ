@@ -59,6 +59,9 @@ public struct MathOperator: OperatorTokenConvertible {
 
   /// `<=` operator.
   public static let lessThanOrEqualTo: MathOperator = .init(.lessThanOrEqualTo)!
+
+  /// `>=` operator.
+  public static let greaterThanOrEqualTo: MathOperator = .init(.greaterThanOrEqualTo)!
 }
 
 /// An operator that consists of only one token that is not a math operator.
