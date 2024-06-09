@@ -962,6 +962,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertTrue(invocation as Any is any GeneralExpression)
       XCTAssertTrue(invocation as Any is any RestrictedExpression)
     }
+  expr_modulo_expr:
+    do {
+      let invocation = UnsignedIntegerConstantExpression(5).modulo(
+        UnsignedIntegerConstantExpression(4)
+      )
+      assertDescription(invocation, "5 % 4")
+      XCTAssertTrue(invocation as Any is any GeneralExpression)
+      XCTAssertTrue(invocation as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {

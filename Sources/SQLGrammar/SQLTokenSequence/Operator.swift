@@ -41,6 +41,9 @@ public struct MathOperator: OperatorTokenConvertible {
 
   /// `/` operator.
   public static let divide: MathOperator = .init(.divide)!
+
+  /// `%` operator.
+  public static let modulo: MathOperator = .init(.modulo)!
 }
 
 /// An operator that consists of only one token that is not a math operator.
