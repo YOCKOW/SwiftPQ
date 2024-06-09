@@ -408,7 +408,7 @@ extension RecursiveExpression {
 }
 
 /// Representation of binary `=` operator invocation.
-public struct BinaryInfixEqualOperatorInvocation<LeftOperand, RightOperand>:
+public struct BinaryInfixEqualToOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
   public typealias Tokens = JoinedSQLTokenSequence
@@ -426,14 +426,14 @@ public struct BinaryInfixEqualOperatorInvocation<LeftOperand, RightOperand>:
     self.rightOperand = rightOperand
   }
 }
-extension BinaryInfixEqualOperatorInvocation:
+extension BinaryInfixEqualToOperatorInvocation:
   Expression,
   RecursiveExpression where LeftOperand: RecursiveExpression,
                             RightOperand: RecursiveExpression {}
-extension BinaryInfixEqualOperatorInvocation:
+extension BinaryInfixEqualToOperatorInvocation:
   GeneralExpression where LeftOperand: GeneralExpression,
                           RightOperand: GeneralExpression {}
-extension BinaryInfixEqualOperatorInvocation:
+extension BinaryInfixEqualToOperatorInvocation:
   RestrictedExpression where LeftOperand: RestrictedExpression,
                              RightOperand: RestrictedExpression {}
 extension RecursiveExpression {
@@ -441,8 +441,8 @@ extension RecursiveExpression {
   @inlinable
   public func equalTo<Other>(
     _ other: Other
-  ) -> BinaryInfixEqualOperatorInvocation<Self, Other> where Other: Expression {
-    return BinaryInfixEqualOperatorInvocation<Self, Other>(self, other)
+  ) -> BinaryInfixEqualToOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixEqualToOperatorInvocation<Self, Other>(self, other)
   }
 }
 
@@ -526,3 +526,42 @@ extension RecursiveExpression {
   }
 }
 
+
+/// Representation of binary `<>` operator invocation.
+public struct BinaryInfixNotEqualToOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: MathOperator = .notEqualTo
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixNotEqualToOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixNotEqualToOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixNotEqualToOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
+extension RecursiveExpression {
+  /// Creates a `self '<>' other` expression.
+  @inlinable
+  public func notEqualTo<Other>(
+    _ other: Other
+  ) -> BinaryInfixNotEqualToOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixNotEqualToOperatorInvocation<Self, Other>(self, other)
+  }
+}
