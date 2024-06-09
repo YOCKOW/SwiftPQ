@@ -148,9 +148,12 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ### Expressions common to `a_expr` and `b_expr`
 
-| gram.y                                     | Swift                                          |
-|--------------------------------------------|------------------------------------------------|
-| `{a_expr \| b_expr} TYPECAST Typename`     | `struct BinaryInfixTypeCastOperatorInvocation` |
+(In this list, `a/b_expr` means `a_expr` or `b_expr`.)
+
+| gram.y                          | Swift                                          |
+|---------------------------------|------------------------------------------------|
+| `a/b_expr TYPECAST Typename`    | `struct BinaryInfixTypeCastOperatorInvocation` |
+| `a/b_expr '+' a/b_expr`         | `struct BinaryInfixPlusOperatorInvocation`     |
 
 
 ## Statements

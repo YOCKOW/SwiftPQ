@@ -29,6 +29,9 @@ public struct MathOperator: OperatorTokenConvertible {
     guard operatorToken.isMathOperator else { return nil }
     self.token = operatorToken
   }
+
+  /// `+` operator.
+  public static let plus: MathOperator = .init(.plus)!
 }
 
 /// An operator that consists of only one token that is not a math operator.

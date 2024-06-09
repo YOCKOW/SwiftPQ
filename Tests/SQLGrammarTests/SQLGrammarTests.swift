@@ -926,6 +926,15 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'string'::TEXT"
       )
     }
+  expr_plus_expr:
+    do {
+      let invocation = UnsignedIntegerConstantExpression(1).plus(
+        UnsignedIntegerConstantExpression(2)
+      )
+      assertDescription(invocation, "1 + 2")
+      XCTAssertTrue(invocation as Any is any GeneralExpression)
+      XCTAssertTrue(invocation as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {
