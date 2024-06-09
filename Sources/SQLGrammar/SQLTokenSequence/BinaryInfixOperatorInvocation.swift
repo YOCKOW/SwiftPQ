@@ -87,6 +87,8 @@ extension BinaryInfixTypeCastOperatorInvocation:
   RestrictedExpression where Value: RestrictedExpression {}
 
 
+// MARK: - BinaryInfixMathOperatorInvocation types
+
 /// A type of binary infix operator invocation where the oprator is `MathOp`.
 public protocol BinaryInfixMathOperatorInvocation:
   BinaryInfixOperatorInvocation where Self.Operator == MathOperator {}
@@ -565,3 +567,5 @@ extension RecursiveExpression {
     return BinaryInfixNotEqualToOperatorInvocation<Self, Other>(self, other)
   }
 }
+
+// MARK: END OF BinaryInfixMathOperatorInvocation types -
