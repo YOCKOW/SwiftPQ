@@ -287,3 +287,43 @@ extension RecursiveExpression {
   }
 }
 
+
+/// Representation of binary `^` operator invocation.
+public struct BinaryInfixExponentOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: MathOperator = .exponent
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixExponentOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixExponentOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixExponentOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
+extension RecursiveExpression {
+  /// Creates a `self '^' other` expression.
+  @inlinable
+  public func exponent<Other>(
+    _ other: Other
+  ) -> BinaryInfixExponentOperatorInvocation<Self, Other> where Other: Expression {
+    return BinaryInfixExponentOperatorInvocation<Self, Other>(self, other)
+  }
+}
+
