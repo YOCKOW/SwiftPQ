@@ -947,7 +947,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
   expr_multiply_expr:
     do {
       let invocation = UnsignedIntegerConstantExpression(2).multiply(
-        UnaryPrefixMinusOperatorInvocation(operand: UnsignedIntegerConstantExpression(2))
+        UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(2))
       )
       assertDescription(invocation, "2 * -2")
       XCTAssertTrue(invocation as Any is any GeneralExpression)
@@ -1046,6 +1046,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
         BooleanConstantExpression.false
       )
       assertDescription(invocation, "TRUE OPERATOR(myOp.|||||) FALSE")
+    }
+  qual_Op_expr:
+    do {
+      let invocation = UnaryPrefixQualifiedGeneralOperatorInvocation(
+        QualifiedGeneralOperator(
+          OperatorConstructor(
+            LabeledOperator(labels: ["myPrefixOp"], try SQLToken.Operator("+@-"))
+          )
+        ),
+        UnsignedFloatConstantExpression(1.23)
+      )
+      assertDescription(invocation, "OPERATOR(myPrefixOp.+@-) 1.23")
+      XCTAssertTrue(invocation as Any is any GeneralExpression)
+      XCTAssertTrue(invocation as Any is any RestrictedExpression)
     }
   }
 

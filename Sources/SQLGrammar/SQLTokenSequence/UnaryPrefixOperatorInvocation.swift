@@ -7,52 +7,23 @@
 
 /// A type that represents a unary prfeix operator invocation.
 public protocol UnaryPrefixOperatorInvocation: SQLTokenSequence {
+  associatedtype Operator
   associatedtype Operand: SQLTokenSequence
-  var `operator`: SQLToken.Operator { get }
+  var `operator`: Operator { get }
   var operand: Operand { get }
 }
 
-extension UnaryPrefixOperatorInvocation where Self.Tokens == JoinedSQLTokenSequence {
+extension UnaryPrefixOperatorInvocation where Self.Operator: SQLToken.Operator,
+                                              Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.operator.asSequence, self.operand)
   }
 }
 
-public struct AnyUnaryPrefixOperatorInvocation: UnaryPrefixOperatorInvocation {
-  public typealias Tokens = JoinedSQLTokenSequence
-
-  public struct Operand: SQLTokenSequence {
-    public typealias Tokens = Self
-
-    public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { _iterator.next() }
-    }
-
-    private let _sequence: any SQLTokenSequence
-
-    public init<T>(_ sequence: T) where T: SQLTokenSequence {
-      self._sequence = sequence
-    }
-
-    public func makeIterator() -> Iterator {
-      return Iterator(_sequence._asAny.makeIterator())
-    }
-  }
-
-  public let `operator`: SQLToken.Operator
-
-  public let operand: Operand
-
-  public init(`operator`: SQLToken.Operator, operand: Operand) {
-    self.operator = `operator`
-    self.operand = operand
-  }
-
-  public init<T>(_ other: T) where T: UnaryPrefixOperatorInvocation {
-    self.init(operator: other.operator, operand: Operand(other.operand))
+extension UnaryPrefixOperatorInvocation where Self.Operator: SQLTokenSequence,
+                                              Self.Tokens == JoinedSQLTokenSequence {
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(self.operator, self.operand)
   }
 }
 
@@ -82,19 +53,19 @@ public struct UnaryPrefixPlusOperatorInvocation<Operand>:
     self._canOmitSpace = canOmitSpace
   }
 
-  public init(operand: Operand) {
+  public init(_ operand: Operand) {
     self.init(operand: operand, canOmitSpace: false)
   }
 
-  public init(operand: UnsignedIntegerConstantExpression) where Operand == UnsignedIntegerConstantExpression {
+  public init(_ operand: UnsignedIntegerConstantExpression) where Operand == UnsignedIntegerConstantExpression {
     self.init(operand: operand, canOmitSpace: true)
   }
 
-  public init(operand: UnsignedFloatConstantExpression) where Operand == UnsignedFloatConstantExpression {
+  public init(_ operand: UnsignedFloatConstantExpression) where Operand == UnsignedFloatConstantExpression {
     self.init(operand: operand, canOmitSpace: true)
   }
 
-  public init<T>(operand: Parenthesized<T>) where Operand == Parenthesized<T> {
+  public init<T>(_ operand: Parenthesized<T>) where Operand == Parenthesized<T> {
     self.init(operand: operand, canOmitSpace: true)
   }
 }
@@ -128,22 +99,52 @@ public struct UnaryPrefixMinusOperatorInvocation<Operand>:
     self._canOmitSpace = canOmitSpace
   }
 
-  public init(operand: Operand) {
+  public init(_ operand: Operand) {
     self.init(operand: operand, canOmitSpace: false)
   }
 
-  public init(operand: UnsignedIntegerConstantExpression) where Operand == UnsignedIntegerConstantExpression {
+  public init(_ operand: UnsignedIntegerConstantExpression) where Operand == UnsignedIntegerConstantExpression {
     self.init(operand: operand, canOmitSpace: true)
   }
 
-  public init(operand: UnsignedFloatConstantExpression) where Operand == UnsignedFloatConstantExpression {
+  public init(_ operand: UnsignedFloatConstantExpression) where Operand == UnsignedFloatConstantExpression {
     self.init(operand: operand, canOmitSpace: true)
   }
 
-  public init<T>(operand: Parenthesized<T>) where Operand == Parenthesized<T> {
+  public init<T>(_ operand: Parenthesized<T>) where Operand == Parenthesized<T> {
     self.init(operand: operand, canOmitSpace: true)
   }
 }
 extension UnaryPrefixMinusOperatorInvocation: Expression, RecursiveExpression where Operand: RecursiveExpression {}
 extension UnaryPrefixMinusOperatorInvocation: GeneralExpression where Operand: GeneralExpression {}
 extension UnaryPrefixMinusOperatorInvocation: RestrictedExpression where Operand: RestrictedExpression {}
+
+
+// MARK: - `qual_Op` operand
+
+/// Representation of `qual_Op a_expr` or `qual_Op b_expr`.
+public struct UnaryPrefixQualifiedGeneralOperatorInvocation<Operand>:
+  UnaryPrefixOperatorInvocation where Operand: SQLTokenSequence 
+{
+  public typealias Operator = QualifiedGeneralOperator
+
+  public typealias Operand = Operand
+
+  public typealias Tokens = JoinedSQLTokenSequence
+
+  public let `operator`: QualifiedGeneralOperator
+
+  public let operand: Operand
+
+  public init(_ operator: QualifiedGeneralOperator, _ operand: Operand) {
+    self.operator = `operator`
+    self.operand = operand
+  }
+}
+extension UnaryPrefixQualifiedGeneralOperatorInvocation: 
+  Expression, RecursiveExpression where Operand: RecursiveExpression {}
+extension UnaryPrefixQualifiedGeneralOperatorInvocation: 
+  GeneralExpression where Operand: GeneralExpression {}
+extension UnaryPrefixQualifiedGeneralOperatorInvocation: 
+  RestrictedExpression where Operand: RestrictedExpression {}
+
