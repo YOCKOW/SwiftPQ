@@ -59,6 +59,16 @@ public struct LikeExpression: PatternMatchingGeneralExpression {
   }
 }
 
+extension GeneralExpression {
+  @inlinable
+  public func like(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> LikeExpression {
+    return .init(string: self, like: pattern, escape: escapeCharacter)
+  }
+}
+
 /// Representation of `NOT LIKE` expression described as `a_expr NOT_LA LIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotLikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
@@ -77,12 +87,22 @@ public struct NotLikeExpression: PatternMatchingGeneralExpression {
 
   public init(
     string: any GeneralExpression,
-    like pattern: any GeneralExpression,
+    notLike pattern: any GeneralExpression,
     escape escapeCharacter: Optional<any GeneralExpression> = nil
   ) {
     self.string = string
     self.pattern = pattern
     self.escapeCharacter = escapeCharacter
+  }
+}
+
+extension GeneralExpression {
+  @inlinable
+  public func notLike(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> NotLikeExpression {
+    return .init(string: self, notLike: pattern, escape: escapeCharacter)
   }
 }
 
@@ -113,6 +133,16 @@ public struct CaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
   }
 }
 
+extension GeneralExpression {
+  @inlinable
+  public func caseInsensitiveLike(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> CaseInsensitiveLikeExpression {
+    return .init(string: self, like: pattern, escape: escapeCharacter)
+  }
+}
+
 /// Representation of `NOT ILIKE` expression described as `a_expr NOT_LA ILIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotCaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
@@ -131,12 +161,22 @@ public struct NotCaseInsensitiveLikeExpression: PatternMatchingGeneralExpression
 
   public init(
     string: any GeneralExpression,
-    like pattern: any GeneralExpression,
+    notLike pattern: any GeneralExpression,
     escape escapeCharacter: Optional<any GeneralExpression> = nil
   ) {
     self.string = string
     self.pattern = pattern
     self.escapeCharacter = escapeCharacter
+  }
+}
+
+extension GeneralExpression {
+  @inlinable
+  public func notCaseInsensitiveLike(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> NotCaseInsensitiveLikeExpression {
+    return .init(string: self, notLike: pattern, escape: escapeCharacter)
   }
 }
 
@@ -167,6 +207,16 @@ public struct SimilarToExpression: PatternMatchingGeneralExpression {
   }
 }
 
+extension GeneralExpression {
+  @inlinable
+  public func similarTo(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> SimilarToExpression {
+    return .init(string: self, similarTo: pattern, escape: escapeCharacter)
+  }
+}
+
 /// Representation of `NOT SIMILAR TO` expression described as `a_expr NOT_LA SIMILAR TO a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotSimilarToExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
@@ -191,5 +241,15 @@ public struct NotSimilarToExpression: PatternMatchingGeneralExpression {
     self.string = string
     self.pattern = pattern
     self.escapeCharacter = escapeCharacter
+  }
+}
+
+extension GeneralExpression {
+  @inlinable
+  public func notSimilarTo(
+    _ pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) -> NotSimilarToExpression {
+    return .init(string: self, notSimilarTo: pattern, escape: escapeCharacter)
   }
 }

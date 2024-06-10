@@ -1118,16 +1118,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_LIKE_a_expr:
     do {
       assertDescription(
-        LikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").like(StringConstantExpression("_b_")),
         "'abc' LIKE '_b_'"
       )
       assertDescription(
-        LikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").like(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' LIKE '_b_' ESCAPE 'e'"
@@ -1136,16 +1132,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_NOT_LIKE_a_expr:
     do {
       assertDescription(
-        NotLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").notLike(StringConstantExpression("_b_")),
         "'abc' NOT LIKE '_b_'"
       )
       assertDescription(
-        NotLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").notLike(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' NOT LIKE '_b_' ESCAPE 'e'"
@@ -1154,16 +1146,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_ILIKE_a_expr:
     do {
       assertDescription(
-        CaseInsensitiveLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").caseInsensitiveLike(StringConstantExpression("_b_")),
         "'abc' ILIKE '_b_'"
       )
       assertDescription(
-        CaseInsensitiveLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").caseInsensitiveLike(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' ILIKE '_b_' ESCAPE 'e'"
@@ -1172,16 +1160,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_NOT_ILIKE_a_expr:
     do {
       assertDescription(
-        NotCaseInsensitiveLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").notCaseInsensitiveLike(StringConstantExpression("_b_")),
         "'abc' NOT ILIKE '_b_'"
       )
       assertDescription(
-        NotCaseInsensitiveLikeExpression(
-          string: StringConstantExpression("abc"),
-          like: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").notCaseInsensitiveLike(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' NOT ILIKE '_b_' ESCAPE 'e'"
@@ -1190,16 +1174,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_SIMILAR_TO_a_expr:
     do {
       assertDescription(
-        SimilarToExpression(
-          string: StringConstantExpression("abc"),
-          similarTo: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").similarTo(StringConstantExpression("_b_")),
         "'abc' SIMILAR TO '_b_'"
       )
       assertDescription(
-        SimilarToExpression(
-          string: StringConstantExpression("abc"),
-          similarTo: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").similarTo(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' SIMILAR TO '_b_' ESCAPE 'e'"
@@ -1208,16 +1188,12 @@ final class SQLGrammarExpressionTests: XCTestCase {
   a_expr_NOT_SIMILAR_TO_a_expr:
     do {
       assertDescription(
-        NotSimilarToExpression(
-          string: StringConstantExpression("abc"),
-          notSimilarTo: StringConstantExpression("_b_")
-        ),
+        StringConstantExpression("abc").notSimilarTo(StringConstantExpression("_b_")),
         "'abc' NOT SIMILAR TO '_b_'"
       )
       assertDescription(
-        NotSimilarToExpression(
-          string: StringConstantExpression("abc"),
-          notSimilarTo: StringConstantExpression("_b_"),
+        StringConstantExpression("abc").notSimilarTo(
+          StringConstantExpression("_b_"),
           escape: StringConstantExpression("e")
         ),
         "'abc' NOT SIMILAR TO '_b_' ESCAPE 'e'"
