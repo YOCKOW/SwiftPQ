@@ -121,6 +121,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | gram.y                                     | Swift                                         |
 |--------------------------------------------|-----------------------------------------------|
 | `a_expr`                                   | `protocol GeneralExpression`                  |
+| `a_expr AND a_expr`                        | `struct BinaryInfixAndOperatorInvocation`     |
 | `a_expr AT TIME ZONE a_expr`               | `struct AtTimeZoneOperatorInvocation`         |
 | `a_expr COLLATE any_name`                  | `struct CollationExpression`                  |
 | `AexprConst`                               | `protocol ConstantExpression`                 |

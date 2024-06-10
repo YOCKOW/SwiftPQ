@@ -21,7 +21,7 @@ public protocol BinaryInfixOperatorInvocation: SQLTokenSequence {
   var rightOperand: RightOperand { get }
 }
 
-extension BinaryInfixOperatorInvocation where Operator: SQLToken.Operator,
+extension BinaryInfixOperatorInvocation where Operator: SQLToken,
                                               Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
@@ -606,3 +606,34 @@ extension BinaryInfixQualifiedGeneralOperatorInvocation:
 extension BinaryInfixQualifiedGeneralOperatorInvocation:
   RestrictedExpression where LeftOperand: RestrictedExpression,
                              RightOperand: RestrictedExpression {}
+
+
+/// An invocation of `AND` operator that is described as `a_expr AND a_expr` in "gram.y".
+public struct BinaryInfixAndOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixOperatorInvocation, GeneralExpression where LeftOperand: GeneralExpression,
+                                                         RightOperand: GeneralExpression {
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias Operator = SQLToken
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: SQLToken = .and
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension GeneralExpression {
+  /// Creates a `self AND other` expression.
+  @inlinable
+  public func and<Other>(
+    _ other: Other
+  ) -> BinaryInfixAndOperatorInvocation<Self, Other> where Other: GeneralExpression {
+    return .init(self, other)
+  }
+}

@@ -1094,6 +1094,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "TIMESTAMP '2024-06-06 18:18:18' AT TIME ZONE 'Asia/Tokyo' AT TIME ZONE 'America/Chicago'"
       )
     }
+  a_expr_AND_a_expr:
+    do {
+      assertDescription(
+        BooleanConstantExpression.true.and(BooleanConstantExpression.false),
+        "TRUE AND FALSE"
+      )
+    }
   }
 
   func test_c_expr() {
