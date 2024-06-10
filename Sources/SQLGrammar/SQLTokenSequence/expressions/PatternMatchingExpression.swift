@@ -58,3 +58,30 @@ public struct LikeExpression: PatternMatchingGeneralExpression {
     self.escapeCharacter = escapeCharacter
   }
 }
+
+/// Representation of `NOT LIKE` expression described as `a_expr NOT_LA LIKE a_expr [ESCAPE a_expr]` in "gram.y".
+public struct NotLikeExpression: PatternMatchingGeneralExpression {
+  public final class Operator: Segment {
+    public let tokens: Array<SQLToken> = [.not, .like]
+    private init() {}
+    public static let notLike: Operator = .init()
+  }
+
+  public let string: any GeneralExpression
+
+  public let `operator`: Operator = .notLike
+
+  public let pattern: any GeneralExpression
+
+  public let escapeCharacter: Optional<any GeneralExpression>
+
+  public init(
+    string: any GeneralExpression,
+    like pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) {
+    self.string = string
+    self.pattern = pattern
+    self.escapeCharacter = escapeCharacter
+  }
+}
