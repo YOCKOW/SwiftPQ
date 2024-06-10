@@ -1206,6 +1206,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "1.2 IS NULL"
       )
     }
+  a_expr_IS_NOT_NULL:
+    do {
+      assertDescription(
+        StringConstantExpression("null").isNotNullExpression,
+        "'null' IS NOT NULL"
+      )
+    }
   }
 
   func test_c_expr() {

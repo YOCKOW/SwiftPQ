@@ -97,3 +97,35 @@ extension GeneralExpression {
     return .init(value: self)
   }
 }
+
+
+/// Representation of `a_expr IS NOT NULL_P` (or `a_expr NOTNULL`) in "gram.y".
+public struct IsNotNullExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  /// Use `NOTNULL` keyword instead of `IS NOT NULL` if this is `true`.
+  public var useOneKeywordSyntax: Bool = false
+
+  private final class _IsNotNull: Segment {
+    let tokens: Array<SQLToken> = [.is, .not, .null]
+    private init() {}
+    static let isNotNull: _IsNotNull = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    if useOneKeywordSyntax {
+      return JoinedSQLTokenSequence([value, SingleToken(.notnull)])
+    }
+    return JoinedSQLTokenSequence([value, _IsNotNull.isNotNull])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+
+extension GeneralExpression {
+  public var isNotNullExpression: IsNotNullExpression {
+    return .init(value: self)
+  }
+}
