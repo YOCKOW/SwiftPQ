@@ -1199,6 +1199,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'abc' NOT SIMILAR TO '_b_' ESCAPE 'e'"
       )
     }
+  a_expr_IS_NULL:
+    do {
+      assertDescription(
+        UnsignedFloatConstantExpression(1.2).isNullExpression,
+        "1.2 IS NULL"
+      )
+    }
   }
 
   func test_c_expr() {

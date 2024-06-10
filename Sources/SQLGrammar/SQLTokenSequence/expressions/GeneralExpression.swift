@@ -72,3 +72,28 @@ extension GeneralExpression {
     return AtTimeZoneOperatorInvocation(time: self, timeZone: timeZone)
   }
 }
+
+/// Representation of `a_expr IS NULL_P` (or `a_expr ISNULL`) in "gram.y".
+public struct IsNullExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  /// Use `ISNULL` keyword instead of `IS NULL` if this is `true`.
+  public var useOneKeywordSyntax: Bool = false
+
+  public var tokens: JoinedSQLTokenSequence {
+    if useOneKeywordSyntax {
+      return JoinedSQLTokenSequence([value, SingleToken(.isnull)])
+    }
+    return JoinedSQLTokenSequence([value, SingleToken(.is), SingleToken(.null)])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+
+extension GeneralExpression {
+  public var isNullExpression: IsNullExpression {
+    return .init(value: self)
+  }
+}
