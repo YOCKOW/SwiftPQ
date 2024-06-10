@@ -139,3 +139,57 @@ public struct NotCaseInsensitiveLikeExpression: PatternMatchingGeneralExpression
     self.escapeCharacter = escapeCharacter
   }
 }
+
+/// Representation of `SIMILAR TO` expression described as `a_expr SIMILAR TO a_expr [ESCAPE a_expr]` in "gram.y".
+public struct SimilarToExpression: PatternMatchingGeneralExpression {
+  public final class Operator: Segment {
+    public let tokens: Array<SQLToken> = [.similar, .to]
+    private init() {}
+    public static let similarTo: Operator = .init()
+  }
+
+  public let string: any GeneralExpression
+
+  public let `operator`: Operator = .similarTo
+
+  public let pattern: any GeneralExpression
+
+  public let escapeCharacter: Optional<any GeneralExpression>
+
+  public init(
+    string: any GeneralExpression,
+    similarTo pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) {
+    self.string = string
+    self.pattern = pattern
+    self.escapeCharacter = escapeCharacter
+  }
+}
+
+/// Representation of `NOT SIMILAR TO` expression described as `a_expr NOT_LA SIMILAR TO a_expr [ESCAPE a_expr]` in "gram.y".
+public struct NotSimilarToExpression: PatternMatchingGeneralExpression {
+  public final class Operator: Segment {
+    public let tokens: Array<SQLToken> = [.not, .similar, .to]
+    private init() {}
+    public static let notSimilarTo: Operator = .init()
+  }
+
+  public let string: any GeneralExpression
+
+  public let `operator`: Operator = .notSimilarTo
+
+  public let pattern: any GeneralExpression
+
+  public let escapeCharacter: Optional<any GeneralExpression>
+
+  public init(
+    string: any GeneralExpression,
+    notSimilarTo pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) {
+    self.string = string
+    self.pattern = pattern
+    self.escapeCharacter = escapeCharacter
+  }
+}

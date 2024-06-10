@@ -1187,6 +1187,42 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'abc' NOT ILIKE '_b_' ESCAPE 'e'"
       )
     }
+  a_expr_SIMILAR_TO_a_expr:
+    do {
+      assertDescription(
+        SimilarToExpression(
+          string: StringConstantExpression("abc"),
+          similarTo: StringConstantExpression("_b_")
+        ),
+        "'abc' SIMILAR TO '_b_'"
+      )
+      assertDescription(
+        SimilarToExpression(
+          string: StringConstantExpression("abc"),
+          similarTo: StringConstantExpression("_b_"),
+          escape: StringConstantExpression("e")
+        ),
+        "'abc' SIMILAR TO '_b_' ESCAPE 'e'"
+      )
+    }
+  a_expr_NOT_SIMILAR_TO_a_expr:
+    do {
+      assertDescription(
+        NotSimilarToExpression(
+          string: StringConstantExpression("abc"),
+          notSimilarTo: StringConstantExpression("_b_")
+        ),
+        "'abc' NOT SIMILAR TO '_b_'"
+      )
+      assertDescription(
+        NotSimilarToExpression(
+          string: StringConstantExpression("abc"),
+          notSimilarTo: StringConstantExpression("_b_"),
+          escape: StringConstantExpression("e")
+        ),
+        "'abc' NOT SIMILAR TO '_b_' ESCAPE 'e'"
+      )
+    }
   }
 
   func test_c_expr() {
