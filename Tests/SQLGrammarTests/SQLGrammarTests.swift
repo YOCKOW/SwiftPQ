@@ -914,7 +914,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
-  func test_common_a_expr_b_expr() {
+  func test_common_a_expr_b_expr() throws {
   expr_TYPECAST_Typename:
     do {
       assertDescription(
@@ -1033,6 +1033,19 @@ final class SQLGrammarExpressionTests: XCTestCase {
       assertDescription(invocation, "1 <> 2")
       XCTAssertTrue(invocation as Any is any GeneralExpression)
       XCTAssertTrue(invocation as Any is any RestrictedExpression)
+    }
+  expr_qual_Op_expr:
+    do {
+      let invocation = BinaryInfixQualifiedGeneralOperatorInvocation(
+        BooleanConstantExpression.true,
+        QualifiedGeneralOperator(
+          OperatorConstructor(
+            LabeledOperator(labels: ["myOp"], try SQLToken.Operator("|||||"))
+          )
+        ),
+        BooleanConstantExpression.false
+      )
+      assertDescription(invocation, "TRUE OPERATOR(myOp.|||||) FALSE")
     }
   }
 

@@ -569,3 +569,40 @@ extension RecursiveExpression {
 }
 
 // MARK: END OF BinaryInfixMathOperatorInvocation types -
+
+
+/// An invocation of the qualified general operator (`QualifiedGeneralOperator` a.k.a. `qual_Op`).
+public struct BinaryInfixQualifiedGeneralOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
+{
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias RightOperand = RightOperand
+  public typealias Operator = QualifiedGeneralOperator
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: QualifiedGeneralOperator
+
+  public let rightOperand: RightOperand
+
+  public init(
+    _ leftOperand: LeftOperand,
+    _ operator: QualifiedGeneralOperator,
+    _ rightOperand: RightOperand
+  ) {
+    self.leftOperand = leftOperand
+    self.operator = `operator`
+    self.rightOperand = rightOperand
+  }
+}
+extension BinaryInfixQualifiedGeneralOperatorInvocation:
+  Expression,
+  RecursiveExpression where LeftOperand: RecursiveExpression,
+                            RightOperand: RecursiveExpression {}
+extension BinaryInfixQualifiedGeneralOperatorInvocation:
+  GeneralExpression where LeftOperand: GeneralExpression,
+                          RightOperand: GeneralExpression {}
+extension BinaryInfixQualifiedGeneralOperatorInvocation:
+  RestrictedExpression where LeftOperand: RestrictedExpression,
+                             RightOperand: RestrictedExpression {}
