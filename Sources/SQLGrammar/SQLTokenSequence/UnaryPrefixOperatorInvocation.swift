@@ -13,7 +13,7 @@ public protocol UnaryPrefixOperatorInvocation: SQLTokenSequence {
   var operand: Operand { get }
 }
 
-extension UnaryPrefixOperatorInvocation where Self.Operator: SQLToken.Operator,
+extension UnaryPrefixOperatorInvocation where Self.Operator: SQLToken,
                                               Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.operator.asSequence, self.operand)
@@ -148,3 +148,24 @@ extension UnaryPrefixQualifiedGeneralOperatorInvocation:
 extension UnaryPrefixQualifiedGeneralOperatorInvocation: 
   RestrictedExpression where Operand: RestrictedExpression {}
 
+
+// MARK: - `NOT` operand
+
+/// Logical negation expression that is described as `NOT a_expr` (or `NOT_LA a_expr`) in "gram.y".
+public struct UnaryPrefixNotOperatorInvocation<Operand>:
+  UnaryPrefixOperatorInvocation, GeneralExpression where Operand: GeneralExpression
+{
+  public typealias Operator = SQLToken
+
+  public typealias Operand = Operand
+
+  public typealias Tokens = JoinedSQLTokenSequence
+
+  public let `operator`: SQLToken = .not
+
+  public let operand: Operand
+
+  public init(_ operand: Operand) {
+    self.operand = operand
+  }
+}

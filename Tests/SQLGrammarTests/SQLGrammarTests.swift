@@ -1108,6 +1108,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "TRUE OR FALSE"
       )
     }
+  NOT_a_expr:
+    do {
+      assertDescription(
+        UnaryPrefixNotOperatorInvocation(BooleanConstantExpression.true),
+        "NOT TRUE"
+      )
+    }
   }
 
   func test_c_expr() {
