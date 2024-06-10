@@ -637,3 +637,34 @@ extension GeneralExpression {
     return .init(self, other)
   }
 }
+
+
+/// An invocation of `OR` operator that is described as `a_expr OR a_expr` in "gram.y".
+public struct BinaryInfixOrOperatorInvocation<LeftOperand, RightOperand>:
+  BinaryInfixOperatorInvocation, GeneralExpression where LeftOperand: GeneralExpression,
+                                                         RightOperand: GeneralExpression {
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = LeftOperand
+  public typealias Operator = SQLToken
+  public typealias RightOperand = RightOperand
+
+  public let leftOperand: LeftOperand
+
+  public let `operator`: SQLToken = .or
+
+  public let rightOperand: RightOperand
+
+  public init(_ leftOperand: LeftOperand, _ rightOperand: RightOperand) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension GeneralExpression {
+  /// Creates a `self OR other` expression.
+  @inlinable
+  public func or<Other>(
+    _ other: Other
+  ) -> BinaryInfixOrOperatorInvocation<Self, Other> where Other: GeneralExpression {
+    return .init(self, other)
+  }
+}

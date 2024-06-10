@@ -1101,6 +1101,13 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "TRUE AND FALSE"
       )
     }
+  a_expr_OR_a_expr:
+    do {
+      assertDescription(
+        BooleanConstantExpression.true.or(BooleanConstantExpression.false),
+        "TRUE OR FALSE"
+      )
+    }
   }
 
   func test_c_expr() {
