@@ -1151,6 +1151,42 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'abc' NOT LIKE '_b_' ESCAPE 'e'"
       )
     }
+  a_expr_ILIKE_a_expr:
+    do {
+      assertDescription(
+        CaseInsensitiveLikeExpression(
+          string: StringConstantExpression("abc"),
+          like: StringConstantExpression("_b_")
+        ),
+        "'abc' ILIKE '_b_'"
+      )
+      assertDescription(
+        CaseInsensitiveLikeExpression(
+          string: StringConstantExpression("abc"),
+          like: StringConstantExpression("_b_"),
+          escape: StringConstantExpression("e")
+        ),
+        "'abc' ILIKE '_b_' ESCAPE 'e'"
+      )
+    }
+  a_expr_NOT_ILIKE_a_expr:
+    do {
+      assertDescription(
+        NotCaseInsensitiveLikeExpression(
+          string: StringConstantExpression("abc"),
+          like: StringConstantExpression("_b_")
+        ),
+        "'abc' NOT ILIKE '_b_'"
+      )
+      assertDescription(
+        NotCaseInsensitiveLikeExpression(
+          string: StringConstantExpression("abc"),
+          like: StringConstantExpression("_b_"),
+          escape: StringConstantExpression("e")
+        ),
+        "'abc' NOT ILIKE '_b_' ESCAPE 'e'"
+      )
+    }
   }
 
   func test_c_expr() {

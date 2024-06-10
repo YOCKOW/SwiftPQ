@@ -85,3 +85,57 @@ public struct NotLikeExpression: PatternMatchingGeneralExpression {
     self.escapeCharacter = escapeCharacter
   }
 }
+
+/// Representation of `ILIKE` expression described as `a_expr ILIKE a_expr [ESCAPE a_expr]` in "gram.y".
+public struct CaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
+  public final class Operator: Segment {
+    public let tokens: Array<SQLToken> = [.ilike]
+    private init() {}
+    public static let iLike: Operator = .init()
+  }
+
+  public let string: any GeneralExpression
+
+  public let `operator`: Operator = .iLike
+
+  public let pattern: any GeneralExpression
+
+  public let escapeCharacter: Optional<any GeneralExpression>
+
+  public init(
+    string: any GeneralExpression,
+    like pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) {
+    self.string = string
+    self.pattern = pattern
+    self.escapeCharacter = escapeCharacter
+  }
+}
+
+/// Representation of `NOT ILIKE` expression described as `a_expr NOT_LA ILIKE a_expr [ESCAPE a_expr]` in "gram.y".
+public struct NotCaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
+  public final class Operator: Segment {
+    public let tokens: Array<SQLToken> = [.not, .ilike]
+    private init() {}
+    public static let notIlike: Operator = .init()
+  }
+
+  public let string: any GeneralExpression
+
+  public let `operator`: Operator = .notIlike
+
+  public let pattern: any GeneralExpression
+
+  public let escapeCharacter: Optional<any GeneralExpression>
+
+  public init(
+    string: any GeneralExpression,
+    like pattern: any GeneralExpression,
+    escape escapeCharacter: Optional<any GeneralExpression> = nil
+  ) {
+    self.string = string
+    self.pattern = pattern
+    self.escapeCharacter = escapeCharacter
+  }
+}
