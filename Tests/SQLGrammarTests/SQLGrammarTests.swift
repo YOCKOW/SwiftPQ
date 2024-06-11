@@ -712,6 +712,24 @@ final class SQLGrammarExpressionTests: XCTestCase {
     )
   }
 
+  func test_RowExpression() {
+    assertDescription(
+      RowExpression(fields: [
+        UnsignedIntegerConstantExpression(0),
+        UnsignedFloatConstantExpression(1.2),
+        StringConstantExpression("string"),
+      ]),
+      "(0, 1.2, 'string')"
+    )
+    assertDescription(
+      RowExpression(fields: [
+        UnsignedIntegerConstantExpression(0),
+      ]),
+      "ROW(0)"
+    )
+    assertDescription(RowExpression(), "ROW()")
+  }
+
   func test_SubstringFunction() {
     assertDescription(
       SubstringFunction(

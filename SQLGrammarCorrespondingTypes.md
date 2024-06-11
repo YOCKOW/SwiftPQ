@@ -140,17 +140,20 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `c_expr`                                       | `protocol ProductionExpression`               |
 | `common_table_expr`                            | `struct CommonTableExpression`                |
 | `EXISTS select_with_parens`                    | `struct ExistsExpression`                     |
+| `explicit_row`                                 | `struct RowConstructorExpression`             |
 | `func_application`                             | `struct FunctionApplication`                  |
 | `func_arg_expr`                                | `struct FunctionArgumentExpression`           |
 | `func_expr`                                    | `protocol FunctionExpression`                 |
 | `func_expr_common_subexpr`                     | `protocol CommonFunctionSubexpression`        |
 | `func_expr_windowless`                         | `protocol WindowlessFunctionExpression`       |
 | `GROUPING '(' expr_list ')'`                   | `struct GroupingExpression`                   |
+| `implicit_row`                                 | `struct ImplicitRowConstructorExpression`     |
 | `joined_table`                                 | `protocol JoinedTableExpression`              |
 | `json_aggregate_func`                          | `protocol JSONAggregateFunctionExpression`    |
 | `json_value_expr`                              | `struct JSONValueExpression`                  |
 | `NOT a_expr`                                   | `struct UnaryPrefixNotOperatorInvocation`     |
 | `relation_expr`                                | `struct RelationExpression`                   |
+| `row`                                          | `struct RowExpression`                        |
 | `select_with_parens indirection`               | `struct SelectExpression`                     |
 | `table_ref`                                    | `protocol TableReferenceExpression`           |
 | `xmltable`                                     | `struct XMLTableExpression`                   |
@@ -210,7 +213,6 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `columnList`               | `struct ColumnList`                                |
 | `cte_list`                 | `struct CommonTableExpressionList`                 |
 | `empty_grouping_set`       | `class EmptyGroupingSet`                           |
-| `explicit_row`             | `struct RowConstructorExpression`                  |
 | `expr_list`                | `struct GeneralExpressionList`                     |
 | `extract_list`             | `struct ExtractFunction._List` (private)           |
 | `for_locking_item`         | `struct LockingMode`                               |
@@ -223,7 +225,6 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_table`               | `struct TableFunction`                             |
 | `group_by_item`            | `struct GroupingElement`                           |
 | `group_by_list`            | `struct GroupingList`                              |
-| `implicit_row`             | `struct ImplicitRowConstructorExpression`          |
 | `indirection`              | `struct Indirection`                               |
 | `indirection_el`           | `enum Indirection.List.Element`                    |
 | `opt_interval`             | `enum IntervalFieldsPhrase`                        |
