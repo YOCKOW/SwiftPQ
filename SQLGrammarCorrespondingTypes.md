@@ -125,6 +125,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr AT TIME ZONE a_expr`                   | `struct AtTimeZoneOperatorInvocation`          |
 | `a_expr COLLATE any_name`                      | `struct CollationExpression`                   |
 | `a_expr ILIKE a_expr [ESCAPE a_expr]`          | `struct CaseInsensitiveLikeExpression`         |
+| `a_expr IS FALSE_P`                            | `struct IsFalseExpression`                     |
+| `a_expr IS NOT FALSE_P`                        | `struct IsNotFalseExpression`                  |
 | `a_expr {IS NOT NULL_P \| NOTNULL}`            | `struct IsNotNullExpression`                   |
 | `a_expr IS NOT TRUE_P`                         | `struct IsNotTrueExpression`                   |
 | `a_expr {IS NULL_P \| ISNULL}`                 | `struct IsNullExpression`                      |

@@ -178,3 +178,51 @@ extension GeneralExpression {
     return .init(value: self)
   }
 }
+
+/// Representation of `a_expr IS FALSE_P` in "gram.y".
+public struct IsFalseExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  private final class _IsFalse: Segment {
+    let tokens: Array<SQLToken> = [.is, .false]
+    private init() {}
+    static let isFalse: _IsFalse = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, _IsFalse.isFalse])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+extension GeneralExpression {
+  public var isFalseExpression: IsFalseExpression {
+    return .init(value: self)
+  }
+}
+
+/// Representation of `a_expr IS NOT FALSE_P` in "gram.y".
+public struct IsNotFalseExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  private final class _IsNotFalse: Segment {
+    let tokens: Array<SQLToken> = [.is, .not, .false]
+    private init() {}
+    static let isNotFalse: _IsNotFalse = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, _IsNotFalse.isNotFalse])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+extension GeneralExpression {
+  public var isNotFalseExpression: IsNotFalseExpression {
+    return .init(value: self)
+  }
+}

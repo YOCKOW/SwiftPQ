@@ -1265,6 +1265,23 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "NULL::BOOLEAN IS NOT TRUE"
       )
     }
+  a_expr_IS_FALSE:
+    do {
+      assertDescription(
+        BooleanConstantExpression.false.isFalseExpression,
+        "FALSE IS FALSE"
+      )
+    }
+  a_expr_IS_NOT_FALSE:
+    do {
+      assertDescription(
+        BinaryInfixTypeCastOperatorInvocation(
+          NullConstantExpression.null,
+          as: .boolean
+        ).isNotFalseExpression,
+        "NULL::BOOLEAN IS NOT FALSE"
+      )
+    }
   }
 
   func test_c_expr() {
