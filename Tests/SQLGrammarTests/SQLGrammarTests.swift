@@ -1333,6 +1333,30 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "2 NOT BETWEEN 1 AND 3"
       )
     }
+  a_expr_IN_in_expr:
+    do {
+      assertDescription(
+        ColumnReference(identifier: ColumnIdentifier("myColumn")).in(GeneralExpressionList([
+          StringConstantExpression("a"),
+          StringConstantExpression("b"),
+          StringConstantExpression("c"),
+        ])),
+        "myColumn IN ('a', 'b', 'c')"
+      )
+    }
+  a_expr_NOT_IN_in_expr:
+    do {
+      assertDescription(
+        UnsignedIntegerConstantExpression(1).notIn(
+          ValuesClause([
+            [UnsignedIntegerConstantExpression(2)],
+            [UnsignedIntegerConstantExpression(3)],
+            [UnsignedIntegerConstantExpression(4)],
+          ])
+        ),
+        "1 NOT IN (VALUES (2), (3), (4))"
+      )
+    }
   }
 
   func test_c_expr() {

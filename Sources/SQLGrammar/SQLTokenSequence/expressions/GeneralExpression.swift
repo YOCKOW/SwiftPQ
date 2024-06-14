@@ -382,3 +382,152 @@ extension GeneralExpression {
     return .init(value: self, notBetween: lower, and: upper)
   }
 }
+
+
+/// An expression that is described as `a_expr IN_P in_expr` in "gram.y".
+public struct InExpression: GeneralExpression {
+  /// Representation of subquery that is described as `in_expr` in "gram.y".
+  public struct Subquery: SQLTokenSequence {
+    private enum _Generator {
+      case parenthesizedSelect(AnyParenthesizedSelectStatement)
+      case expressionList(GeneralExpressionList)
+    }
+
+    private let _generator: _Generator
+
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private let _iterator: AnySQLTokenSequenceIterator
+      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+      public func next() -> SQLToken? { return _iterator.next() }
+    }
+    public typealias Tokens = Self
+
+    public func makeIterator() -> Iterator {
+      switch _generator {
+      case .parenthesizedSelect(let select):
+        return Iterator(select._asAny.makeIterator())
+      case .expressionList(let list):
+        return Iterator(list.parenthesized._asAny.makeIterator())
+      }
+    }
+
+    public init<S>(_ parenthesizedSelectStatement: Parenthesized<S>) where S: SelectStatement {
+      self._generator = .parenthesizedSelect(.init(parenthesizedSelectStatement))
+    }
+
+    public init<S>(parenthesizing selectStatement: S) where S: SelectStatement {
+      self._generator = .parenthesizedSelect(.init(parenthesizing: selectStatement))
+    }
+
+    public init(_ expressions: GeneralExpressionList) {
+      self._generator = .expressionList(expressions)
+    }
+  }
+
+  public let value: any GeneralExpression
+
+  public let subquery: Subquery
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, subquery], separator: SingleToken(.in))
+  }
+
+  public init(_ value: any GeneralExpression, in subquery: Subquery) {
+    self.value = value
+    self.subquery = subquery
+  }
+
+  public init<S>(
+    _ value: any GeneralExpression,
+    in subquery: Parenthesized<S>
+  ) where S: SelectStatement {
+    self.value = value
+    self.subquery = .init(subquery)
+  }
+
+  public init(_ value: any GeneralExpression, in list: GeneralExpressionList) {
+    self.value = value
+    self.subquery = .init(list)
+  }
+}
+extension GeneralExpression {
+  /// Creates a `self IN (subquery)` expression.
+  public func `in`(_ subquery: InExpression.Subquery) -> InExpression {
+    return .init(self, in: subquery)
+  }
+
+  /// Creates a `self IN (subquery)` expression.
+  public func `in`<S>(_ subquery: Parenthesized<S>) -> InExpression where S: SelectStatement {
+    return .init(self, in: subquery)
+  }
+
+  /// Creates a `self IN (subquery)` expression.
+  public func `in`<S>(_ subquery: S) -> InExpression where S: SelectStatement {
+    return .init(self, in: subquery.parenthesized)
+  }
+
+
+  /// Creates a `self IN (list)` expression.
+  public func `in`(_ list: GeneralExpressionList) -> InExpression {
+    return .init(self, in: list)
+  }
+}
+
+/// An expression that is described as `a_expr NOT_LA IN_P in_expr` in "gram.y".
+public struct NotInExpression: GeneralExpression {
+  public typealias Subquery = InExpression.Subquery
+
+  public let value: any GeneralExpression
+
+  public let subquery: Subquery
+
+  private final class _NotIn: Segment {
+    let tokens: Array<SQLToken> = [.not, .in]
+    private init() {}
+    static let notIn: _NotIn = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, subquery], separator: _NotIn.notIn)
+  }
+
+  public init(_ value: any GeneralExpression, notIn subquery: Subquery) {
+    self.value = value
+    self.subquery = subquery
+  }
+
+  public init<S>(
+    _ value: any GeneralExpression,
+    notIn subquery: Parenthesized<S>
+  ) where S: SelectStatement {
+    self.value = value
+    self.subquery = .init(subquery)
+  }
+
+  public init(_ value: any GeneralExpression, notIn list: GeneralExpressionList) {
+    self.value = value
+    self.subquery = .init(list)
+  }
+}
+extension GeneralExpression {
+  /// Creates a `self NOT IN (subquery)` expression.
+  public func notIn(_ subquery: InExpression.Subquery) -> NotInExpression {
+    return .init(self, notIn: subquery)
+  }
+
+  /// Creates a `self NOT IN (subquery)` expression.
+  public func notIn<S>(_ subquery: Parenthesized<S>) -> NotInExpression where S: SelectStatement {
+    return .init(self, notIn: subquery)
+  }
+
+  /// Creates a `self NOT IN (subquery)` expression.
+  public func notIn<S>(_ subquery: S) -> NotInExpression where S: SelectStatement {
+    return .init(self, notIn: subquery.parenthesized)
+  }
+
+  /// Creates a `self NOT IN (list)` expression.
+  public func notIn(_ list: GeneralExpressionList) -> NotInExpression {
+    return .init(self, notIn: list)
+  }
+}

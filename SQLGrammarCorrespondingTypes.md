@@ -126,6 +126,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr BETWEEN {opt_asymmetric \| SYMMETRIC} b_expr AND a_expr`        | `struct BetweenExpression`                     |
 | `a_expr COLLATE any_name`                                               | `struct CollationExpression`                   |
 | `a_expr ILIKE a_expr [ESCAPE a_expr]`                                   | `struct CaseInsensitiveLikeExpression`         |
+| `a_expr IN_P in_expr`                                                   | `struct InExpression`                          |
 | `a_expr IS FALSE_P`                                                     | `struct IsFalseExpression`                     |
 | `a_expr IS NOT FALSE_P`                                                 | `struct IsNotFalseExpression`                  |
 | `a_expr {IS NOT NULL_P \| NOTNULL}`                                     | `struct IsNotNullExpression`                   |
@@ -137,6 +138,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr LIKE a_expr [ESCAPE a_expr]`                                    | `struct LikeExpression`                        |
 | `a_expr NOT_LA BETWEEN {opt_asymmetric \| SYMMETRIC} b_expr AND a_expr` | `struct NotBetweenExpression`                  |
 | `a_expr NOT ILIKE a_expr [ESCAPE a_expr]`                               | `struct NotCaseInsensitiveLikeExpression`      |
+| `a_expr NOT_LA IN_P in_expr`                                            | `struct NotInExpression`                       |
 | `a_expr NOT LIKE a_expr [ESCAPE a_expr]`                                | `struct NotLikeExpression`                     |
 | `a_expr NOT SIMILAR TO a_expr [ESCAPE a_expr]`                          | `struct NotSimilarToExpression`                |
 | `a_expr OR a_expr`                                                      | `struct BinaryInfixOrOperatorInvocation`       |
@@ -238,6 +240,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `group_by_list`            | `struct GroupingList`                              |
 | `indirection`              | `struct Indirection`                               |
 | `indirection_el`           | `enum Indirection.List.Element`                    |
+| `in_expr`                  | `struct InExpression.Subquery`                     |
 | `opt_interval`             | `enum IntervalFieldsPhrase`                        |
 | `join_type`                | `enum JoinType`                                    |
 | `join_qual`                | `enum JoinCondition`                               |
