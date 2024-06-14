@@ -1247,6 +1247,24 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "(DATE '2024-03-21', INTERVAL '100 days') OVERLAPS (DATE '2024-06-01', DATE '2024-06-30')"
       )
     }
+
+  a_expr_IS_TRUE:
+    do {
+      assertDescription(
+        BooleanConstantExpression.true.isTrueExpression,
+        "TRUE IS TRUE"
+      )
+    }
+  a_expr_IS_NOT_TRUE:
+    do {
+      assertDescription(
+        BinaryInfixTypeCastOperatorInvocation(
+          NullConstantExpression.null,
+          as: .boolean
+        ).isNotTrueExpression,
+        "NULL::BOOLEAN IS NOT TRUE"
+      )
+    }
   }
 
   func test_c_expr() {
