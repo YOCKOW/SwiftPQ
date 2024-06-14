@@ -118,53 +118,55 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Expressions
 
-| gram.y                                         | Swift                                          |
-|------------------------------------------------|------------------------------------------------|
-| `a_expr`                                       | `protocol GeneralExpression`                   |
-| `a_expr AND a_expr`                            | `struct BinaryInfixAndOperatorInvocation`      |
-| `a_expr AT TIME ZONE a_expr`                   | `struct AtTimeZoneOperatorInvocation`          |
-| `a_expr COLLATE any_name`                      | `struct CollationExpression`                   |
-| `a_expr ILIKE a_expr [ESCAPE a_expr]`          | `struct CaseInsensitiveLikeExpression`         |
-| `a_expr IS FALSE_P`                            | `struct IsFalseExpression`                     |
-| `a_expr IS NOT FALSE_P`                        | `struct IsNotFalseExpression`                  |
-| `a_expr {IS NOT NULL_P \| NOTNULL}`            | `struct IsNotNullExpression`                   |
-| `a_expr IS NOT TRUE_P`                         | `struct IsNotTrueExpression`                   |
-| `a_expr IS NOT UNKNOWN`                        | `struct IsNotUnknownExpression`                |
-| `a_expr {IS NULL_P \| ISNULL}`                 | `struct IsNullExpression`                      |
-| `a_expr IS TRUE_P`                             | `struct IsTrueExpression`                      |
-| `a_expr IS UNKNOWN`                            | `struct IsUnknownExpression`                   |
-| `a_expr LIKE a_expr [ESCAPE a_expr]`           | `struct LikeExpression`                        |
-| `a_expr NOT ILIKE a_expr [ESCAPE a_expr]`      | `struct NotCaseInsensitiveLikeExpression`      |
-| `a_expr NOT LIKE a_expr [ESCAPE a_expr]`       | `struct NotLikeExpression`                     |
-| `a_expr NOT SIMILAR TO a_expr [ESCAPE a_expr]` | `struct NotSimilarToExpression`                |
-| `a_expr OR a_expr`                             | `struct BinaryInfixOrOperatorInvocation`       |
-| `a_expr SIMILAR TO a_expr [ESCAPE a_expr]`     | `struct SimilarToExpression`                   |
-| `AexprConst`                                   | `protocol ConstantExpression`                  |
-| `ARRAY {select_with_parens \| array_expr}`     | `struct ArrayConstructorExpression`            |
-| `array_expr`                                   | `struct ArrayConstructorExpression.Subscript`  |
-| `b_expr`                                       | `protocol RestrictedExpression`                |
-| `c_expr`                                       | `protocol ProductionExpression`                |
-| `common_table_expr`                            | `struct CommonTableExpression`                 |
-| `EXISTS select_with_parens`                    | `struct ExistsExpression`                      |
-| `explicit_row`                                 | `struct RowConstructorExpression`              |
-| `func_application`                             | `struct FunctionApplication`                   |
-| `func_arg_expr`                                | `struct FunctionArgumentExpression`            |
-| `func_expr`                                    | `protocol FunctionExpression`                  |
-| `func_expr_common_subexpr`                     | `protocol CommonFunctionSubexpression`         |
-| `func_expr_windowless`                         | `protocol WindowlessFunctionExpression`        |
-| `GROUPING '(' expr_list ')'`                   | `struct GroupingExpression`                    |
-| `implicit_row`                                 | `struct ImplicitRowConstructorExpression`      |
-| `joined_table`                                 | `protocol JoinedTableExpression`               |
-| `json_aggregate_func`                          | `protocol JSONAggregateFunctionExpression`     |
-| `json_value_expr`                              | `struct JSONValueExpression`                   |
-| `NOT a_expr`                                   | `struct UnaryPrefixNotOperatorInvocation`      |
-| `relation_expr`                                | `struct RelationExpression`                    |
-| `row`                                          | `struct RowExpression`                         |
-| `row OVERLAPS row`                             | `struct BinaryInfixOverlapsOperatorInvocation` |
-| `select_with_parens indirection`               | `struct SelectExpression`                      |
-| `table_ref`                                    | `protocol TableReferenceExpression`            |
-| `xmltable`                                     | `struct XMLTableExpression`                    |
-| n/a                                            | `protocol ValueExpression`                     |
+| gram.y                                                                  | Swift                                          |
+|-------------------------------------------------------------------------|------------------------------------------------|
+| `a_expr`                                                                | `protocol GeneralExpression`                   |
+| `a_expr AND a_expr`                                                     | `struct BinaryInfixAndOperatorInvocation`      |
+| `a_expr AT TIME ZONE a_expr`                                            | `struct AtTimeZoneOperatorInvocation`          |
+| `a_expr BETWEEN {opt_asymmetric \| SYMMETRIC} b_expr AND a_expr`        | `struct BetweenExpression`                     |
+| `a_expr COLLATE any_name`                                               | `struct CollationExpression`                   |
+| `a_expr ILIKE a_expr [ESCAPE a_expr]`                                   | `struct CaseInsensitiveLikeExpression`         |
+| `a_expr IS FALSE_P`                                                     | `struct IsFalseExpression`                     |
+| `a_expr IS NOT FALSE_P`                                                 | `struct IsNotFalseExpression`                  |
+| `a_expr {IS NOT NULL_P \| NOTNULL}`                                     | `struct IsNotNullExpression`                   |
+| `a_expr IS NOT TRUE_P`                                                  | `struct IsNotTrueExpression`                   |
+| `a_expr IS NOT UNKNOWN`                                                 | `struct IsNotUnknownExpression`                |
+| `a_expr {IS NULL_P \| ISNULL}`                                          | `struct IsNullExpression`                      |
+| `a_expr IS TRUE_P`                                                      | `struct IsTrueExpression`                      |
+| `a_expr IS UNKNOWN`                                                     | `struct IsUnknownExpression`                   |
+| `a_expr LIKE a_expr [ESCAPE a_expr]`                                    | `struct LikeExpression`                        |
+| `a_expr NOT_LA BETWEEN {opt_asymmetric \| SYMMETRIC} b_expr AND a_expr` | `struct NotBetweenExpression`                  |
+| `a_expr NOT ILIKE a_expr [ESCAPE a_expr]`                               | `struct NotCaseInsensitiveLikeExpression`      |
+| `a_expr NOT LIKE a_expr [ESCAPE a_expr]`                                | `struct NotLikeExpression`                     |
+| `a_expr NOT SIMILAR TO a_expr [ESCAPE a_expr]`                          | `struct NotSimilarToExpression`                |
+| `a_expr OR a_expr`                                                      | `struct BinaryInfixOrOperatorInvocation`       |
+| `a_expr SIMILAR TO a_expr [ESCAPE a_expr]`                              | `struct SimilarToExpression`                   |
+| `AexprConst`                                                            | `protocol ConstantExpression`                  |
+| `ARRAY {select_with_parens \| array_expr}`                              | `struct ArrayConstructorExpression`            |
+| `array_expr`                                                            | `struct ArrayConstructorExpression.Subscript`  |
+| `b_expr`                                                                | `protocol RestrictedExpression`                |
+| `c_expr`                                                                | `protocol ProductionExpression`                |
+| `common_table_expr`                                                     | `struct CommonTableExpression`                 |
+| `EXISTS select_with_parens`                                             | `struct ExistsExpression`                      |
+| `explicit_row`                                                          | `struct RowConstructorExpression`              |
+| `func_application`                                                      | `struct FunctionApplication`                   |
+| `func_arg_expr`                                                         | `struct FunctionArgumentExpression`            |
+| `func_expr`                                                             | `protocol FunctionExpression`                  |
+| `func_expr_common_subexpr`                                              | `protocol CommonFunctionSubexpression`         |
+| `func_expr_windowless`                                                  | `protocol WindowlessFunctionExpression`        |
+| `GROUPING '(' expr_list ')'`                                            | `struct GroupingExpression`                    |
+| `implicit_row`                                                          | `struct ImplicitRowConstructorExpression`      |
+| `joined_table`                                                          | `protocol JoinedTableExpression`               |
+| `json_aggregate_func`                                                   | `protocol JSONAggregateFunctionExpression`     |
+| `json_value_expr`                                                       | `struct JSONValueExpression`                   |
+| `NOT a_expr`                                                            | `struct UnaryPrefixNotOperatorInvocation`      |
+| `relation_expr`                                                         | `struct RelationExpression`                    |
+| `row`                                                                   | `struct RowExpression`                         |
+| `row OVERLAPS row`                                                      | `struct BinaryInfixOverlapsOperatorInvocation` |
+| `select_with_parens indirection`                                        | `struct SelectExpression`                      |
+| `table_ref`                                                             | `protocol TableReferenceExpression`            |
+| `xmltable`                                                              | `struct XMLTableExpression`                    |
+| n/a                                                                     | `protocol ValueExpression`                     |
 
 
 ### Expressions common to `a_expr` and `b_expr`

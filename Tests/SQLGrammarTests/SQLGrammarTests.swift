@@ -1313,6 +1313,26 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "NULL::BOOLEAN IS NOT UNKNOWN"
       )
     }
+  a_expr_BETWEEN_b_expr_AND_a_expr:
+    do {
+      assertDescription(
+        UnsignedIntegerConstantExpression(2).between(
+          UnsignedIntegerConstantExpression(1),
+          and: UnsignedIntegerConstantExpression(3)
+        ),
+        "2 BETWEEN 1 AND 3"
+      )
+    }
+  a_expr_NOT_BETWEEN_b_expr_AND_a_expr:
+    do {
+      assertDescription(
+        UnsignedIntegerConstantExpression(2).notBetween(
+          UnsignedIntegerConstantExpression(1),
+          and: UnsignedIntegerConstantExpression(3)
+        ),
+        "2 NOT BETWEEN 1 AND 3"
+      )
+    }
   }
 
   func test_c_expr() {

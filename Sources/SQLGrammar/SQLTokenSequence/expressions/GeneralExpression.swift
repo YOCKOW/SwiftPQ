@@ -274,3 +274,111 @@ extension GeneralExpression {
     return .init(value: self)
   }
 }
+
+/// Representation of `BETWEEN` predicate expression.
+public struct BetweenExpression: GeneralExpression {
+  public struct Range: SQLTokenSequence {
+    public var isSymmetric: Bool?
+
+    public let lowerEndpoint: any RestrictedExpression
+    public let upperEndpoint: any GeneralExpression
+
+    public var tokens: JoinedSQLTokenSequence {
+      var sequences: [any SQLTokenSequence] = []
+      switch isSymmetric {
+      case true:
+        sequences.append(SingleToken(.symmetric))
+      case false:
+        sequences.append(SingleToken(.asymmetric))
+      default:
+        break
+      }
+      sequences.append(
+        JoinedSQLTokenSequence([lowerEndpoint, upperEndpoint], separator: SingleToken(.and))
+      )
+      return JoinedSQLTokenSequence(sequences)
+    }
+
+    public init(
+      isSymmetric: Bool? = nil,
+      lower lowerEndpoint: any RestrictedExpression,
+      upper upperEndpoint: any GeneralExpression
+    ) {
+      self.lowerEndpoint = lowerEndpoint
+      self.upperEndpoint = upperEndpoint
+    }
+  }
+
+  public let value: any GeneralExpression
+
+  public var range: Range
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, range], separator: SingleToken(.between))
+  }
+
+  public init(value: any GeneralExpression, range: Range) {
+    self.value = value
+    self.range = range
+  }
+
+  public init(
+    value: any GeneralExpression,
+    between lower: any RestrictedExpression,
+    and upper: any GeneralExpression
+  ) {
+    self.value = value
+    self.range = Range(lower: lower, upper: upper)
+  }
+}
+extension GeneralExpression {
+  /// Creates an expression `self BETWEEN lower AND upper`.
+  public func between(
+    _ lower: any RestrictedExpression,
+    and upper: any GeneralExpression
+  ) -> BetweenExpression {
+    return .init(value: self, between: lower, and: upper)
+  }
+}
+
+/// Representation of `NOT BETWEEN` predicate expression.
+public struct NotBetweenExpression: GeneralExpression {
+  public typealias Range = BetweenExpression.Range
+
+  public let value: any GeneralExpression
+
+  public var range: Range
+
+  private final class _NotBetween: Segment {
+    let tokens: Array<SQLToken> = [.not, .between]
+    private init() {}
+    static let notBetween: _NotBetween = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, range], separator: _NotBetween.notBetween)
+  }
+
+  public init(value: any GeneralExpression, range: Range) {
+    self.value = value
+    self.range = range
+  }
+
+  public init(
+    value: any GeneralExpression,
+    notBetween lower: any RestrictedExpression,
+    and upper: any GeneralExpression
+  ) {
+    self.value = value
+    self.range = Range(lower: lower, upper: upper)
+  }
+}
+extension GeneralExpression {
+  /// Creates an expression `self NOT BETWEEN lower AND upper`.
+  public func notBetween(
+    _ lower: any RestrictedExpression,
+    and upper: any GeneralExpression
+  ) -> NotBetweenExpression {
+    return .init(value: self, notBetween: lower, and: upper)
+  }
+}
