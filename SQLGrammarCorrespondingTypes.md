@@ -129,8 +129,10 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr IS NOT FALSE_P`                        | `struct IsNotFalseExpression`                  |
 | `a_expr {IS NOT NULL_P \| NOTNULL}`            | `struct IsNotNullExpression`                   |
 | `a_expr IS NOT TRUE_P`                         | `struct IsNotTrueExpression`                   |
+| `a_expr IS NOT UNKNOWN`                        | `struct IsNotUnknownExpression`                |
 | `a_expr {IS NULL_P \| ISNULL}`                 | `struct IsNullExpression`                      |
 | `a_expr IS TRUE_P`                             | `struct IsTrueExpression`                      |
+| `a_expr IS UNKNOWN`                            | `struct IsUnknownExpression`                   |
 | `a_expr LIKE a_expr [ESCAPE a_expr]`           | `struct LikeExpression`                        |
 | `a_expr NOT ILIKE a_expr [ESCAPE a_expr]`      | `struct NotCaseInsensitiveLikeExpression`      |
 | `a_expr NOT LIKE a_expr [ESCAPE a_expr]`       | `struct NotLikeExpression`                     |

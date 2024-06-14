@@ -226,3 +226,51 @@ extension GeneralExpression {
     return .init(value: self)
   }
 }
+
+/// Representation of `a_expr IS UNKNOWN` in "gram.y".
+public struct IsUnknownExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  private final class _IsUnknown: Segment {
+    let tokens: Array<SQLToken> = [.is, .unknown]
+    private init() {}
+    static let isUnknown: _IsUnknown = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, _IsUnknown.isUnknown])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+extension GeneralExpression {
+  public var isUnknownExpression: IsUnknownExpression {
+    return .init(value: self)
+  }
+}
+
+/// Representation of `a_expr IS NOT UNKNOWN` in "gram.y".
+public struct IsNotUnknownExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  private final class _IsNotUnknown: Segment {
+    let tokens: Array<SQLToken> = [.is, .not, .unknown]
+    private init() {}
+    static let isNotUnknown: _IsNotUnknown = .init()
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence([value, _IsNotUnknown.isNotUnknown])
+  }
+
+  public init(value: any GeneralExpression) {
+    self.value = value
+  }
+}
+extension GeneralExpression {
+  public var isNotUnknownExpression: IsNotUnknownExpression {
+    return .init(value: self)
+  }
+}
