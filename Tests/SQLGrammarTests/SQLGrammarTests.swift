@@ -1079,6 +1079,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertTrue(invocation as Any is any GeneralExpression)
       XCTAssertTrue(invocation as Any is any RestrictedExpression)
     }
+  expr_IS_DISTINCT_FROM_expr:
+    do {
+      let expr = UnsignedIntegerConstantExpression(7).isDistinctFrom(NullConstantExpression.null)
+      assertDescription(expr, "7 IS DISTINCT FROM NULL")
+      XCTAssertTrue(expr as Any is any GeneralExpression)
+      XCTAssertTrue(expr as Any is any RestrictedExpression)
+    }
+  expr_IS_NOT_DISTINCT_FROM_expr:
+    do {
+      let expr = UnsignedIntegerConstantExpression(7).isNotDistinctFrom(NullConstantExpression.null)
+      assertDescription(expr, "7 IS NOT DISTINCT FROM NULL")
+      XCTAssertTrue(expr as Any is any GeneralExpression)
+      XCTAssertTrue(expr as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {

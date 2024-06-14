@@ -171,23 +171,25 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 (In this list, `a/b_expr` means `a_expr` or `b_expr`.)
 
-| gram.y                          | Swift                                                      |
-|---------------------------------|------------------------------------------------------------|
-| `a/b_expr TYPECAST Typename`    | `struct BinaryInfixTypeCastOperatorInvocation`             |
-| `a/b_expr '+' a/b_expr`         | `struct BinaryInfixPlusOperatorInvocation`                 |
-| `a/b_expr '-' a/b_expr`         | `struct BinaryInfixMinusOperatorInvocation`                |
-| `a/b_expr '*' a/b_expr`         | `struct BinaryInfixMultiplyOperatorInvocation`             |
-| `a/b_expr '/' a/b_expr`         | `struct BinaryInfixDivideOperatorInvocation`               |
-| `a/b_expr '%' a/b_expr`         | `struct BinaryInfixModuloOperatorInvocation`               |
-| `a/b_expr '^' a/b_expr`         | `struct BinaryInfixExponentOperatorInvocation`             |
-| `a/b_expr '<' a/b_expr`         | `struct BinaryInfixLessThanOperatorInvocation`             |
-| `a/b_expr '>' a/b_expr`         | `struct BinaryInfixGreaterThanOperatorInvocation`          |
-| `a/b_expr '=' a/b_expr`         | `struct BinaryInfixEqualToOperatorInvocation`              |
-| `a/b_expr '<=' a/b_expr`        | `struct BinaryInfixLessThanOrEqualToOperatorInvocation`    |
-| `a/b_expr '>=' a/b_expr`        | `struct BinaryInfixGreaterThanOrEqualToOperatorInvocation` |
-| `a/b_expr '<>' a/b_expr`        | `struct BinaryInfixNotEqualToOperatorInvocation`           |
-| `a/b_expr qual_Op a/b_expr`     | `struct BinaryInfixQualifiedGeneralOperatorInvocation`     |
-| `qual_Op a/b_expr`              | `struct UnaryPrefixQualifiedGeneralOperatorInvocation`     |
+| gram.y                                   | Swift                                                      |
+|------------------------------------------|------------------------------------------------------------|
+| `a/b_expr TYPECAST Typename`             | `struct BinaryInfixTypeCastOperatorInvocation`             |
+| `a/b_expr '+' a/b_expr`                  | `struct BinaryInfixPlusOperatorInvocation`                 |
+| `a/b_expr '-' a/b_expr`                  | `struct BinaryInfixMinusOperatorInvocation`                |
+| `a/b_expr '*' a/b_expr`                  | `struct BinaryInfixMultiplyOperatorInvocation`             |
+| `a/b_expr '/' a/b_expr`                  | `struct BinaryInfixDivideOperatorInvocation`               |
+| `a/b_expr '%' a/b_expr`                  | `struct BinaryInfixModuloOperatorInvocation`               |
+| `a/b_expr '^' a/b_expr`                  | `struct BinaryInfixExponentOperatorInvocation`             |
+| `a/b_expr '<' a/b_expr`                  | `struct BinaryInfixLessThanOperatorInvocation`             |
+| `a/b_expr '>' a/b_expr`                  | `struct BinaryInfixGreaterThanOperatorInvocation`          |
+| `a/b_expr '=' a/b_expr`                  | `struct BinaryInfixEqualToOperatorInvocation`              |
+| `a/b_expr '<=' a/b_expr`                 | `struct BinaryInfixLessThanOrEqualToOperatorInvocation`    |
+| `a/b_expr '>=' a/b_expr`                 | `struct BinaryInfixGreaterThanOrEqualToOperatorInvocation` |
+| `a/b_expr '<>' a/b_expr`                 | `struct BinaryInfixNotEqualToOperatorInvocation`           |
+| `a/b_expr qual_Op a/b_expr`              | `struct BinaryInfixQualifiedGeneralOperatorInvocation`     |
+| `qual_Op a/b_expr`                       | `struct UnaryPrefixQualifiedGeneralOperatorInvocation`     |
+| `a/b_expr IS DISTINCT FROM a/b_expr`     | `struct IsDistinctFromExpression`                          |
+| `a/b_expr IS NOT DISTINCT FROM a/b_expr` | `struct IsNotDistinctFromExpression`                       |
 
 
 ## Statements
