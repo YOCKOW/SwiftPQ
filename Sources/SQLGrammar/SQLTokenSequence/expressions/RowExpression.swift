@@ -37,7 +37,6 @@ public struct RowExpression: Expression {
   ///   - explicitDeclaration: Force to include `ROW` keyword in the sequence. (`ROW` keyword is
   ///                          added when the number of `fields` is less than 2 even if this value
   ///                          is `false`.)
-  @inlinable
   public init(explicitDeclaration: Bool = false, fields: Array<any GeneralExpression>) {
     let explicit = explicitDeclaration || fields.count < 2
     if explicit {

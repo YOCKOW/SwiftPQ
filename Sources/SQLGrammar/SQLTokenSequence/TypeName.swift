@@ -12,7 +12,9 @@ public protocol SimpleTypeName: NameRepresentation {}
 public protocol ConstantTypeName: NameRepresentation {}
 
 /// A name of a type that corresponds to `Typename` in "gram.y"
-public struct TypeName: NameRepresentation {
+public struct TypeName: NameRepresentation,
+                        _PossiblyQualifiedNameConvertible,
+                        _PossiblyFunctionNameWithModifiersConvertible {
   public enum ArrayModifier: Segment {
     case oneDimensionalArray(size: UnsignedIntegerConstantExpression?)
     case multipleDimensionalArray(ArrayBoundList)
@@ -59,6 +61,32 @@ public struct TypeName: NameRepresentation {
     return JoinedSQLTokenSequence(sequences)
   }
 
+  internal var _qualifiedName: (some QualifiedName)? {
+    struct __QualifiedName: QualifiedName {
+      let identifier: ColumnIdentifier
+      let indirection: Indirection?
+      init(_ qualifiedName: any QualifiedName) {
+        self.identifier = qualifiedName.identifier
+        self.indirection = qualifiedName.indirection
+      }
+    }
+    guard !isSet,
+          arrayModifier == nil,
+          case let sourceName as any _PossiblyQualifiedNameConvertible = name else {
+      return Optional<__QualifiedName>.none
+    }
+    return sourceName._qualifiedName.map(__QualifiedName.init)
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    guard !isSet,
+          arrayModifier == nil,
+          case let sourceName as any _PossiblyFunctionNameWithModifiersConvertible = name else {
+      return nil
+    }
+    return sourceName._functionNameWithModifiers
+  }
+
   public init(_ name: any SimpleTypeName, arrayModifier: ArrayModifier? = nil, isSet: Bool = false) {
     self.name = name
     self.arrayModifier = arrayModifier
@@ -95,9 +123,13 @@ public struct TypeName: NameRepresentation {
 
   public static let boolean: TypeName = NumericTypeName.boolean.typeName
 
+  public static let date: TypeName = GenericTypeName.date.typeName
+
   public static let json: TypeName = GenericTypeName.json.typeName
 
   public static let text: TypeName = GenericTypeName.text.typeName
+
+  public static let interval: TypeName = ConstantIntervalTypeName().typeName
 }
 
 extension SimpleTypeName {
@@ -108,7 +140,9 @@ extension SimpleTypeName {
 }
 
 /// A representation of generic type name that corresponds to `GenericType` in "gram.y".
-public struct GenericTypeName: SimpleTypeName {
+public struct GenericTypeName: SimpleTypeName,
+                               _PossiblyQualifiedNameConvertible,
+                               _PossiblyFunctionNameWithModifiersConvertible {
   private let _name: TypeOrFunctionName
 
   public var name: SQLToken {
@@ -155,13 +189,47 @@ public struct GenericTypeName: SimpleTypeName {
     self.init(SQLToken.identifier(name), attributes: attributes, modifiers: modifiers)!
   }
 
+  private var __qualifiedName: (some QualifiedName)? {
+    struct __QualifiedName: QualifiedName {
+      let identifier: ColumnIdentifier
+      let indirection: Indirection?
+    }
+    guard let colId = ColumnIdentifier(name) else {
+      return Optional<__QualifiedName>.none
+    }
+    let indirection: Indirection? = attributes.map { (attrList) -> Indirection in
+      return Indirection(Indirection.List(attrList.names.map({ .attributeName($0) })))
+    }
+    return __QualifiedName(identifier: colId, indirection: indirection)
+  }
+
+  internal var _qualifiedName: (some QualifiedName)? {
+    return modifiers == nil ? __qualifiedName : nil
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    guard let qualifiedName = self.__qualifiedName else {
+      return nil
+    }
+    let funcName = FunctionName(qualifiedName)
+    let funcArgList: FunctionArgumentList? = modifiers.map {
+      FunctionArgumentList($0.expressions.map({ $0.asFunctionArgument }))
+    }
+    return (funcName, funcArgList)
+  }
+
+  public static let date: GenericTypeName = .init("DATE")
+
   public static let json: GenericTypeName = .init(.json)!
 
   public static let text: GenericTypeName = .init(.text)!
 }
 
 /// A type representing a name of numeric.
-public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
+public enum NumericTypeName: SimpleTypeName,
+                             ConstantTypeName,
+                             _PossiblyQualifiedNameConvertible,
+                             _PossiblyFunctionNameWithModifiersConvertible {
   /// `INT` type.
   case int
 
@@ -265,10 +333,101 @@ public enum NumericTypeName: SimpleTypeName, ConstantTypeName {
       return JoinedSQLTokenSequence([SingleToken(.boolean)])
     }
   }
+
+  private func __qualifiedName(from token: SQLToken) -> AnyQualifiedName? {
+    guard let colId = ColumnIdentifier(token) else { return nil }
+    return AnyQualifiedName(identifier: colId, indirection: nil)
+  }
+
+  internal var _qualifiedName: AnyQualifiedName? {
+    switch self {
+    case .int:
+      return __qualifiedName(from: .int)
+    case .integer:
+      return __qualifiedName(from: .integer)
+    case .samllInt:
+      return __qualifiedName(from: .smallint)
+    case .bigInt:
+      return __qualifiedName(from: .bigint)
+    case .real:
+      return __qualifiedName(from: .real)
+    case .float(let precision):
+      if precision != nil {
+        return nil
+      }
+      return __qualifiedName(from: .float)
+    case .doublePrecision:
+      return nil
+    case .decimal(let modifiers):
+      if modifiers != nil {
+        return nil
+      }
+      return __qualifiedName(from: .decimal)
+    case .dec(let modifiers):
+      if modifiers != nil {
+        return nil
+      }
+      return __qualifiedName(from: .dec)
+    case .numeric(let modifiers):
+      if modifiers != nil {
+        return nil
+      }
+      return __qualifiedName(from: .numeric)
+    case .boolean:
+      return __qualifiedName(from: .boolean)
+    }
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    switch self {
+    case .int:
+      return __qualifiedName(from: .int).map({ (FunctionName($0), nil) })
+    case .integer:
+      return __qualifiedName(from: .integer).map({ (FunctionName($0), nil) })
+    case .samllInt:
+      return __qualifiedName(from: .smallint).map({ (FunctionName($0), nil) })
+    case .bigInt:
+      return __qualifiedName(from: .bigint).map({ (FunctionName($0), nil) })
+    case .real:
+      return __qualifiedName(from: .real).map({ (FunctionName($0), nil) })
+    case .float(let precision):
+      return __qualifiedName(from: .float).map {
+        let funcName = FunctionName($0)
+        let funcArgList: FunctionArgumentList? = precision.map {
+          FunctionArgumentList(NonEmptyList(item: $0.asFunctionArgument))
+        }
+        return (funcName, funcArgList)
+      }
+    case .doublePrecision:
+      return nil
+    case .decimal(let modifiers):
+      return __qualifiedName(from: .decimal).map {
+        let funcName = FunctionName($0)
+        let funcArgList: FunctionArgumentList? = modifiers.map(FunctionArgumentList.init)
+        return (funcName, funcArgList)
+      }
+    case .dec(let modifiers):
+      return __qualifiedName(from: .dec).map {
+        let funcName = FunctionName($0)
+        let funcArgList: FunctionArgumentList? = modifiers.map(FunctionArgumentList.init)
+        return (funcName, funcArgList)
+      }
+    case .numeric(let modifiers):
+      return __qualifiedName(from: .numeric).map {
+        let funcName = FunctionName($0)
+        let funcArgList: FunctionArgumentList? = modifiers.map(FunctionArgumentList.init)
+        return (funcName, funcArgList)
+      }
+    case .boolean:
+      return __qualifiedName(from: .boolean).map({ (FunctionName($0), nil) })
+    }
+  }
 }
 
 /// A name of bit string type, that is described as `Bit` in "gram.y".
-public enum BitStringTypeName: SimpleTypeName {
+public enum BitStringTypeName: SimpleTypeName,
+                               _PossiblyQualifiedNameConvertible,
+                               _PossiblyFunctionNameWithModifiersConvertible {
   /// Fixed-length bit string
   case fixed(length: GeneralExpressionList? = nil)
 
@@ -306,10 +465,41 @@ public enum BitStringTypeName: SimpleTypeName {
 
     return JoinedSQLTokenSequence(tokens)
   }
+
+
+  internal var _qualifiedName: Optional<some QualifiedName> {
+    struct __QualifiedName: QualifiedName {
+      let identifier: ColumnIdentifier
+      let indirection: Indirection?
+    }
+    var none: Optional<__QualifiedName> { .none }
+    switch self {
+    case .fixed(let length):
+      if length != nil {
+        return none
+      }
+      return ColumnIdentifier(.bit).map({ __QualifiedName(identifier: $0, indirection: nil) })
+    case .varying:
+      return none
+    }
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    switch self {
+    case .fixed(let length):
+      guard let funcName = FunctionName(.bit) else { return nil }
+      let funcArgList = length.map(FunctionArgumentList.init)
+      return (funcName, funcArgList)
+    case .varying:
+      return nil
+    }
+  }
 }
 
 /// A name of constant character, that is described as `Character` in "gram.y".
-public struct CharacterTypeName: SimpleTypeName {
+public struct CharacterTypeName: SimpleTypeName,
+                                 _PossiblyQualifiedNameConvertible,
+                                 _PossiblyFunctionNameWithModifiersConvertible {
   public enum CharacterType: SQLTokenSequence {
     case character
     case char
@@ -343,6 +533,26 @@ public struct CharacterTypeName: SimpleTypeName {
         return [.nchar]
       }
     }
+
+    fileprivate var _qualifiedName: AnyQualifiedName? {
+      func __name(from token: SQLToken) -> AnyQualifiedName? {
+        return ColumnIdentifier(token).map({ AnyQualifiedName(identifier: $0, indirection: nil) })
+      }
+      switch self {
+      case .character:
+        return __name(from: .character)
+      case .char:
+        return __name(from: .char)
+      case .varchar:
+        return __name(from: .varchar)
+      case .nationalCharacter:
+        return nil
+      case .nationalChar:
+        return nil
+      case .nchar:
+        return __name(from: .nchar)
+      }
+    }
   }
 
   public let type: CharacterType
@@ -362,6 +572,23 @@ public struct CharacterTypeName: SimpleTypeName {
     }
     return JoinedSQLTokenSequence(seqCollection)
   }
+
+  internal var _qualifiedName: AnyQualifiedName? {
+    if varying || length != nil {
+      return nil
+    }
+    return type._qualifiedName
+  }
+  
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    if varying {
+      return nil
+    }
+    guard let funcName = type._qualifiedName.flatMap(FunctionName.init) else { return nil }
+    let funcArgList = length.map({ FunctionArgumentList([$0.asFunctionArgument]) })
+    return (funcName, funcArgList)
+  }
+
 
   fileprivate init(type: CharacterType, varying: Bool, length: UnsignedIntegerConstantExpression?) {
     assert(!varying || type.canBeVarying, "'VARYING' is not available.")
@@ -435,7 +662,10 @@ public struct CharacterTypeName: SimpleTypeName {
 }
 
 /// A name of date-time type, that is described as `ConstDatetime` in "gram.y".
-public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
+public struct ConstantDateTimeTypeName: SimpleTypeName,
+                                        ConstantTypeName,
+                                        _PossiblyQualifiedNameConvertible,
+                                        _PossiblyFunctionNameWithModifiersConvertible {
   public enum DateTimeType {
     case timestamp
     case time
@@ -476,6 +706,33 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
     return JoinedSQLTokenSequence(seqCollection)
   }
 
+  internal var _qualifiedName: (some QualifiedName)? {
+    struct __QualifiedName: QualifiedName {
+      let identifier: ColumnIdentifier
+      let indirection: Indirection?
+    }
+    var none: __QualifiedName? { .none }
+    if precision != nil || withTimeZone != nil {
+      return none
+    }
+    return ColumnIdentifier(type.token).map({ __QualifiedName(identifier: $0, indirection: nil) })
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    if withTimeZone != nil {
+      return nil
+    }
+    guard let funcName = ColumnIdentifier(type.token).map({
+      AnyQualifiedName(identifier: $0, indirection: nil)
+    }).map({
+      FunctionName($0)
+    }) else {
+      return nil
+    }
+    let funcArgList = precision.map({ FunctionArgumentList([$0.asFunctionArgument]) })
+    return (funcName, funcArgList)
+  }
+
   private init(type: DateTimeType, precision: UnsignedIntegerConstantExpression?, withTimeZone: Bool?) {
     self.type = type
     self.precision = precision
@@ -514,7 +771,9 @@ public struct ConstantDateTimeTypeName: SimpleTypeName, ConstantTypeName {
 }
 
 /// A type name that represents `ConstInterval opt_interval` or `ConstInterval '(' Iconst ')'`.
-public struct ConstantIntervalTypeName: SimpleTypeName {
+public struct ConstantIntervalTypeName: SimpleTypeName,
+                                        _PossiblyQualifiedNameConvertible,
+                                        _PossiblyFunctionNameWithModifiersConvertible {
   public let option: IntervalOption?
 
   public var tokens: JoinedSQLTokenSequence {
@@ -525,6 +784,35 @@ public struct ConstantIntervalTypeName: SimpleTypeName {
       return SingleToken(.interval).followedBy(parenthesized: p)
     case nil:
       return JoinedSQLTokenSequence(SingleToken(.interval))
+    }
+  }
+
+  internal var _qualifiedName: (some QualifiedName)? {
+    struct __QualifiedName: QualifiedName {
+      let identifier: ColumnIdentifier
+      let indirection: Indirection?
+    }
+    if option != nil {
+      return Optional<__QualifiedName>.none
+    }
+    return ColumnIdentifier(.interval).map({ __QualifiedName(identifier: $0, indirection: nil) })
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    var funcName: FunctionName? {
+      ColumnIdentifier(.interval).map({
+        AnyQualifiedName(identifier: $0)
+      }).map({
+        FunctionName($0)
+      })
+    }
+    switch option {
+    case .fields:
+      return nil
+    case .precision(let precision):
+      return funcName.map { ($0, FunctionArgumentList([precision.asFunctionArgument])) }
+    case nil:
+      return funcName.map { ($0, nil) }
     }
   }
 
@@ -542,11 +830,21 @@ public struct ConstantIntervalTypeName: SimpleTypeName {
 }
 
 /// A name of constant bit string type, that is described as `ConstBit` in "gram.y".
-public struct ConstantBitStringTypeName: ConstantTypeName {
+public struct ConstantBitStringTypeName: ConstantTypeName,
+                                         _PossiblyQualifiedNameConvertible,
+                                         _PossiblyFunctionNameWithModifiersConvertible {
   public let name: BitStringTypeName
 
   public var tokens: BitStringTypeName.Tokens {
     return name.tokens
+  }
+
+  internal var _qualifiedName: (some QualifiedName)? {
+    return name._qualifiedName
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    return name._functionNameWithModifiers
   }
 
   public init(_ name: BitStringTypeName) {
@@ -577,7 +875,9 @@ public struct ConstantBitStringTypeName: ConstantTypeName {
 }
 
 /// A name of constant character, that is described as `ConstCharacter` in "gram.y".
-public struct ConstantCharacterTypeName: ConstantTypeName {
+public struct ConstantCharacterTypeName: ConstantTypeName,
+                                         _PossiblyQualifiedNameConvertible,
+                                         _PossiblyFunctionNameWithModifiersConvertible {
   public typealias CharacterType = CharacterTypeName.CharacterType
 
   /// Base name.
@@ -585,6 +885,14 @@ public struct ConstantCharacterTypeName: ConstantTypeName {
 
   public var tokens: CharacterTypeName.Tokens {
     return name.tokens
+  }
+
+  internal var _qualifiedName: (some QualifiedName)? {
+    return name._qualifiedName
+  }
+
+  internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
+    return name._functionNameWithModifiers
   }
 
   public init(_ name: CharacterTypeName) {

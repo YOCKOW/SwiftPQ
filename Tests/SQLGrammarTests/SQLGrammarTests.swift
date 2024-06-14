@@ -1231,6 +1231,22 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'null' IS NOT NULL"
       )
     }
+  row_OVERLAPS_row:
+    do {
+      assertDescription(
+        BinaryInfixOverlapsOperatorInvocation(
+          RowExpression(fields: [
+            try XCTUnwrap(GenericTypeCastStringLiteralSyntax(typeName: .date, string: "2024-03-21")),
+            try XCTUnwrap(GenericTypeCastStringLiteralSyntax(typeName: .interval, string: "100 days")),
+          ]),
+          RowExpression(fields: [
+            try XCTUnwrap(GenericTypeCastStringLiteralSyntax(typeName: .date, string: "2024-06-01")),
+            try XCTUnwrap(GenericTypeCastStringLiteralSyntax(typeName: .date, string: "2024-06-30")),
+          ])
+        ),
+        "(DATE '2024-03-21', INTERVAL '100 days') OVERLAPS (DATE '2024-06-01', DATE '2024-06-30')"
+      )
+    }
   }
 
   func test_c_expr() {

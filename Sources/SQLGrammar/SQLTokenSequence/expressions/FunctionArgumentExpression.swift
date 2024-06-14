@@ -69,6 +69,10 @@ public struct FunctionArgumentList: SQLTokenSequence {
     self.arguments = arguments
   }
 
+  public init(_ expressionList: GeneralExpressionList) {
+    self.arguments = expressionList.expressions.map({ $0.asFunctionArgument })
+  }
+
   public init?(_ arguments: KeyValuePairs<ParameterName?, any GeneralExpression>) {
     if arguments.isEmpty {
       return nil
@@ -88,3 +92,4 @@ public struct FunctionArgumentList: SQLTokenSequence {
     return arguments.joinedByCommas()
   }
 }
+

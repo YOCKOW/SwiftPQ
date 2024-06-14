@@ -668,3 +668,31 @@ extension GeneralExpression {
     return .init(self, other)
   }
 }
+
+
+/// An invocation of `OVERLAPS` operator that is described as `row OVERLAPS row` in "gram.y".
+public struct BinaryInfixOverlapsOperatorInvocation: BinaryInfixOperatorInvocation,
+                                                     GeneralExpression {
+  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias LeftOperand = RowExpression
+  public typealias Operator = SQLToken
+  public typealias RightOperand = RowExpression
+
+  public let leftOperand: RowExpression
+
+  public let `operator`: SQLToken = .overlaps
+
+  public let rightOperand: RowExpression
+
+  public init(_ leftOperand: RowExpression, _ rightOperand: RowExpression) {
+    self.leftOperand = leftOperand
+    self.rightOperand = rightOperand
+  }
+}
+extension RowExpression {
+  /// Creates a `row OVERLAPS row` expression.
+  @inlinable
+  public func overlaps(_ other: RowExpression) -> BinaryInfixOverlapsOperatorInvocation {
+    return .init(self, other)
+  }
+}

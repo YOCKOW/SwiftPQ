@@ -168,6 +168,10 @@ public struct BitStringConstantExpression: SingleTokenConstantExpression {
 
 // MARK: /SingleTokenConstantExpression -
 
+internal protocol _PossiblyFunctionNameWithModifiersConvertible {
+  var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? { get }
+}
+
 /// Representation of a generic type syntax,  that is described as `func_name Sconst` or
 /// `func_name '(' func_arg_list opt_sort_clause ')' Sconst` in "gram.y".
 ///
@@ -219,6 +223,21 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
     string: String
   ) {
     self.init(typeName: typeName, modifiers: modifiers, string: SQLToken.string(string))
+  }
+
+  public init?(typeName: TypeName, string: String) {
+    guard let functionNameWithModifiers = typeName._functionNameWithModifiers else {
+      return nil
+    }
+    self.init(
+      typeName: functionNameWithModifiers.0,
+      modifiers: functionNameWithModifiers.1,
+      string: string
+    )
+  }
+
+  public init?<Name>(typeName: Name, string: String) where Name: SimpleTypeName {
+    self.init(typeName: typeName.typeName, string: string)
   }
 }
 

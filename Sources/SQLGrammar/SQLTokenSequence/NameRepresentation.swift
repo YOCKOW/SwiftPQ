@@ -47,6 +47,26 @@ extension QualifiedName where Self: AnyName, Self.Tokens == JoinedSQLTokenSequen
   }
 }
 
+/// Internal representation of `QualifiedName` that must not be `public`.
+internal struct AnyQualifiedName: QualifiedName {
+  let identifier: ColumnIdentifier
+  let indirection: Indirection?
+
+  init(identifier: ColumnIdentifier, indirection: Indirection? = nil) {
+    self.identifier = identifier
+    self.indirection = indirection
+  }
+
+  init<OtherName>(_ otherName: OtherName) where OtherName: QualifiedName {
+    self.init(identifier: otherName.identifier, indirection: otherName.indirection)
+  }
+}
+
+internal protocol _PossiblyQualifiedNameConvertible {
+  associatedtype _QualifiedName: QualifiedName
+  var _qualifiedName: Optional<_QualifiedName> { get }
+}
+
 struct _DatabaseSchemaQualifiedName: AnyName, QualifiedName {
   let database: DatabaseName?
 
@@ -380,6 +400,12 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
 
   public init<Q>(_ otherName: Q) where Q: QualifiedName {
     self._type = .qualifiedName(otherName)
+  }
+
+  /// Convert `typeName` to a instance of `FunctionName` if possible.
+  public init?(_ typeName: TypeName) {
+    guard let qualifiedName = typeName._qualifiedName else { return nil }
+    self._type = .qualifiedName(qualifiedName)
   }
 }
 
