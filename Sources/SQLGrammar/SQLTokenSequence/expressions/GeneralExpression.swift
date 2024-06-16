@@ -531,3 +531,127 @@ extension GeneralExpression {
     return .init(self, notIn: list)
   }
 }
+
+
+/// An expression that generates a Boolean result by evaluating left-hand side expression and
+/// comparing it to each row of the subquery result or to each element of the array using the given
+/// operator.
+/// This expression is described as `a_expr subquery_Op sub_type select_with_parens` or
+/// `a_expr subquery_Op sub_type '(' a_expr ')'` in "gram.y".
+public struct SatisfyExpression: GeneralExpression {
+  /// A keyword to determine how to generate the result. It is described as `sub_type` in "gram.y".
+  public enum Kind: CustomTokenConvertible {
+    case `any`
+    case `some`
+    case all
+
+    public var token: SQLToken {
+      switch self {
+      case .any:
+        return .any
+      case .some:
+        return .some
+      case .all:
+        return .all
+      }
+    }
+  }
+
+  private enum _Elements {
+    case subquery(AnyParenthesizedSelectStatement)
+    case array(any GeneralExpression)
+  }
+
+  public let value: any GeneralExpression
+
+  public let comparator: SubqueryOperator
+
+  public let kind: Kind
+
+  private let _elements: _Elements
+
+  public func subquery<T>(as type: T.Type) -> T? where T: SelectStatement {
+    guard case .subquery(let statement) = _elements else {
+      return nil
+    }
+    return statement.subquery(as: T.self)
+  }
+
+  public var array: (any GeneralExpression)? {
+    guard case .array(let expr) = _elements else {
+      return nil
+    }
+    return expr
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    var sequences: [any SQLTokenSequence] = [value, comparator, kind.asSequence]
+    switch _elements {
+    case .subquery(let parenthesizedSelectStatement):
+      sequences.append(parenthesizedSelectStatement)
+    case .array(let arrayExpr):
+      sequences.append(arrayExpr._asAny.parenthesized)
+    }
+    return JoinedSQLTokenSequence(sequences)
+  }
+
+  public init<S>(
+    value: any GeneralExpression,
+    comparator: SubqueryOperator,
+    kind: Kind,
+    subquery: Parenthesized<S>
+  ) where S: SelectStatement {
+    self.value = value
+    self.comparator = comparator
+    self.kind = kind
+    self._elements = .subquery(.init(subquery))
+  }
+
+  public init<S>(
+    value: any GeneralExpression,
+    comparator: SubqueryOperator,
+    kind: Kind,
+    subquery: S
+  ) where S: SelectStatement {
+    self.value = value
+    self.comparator = comparator
+    self.kind = kind
+    self._elements = .subquery(.init(parenthesizing: subquery))
+  }
+
+  public init(
+    value: any GeneralExpression,
+    comparator: SubqueryOperator,
+    kind: Kind,
+    array: any GeneralExpression
+  )  {
+    self.value = value
+    self.comparator = comparator
+    self.kind = kind
+    self._elements = .array(array)
+  }
+
+  public init(
+    value: any GeneralExpression,
+    comparator: SubqueryOperator,
+    kind: Kind,
+    array: ArrayConstructorExpression
+  ) {
+    self.value = value
+    self.comparator = comparator
+    self.kind = kind
+    self._elements = .array(array)
+  }
+
+  public init(
+    value: any GeneralExpression,
+    comparator: SubqueryOperator,
+    kind: Kind,
+    elements: GeneralExpressionList
+  ) {
+    self.value = value
+    self.comparator = comparator
+    self.kind = kind
+    self._elements = .array(ArrayConstructorExpression(elements))
+  }
+}

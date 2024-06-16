@@ -1357,6 +1357,47 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "1 NOT IN (VALUES (2), (3), (4))"
       )
     }
+  a_expr_subquery_Op_sub_type_expr:
+    do {
+      assertDescription(
+        SatisfyExpression(
+          value: ColumnReference(columnName: "myColumn"),
+          comparator: .equalTo,
+          kind: .any,
+          subquery: SimpleSelectQuery(
+            targets: [.all],
+            from: FromClause([RelationTableReference("mySingleColumnTable")])
+          )
+        ),
+        "myColumn = ANY (SELECT * FROM mySingleColumnTable)"
+      )
+      assertDescription(
+        SatisfyExpression(
+          value: ColumnReference(columnName: "myColumn"),
+          comparator: .greaterThan,
+          kind: .all,
+          subquery: ValuesClause([
+            [UnsignedIntegerConstantExpression(0)],
+            [UnsignedIntegerConstantExpression(1)],
+            [UnsignedIntegerConstantExpression(2)],
+          ]).parenthesized
+        ),
+        "myColumn > ALL (VALUES (0), (1), (2))"
+      )
+      assertDescription(
+        SatisfyExpression(
+          value: ColumnReference(columnName: "myColumn"),
+          comparator: .lessThan,
+          kind: .some,
+          array: ArrayConstructorExpression([
+            UnsignedIntegerConstantExpression(0),
+            UnsignedIntegerConstantExpression(1),
+            UnsignedIntegerConstantExpression(2),
+          ])
+        ),
+        "myColumn < SOME (ARRAY[0, 1, 2])"
+      )
+    }
   }
 
   func test_c_expr() {

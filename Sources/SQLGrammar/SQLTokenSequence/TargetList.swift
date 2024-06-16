@@ -65,7 +65,9 @@ public struct TargetElement: SQLTokenSequence {
 }
 
 /// A list of targets, that is described as `target_list` in "gram.y".
-public struct TargetList: SQLTokenSequence {
+public struct TargetList: SQLTokenSequence,
+                          InitializableWithNonEmptyList,
+                          ExpressibleByArrayLiteral {
   public var elements: NonEmptyList<TargetElement>
 
   public var tokens: JoinedSQLTokenSequence {

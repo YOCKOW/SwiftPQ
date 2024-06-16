@@ -17,6 +17,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `OPERATOR '(' any_operator ')'` | `struct OperatorConstructor`          |
 | `qual_all_Op`                   | `struct QualifiedOperator`            |
 | `qual_Op`                       | `struct QualifiedGeneralOperator`     |
+| `subquery_Op`                   | `struct SubqueryOperator`             |
 
 ## One-token symbols
 
@@ -32,6 +33,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `first_or_next`       | `enum LimitClause.FetchClause.Keyword` |
 | `row_or_rows`         | `enum LimitClause.FetchClause.Unit`    |
 | `set_quantifier`      | `enum SetQuantifier`                   |
+| `sub_type`            | `enum SatisfyExpression.Kind`          |
 | `type_function_name`  | `struct TypeOrFunctionName`(internal)  |
 | `unicode_normal_form` | `enum UnicodeNormalizationForm`        |
 
@@ -143,6 +145,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr NOT SIMILAR TO a_expr [ESCAPE a_expr]`                          | `struct NotSimilarToExpression`                |
 | `a_expr OR a_expr`                                                      | `struct BinaryInfixOrOperatorInvocation`       |
 | `a_expr SIMILAR TO a_expr [ESCAPE a_expr]`                              | `struct SimilarToExpression`                   |
+| `a_expr subquery_Op sub_type {select_with_parens \| '(' a_expr ')'}`    | `struct SatisfyExpression`                     |
 | `AexprConst`                                                            | `protocol ConstantExpression`                  |
 | `ARRAY {select_with_parens \| array_expr}`                              | `struct ArrayConstructorExpression`            |
 | `array_expr`                                                            | `struct ArrayConstructorExpression.Subscript`  |

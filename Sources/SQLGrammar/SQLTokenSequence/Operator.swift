@@ -208,3 +208,109 @@ public struct QualifiedGeneralOperator: OperatorTokenSequence {
     self._qualifiedOperator = .init(constructor)
   }
 }
+
+
+/// An operator that is used in `ANY/SOME/ALL` expression.
+/// It is described as `subquery_Op` in "gram.y".
+public struct SubqueryOperator: OperatorTokenSequence {
+  fileprivate enum _Operator: SQLTokenSequence {
+    /// `all_Op`
+    case token(any OperatorTokenConvertible)
+
+    /// `OPERATOR '(' any_operator ')'`
+    case constructor(OperatorConstructor)
+
+    case like
+
+    case notLike
+
+    case caseInsensitiveLike
+
+    case notCaseInsensitiveLike
+
+    struct Iterator: IteratorProtocol {
+      typealias Element = SQLToken
+      private let _iterator: AnySQLTokenSequenceIterator
+      init<S>(_ sequence: S) where S: SQLTokenSequence { self._iterator = .init(sequence) }
+      func next() -> SQLToken? { return _iterator.next() }
+    }
+
+    func makeIterator() -> Iterator {
+      switch self {
+      case .token(let op):
+        return Iterator(op.asSequence)
+      case .constructor(let constructor):
+        return Iterator(constructor)
+      case .like:
+        return Iterator(LikeExpression.Operator.like)
+      case .notLike:
+        return Iterator(NotLikeExpression.Operator.notLike)
+      case .caseInsensitiveLike:
+        return Iterator(CaseInsensitiveLikeExpression.Operator.iLike)
+      case .notCaseInsensitiveLike:
+        return Iterator(NotCaseInsensitiveLikeExpression.Operator.notIlike)
+      }
+    }
+  }
+
+  private let _operator: _Operator
+
+  public struct Iterator: IteratorProtocol {
+    public typealias Element = SQLToken
+    private let _iterator: _Operator.Iterator
+    fileprivate init(_ iterator: _Operator.Iterator) { self._iterator = iterator }
+    public func next() -> SQLToken? { return _iterator.next() }
+  }
+
+  public func makeIterator() -> Iterator {
+    return Iterator(_operator.makeIterator())
+  }
+
+  private init(_operator: _Operator) {
+    self._operator = _operator
+  }
+
+  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible {
+    self.init(_operator: .token(`operator`))
+  }
+
+  public init(_ constructor: OperatorConstructor) {
+    self.init(_operator: .constructor(constructor))
+  }
+
+  /// `+` operator.
+  public static let plus: SubqueryOperator = .init(MathOperator.plus)
+
+  /// `-` operator.
+  public static let minus: SubqueryOperator = .init(MathOperator.minus)
+
+  /// `*` operator.
+  public static let multiply: SubqueryOperator = .init(MathOperator.multiply)
+
+  /// `/` operator.
+  public static let divide: SubqueryOperator = .init(MathOperator.divide)
+
+  /// `%` operator.
+  public static let modulo: SubqueryOperator = .init(MathOperator.modulo)
+
+  /// `^` operator.
+  public static let exponent: SubqueryOperator = .init(MathOperator.exponent)
+
+  /// `<` operator.
+  public static let lessThan: SubqueryOperator = .init(MathOperator.lessThan)
+
+  /// `>` operator.
+  public static let greaterThan: SubqueryOperator = .init(MathOperator.greaterThan)
+
+  /// `=` operator.
+  public static let equalTo: SubqueryOperator = .init(MathOperator.equalTo)
+
+  /// `<=` operator.
+  public static let lessThanOrEqualTo: SubqueryOperator = .init(MathOperator.lessThanOrEqualTo)
+
+  /// `>=` operator.
+  public static let greaterThanOrEqualTo: SubqueryOperator = .init(MathOperator.greaterThanOrEqualTo)
+
+  /// `<>` operator.
+  public static let notEqualTo: SubqueryOperator = .init(MathOperator.notEqualTo)
+}
