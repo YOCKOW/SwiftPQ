@@ -794,3 +794,11 @@ public struct IsNotJSONTypeExpression: GeneralExpression {
     self.keyUniquenessOption = keyUniquenessOption
   }
 }
+
+
+/// `DEFAULT` as an expression.
+public final class DefaultExpression: GeneralExpression {
+  public let tokens: Array<SQLToken> = [.default]
+  private init() {}
+  public static let `default`: DefaultExpression = .init()
+}

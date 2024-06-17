@@ -1465,6 +1465,14 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'json' IS NOT JSON OBJECT WITH UNIQUE KEYS"
       )
     }
+  DEFAULT:
+    do {
+      assertDescription(DefaultExpression.default, "DEFAULT")
+    }
+  }
+
+  func test_b_expr() {
+    // Nothing to test because all tests of `b_expr` are executed in `test_common_a_expr_b_expr`.
   }
 
   func test_c_expr() {

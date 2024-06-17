@@ -156,6 +156,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `b_expr`                                                                | `protocol RestrictedExpression`                |
 | `c_expr`                                                                | `protocol ProductionExpression`                |
 | `common_table_expr`                                                     | `struct CommonTableExpression`                 |
+| `DEFAULT` (as expression)                                               | `struct DefaultExpression`                     |
 | `EXISTS select_with_parens`                                             | `struct ExistsExpression`                      |
 | `explicit_row`                                                          | `struct RowConstructorExpression`              |
 | `func_application`                                                      | `struct FunctionApplication`                   |
