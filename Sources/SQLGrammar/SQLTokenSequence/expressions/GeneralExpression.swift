@@ -655,3 +655,39 @@ public struct SatisfyExpression: GeneralExpression {
     self._elements = .array(ArrayConstructorExpression(elements))
   }
 }
+
+
+/// Representation of `UNIQUE` predicate expression that is described as
+/// `UNIQUE opt_unique_null_treatment select_with_parens` in "gram.y".
+///
+/// - Warning: This expression is not implemented in PostgreSQL as of version 16.
+public struct UniquePredicateExpression: GeneralExpression {
+  public let nullTreatment: NullTreatment?
+  
+  private let _subquery: AnyParenthesizedSelectStatement
+
+  public func subquery<T>(as type: T.Type) -> T? where T: SelectStatement {
+    return _subquery.subquery(as: T.self)
+  }
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(SingleToken(.unique), nullTreatment, _subquery)
+  }
+
+  public init<S>(
+    nullTreatment: NullTreatment? = nil,
+    subquery: Parenthesized<S>
+  ) where S: SelectStatement {
+    self.nullTreatment = nullTreatment
+    self._subquery = AnyParenthesizedSelectStatement(subquery)
+  }
+
+
+  public init<S>(
+    nullTreatment: NullTreatment? = nil,
+    parenthesizing subquery: S
+  ) where S: SelectStatement {
+    self.nullTreatment = nullTreatment
+    self._subquery = AnyParenthesizedSelectStatement(parenthesizing: subquery)
+  }
+}

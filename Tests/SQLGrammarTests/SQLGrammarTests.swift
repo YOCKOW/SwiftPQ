@@ -1398,6 +1398,18 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "myColumn < SOME (ARRAY[0, 1, 2])"
       )
     }
+  UNIQUE_opt_unique_null_treatment_select_with_parens:
+    do {
+      assertDescription(
+        UniquePredicateExpression(
+          nullTreatment: .notDistinct,
+          subquery: ValuesClause([
+            [UnsignedIntegerConstantExpression(0)]
+          ]).parenthesized
+        ),
+        "UNIQUE NULLS NOT DISTINCT (VALUES (0))"
+      )
+    }
   }
 
   func test_c_expr() {
