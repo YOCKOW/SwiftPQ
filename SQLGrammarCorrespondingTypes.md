@@ -130,8 +130,10 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `a_expr ILIKE a_expr [ESCAPE a_expr]`                                   | `struct CaseInsensitiveLikeExpression`         |
 | `a_expr IN_P in_expr`                                                   | `struct InExpression`                          |
 | `a_expr IS FALSE_P`                                                     | `struct IsFalseExpression`                     |
+| `a_expr IS json_predicate_type_constraint ...`                          | `struct IsJSONTypeExpression`                  | 
 | `a_expr IS [unicode_normal_form] NORMALIZED`                            | `struct IsNormalizedExpression`                |
 | `a_expr IS NOT FALSE_P`                                                 | `struct IsNotFalseExpression`                  |
+| `a_expr IS NOT json_predicate_type_constraint ...`                      | `struct IsNotJSONTypeExpression`               |
 | `a_expr IS NOT [unicode_normal_form] NORMALIZED`                        | `struct IsNotNormalizedExpression`             |
 | `a_expr {IS NOT NULL_P \| NOTNULL}`                                     | `struct IsNotNullExpression`                   |
 | `a_expr IS NOT TRUE_P`                                                  | `struct IsNotTrueExpression`                   |
@@ -283,6 +285,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_key_uniqueness_constraint_opt`      | `enum JSONKeyUniquenessOption`                   |
 | `json_name_and_value`                     | `struct JSONKeyValuePair`                        |
 | `json_name_and_value_list`                | `struct JSONKeyValuePairList`                    |
+| `json_predicate_type_constraint`          | `enum JSONPredicateType`                         |
 | `json_value_expr_list`                    | `struct JSONValueExpressionList`                 |
 
 

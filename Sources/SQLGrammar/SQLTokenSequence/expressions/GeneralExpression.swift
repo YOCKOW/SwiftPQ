@@ -744,3 +744,53 @@ extension GeneralExpression {
     return .init(text: self, form: nil)
   }
 }
+
+
+/// Representation of `a_expr IS json_predicate_type_constraint json_key_uniqueness_constraint_opt`
+/// expression.
+public struct IsJSONTypeExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  public let type: JSONPredicateType
+
+  public let keyUniquenessOption: JSONKeyUniquenessOption?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting([value, SingleToken(.is), type, keyUniquenessOption])
+  }
+
+  public init(
+    value: any GeneralExpression,
+    type: JSONPredicateType,
+    keyUniquenessOption: JSONKeyUniquenessOption? = nil
+  ) {
+    self.value = value
+    self.type = type
+    self.keyUniquenessOption = keyUniquenessOption
+  }
+}
+
+
+/// Representation of `a_expr IS NOT json_predicate_type_constraint json_key_uniqueness_constraint_opt`
+/// expression.
+public struct IsNotJSONTypeExpression: GeneralExpression {
+  public let value: any GeneralExpression
+
+  public let type: JSONPredicateType
+
+  public let keyUniquenessOption: JSONKeyUniquenessOption?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting([value, SingleToken(.is), SingleToken(.not), type, keyUniquenessOption])
+  }
+
+  public init(
+    value: any GeneralExpression,
+    type: JSONPredicateType,
+    keyUniquenessOption: JSONKeyUniquenessOption? = nil
+  ) {
+    self.value = value
+    self.type = type
+    self.keyUniquenessOption = keyUniquenessOption
+  }
+}

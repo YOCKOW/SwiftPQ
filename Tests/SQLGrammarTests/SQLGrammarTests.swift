@@ -1444,6 +1444,27 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "'hoge' IS NOT NFD NORMALIZED"
       )
     }
+  a_expr_IS_json_predicate_type_constraint:
+    do {
+      assertDescription(
+        IsJSONTypeExpression(
+          value: StringConstantExpression("json"),
+          type: .jsonValue
+        ),
+        "'json' IS JSON VALUE"
+      )
+    }
+  a_expr_IS_NOT_json_predicate_type_constraint:
+    do {
+      assertDescription(
+        IsNotJSONTypeExpression(
+          value: StringConstantExpression("json"),
+          type: .jsonObject,
+          keyUniquenessOption: .withUniqueKeys
+        ),
+        "'json' IS NOT JSON OBJECT WITH UNIQUE KEYS"
+      )
+    }
   }
 
   func test_c_expr() {
