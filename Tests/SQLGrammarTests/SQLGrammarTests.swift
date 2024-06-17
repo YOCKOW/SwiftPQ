@@ -1093,6 +1093,20 @@ final class SQLGrammarExpressionTests: XCTestCase {
       XCTAssertTrue(expr as Any is any GeneralExpression)
       XCTAssertTrue(expr as Any is any RestrictedExpression)
     }
+  expr_IS_DOCUMENT:
+    do {
+      let expr = StringConstantExpression("xml").isDocumentExpression
+      assertDescription(expr, "'xml' IS DOCUMENT")
+      XCTAssertTrue(expr as Any is any GeneralExpression)
+      XCTAssertTrue(expr as Any is any RestrictedExpression)
+    }
+  expr_IS_NOT_DOCUMENT:
+    do {
+      let expr = StringConstantExpression("xml").isNotDocumentExpression
+      assertDescription(expr, "'xml' IS NOT DOCUMENT")
+      XCTAssertTrue(expr as Any is any GeneralExpression)
+      XCTAssertTrue(expr as Any is any RestrictedExpression)
+    }
   }
 
   func test_a_expr() throws {
