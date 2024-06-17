@@ -691,3 +691,56 @@ public struct UniquePredicateExpression: GeneralExpression {
     self._subquery = AnyParenthesizedSelectStatement(parenthesizing: subquery)
   }
 }
+
+
+/// Representation of `IS [form] NORMALIZED` expression that is described as
+/// `a_expr IS NORMALIZED` or `a_expr IS unicode_normal_form NORMALIZED` in "gram.y".
+public struct IsNormalizedExpression: GeneralExpression {
+  public let text: any GeneralExpression
+
+  public let form: UnicodeNormalizationForm?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting([text, SingleToken(.is), form?.asSequence, SingleToken(.normalized)])
+  }
+
+  public init(text: any GeneralExpression, form: UnicodeNormalizationForm? = nil) {
+    self.text = text
+    self.form = form
+  }
+}
+extension GeneralExpression {
+  public func isNormalizedExpression(form: UnicodeNormalizationForm? = nil) -> IsNormalizedExpression {
+    return .init(text: self, form:form)
+  }
+
+  public var isNormalizedExpression: IsNormalizedExpression {
+    return .init(text: self, form: nil)
+  }
+}
+
+/// Representation of `IS Not [form] NORMALIZED` expression that is described as
+/// `a_expr IS NOT NORMALIZED` or `a_expr IS NOT unicode_normal_form NORMALIZED` in "gram.y".
+public struct IsNotNormalizedExpression: GeneralExpression {
+  public let text: any GeneralExpression
+
+  public let form: UnicodeNormalizationForm?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting([text, SingleToken(.is), SingleToken(.not), form?.asSequence, SingleToken(.normalized)])
+  }
+
+  public init(text: any GeneralExpression, form: UnicodeNormalizationForm? = nil) {
+    self.text = text
+    self.form = form
+  }
+}
+extension GeneralExpression {
+  public func isNotNormalizedExpression(form: UnicodeNormalizationForm? = nil) -> IsNotNormalizedExpression {
+    return .init(text: self, form:form)
+  }
+
+  public var isNotNormalizedExpression: IsNotNormalizedExpression {
+    return .init(text: self, form: nil)
+  }
+}

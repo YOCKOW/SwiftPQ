@@ -1424,6 +1424,26 @@ final class SQLGrammarExpressionTests: XCTestCase {
         "UNIQUE NULLS NOT DISTINCT (VALUES (0))"
       )
     }
+  a_expr_IS_NORMALIZED:
+    do {
+      assertDescription(
+        IsNormalizedExpression(
+          text: StringConstantExpression("hoge"),
+          form: .nfd
+        ),
+        "'hoge' IS NFD NORMALIZED"
+      )
+    }
+  a_expr_IS_NOT_NORMALIZED:
+    do {
+      assertDescription(
+        IsNotNormalizedExpression(
+          text: StringConstantExpression("hoge"),
+          form: .nfd
+        ),
+        "'hoge' IS NOT NFD NORMALIZED"
+      )
+    }
   }
 
   func test_c_expr() {
