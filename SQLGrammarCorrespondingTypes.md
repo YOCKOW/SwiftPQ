@@ -34,6 +34,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `row_or_rows`         | `enum LimitClause.FetchClause.Unit`    |
 | `set_quantifier`      | `enum SetQuantifier`                   |
 | `sub_type`            | `enum SatisfyExpression.Kind`          |
+| `TableLikeOption`     | `enum TableLikeOption`                 |
 | `type_function_name`  | `struct TypeOrFunctionName`(internal)  |
 | `unicode_normal_form` | `enum UnicodeNormalizationForm`        |
 
@@ -108,6 +109,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `select_limit`                              | `struct SelectLimitClause`                                |
 | `sortby`                                    | `struct SortBy<Expression>`                               |
 | `sort_clause`                               | `struct SortClause`                                       |
+| `TableLikeClause`                           | `struct TableLikeClause`                                  |
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
 | `values_clause`                             | `struct ValuesClause`                                     |
 | `when_clause`                               | `struct WhenClause<Condition, Result>`                    |
@@ -259,10 +261,12 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `name_list`                 | `struct NameList`                                  |
 | `opt_name_list`             | `enum OptionalNameList`                            |
 | `opt_nowait_or_skip`        | `enum LockingWaitOption`                           |
+| `OptTemp`                   | `enum TemporarinessOption`                         |
 | `qualified_name_list`       | `struct QualifiedNameList<Q>`                      |
 | `substr_list`               | `struct SubstringFunction.List`                    |
 | `TableFuncElement`          | `struct TableFunctionElement`                      |
-| `TableFuncElementList`      | `struct TableFunctionElementLit`                   |
+| `TableFuncElementList`      | `struct TableFunctionElementList`                  |
+| `TableLikeOptionList`       | `struct TableLikeOptionList`                       |
 | `target_el`                 | `struct TargetElement`                             |
 | `target_list`               | `struct TargetList`                                |
 | `trim_list`                 | `struct TrimFunction.List`                         |
