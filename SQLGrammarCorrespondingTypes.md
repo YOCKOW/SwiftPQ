@@ -90,6 +90,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `group_clause`                              | `struct GroupClause`                                      |
 | `grouping_sets_clause`                      | `struct GroupingSetsClause`                               |
 | `having_clause`                             | `struct HavingClause`                                     |
+| `OptInherit`                                | `struct InheritClause`                                    |
 | `into_clause`                               | `struct IntoClause`                                       |
 | `json_array_aggregate_order_by_clause_opt`  | `struct JSONArrayAggregateSortClause`                     |
 | `json_encoding_clause_opt`                  | `struct JSONEncodingClause`                               |

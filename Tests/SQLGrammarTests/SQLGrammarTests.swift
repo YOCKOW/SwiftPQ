@@ -336,6 +336,10 @@ final class SQLGrammarClauseTests: XCTestCase {
     assertDescription(HavingClause(predicate: BooleanConstantExpression.true), "HAVING TRUE")
   }
 
+  func test_InheritClause() {
+    assertDescription(InheritClause(["mother", "father"]), "INHERITS (mother, father)")
+  }
+
   func test_IntoClause() {
     XCTAssertEqual(
       IntoClause(.init(table: "my_temp_table")).description,
