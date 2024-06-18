@@ -33,21 +33,22 @@ extension DropStatement where Self.Tokens == JoinedSQLTokenSequence {
 /// Represented statement is described as one of below  in "gram.y":
 /// - `DROP object_type_any_name IF_P EXISTS any_name_list opt_drop_behavior`
 /// - `DROP object_type_any_name any_name_list opt_drop_behavior`'
-public protocol DropObjectTypeAnyName: DropStatement where ItemTypeName == ObjectTypeAnyName,
-                                                           ItemNameList == AnyNameList {
+public protocol DropObjectTypeAnyNameStatement: 
+  DropStatement where ItemTypeName == ObjectTypeAnyName,
+                      ItemNameList == AnyNameList {
   var object: ObjectTypeAnyName { get }
   var ifExists: Bool { get }
   var names: AnyNameList { get }
   var behavior: DropBehavior? { get }
 }
 
-extension DropObjectTypeAnyName {
+extension DropObjectTypeAnyNameStatement {
   public var itemType: ItemTypeName { return object }
   public var itemNames: ItemNameList { return names }
 }
 
 /// Represents "DROP TABLE" statement.
-public struct DropTable: DropObjectTypeAnyName {
+public struct DropTableStatement: DropObjectTypeAnyNameStatement {
   public let object: ObjectTypeAnyName = .table
 
   public let ifExists: Bool

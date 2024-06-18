@@ -1678,9 +1678,9 @@ final class SQLGrammarStatementTests: XCTestCase {
     )
   }
 
-  func test_DropTable() {
+  func test_DropTableStatement() {
     func __assert(
-      _ dropTable: DropTable,
+      _ dropTable: DropTableStatement,
       _ expectedDescription: String,
       file: StaticString = #filePath, line: UInt = #line
     ) {
@@ -1688,7 +1688,7 @@ final class SQLGrammarStatementTests: XCTestCase {
     }
 
     __assert(
-      DropTable(
+      DropTableStatement(
         ifExists: false,
         name: "my_table",
         behavior: nil
@@ -1696,7 +1696,7 @@ final class SQLGrammarStatementTests: XCTestCase {
       "DROP TABLE my_table"
     )
     __assert(
-      DropTable(
+      DropTableStatement(
         ifExists: true,
         names: [TableName("my_table1"), TableName("my_table2")],
         behavior: .restrict
@@ -1704,7 +1704,7 @@ final class SQLGrammarStatementTests: XCTestCase {
       "DROP TABLE IF EXISTS my_table1, my_table2 RESTRICT"
     )
     __assert(
-      DropTable(
+      DropTableStatement(
         names: [
           TableName(schema: "my_schema", name: "my_private_table1"),
           TableName(schema: "my_schema", name: "my_private_table2"),
