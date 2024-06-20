@@ -10,6 +10,21 @@ public struct GeneralExpressionList: SQLTokenSequence, ExpressibleByArrayLiteral
   public var expressions: NonEmptyList<any GeneralExpression>
 
   @inlinable
+  public var expressionCount: Int {
+    return expressions.count
+  }
+
+  @inlinable
+  public var firstExpression: any GeneralExpression {
+    return expressions.first
+  }
+
+  @inlinable
+  public var lastExpression: any GeneralExpression {
+    return expressions.last
+  }
+
+  @inlinable
   public var tokens: JoinedSQLTokenSequence {
     return expressions.map({ $0 as any SQLTokenSequence }).joinedByCommas()
   }

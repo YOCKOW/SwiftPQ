@@ -454,6 +454,67 @@ public struct NameList: SQLTokenSequence, ExpressibleByArrayLiteral {
   }
 }
 
+/// A type representing a name which is described as `object_type_any_name` in "gram.y".
+public enum ObjectTypeAnyName: NameRepresentation {
+  case table
+  case sequence
+  case view
+  case materializedView
+  case index
+  case foreignTable
+  case collation
+  case conversion
+  case statistics
+  case textSearchParser
+  case textSearchDictionary
+  case textSearchTemplate
+  case textSearchConfiguration
+
+  public var tokens: Array<SQLToken> {
+    switch self {
+    case .table:
+      return [.table]
+    case .sequence:
+      return [.sequence]
+    case .view:
+      return [.view]
+    case .materializedView:
+      return [.materialized, .view]
+    case .index:
+      return [.index]
+    case .foreignTable:
+      return [.foreign, .table]
+    case .collation:
+      return [.collation]
+    case .conversion:
+      return [.conversion]
+    case .statistics:
+      return [.statistics]
+    case .textSearchParser:
+      return [.text, .search, .parser]
+    case .textSearchDictionary:
+      return [.text, .search, .dictionary]
+    case .textSearchTemplate:
+      return [.text, .search, .template]
+    case .textSearchConfiguration:
+      return [.text, .search, .configuration]
+    }
+  }
+}
+
+/// A name used in `part_elem`. This is described as `opclass` in
+/// [official documentation](https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-PARMS-PARTITION-BY).
+public struct OperatorClass: AnyName {
+  public let identifier: ColumnIdentifier
+
+  public let attributes: AttributeList?
+
+  public init(identifier: ColumnIdentifier, attributes: AttributeList? = nil) {
+    self.identifier = identifier
+    self.attributes = attributes
+  }
+}
+
 /// Representation of `opt_name_list` in "gram.y".
 ///
 /// This should not be represented by `Optional<NameList>`
@@ -572,54 +633,6 @@ public enum OptionalNameList: SQLTokenSequence,
       self = .none
     case .some(let list):
       self = .some(list)
-    }
-  }
-}
-
-/// A type representing a name which is described as `object_type_any_name` in "gram.y".
-public enum ObjectTypeAnyName: NameRepresentation {
-  case table
-  case sequence
-  case view
-  case materializedView
-  case index
-  case foreignTable
-  case collation
-  case conversion
-  case statistics
-  case textSearchParser
-  case textSearchDictionary
-  case textSearchTemplate
-  case textSearchConfiguration
-
-  public var tokens: Array<SQLToken> {
-    switch self {
-    case .table:
-      return [.table]
-    case .sequence:
-      return [.sequence]
-    case .view:
-      return [.view]
-    case .materializedView:
-      return [.materialized, .view]
-    case .index:
-      return [.index]
-    case .foreignTable:
-      return [.foreign, .table]
-    case .collation:
-      return [.collation]
-    case .conversion:
-      return [.conversion]
-    case .statistics:
-      return [.statistics]
-    case .textSearchParser:
-      return [.text, .search, .parser]
-    case .textSearchDictionary:
-      return [.text, .search, .dictionary]
-    case .textSearchTemplate:
-      return [.text, .search, .template]
-    case .textSearchConfiguration:
-      return [.text, .search, .configuration]
     }
   }
 }

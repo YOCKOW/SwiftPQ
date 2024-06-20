@@ -103,6 +103,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_ordinality`                            | `class WithOrdinalityClause` (private)                    |
 | `over_clause`                               | `struct OverClause`                                       |
 | `opt_partition_clause`                      | `struct PartitionClause`                                  |
+| `PartitionSpec`                             | `struct PartitionSpecification`                           |
 | `opt_repeatable_clause`                     | `struct RepeatableClause<Seed>`                           |
 | `rollup_clause`                             | `struct RollUpClause`                                     |
 | `opt_search_clause`                         | `struct SearchClause`                                     |
@@ -262,6 +263,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `name_list`                 | `struct NameList`                                  |
 | `opt_name_list`             | `enum OptionalNameList`                            |
 | `opt_nowait_or_skip`        | `enum LockingWaitOption`                           |
+| `part_elem`                 | `struct PartitionSpecificationParameter`           |
+| `part_params`               | `struct ParticionSpecificationParameterList`       |
 | `OptTemp`                   | `enum TemporarinessOption`                         |
 | `qualified_name_list`       | `struct QualifiedNameList<Q>`                      |
 | `substr_list`               | `struct SubstringFunction.List`                    |

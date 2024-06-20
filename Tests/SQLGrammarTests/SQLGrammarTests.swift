@@ -359,6 +359,23 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_PartitionSpecification() {
+    assertDescription(
+      PartitionSpecification(
+        strategy: .range,
+        parameters: [.init(columnName: "col1"), .init(columnName: "col2")]
+      ),
+      "PARTITION BY RANGE (col1, col2)"
+    )
+    assertDescription(
+      PartitionSpecification(
+        strategy: .hash,
+        parameters: [.init(columnName: "col1"), .init(columnName: "col2")]
+      ),
+      "PARTITION BY HASH (col1, col2)"
+    )
+  }
+
   func test_SearchClause() {
     assertDescription(
       SearchClause(.breadthFirst, by: ["id"], set: "orderCol"),
