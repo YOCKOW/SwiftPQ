@@ -111,6 +111,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `select_limit`                              | `struct SelectLimitClause`                                |
 | `sortby`                                    | `struct SortBy<Expression>`                               |
 | `sort_clause`                               | `struct SortClause`                                       |
+| `table_access_method_clause`                | `struct TableAccessMethodClause`                          |
 | `TableLikeClause`                           | `struct TableLikeClause`                                  |
 | `tablesample_clause`                        | `struct TableSampleClause`                                |
 | `values_clause`                             | `struct ValuesClause`                                     |

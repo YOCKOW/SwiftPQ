@@ -432,6 +432,10 @@ final class SQLGrammarClauseTests: XCTestCase {
     )
   }
 
+  func test_TableAccessMethodClause() {
+    assertDescription(TableAccessMethodClause(methodName: "myMethod"), "USING myMethod")
+  }
+
   func test_TableSampleClause() {
     XCTAssertEqual(
       TableSampleClause(
