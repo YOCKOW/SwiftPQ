@@ -256,6 +256,11 @@ final class SQLGrammarTests: XCTestCase {
       "ROWS FROM(CURRENT_USER AS (col1 TEXT))"
     )
   }
+
+  func test_OnCommitOption() {
+    assertDescription(OnCommitOption.drop, "ON COMMIT DROP")
+    assertDescription(OnCommitOption.deleteRows, "ON COMMIT DELETE ROWS")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

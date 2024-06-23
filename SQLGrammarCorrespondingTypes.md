@@ -270,6 +270,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_name_list`             | `enum OptionalNameList`                            |
 | `opt_nowait_or_skip`        | `enum LockingWaitOption`                           |
 | `NumericOnly_list`          | `struct NumericExpressionList`                     |
+| `OnCommitOption`            | `enum OnCommitOption`                              |
 | `part_elem`                 | `struct PartitionSpecificationParameter`           |
 | `part_params`               | `struct ParticionSpecificationParameterList`       |
 | `OptTemp`                   | `enum TemporarinessOption`                         |
