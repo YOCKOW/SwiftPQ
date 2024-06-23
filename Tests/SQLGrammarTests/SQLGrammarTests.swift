@@ -261,6 +261,10 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(OnCommitOption.drop, "ON COMMIT DROP")
     assertDescription(OnCommitOption.deleteRows, "ON COMMIT DELETE ROWS")
   }
+
+  func test_TableSpaceSpecifier() {
+    assertDescription(TableSpaceSpecifier("myTableSpace"), "TABLESPACE myTableSpace")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

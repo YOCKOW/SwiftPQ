@@ -772,6 +772,30 @@ public struct TableName: ExpressibleByStringLiteral,
   }
 }
 
+/// A name of table space.
+public struct TableSpaceName: NameRepresentation, ExpressibleByStringLiteral {
+  public typealias StringLiteralType = Name.StringLiteralType
+  public typealias Tokens = Name.Tokens
+
+  public let name: Name
+
+  public var tokens: Tokens {
+    return name.tokens
+  }
+
+  public func makeIterator() -> Tokens.Iterator {
+    return tokens.makeIterator()
+  }
+
+  public init(_ name: Name) {
+    self.name = name
+  }
+
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(Name(stringLiteral: value))
+  }
+}
+
 /// A name of a temporary table, that is described as `OptTempTableName` in "gram.y".
 public struct TemporaryTableName: NameRepresentation {
   public enum TemporarinessType: Segment {

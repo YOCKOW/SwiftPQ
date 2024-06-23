@@ -70,6 +70,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | n/a                    | `struct DatabaseName`                 |
 | n/a                    | `struct SchemaName`                   |
 | n/a                    | `struct TableName`                    |
+| n/a                    | `struct TableSpaceName`               |
 
 ## Clauses
 
@@ -282,6 +283,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `TableFuncElement`          | `struct TableFunctionElement`                      |
 | `TableFuncElementList`      | `struct TableFunctionElementList`                  |
 | `TableLikeOptionList`       | `struct TableLikeOptionList`                       |
+| `OptTableSpace`             | `struct TableSpaceSpecifier`                       |
 | `target_el`                 | `struct TargetElement`                             |
 | `target_list`               | `struct TargetList`                                |
 | `trim_list`                 | `struct TrimFunction.List`                         |
