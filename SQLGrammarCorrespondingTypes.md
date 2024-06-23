@@ -119,6 +119,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `where_clause`                              | `struct WhereClause`                                      |
 | `window_clause`                             | `struct WindowClause`                                     |
 | `opt_window_exclusion_clause`               | `enum WindowExclusionClause`                              |
+| `OptWith`                                   | `struct CreateTableWithClause`                            |
 | `with_clause`                               | `struct WithClause`                                       |
 | `within_group_clause`                       | `struct WithinGroupClause`                                |
 
@@ -175,10 +176,12 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_aggregate_func`                                                   | `protocol JSONAggregateFunctionExpression`     |
 | `json_value_expr`                                                       | `struct JSONValueExpression`                   |
 | `NOT a_expr`                                                            | `struct UnaryPrefixNotOperatorInvocation`      |
+| `NumericOnly`                                                           | `protocol NumericExpression`                   |
 | `relation_expr`                                                         | `struct RelationExpression`                    |
 | `row`                                                                   | `struct RowExpression`                         |
 | `row OVERLAPS row`                                                      | `struct BinaryInfixOverlapsOperatorInvocation` |
 | `select_with_parens indirection`                                        | `struct SelectExpression`                      |
+| `SignedIconst`                                                          | `protocol SignedIntegerConstantExpression`     |
 | `table_ref`                                                             | `protocol TableReferenceExpression`            |
 | `UNIQUE opt_unique_null_treatment select_with_parens`                   | `struct UniquePredicateExpression`             |
 | `xmltable`                                                              | `struct XMLTableExpression`                    |
@@ -241,6 +244,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `columnElem`                | `struct ColumnListElement`                         |
 | `columnList`                | `struct ColumnList`                                |
 | `cte_list`                  | `struct CommonTableExpressionList`                 |
+| `def_arg`                   | `struct DefinitionArgument`                        |
 | `empty_grouping_set`        | `class EmptyGroupingSet`                           |
 | `expr_list`                 | `struct GeneralExpressionList`                     |
 | `extract_list`              | `struct ExtractFunction._List` (private)           |
@@ -252,6 +256,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `from_list`                 | `struct FromList`                                  |
 | `func_arg_list`             | `struct FunctionArgumentList`                      |
 | `func_table`                | `struct TableFunction`                             |
+| `func_type`                 | `struct FunctionType`                              |
 | `group_by_item`             | `struct GroupingElement`                           |
 | `group_by_list`             | `struct GroupingList`                              |
 | `indirection`               | `struct Indirection`                               |
@@ -264,10 +269,14 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `name_list`                 | `struct NameList`                                  |
 | `opt_name_list`             | `enum OptionalNameList`                            |
 | `opt_nowait_or_skip`        | `enum LockingWaitOption`                           |
+| `NumericOnly_list`          | `struct NumericExpressionList`                     |
 | `part_elem`                 | `struct PartitionSpecificationParameter`           |
 | `part_params`               | `struct ParticionSpecificationParameterList`       |
 | `OptTemp`                   | `enum TemporarinessOption`                         |
 | `qualified_name_list`       | `struct QualifiedNameList<Q>`                      |
+| `reloption_elem`            | `struct StorageParameter`                          |
+| `reloption_list`            | `struct StorageParameterList`                      |
+| `reloptions`                | `struct _StorageParameters` (internal)             |
 | `substr_list`               | `struct SubstringFunction.List`                    |
 | `TableFuncElement`          | `struct TableFunctionElement`                      |
 | `TableFuncElementList`      | `struct TableFunctionElementList`                  |

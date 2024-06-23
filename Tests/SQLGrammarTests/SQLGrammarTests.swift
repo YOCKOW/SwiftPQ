@@ -144,6 +144,15 @@ final class SQLGrammarTests: XCTestCase {
     XCTAssertEqual(FunctionName(ColumnReference(tableName: "s", columnName: "f")).description, "s.f")
   }
 
+  func test_FunctionType() throws {
+    assertDescription(
+      FunctionType(
+        copyingType: try XCTUnwrap(CopyingTypeColumnReference(table: "users", column: "user_id"))
+      ),
+      "users.user_id%TYPE"
+    )
+  }
+
   func test_LabeledOperator() {
     XCTAssertEqual(LabeledOperator(.minus).description, "-")
     XCTAssertEqual(LabeledOperator(schema: "pg_catalog", .plus).description, "pg_catalog.+")
@@ -266,6 +275,17 @@ final class SQLGrammarClauseTests: XCTestCase {
       CollateClause(name: .c),
       #"COLLATE "C""#
     )
+  }
+
+  func test_CreateTableWithClause() {
+    assertDescription(
+      CreateTableWithClause([
+        .fillfactor: 50,
+        .parallelWorkers: 4,
+      ]),
+      "WITH (fillfactor = 50, parallel_workers = 4)"
+    )
+    assertDescription(CreateTableWithClause.withoutOIDs, "WITHOUT OIDS")
   }
 
   func test_CycleClause() {
