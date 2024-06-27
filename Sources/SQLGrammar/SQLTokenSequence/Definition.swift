@@ -1,5 +1,5 @@
 /* *************************************************************************************************
- DefinitionArgument.swift
+ Definition.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
@@ -140,3 +140,129 @@ extension DefinitionArgument: ExpressibleByStringLiteral {
     self.init(StringConstantExpression(stringLiteral: value))
   }
 }
+
+
+/// A pair of a key and an optional value. This is `def_elem` in "gram.y".
+public struct DefinitionElement: SQLTokenSequence {
+  public struct Key: SQLTokenSequence, ExpressibleByStringLiteral {
+    public let key: ColumnLabel
+    public var tokens: Array<SQLToken> {
+      return [key.token]
+    }
+    public init(_ key: ColumnLabel) {
+      self.key = key
+    }
+    public init(stringLiteral value: StringLiteralType) {
+      self.key = .init(stringLiteral: value)
+    }
+  }
+
+  public struct Value: SQLTokenSequence {
+    public let value: DefinitionArgument
+
+    public typealias Tokens = DefinitionArgument.Tokens
+
+    public var tokens: Tokens {
+      return value.tokens
+    }
+
+    public func makeIterator() -> Tokens.Iterator {
+      return tokens.makeIterator()
+    }
+
+    public init(_ value: DefinitionArgument) {
+      self.value = value
+    }
+  }
+
+  public let key: Key
+
+  public let value: Value?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(key, value, separator: SingleToken(SQLToken.Operator.equalTo))
+  }
+
+  public init(key: Key, value: Value? = nil) {
+    self.key = key
+    self.value = value
+  }
+}
+
+extension DefinitionElement.Value: ExpressibleByBooleanLiteral,
+                                   ExpressibleByFloatLiteral,
+                                   ExpressibleByIntegerLiteral,
+                                   ExpressibleByStringLiteral {
+  public typealias BooleanLiteralType = DefinitionArgument.BooleanLiteralType
+  public typealias FloatLiteralType = DefinitionArgument.FloatLiteralType
+  public typealias IntegerLiteralType = DefinitionArgument.IntegerLiteralType
+  public typealias StringLiteralType = DefinitionArgument.StringLiteralType
+
+  @inlinable
+  public init(booleanLiteral value: BooleanLiteralType) {
+    self.init(DefinitionArgument(booleanLiteral: value))
+  }
+
+  @inlinable
+  public init(floatLiteral value: FloatLiteralType) {
+    self.init(DefinitionArgument(floatLiteral: value))
+  }
+
+  @inlinable
+  public init(integerLiteral value: IntegerLiteralType) {
+    self.init(DefinitionArgument(integerLiteral: value))
+  }
+
+  @inlinable
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(DefinitionArgument(stringLiteral: value))
+  }
+}
+
+/// A list of `DefinitionElement`. This is described as `def_list` in "gram.y".
+public struct DefinitonList: SQLTokenSequence,
+                             InitializableWithNonEmptyList,
+                             ExpressibleByArrayLiteral,
+                             ExpressibleByDictionaryLiteral {
+  public typealias NonEmptyListElement = DefinitionElement
+  public typealias ArrayLiteralElement = DefinitionElement
+  public typealias Key = DefinitionElement.Key
+  public typealias Value = DefinitionElement.Value?
+
+  public var parameters: NonEmptyList<DefinitionElement>
+
+  public var tokens: JoinedSQLTokenSequence {
+    return parameters.joinedByCommas()
+  }
+
+  public init(_ parameters: NonEmptyList<DefinitionElement>) {
+    self.parameters = parameters
+  }
+
+  public init(dictionaryLiteral elements: (DefinitionElement.Key, DefinitionElement.Value?)...) {
+    guard let list = NonEmptyList<DefinitionElement>(
+      items: elements.map({ DefinitionElement(key: $0.0, value: $0.1) })
+    ) else {
+      fatalError("Empty list not allowed.")
+    }
+    self.init(list)
+  }
+}
+
+/// `definition` in "gram.y".
+public struct Definition: SQLTokenSequence {
+  public let list: DefinitonList
+
+  public var tokens: Parenthesized<DefinitonList> {
+    return list.parenthesized
+  }
+
+  public func makeIterator() -> Parenthesized<DefinitonList>.Iterator {
+    return tokens.makeIterator()
+  }
+
+  public init(_ list: DefinitonList) {
+    self.list = list
+  }
+}
+

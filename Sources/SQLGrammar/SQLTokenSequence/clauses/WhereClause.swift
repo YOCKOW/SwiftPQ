@@ -17,3 +17,16 @@ public struct WhereClause: Clause {
     self.condition = condition
   }
 }
+
+/// A `WHERE` clause described as `OptWhereClause` in "gram.y".
+public struct WhereParenthesizedExpressionClause: Clause {
+  public let predicate: any GeneralExpression
+
+  public var tokens: JoinedSQLTokenSequence {
+    return JoinedSQLTokenSequence(SingleToken(.where), predicate._asAny.parenthesized)
+  }
+
+  public init(predicate: any GeneralExpression) {
+    self.predicate = predicate
+  }
+}

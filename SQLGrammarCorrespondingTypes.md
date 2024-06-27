@@ -72,16 +72,19 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | n/a                    | `struct TableName`                    |
 | n/a                    | `struct TableSpaceName`               |
 
-## Clauses
+## Typical Clauses
 
 | gram.y                                      | Swift                                                     |
 |---------------------------------------------|-----------------------------------------------------------|
+| `access_method_clause`                      | `struct AccessMethodClause`                               |
 | `alias_clause`                              | `struct AliasClause`                                      |
 | `opt_alias_clause_for_join_using`           | `class JoinCondition._AliasClauseForJoinUsing` (private)  |
 | `opt_asc_desc`                              | `enum SortDirection`                                      |
 | `opt_collate_clause`                        | `struct CollateClause`                                    |
+| `OptConsTableSpace`                         | `struct ConstraintTableSpaceClause`                       |
 | `cube_clause`                               | `struct CubeClause`                                       |
 | `opt_cycle_clause`                          | `struct CycleClause`                                      |
+| `opt_definition`                            | `struct WithDefinitionClause`                             |
 | `distinct_clause`                           | `struct DistinctClause`                                   |
 | `filter_clause`                             | `struct FilterClause`                                     |
 | `for_locking_clause`                        | `struct LockingClause`                                    |
@@ -118,9 +121,10 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `values_clause`                             | `struct ValuesClause`                                     |
 | `when_clause`                               | `struct WhenClause<Condition, Result>`                    |
 | `where_clause`                              | `struct WhereClause`                                      |
+| `OptWhereClause`                            | `struct WhereParenthesizedExpressionClause`               |
 | `window_clause`                             | `struct WindowClause`                                     |
 | `opt_window_exclusion_clause`               | `enum WindowExclusionClause`                              |
-| `OptWith`                                   | `struct CreateTableWithClause`                            |
+| `OptWith`                                   | `struct WithStorageParametersClause`                      |
 | `with_clause`                               | `struct WithClause`                                       |
 | `within_group_clause`                       | `struct WithinGroupClause`                                |
 
@@ -241,12 +245,24 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_array_bounds`          | `struct ArrayBoundList`                            |
 | `array_expr_list`           | `struct ArrayConstructorExpression.Subscript.List` |
 | `attrs`                     | `struct AttributeList`                             |
+| `opt_c_include`             | `struct UniqueIncludeClause`                       |
 | `opt_col_def_list`          | `struct ColumnDefinitionList`                      |
+| `opt_collate`               | `typealias Collation`                              |
 | `columnElem`                | `struct ColumnListElement`                         |
 | `columnList`                | `struct ColumnList`                                |
+| `opt_column_list`           | `enum OptionalColumnList`                          |
+| `ConstraintAttributeElem`   | `enum TableConstraintAttributeElemement`           |
+| `ConstraintAttributeSpec`   | `struct TableConstraintAttributeSpecification`     |
+| `ConstraintElem`            | `struct TableConstraintElement`                    |
 | `cte_list`                  | `struct CommonTableExpressionList`                 |
 | `def_arg`                   | `struct DefinitionArgument`                        |
+| `def_elem`                  | `struct DefinitionElement`                         |
+| `definition`                | `struct Definition`                                |
+| `def_list`                  | `struct DefinitionList`                            |
 | `empty_grouping_set`        | `class EmptyGroupingSet`                           |
+| `ExclusionConstraintElem`   | `struct ExclusionConstraintElement`                |
+| `ExclusionConstraintList`   | `struct ExclusionConstraintList`                   |
+| `ExistingIndex`             | `struct ExistingIndex`                             |
 | `expr_list`                 | `struct GeneralExpressionList`                     |
 | `extract_list`              | `struct ExtractFunction._List` (private)           |
 | `for_locking_item`          | `struct LockingMode`                               |
@@ -260,12 +276,20 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `func_type`                 | `struct FunctionType`                              |
 | `group_by_item`             | `struct GroupingElement`                           |
 | `group_by_list`             | `struct GroupingList`                              |
+| `index_elem`                | `struct IndexElement`                              |
+| `index_elem_options`        | `struct IndexElementOptionSet`                     |
+| `index_params`              | `struct IndexElementList`                          |
 | `indirection`               | `struct Indirection`                               |
 | `indirection_el`            | `enum Indirection.List.Element`                    |
 | `in_expr`                   | `struct InExpression.Subquery`                     |
 | `opt_interval`              | `enum IntervalFieldsPhrase`                        |
 | `join_type`                 | `enum JoinType`                                    |
 | `join_qual`                 | `enum JoinCondition`                               |
+| `key_action`                | `enum ReferentialAction`                           |
+| `key_actions`               | `struct ReferentialActionSet`                      |
+| `key_delete`                | `class ReferentialActionSet.Action.OnDelete`       |
+| `key_match`                 | `enum MatchType`                                   |
+| `key_update`                | `class ReferentialActionSet.Action.OnUpdate`       |
 | `locked_rels_list`          | `struct LockedRelationList`                        |
 | `name_list`                 | `struct NameList`                                  |
 | `opt_name_list`             | `enum OptionalNameList`                            |

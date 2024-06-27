@@ -1,12 +1,12 @@
 /* *************************************************************************************************
- CreateTableWithClause.swift
+ WithStorageParametersClause.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
 /// A `WITH` clause used in `CREATE TABLE ...`. This is described as `OptWith` in "gram.y".
-public struct CreateTableWithClause: Clause {
+public struct WithStorageParametersClause: Clause {
   private enum _Syntax {
     case with(_StorageParameters)
     case withoutOIDs
@@ -41,5 +41,5 @@ public struct CreateTableWithClause: Clause {
   }
 
   /// `WITHOUT OIDS`
-  public static let withoutOIDs: CreateTableWithClause = .init(_syntax: .withoutOIDs)
+  public static let withoutOIDs: WithStorageParametersClause = .init(_syntax: .withoutOIDs)
 }

@@ -18,3 +18,6 @@ public struct CollateClause: Clause {
     self.name = name
   }
 }
+
+/// Representation of `opt_collate` in "gram.y".
+public typealias Collation = CollateClause

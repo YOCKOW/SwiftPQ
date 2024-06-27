@@ -47,3 +47,58 @@ public struct ColumnList: SQLTokenSequence, ExpressibleByArrayLiteral {
     self.init(nonEmptyElements)
   }
 }
+
+/// Representation of `opt_column_list` in "gram.y".
+///
+/// This should not be represented by `Optional<ColumnList>`
+/// because `opt_column_list` must emit parenthesized `columnList` if it has a value.
+public enum OptionalColumnList: SQLTokenSequence,
+                                InitializableWithNonEmptyList,
+                                ExpressibleByNilLiteral,
+                                ExpressibleByArrayLiteral {
+  public typealias NonEmptyListElement = ColumnListElement
+  public typealias ArrayLiteralElement = ColumnListElement
+
+  case none
+  case some(ColumnList)
+
+  public struct Iterator: IteratorProtocol {
+    public typealias Element = SQLToken
+    private var _iterator: ColumnList.Iterator?
+    fileprivate init(_ iterator: ColumnList.Iterator?) {
+      self._iterator = iterator
+    }
+    public mutating func next() -> SQLToken? { return _iterator?.next() }
+  }
+
+  public typealias Tokens = Self
+
+  public func makeIterator() -> Iterator {
+    guard case .some(let list) = self else { return Iterator(nil) }
+    return Iterator(list.parenthesized.makeIterator())
+  }
+
+  @inlinable
+  public var isNil: Bool {
+    switch self {
+    case .none:
+      return true
+    case .some:
+      return false
+    }
+  }
+
+  @inlinable
+  public var columnList: ColumnList? {
+    guard case .some(let list) = self else { return nil }
+    return list
+  }
+
+  public init(nilLiteral: ()) {
+    self = .none
+  }
+
+  public init(_ list: NonEmptyList<ColumnListElement>) {
+    self = .some(ColumnList(list))
+  }
+}
