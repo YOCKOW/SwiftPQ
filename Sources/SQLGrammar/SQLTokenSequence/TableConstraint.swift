@@ -452,3 +452,22 @@ public struct TableConstraintElement: SQLTokenSequence {
     )
   }
 }
+
+/// Representation of `TableConstraint` in "gram.y".
+public struct TableConstraint: SQLTokenSequence {
+  public let name: Name?
+  
+  public let constraint: TableConstraintElement
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      name.map({ JoinedSQLTokenSequence(SingleToken(.constraint), $0) }),
+      constraint
+    )
+  }
+
+  public init(name: Name? = nil, constraint: TableConstraintElement) {
+    self.name = name
+    self.constraint = constraint
+  }
+}

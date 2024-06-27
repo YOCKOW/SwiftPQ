@@ -316,6 +316,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `select_fetch_first_value`  | `struct LimitClause.FetchClause.RowCount`          |
 | `select_limit_value`        | `enum SelectLimitValue`                            |
 | `select_offset_value`       | `struct SelectOffsetValue`                         |
+| `TableConstraint`           | `struct TableConstraint`                           |
 | `opt_unique_null_treatment` | `enum NullTreatment`                               |
 | `when_clause_list`          | `struct WhenClauseList`                            |
 | `window_definition`         | `struct WindowDefinition`                          |

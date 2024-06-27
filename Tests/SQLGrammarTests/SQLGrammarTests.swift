@@ -266,72 +266,82 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(TableSpaceSpecifier("myTableSpace"), "TABLESPACE myTableSpace")
   }
 
-  func test_TableConstraintElement() {
-    assertDescription(
-      TableConstraintElement.check(
-        BinaryInfixNotEqualToOperatorInvocation(
-          ColumnReference(columnName: "myColumn"),
-          UnsignedIntegerConstantExpression(100)
+  func test_TableConstraint() {
+  ELEMENTS:
+    do {
+      assertDescription(
+        TableConstraintElement.check(
+          BinaryInfixNotEqualToOperatorInvocation(
+            ColumnReference(columnName: "myColumn"),
+            UnsignedIntegerConstantExpression(100)
+          ),
+          noInherit: true,
+          deferrable: .deferrable,
+          checkConstraint: .initiallyImmediate
         ),
-        noInherit: true,
-        deferrable: .deferrable,
-        checkConstraint: .initiallyImmediate
-      ),
-      "CHECK (myColumn <> 100) NO INHERIT DEFERRABLE INITIALLY IMMEDIATE"
-    )
-    assertDescription(
-      TableConstraintElement.unique(
-        nulls: .notDistinct,
-        columns: ["col1", "col2"],
-        include: .init(columns: ["col3", "col4"]),
-        with: .init(["someKey": 0]),
-        tableSpace: .init("myTableSpace"),
-        deferrable: .notDeferrable,
-        checkConstraint: .initiallyDeferred
-      ),
-      "UNIQUE NULLS NOT DISTINCT (col1, col2) INCLUDE (col3, col4) " +
-      "WITH (someKey = 0) USING INDEX TABLESPACE myTableSpace " +
-      "NOT DEFERRABLE INITIALLY DEFERRED"
-    )
-    assertDescription(
-      TableConstraintElement.primaryKey(
-        columns: ["col1", "col2"],
-        include: .init(columns: ["col3", "col4"]),
-        with: .init(["someKey": 1.2])
-      ),
-      "PRIMARY KEY (col1, col2) INCLUDE (col3, col4) WITH (someKey = 1.2)"
-    )
-    assertDescription(
-      TableConstraintElement.exclude(
-        using: .init(methodName: "myMethod"),
-        elements: [
-          ExclusionConstraintElement(
-            IndexElement(columnName: "foo"),
-            with: LabeledOperator(SQLToken.Operator.lessThan)
-          ),
-          ExclusionConstraintElement(
-            IndexElement(columnName: "bar"),
-            with: LabeledOperator(SQLToken.Operator.greaterThan)
-          ),
-        ],
-        where: .init(predicate: BinaryInfixGreaterThanOperatorInvocation(
-          ColumnReference("hoge"),
-          UnsignedIntegerConstantExpression(0)
-        ))
-      ),
-      "EXCLUDE USING myMethod (foo WITH <, bar WITH >) WHERE (hoge > 0)"
-    )
-    assertDescription(
-      TableConstraintElement.foreignKey(
-        columns: ["col1", "col2"],
-        referenceTable: "refTable",
-        referenceColumns: ["refCol1", "refCol2"],
-        match: .full,
-        actions: .init(onDelete: .cascade, onUpdate: .noAction)
-      ),
-      "FOREIGN KEY (col1, col2) REFERENCES refTable (refCol1, refCol2) MATCH FULL " +
-      "ON DELETE CASCADE ON UPDATE NO ACTION"
-    )
+        "CHECK (myColumn <> 100) NO INHERIT DEFERRABLE INITIALLY IMMEDIATE"
+      )
+      assertDescription(
+        TableConstraintElement.unique(
+          nulls: .notDistinct,
+          columns: ["col1", "col2"],
+          include: .init(columns: ["col3", "col4"]),
+          with: .init(["someKey": 0]),
+          tableSpace: .init("myTableSpace"),
+          deferrable: .notDeferrable,
+          checkConstraint: .initiallyDeferred
+        ),
+        "UNIQUE NULLS NOT DISTINCT (col1, col2) INCLUDE (col3, col4) " +
+        "WITH (someKey = 0) USING INDEX TABLESPACE myTableSpace " +
+        "NOT DEFERRABLE INITIALLY DEFERRED"
+      )
+      assertDescription(
+        TableConstraintElement.primaryKey(
+          columns: ["col1", "col2"],
+          include: .init(columns: ["col3", "col4"]),
+          with: .init(["someKey": 1.2])
+        ),
+        "PRIMARY KEY (col1, col2) INCLUDE (col3, col4) WITH (someKey = 1.2)"
+      )
+      assertDescription(
+        TableConstraintElement.exclude(
+          using: .init(methodName: "myMethod"),
+          elements: [
+            ExclusionConstraintElement(
+              IndexElement(columnName: "foo"),
+              with: LabeledOperator(SQLToken.Operator.lessThan)
+            ),
+            ExclusionConstraintElement(
+              IndexElement(columnName: "bar"),
+              with: LabeledOperator(SQLToken.Operator.greaterThan)
+            ),
+          ],
+          where: .init(predicate: BinaryInfixGreaterThanOperatorInvocation(
+            ColumnReference("hoge"),
+            UnsignedIntegerConstantExpression(0)
+          ))
+        ),
+        "EXCLUDE USING myMethod (foo WITH <, bar WITH >) WHERE (hoge > 0)"
+      )
+      assertDescription(
+        TableConstraintElement.foreignKey(
+          columns: ["col1", "col2"],
+          referenceTable: "refTable",
+          referenceColumns: ["refCol1", "refCol2"],
+          match: .full,
+          actions: .init(onDelete: .cascade, onUpdate: .noAction)
+        ),
+        "FOREIGN KEY (col1, col2) REFERENCES refTable (refCol1, refCol2) MATCH FULL " +
+        "ON DELETE CASCADE ON UPDATE NO ACTION"
+      )
+    }
+  CONSTRAINTS:
+    do {
+      assertDescription(
+        TableConstraint(name: "myConstraint", constraint: .unique(columns: ["col1"])),
+        "CONSTRAINT myConstraint UNIQUE (col1)"
+      )
+    }
   }
 }
 
