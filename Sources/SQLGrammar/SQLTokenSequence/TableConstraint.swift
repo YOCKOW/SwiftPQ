@@ -89,7 +89,7 @@ public struct TableConstraintAttributeSpecification: SQLTokenSequence, Expressib
 }
 
 /// `opt_c_include` in "gram.y".
-public struct UniqueIncludeClause: Clause {
+public struct ConstraintIncludeClause: Clause {
   public let columns: ColumnList
 
   public var tokens: JoinedSQLTokenSequence {
@@ -193,7 +193,7 @@ public struct TableConstraintElement: SQLTokenSequence {
     case unique(
       NullTreatment?,
       ColumnList,
-      UniqueIncludeClause?,
+      ConstraintIncludeClause?,
       WithDefinitionClause?,
       ConstraintTableSpaceClause?
     )
@@ -202,7 +202,7 @@ public struct TableConstraintElement: SQLTokenSequence {
 
     case primaryKey(
       ColumnList,
-      UniqueIncludeClause?,
+      ConstraintIncludeClause?,
       WithDefinitionClause?,
       ConstraintTableSpaceClause?
     )
@@ -212,7 +212,7 @@ public struct TableConstraintElement: SQLTokenSequence {
     case exclude(
       AccessMethodClause?,
       ExclusionConstraintList,
-      UniqueIncludeClause?,
+      ConstraintIncludeClause?,
       WithDefinitionClause?,
       ConstraintTableSpaceClause?,
       WhereParenthesizedExpressionClause?
@@ -333,7 +333,7 @@ public struct TableConstraintElement: SQLTokenSequence {
   public static func unique(
     nulls: NullTreatment? = nil,
     columns: ColumnList,
-    include: UniqueIncludeClause? = nil,
+    include: ConstraintIncludeClause? = nil,
     with withDefinition: WithDefinitionClause? = nil,
     tableSpace: ConstraintTableSpaceClause? = nil,
     deferrable: DeferrableConstraintOption? = nil,
@@ -371,7 +371,7 @@ public struct TableConstraintElement: SQLTokenSequence {
   /// Creates a `PRIMARY KEY` constraint.
   public static func primaryKey(
     columns: ColumnList,
-    include: UniqueIncludeClause? = nil,
+    include: ConstraintIncludeClause? = nil,
     with withDefinition: WithDefinitionClause? = nil,
     tableSpace: ConstraintTableSpaceClause? = nil,
     deferrable: DeferrableConstraintOption? = nil,
@@ -404,7 +404,7 @@ public struct TableConstraintElement: SQLTokenSequence {
   public static func exclude(
     using accessMethod: AccessMethodClause? = nil,
     elements: ExclusionConstraintList,
-    include: UniqueIncludeClause? = nil,
+    include: ConstraintIncludeClause? = nil,
     with withDefinition: WithDefinitionClause? = nil,
     tableSpace: ConstraintTableSpaceClause? = nil,
     where predicateClause: WhereParenthesizedExpressionClause? = nil,
