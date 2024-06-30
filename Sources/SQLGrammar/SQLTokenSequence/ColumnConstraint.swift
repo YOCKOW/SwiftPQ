@@ -371,7 +371,7 @@ public struct ColumnQualifierList: SQLTokenSequence {
     public var constraintCheckingTime: ConstraintCheckingTimeOption?
 
     public init(
-      constraint: NamedColumnConstraint,
+      _ constraint: NamedColumnConstraint,
       deferrable: DeferrableConstraintOption? = nil,
       checkConstraint timing: ConstraintCheckingTimeOption? = nil
     ) {
@@ -381,12 +381,12 @@ public struct ColumnQualifierList: SQLTokenSequence {
     }
 
     public init(
-      constraint: ColumnConstraintElement,
+      _ constraint: ColumnConstraintElement,
       deferrable: DeferrableConstraintOption? = nil,
       checkConstraint timing: ConstraintCheckingTimeOption? = nil
     ) {
       self.init(
-        constraint: NamedColumnConstraint(element: constraint),
+        NamedColumnConstraint(element: constraint),
         deferrable: deferrable,
         checkConstraint: timing
       )

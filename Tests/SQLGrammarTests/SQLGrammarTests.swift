@@ -417,7 +417,7 @@ final class SQLGrammarTests: XCTestCase {
         collation: .locale(Locale(identifier: "ja-JP")),
         constraints: [
           .init(
-            constraint: .primaryKey,
+            .primaryKey,
             deferrable: .notDeferrable,
             checkConstraint: .initiallyImmediate
           )
@@ -433,7 +433,7 @@ final class SQLGrammarTests: XCTestCase {
       ColumnDefinition(
         name: "title",
         dataType: CharacterTypeName.varchar(length: 40).typeName,
-        qualifiers: .constraints([.init(constraint: .notNull)])
+        qualifiers: .constraints([.init(.notNull)])
       ),
       "title VARCHAR(40) NOT NULL"
     )
@@ -442,10 +442,20 @@ final class SQLGrammarTests: XCTestCase {
         name: "code",
         dataType: CharacterTypeName.char(length: 5).typeName,
         qualifiers: .constraints([
-          .init(constraint: NamedColumnConstraint(name: "firstKey", element: .primaryKey))
+          .init(NamedColumnConstraint(name: "firstKey", element: .primaryKey))
         ])
       ),
       "code CHAR(5) CONSTRAINT firstKey PRIMARY KEY"
+    )
+  }
+
+  func test_TypedTableColumnDefinition() {
+    assertDescription(
+      TypedTableColumnDefinition(
+        name: "salary",
+        withOptions: [.init(.default(UnsignedIntegerConstantExpression(1000)))]
+      ),
+      "salary WITH OPTIONS DEFAULT 1000"
     )
   }
 }
