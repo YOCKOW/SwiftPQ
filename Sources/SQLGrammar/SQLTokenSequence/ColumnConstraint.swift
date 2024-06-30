@@ -215,3 +215,79 @@ public enum ColumnConstraintAttribute: SQLTokenSequence {
     return tokens.makeIterator()
   }
 }
+
+/// Representation of `ColConstraint` in "gram.y".
+///
+/// This type includes `ConstraintAttr` and `COLLATE any_name`, and thus it is different from
+/// `TableConstraint` syntactically.
+/// So the name of this type is `ColumnQualifier` instead of `ColumnConstraint`.
+public struct ColumnQualifier: SQLTokenSequence {
+  public enum QualifierType: SQLTokenSequence {
+    case constraint(Name?, ColumnConstraintElement)
+    case attribute(ColumnConstraintAttribute)
+    case collation(Collation)
+
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private let _iterator: AnySQLTokenSequenceIterator
+      fileprivate init<S>(_ sequence: S) where S: SQLTokenSequence {
+        self._iterator = sequence._asAny.makeIterator()
+      }
+      public func next() -> SQLToken? {
+        return _iterator.next()
+      }
+    }
+
+    public typealias Tokens = Self
+
+    public func makeIterator() -> Iterator {
+      switch self {
+      case .constraint(let name, let constraintElem):
+         return Iterator(JoinedSQLTokenSequence.compacting(
+          name.map({ JoinedSQLTokenSequence(SingleToken(.constraint), $0) }),
+          constraintElem
+        ))
+      case .attribute(let attr):
+        return Iterator(attr)
+      case .collation(let collation):
+        return Iterator(collation)
+      }
+    }
+  }
+
+  public let qualifier: QualifierType
+
+  @inlinable
+  public var tokens: QualifierType.Tokens {
+    return qualifier.tokens
+  }
+
+  @inlinable
+  public func makeIterator() -> QualifierType.Tokens.Iterator {
+    return tokens.makeIterator()
+  }
+
+  private init(qualifier: QualifierType) {
+    self.qualifier = qualifier
+  }
+
+  /// Creates a constraint qualifier.
+  public static func constraint(name: Name? = nil, element: ColumnConstraintElement) -> ColumnQualifier {
+    return .init(qualifier: .constraint(name, element))
+  }
+
+  /// Creates an attribute qualifier.
+  public static func attribute(_ attribute: ColumnConstraintAttribute)-> ColumnQualifier {
+    return .init(qualifier: .attribute(attribute))
+  }
+
+  /// Creates a collation qualifier.
+  public static func collation(_ collation: Collation) -> ColumnQualifier {
+    return .init(qualifier: .collation(collation))
+  }
+
+  /// Creates a collation qualifier.
+  public static func collation(_ collationName: CollationName) -> ColumnQualifier {
+    return .init(qualifier: .collation(Collation(name: collationName)))
+  }
+}

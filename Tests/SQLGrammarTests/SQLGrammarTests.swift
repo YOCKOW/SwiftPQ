@@ -401,6 +401,15 @@ final class SQLGrammarTests: XCTestCase {
       "REFERENCES refTable (refCol1, refCol2) MATCH FULL ON DELETE SET NULL ON UPDATE NO ACTION"
     )
   }
+
+  func test_ColumnQualifier() {
+    assertDescription(
+      ColumnQualifier.constraint(name: "myConstraint", element: .primaryKey),
+      "CONSTRAINT myConstraint PRIMARY KEY"
+    )
+    assertDescription(ColumnQualifier.attribute(.deferrable), "DEFERRABLE")
+    assertDescription(ColumnQualifier.collation(.c), "COLLATE \"C\"")
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

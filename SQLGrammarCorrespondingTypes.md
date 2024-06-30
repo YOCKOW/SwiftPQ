@@ -247,6 +247,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `array_expr_list`            | `struct ArrayConstructorExpression.Subscript.List` |
 | `attrs`                      | `struct AttributeList`                             |
 | `opt_c_include`              | `struct ConstraintIncludeClause`                   |
+| `ColConstraint`              | `struct ColumnQualifier`                           |
 | `ColConstraintElem`          | `struct ColumnConstraintElement`                   |
 | `opt_col_def_list`           | `struct ColumnDefinitionList`                      |
 | `opt_collate`                | `typealias Collation`                              |
