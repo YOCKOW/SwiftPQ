@@ -43,6 +43,10 @@ public struct ColumnReference: ProductionExpression,
       self.init(identifier: ColumnIdentifier(columnName))
     }
   }
+
+  internal var asAnyName: (some AnyName)? {
+    return AnyAnyName(qualifiedName: self)
+  }
 }
 
 // MARK: - ConstantExpression

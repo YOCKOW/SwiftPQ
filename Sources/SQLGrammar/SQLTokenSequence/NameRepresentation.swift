@@ -47,6 +47,42 @@ extension QualifiedName where Self: AnyName, Self.Tokens == JoinedSQLTokenSequen
   }
 }
 
+/// Internal representation of `AnyName` that must not be `public`.
+internal struct AnyAnyName: AnyName {
+  let identifier: ColumnIdentifier
+  let attributes: AttributeList?
+
+  init(identifier: ColumnIdentifier, attributes: AttributeList? = nil) {
+    self.identifier = identifier
+    self.attributes = attributes
+  }
+
+  init<OtherName>(_ otherName: OtherName) where OtherName: AnyName {
+    self.init(identifier: otherName.identifier, attributes: otherName.attributes)
+  }
+
+  private enum __Error: Error { case invalidIndirection }
+  init?<Q>(qualifiedName: Q) where Q: QualifiedName {
+    if case let anyName as any AnyName = qualifiedName {
+      self.init(identifier: anyName.identifier, attributes: anyName.attributes)
+      return
+    }
+
+    guard let indirection = qualifiedName.indirection else {
+      self.init(identifier: qualifiedName.identifier, attributes: nil)
+      return
+    }
+    
+    guard let attributes = (try? indirection.list.map({
+      guard case .attributeName(let attrName) = $0 else { throw __Error.invalidIndirection }
+      return attrName
+    })).map({ AttributeList(names: $0) }) else {
+      return nil
+    }
+    self.init(identifier: qualifiedName.identifier, attributes: attributes)
+  }
+}
+
 /// Internal representation of `QualifiedName` that must not be `public`.
 internal struct AnyQualifiedName: QualifiedName {
   let identifier: ColumnIdentifier
@@ -703,6 +739,72 @@ public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
 
   public func makeIterator() -> Iterator {
     return SingleToken.Iterator(identifier.token)
+  }
+}
+
+/// A name of sequence.
+public struct SequenceName: ExpressibleByStringLiteral,
+                            AnyName,
+                            QualifiedName,
+                            _DatabaseSchemaQualifiedNameConvertible {
+  public typealias StringLiteralType = String
+
+  let _databaseSchemaQualifiedName: _DatabaseSchemaQualifiedName
+
+  public var database: DatabaseName? { _databaseSchemaQualifiedName.database }
+
+  public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
+
+  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+
+  public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
+
+  public var attributes: AttributeList? { _databaseSchemaQualifiedName.attributes }
+
+  public init(
+    database: DatabaseName,
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._databaseSchemaQualifiedName = .init(
+      database: database,
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._databaseSchemaQualifiedName = .init(
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(name: String, caseSensitive: Bool = false) {
+    self._databaseSchemaQualifiedName = .init(
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(name: value)
+  }
+
+  public init?<OtherName>(_ otherName: OtherName) where OtherName: QualifiedName {
+    switch otherName {
+    case let seqName as SequenceName:
+      self = seqName
+    default:
+      guard let name = _DatabaseSchemaQualifiedName(otherName) else {
+        return nil
+      }
+      self._databaseSchemaQualifiedName = name
+    }
   }
 }
 

@@ -343,6 +343,64 @@ final class SQLGrammarTests: XCTestCase {
       )
     }
   }
+
+  func test_ColumnConstraintElement() {
+    assertDescription(ColumnConstraintElement.notNull, "NOT NULL")
+    assertDescription(ColumnConstraintElement.null,  "NULL")
+    assertDescription(
+      ColumnConstraintElement.unique(
+        nulls: .distinct,
+        with: .init(["someKey": 0]),
+        tableSpace: .init("myTableSpace")
+      ),
+      "UNIQUE NULLS DISTINCT WITH (someKey = 0) USING INDEX TABLESPACE myTableSpace"
+    )
+    assertDescription(ColumnConstraintElement.unique,  "UNIQUE")
+    assertDescription(
+      ColumnConstraintElement.primaryKey(
+        with: .init(["someKey": 0]),
+        tableSpace: .init("myTableSpace")
+      ),
+      "PRIMARY KEY WITH (someKey = 0) USING INDEX TABLESPACE myTableSpace"
+    )
+    assertDescription(ColumnConstraintElement.primaryKey, "PRIMARY KEY")
+    assertDescription(
+      ColumnConstraintElement.check(
+        BinaryInfixGreaterThanOperatorInvocation(
+          ColumnReference(columnName: "myCol"),
+          UnsignedIntegerConstantExpression(0)
+        ),
+        noInherit: true
+      ),
+      "CHECK (myCol > 0) NO INHERIT"
+    )
+    assertDescription(
+      ColumnConstraintElement.default(UnsignedFloatConstantExpression(1.2)),
+      "DEFAULT 1.2"
+    )
+    assertDescription(
+      ColumnConstraintElement.generatedAsIdentity(.always, sequenceOptions: [.cycle, .ownedByNone]),
+      "GENERATED ALWAYS AS IDENTITY (CYCLE OWNED BY NONE)"
+    )
+    assertDescription(
+      ColumnConstraintElement.generatedStoredValue(
+        from: BinaryInfixPlusOperatorInvocation(
+          ColumnReference(columnName: "otherCol"),
+          UnsignedIntegerConstantExpression(1)
+        )
+      ),
+      "GENERATED ALWAYS AS (otherCol + 1) STORED"
+    )
+    assertDescription(
+      ColumnConstraintElement.references(
+        referenceTable: "refTable",
+        referenceColumns: ["refCol1", "refCol2"],
+        match: .full,
+        actions: .init(onDelete: .setNull, onUpdate: .noAction)
+      ),
+      "REFERENCES refTable (refCol1, refCol2) MATCH FULL ON DELETE SET NULL ON UPDATE NO ACTION"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

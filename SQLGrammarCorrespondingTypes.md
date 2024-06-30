@@ -72,7 +72,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | n/a                    | `struct TableName`                    |
 | n/a                    | `struct TableSpaceName`               |
 
-## Typical Clauses
+## Common Clauses
 
 | gram.y                                      | Swift                                                     |
 |---------------------------------------------|-----------------------------------------------------------|
@@ -91,6 +91,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
 | `from_clause`                               | `struct FromClause`                                       |
 | `func_alias_clause`                         | `struct FunctionAliasClause`                              |
+| `generated_when`                            | `enum GeneratedWhenClause`                                |
 | `group_clause`                              | `struct GroupClause`                                      |
 | `grouping_sets_clause`                      | `struct GroupingSetsClause`                               |
 | `having_clause`                             | `struct HavingClause`                                     |
@@ -239,89 +240,102 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## Others
 
-| gram.y                      | Swift                                              |
-|-----------------------------|----------------------------------------------------|
-| `any_name_list`             | `struct AnyNameList`                               |
-| `opt_array_bounds`          | `struct ArrayBoundList`                            |
-| `array_expr_list`           | `struct ArrayConstructorExpression.Subscript.List` |
-| `attrs`                     | `struct AttributeList`                             |
-| `opt_c_include`             | `struct ConstraintIncludeClause`                   |
-| `opt_col_def_list`          | `struct ColumnDefinitionList`                      |
-| `opt_collate`               | `typealias Collation`                              |
-| `columnElem`                | `struct ColumnListElement`                         |
-| `columnList`                | `struct ColumnList`                                |
-| `opt_column_list`           | `enum OptionalColumnList`                          |
-| `ConstraintAttributeElem`   | `enum TableConstraintAttributeElemement`           |
-| `ConstraintAttributeSpec`   | `struct TableConstraintAttributeSpecification`     |
-| `ConstraintElem`            | `struct TableConstraintElement`                    |
-| `cte_list`                  | `struct CommonTableExpressionList`                 |
-| `def_arg`                   | `struct DefinitionArgument`                        |
-| `def_elem`                  | `struct DefinitionElement`                         |
-| `definition`                | `struct Definition`                                |
-| `def_list`                  | `struct DefinitionList`                            |
-| `empty_grouping_set`        | `class EmptyGroupingSet`                           |
-| `ExclusionConstraintElem`   | `struct ExclusionConstraintElement`                |
-| `ExclusionConstraintList`   | `struct ExclusionConstraintList`                   |
-| `ExistingIndex`             | `struct ExistingIndex`                             |
-| `expr_list`                 | `struct GeneralExpressionList`                     |
-| `extract_list`              | `struct ExtractFunction._List` (private)           |
-| `for_locking_item`          | `struct LockingMode`                               |
-| `for_locking_items`         | `struct LockingModeList`                           |
-| `for_locking_strength`      | `enum LockingStrength`                             |
-| `frame_bound`               | `enum FrameBound`                                  |
-| `frame_extent`              | `struct FrameExtent`                               |
-| `from_list`                 | `struct FromList`                                  |
-| `func_arg_list`             | `struct FunctionArgumentList`                      |
-| `func_table`                | `struct TableFunction`                             |
-| `func_type`                 | `struct FunctionType`                              |
-| `group_by_item`             | `struct GroupingElement`                           |
-| `group_by_list`             | `struct GroupingList`                              |
-| `index_elem`                | `struct IndexElement`                              |
-| `index_elem_options`        | `struct IndexElementOptionSet`                     |
-| `index_params`              | `struct IndexElementList`                          |
-| `indirection`               | `struct Indirection`                               |
-| `indirection_el`            | `enum Indirection.List.Element`                    |
-| `in_expr`                   | `struct InExpression.Subquery`                     |
-| `opt_interval`              | `enum IntervalFieldsPhrase`                        |
-| `join_type`                 | `enum JoinType`                                    |
-| `join_qual`                 | `enum JoinCondition`                               |
-| `key_action`                | `enum ReferentialAction`                           |
-| `key_actions`               | `struct ReferentialActionSet`                      |
-| `key_delete`                | `class ReferentialActionSet.Action.OnDelete`       |
-| `key_match`                 | `enum MatchType`                                   |
-| `key_update`                | `class ReferentialActionSet.Action.OnUpdate`       |
-| `locked_rels_list`          | `struct LockedRelationList`                        |
-| `name_list`                 | `struct NameList`                                  |
-| `opt_name_list`             | `enum OptionalNameList`                            |
-| `opt_nowait_or_skip`        | `enum LockingWaitOption`                           |
-| `NumericOnly_list`          | `struct NumericExpressionList`                     |
-| `OnCommitOption`            | `enum OnCommitOption`                              |
-| `part_elem`                 | `struct PartitionSpecificationParameter`           |
-| `part_params`               | `struct ParticionSpecificationParameterList`       |
-| `OptTemp`                   | `enum TemporarinessOption`                         |
-| `qualified_name_list`       | `struct QualifiedNameList<Q>`                      |
-| `reloption_elem`            | `struct StorageParameter`                          |
-| `reloption_list`            | `struct StorageParameterList`                      |
-| `reloptions`                | `struct _StorageParameters` (internal)             |
-| `substr_list`               | `struct SubstringFunction.List`                    |
-| `TableFuncElement`          | `struct TableFunctionElement`                      |
-| `TableFuncElementList`      | `struct TableFunctionElementList`                  |
-| `TableLikeOptionList`       | `struct TableLikeOptionList`                       |
-| `OptTableSpace`             | `struct TableSpaceSpecifier`                       |
-| `target_el`                 | `struct TargetElement`                             |
-| `target_list`               | `struct TargetList`                                |
-| `trim_list`                 | `struct TrimFunction.List`                         |
-| `rowsfrom_item`             | `struct TableFunction.RowsFromSyntax.Item`         | 
-| `rowsfrom_list`             | `struct TableFunction.RowsFromSyntax.List`         |
-| `select_fetch_first_value`  | `struct LimitClause.FetchClause.RowCount`          |
-| `select_limit_value`        | `enum SelectLimitValue`                            |
-| `select_offset_value`       | `struct SelectOffsetValue`                         |
-| `TableConstraint`           | `struct TableConstraint`                           |
-| `opt_unique_null_treatment` | `enum NullTreatment`                               |
-| `when_clause_list`          | `struct WhenClauseList`                            |
-| `window_definition`         | `struct WindowDefinition`                          |
-| `window_definition_list`    | `struct WindowDefinitionList`                      |
-| `window_specification`      | `struct WindowSpecification`                       |
+| gram.y                       | Swift                                              |
+|------------------------------|----------------------------------------------------|
+| `any_name_list`              | `struct AnyNameList`                               |
+| `opt_array_bounds`           | `struct ArrayBoundList`                            |
+| `array_expr_list`            | `struct ArrayConstructorExpression.Subscript.List` |
+| `attrs`                      | `struct AttributeList`                             |
+| `opt_c_include`              | `struct ConstraintIncludeClause`                   |
+| `ColConstraintElem`          | `struct ColumnConstraintElement`                   |
+| `opt_col_def_list`           | `struct ColumnDefinitionList`                      |
+| `opt_collate`                | `typealias Collation`                              |
+| `column_compression`         | `struct ColumnCompressionMode`                     |
+| `columnDef`                  | `struct ColumnDefinition`                          |
+| `columnElem`                 | `struct ColumnListElement`                         |
+| `columnList`                 | `struct ColumnList`                                |
+| `opt_column_list`            | `enum OptionalColumnList`                          |
+| `column_storage`             | `struct ColumnStorageMode`                         |
+| `ConstraintAttributeElem`    | `enum TableConstraintAttributeElemement`           |
+| `ConstraintAttributeSpec`    | `struct TableConstraintAttributeSpecification`     |
+| `ConstraintElem`             | `struct TableConstraintElement`                    |
+| `create_generic_options`     | `struct GenericOptionsClause`                      |
+| `cte_list`                   | `struct CommonTableExpressionList`                 |
+| `def_arg`                    | `struct DefinitionArgument`                        |
+| `def_elem`                   | `struct DefinitionElement`                         |
+| `definition`                 | `struct Definition`                                |
+| `def_list`                   | `struct DefinitionList`                            |
+| `empty_grouping_set`         | `class EmptyGroupingSet`                           |
+| `ExclusionConstraintElem`    | `struct ExclusionConstraintElement`                |
+| `ExclusionConstraintList`    | `struct ExclusionConstraintList`                   |
+| `ExistingIndex`              | `struct ExistingIndex`                             |
+| `expr_list`                  | `struct GeneralExpressionList`                     |
+| `extract_list`               | `struct ExtractFunction._List` (private)           |
+| `for_locking_item`           | `struct LockingMode`                               |
+| `for_locking_items`          | `struct LockingModeList`                           |
+| `for_locking_strength`       | `enum LockingStrength`                             |
+| `frame_bound`                | `enum FrameBound`                                  |
+| `frame_extent`               | `struct FrameExtent`                               |
+| `from_list`                  | `struct FromList`                                  |
+| `func_arg_list`              | `struct FunctionArgumentList`                      |
+| `func_table`                 | `struct TableFunction`                             |
+| `func_type`                  | `struct FunctionType`                              |
+| `generic_option_arg`         | `struct GenericOption.Argument`                    |
+| `generic_option_elem`        | `struct GenericOption`                             |
+| `generic_option_list`        | `struct GenericOptionList`                         |
+| `generic_option_name`        | `struct GenericOption.Name`                        |
+| `group_by_item`              | `struct GroupingElement`                           |
+| `group_by_list`              | `struct GroupingList`                              |
+| `index_elem`                 | `struct IndexElement`                              |
+| `index_elem_options`         | `struct IndexElementOptionSet`                     |
+| `index_params`               | `struct IndexElementList`                          |
+| `indirection`                | `struct Indirection`                               |
+| `indirection_el`             | `enum Indirection.List.Element`                    |
+| `in_expr`                    | `struct InExpression.Subquery`                     |
+| `opt_interval`               | `enum IntervalFieldsPhrase`                        |
+| `join_type`                  | `enum JoinType`                                    |
+| `join_qual`                  | `enum JoinCondition`                               |
+| `key_action`                 | `enum ReferentialAction`                           |
+| `key_actions`                | `struct ReferentialActionSet`                      |
+| `key_delete`                 | `class ReferentialActionSet.Action.OnDelete`       |
+| `key_match`                  | `enum MatchType`                                   |
+| `key_update`                 | `class ReferentialActionSet.Action.OnUpdate`       |
+| `locked_rels_list`           | `struct LockedRelationList`                        |
+| `name_list`                  | `struct NameList`                                  |
+| `opt_name_list`              | `enum OptionalNameList`                            |
+| `opt_no_inherit`             | `class NoInherit`                                  |
+| `opt_nowait_or_skip`         | `enum LockingWaitOption`                           |
+| `NumericOnly_list`           | `struct NumericExpressionList`                     |
+| `OnCommitOption`             | `enum OnCommitOption`                              |
+| `OptParenthesizedSeqOptList` | `struct OptionalSequenceOptionList`                |
+| `part_elem`                  | `struct PartitionSpecificationParameter`           |
+| `part_params`                | `struct ParticionSpecificationParameterList`       |
+| `OptTemp`                    | `enum TemporarinessOption`                         |
+| `qualified_name_list`        | `struct QualifiedNameList<Q>`                      |
+| `reloption_elem`             | `struct StorageParameter`                          |
+| `reloption_list`             | `struct StorageParameterList`                      |
+| `reloptions`                 | `struct _StorageParameters` (internal)             |
+| `substr_list`                | `struct SubstringFunction.List`                    |
+| `TableFuncElement`           | `struct TableFunctionElement`                      |
+| `TableFuncElementList`       | `struct TableFunctionElementList`                  |
+| `TableLikeOptionList`        | `struct TableLikeOptionList`                       |
+| `OptTableSpace`              | `struct TableSpaceSpecifier`                       |
+| `target_el`                  | `struct TargetElement`                             |
+| `target_list`                | `struct TargetList`                                |
+| `trim_list`                  | `struct TrimFunction.List`                         |
+| `rowsfrom_item`              | `struct TableFunction.RowsFromSyntax.Item`         | 
+| `rowsfrom_list`              | `struct TableFunction.RowsFromSyntax.List`         |
+| `select_fetch_first_value`   | `struct LimitClause.FetchClause.RowCount`          |
+| `select_limit_value`         | `enum SelectLimitValue`                            |
+| `select_offset_value`        | `struct SelectOffsetValue`                         |
+| `SeqOptElem`                 | `struct SequenceOption`                            |
+| `SeqOptList`                 | `struct SequenceOptionList`                        |
+| `TableConstraint`            | `struct TableConstraint`                           |
+| `opt_unique_null_treatment`  | `enum NullTreatment`                               |
+| `when_clause_list`           | `struct WhenClauseList`                            |
+| `window_definition`          | `struct WindowDefinition`                          |
+| `window_definition_list`     | `struct WindowDefinitionList`                      |
+| `window_specification`       | `struct WindowSpecification`                       |
 
 
 ### JSON-related

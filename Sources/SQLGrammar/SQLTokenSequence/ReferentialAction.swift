@@ -14,6 +14,10 @@ public enum ReferentialAction: SQLTokenSequence {
   case setNull(OptionalColumnList)
   case setDefault(OptionalColumnList)
 
+  public static let setNull: ReferentialAction = .setNull(nil)
+
+  public static let setDefault: ReferentialAction = .setDefault(nil)
+
   public var tokens: JoinedSQLTokenSequence {
     switch self {
     case .noAction:
