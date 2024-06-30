@@ -431,4 +431,9 @@ public struct ColumnQualifierList: SQLTokenSequence {
     self.collation = Collation(name: collation)
     self.constraints = constraints
   }
+
+  /// Creates a list of column qualifiers only with given constraints.
+  public static func constraints(_ constraints: [Constraint]) -> ColumnQualifierList {
+    return ColumnQualifierList(constraints: constraints)
+  }
 }

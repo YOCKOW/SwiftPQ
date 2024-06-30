@@ -426,6 +426,28 @@ final class SQLGrammarTests: XCTestCase {
       #"COLLATE "ja_JP" PRIMARY KEY NOT DEFERRABLE INITIALLY IMMEDIATE"#
     )
   }
+
+  func test_ColumnDefinition() {
+    assertDescription(ColumnDefinition(name: "prodDate", dataType: .date), "prodDate DATE")
+    assertDescription(
+      ColumnDefinition(
+        name: "title",
+        dataType: CharacterTypeName.varchar(length: 40).typeName,
+        qualifiers: .constraints([.init(constraint: .notNull)])
+      ),
+      "title VARCHAR(40) NOT NULL"
+    )
+    assertDescription(
+      ColumnDefinition(
+        name: "code",
+        dataType: CharacterTypeName.char(length: 5).typeName,
+        qualifiers: .constraints([
+          .init(constraint: NamedColumnConstraint(name: "firstKey", element: .primaryKey))
+        ])
+      ),
+      "code CHAR(5) CONSTRAINT firstKey PRIMARY KEY"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
