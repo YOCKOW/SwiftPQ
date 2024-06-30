@@ -410,6 +410,22 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(ColumnQualifier.attribute(.deferrable), "DEFERRABLE")
     assertDescription(ColumnQualifier.collation(.c), "COLLATE \"C\"")
   }
+
+  func test_ColumnQualifierList() {
+    assertDescription(
+      ColumnQualifierList(
+        collation: .locale(Locale(identifier: "ja-JP")),
+        constraints: [
+          .init(
+            constraint: .primaryKey,
+            deferrable: .notDeferrable,
+            checkConstraint: .initiallyImmediate
+          )
+        ]
+      ),
+      #"COLLATE "ja_JP" PRIMARY KEY NOT DEFERRABLE INITIALLY IMMEDIATE"#
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

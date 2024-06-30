@@ -251,6 +251,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `ColConstraintElem`          | `struct ColumnConstraintElement`                   |
 | `opt_col_def_list`           | `struct ColumnDefinitionList`                      |
 | `opt_collate`                | `typealias Collation`                              |
+| `ColQualList`                | `struct ColumnQualifierList`                       |
 | `column_compression`         | `struct ColumnCompressionMode`                     |
 | `columnDef`                  | `struct ColumnDefinition`                          |
 | `columnElem`                 | `struct ColumnListElement`                         |
