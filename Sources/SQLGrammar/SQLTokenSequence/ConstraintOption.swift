@@ -10,6 +10,17 @@ public enum DeferrableConstraintOption {
   case deferrable
   case notDeferrable
 
+  
+  @inlinable
+  public var columnConstraintAttribute: ColumnConstraintAttribute {
+    switch self {
+    case .deferrable:
+      return .deferrable
+    case .notDeferrable:
+      return .notDeferrable
+    }
+  }
+
   @inlinable
   public var tableConstraintAttributeElement: TableConstraintAttributeElement {
     switch self {
@@ -25,6 +36,16 @@ public enum DeferrableConstraintOption {
 public enum ConstraintCheckingTimeOption {
   case initiallyDeferred
   case initiallyImmediate
+
+  @inlinable
+  public var columnConstraintAttribute: ColumnConstraintAttribute {
+    switch self {
+    case .initiallyDeferred:
+      return .initiallyDeferred
+    case .initiallyImmediate:
+      return .initiallyImmediate
+    }
+  }
 
   @inlinable
   public var tableConstraintAttributeElement: TableConstraintAttributeElement {

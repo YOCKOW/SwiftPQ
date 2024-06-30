@@ -178,3 +178,40 @@ public struct ColumnConstraintElement: SQLTokenSequence {
     )
   }
 }
+
+/// Representation of `ConstraintAttr` in "gram.y".
+public enum ColumnConstraintAttribute: SQLTokenSequence {
+  case deferrable
+  case notDeferrable
+  case initiallyDeferred
+  case initiallyImmediate
+
+  public struct Tokens: SQLTokenSequence {
+    public let tokens: Array<SQLToken>
+    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+
+    public static let deferrable: Tokens = .init([.deferrable])
+    public static let notDeferrable: Tokens = .init([.not, .deferrable])
+    public static let initiallyDeferred: Tokens = .init([.initially, .deferred])
+    public static let initiallyImmediate: Tokens = .init([.initially, .immediate])
+  }
+
+  @inlinable
+  public var tokens: Tokens {
+    switch self {
+    case .deferrable:
+      return .deferrable
+    case .notDeferrable:
+      return .notDeferrable
+    case .initiallyDeferred:
+      return .initiallyDeferred
+    case .initiallyImmediate:
+      return .initiallyImmediate
+    }
+  }
+
+  @inlinable
+  public func makeIterator() -> Tokens.Iterator {
+    return tokens.makeIterator()
+  }
+}
