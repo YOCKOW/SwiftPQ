@@ -1963,6 +1963,36 @@ final class SQLGrammarStatementTests: XCTestCase {
     )
   }
 
+  func test_CreateTableStatement() {
+    assertDescription(
+      CreateTableStatement(
+        temporariness: .temporary,
+        ifNotExists: true,
+        name: "newTable",
+        definitions: .init([
+          ColumnDefinition(name: "col1", dataType: .int),
+          ColumnDefinition(name: "col2", dataType: .boolean),
+        ]),
+        inherits: InheritClause(["parentTable"]),
+        partitionSpecification: PartitionSpecification(
+          strategy: .range,
+          parameters: [PartitionSpecificationParameter(columnName: "col1")]
+        ),
+        accessMethod: TableAccessMethodClause(methodName: "myMethod"),
+        storageParameters: .withoutOIDs,
+        onCommit: .drop,
+        tableSpace: .init("myTableSpace")
+      ),
+      "CREATE TEMPORARY TABLE IF NOT EXISTS newTable (col1 INT, col2 BOOLEAN) " +
+      "INHERITS (parentTable) " +
+      "PARTITION BY RANGE (col1) " +
+      "USING myMethod " +
+      "WITHOUT OIDS " +
+      "ON COMMIT DROP " +
+      "TABLESPACE myTableSpace"
+    )
+  }
+
   func test_DropTableStatement() {
     func __assert(
       _ dropTable: DropTableStatement,

@@ -225,6 +225,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 | gram.y                          | Swift                                  |
 |---------------------------------|----------------------------------------|
+| `CreateStmt`                    | `protocol CreateStatement`             |
 | `DeleteStmt`                    | `struct DeleteStatement`               |
 | `DropStmt`                      | `protocol DropStatement`               |
 | `DROP object_type_any_name ...` | `protocol DropObjectTypeAnyName`       |
