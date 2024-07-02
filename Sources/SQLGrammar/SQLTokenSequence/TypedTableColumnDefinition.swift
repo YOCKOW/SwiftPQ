@@ -35,7 +35,7 @@ public struct TypedTableColumnDefinition: SQLTokenSequence {
     self.constraints = constraints
   }
 
-  public init(name: ColumnIdentifier, withOptions constraints: ColumnQualifierList? = nil) {
+  public init(name: ColumnIdentifier, withOptions constraints: ColumnQualifierList?) {
     self.name = name
     self.omitWithOptionsTokens = false
     self.constraints = constraints

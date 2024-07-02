@@ -458,6 +458,37 @@ final class SQLGrammarTests: XCTestCase {
       "salary WITH OPTIONS DEFAULT 1000"
     )
   }
+
+  func test_TableElement() {
+    assertDescription(
+      TableElementList([
+        ColumnDefinition(name: "myCol", dataType: .int),
+        TableConstraint(
+          constraint: .check(
+            BinaryInfixGreaterThanOperatorInvocation(
+              ColumnReference(stringLiteral: "myCol"),
+              UnsignedIntegerConstantExpression(0)
+            )
+          )
+        )
+      ]),
+      "myCol INT, CHECK (myCol > 0)"
+    )
+    assertDescription(
+      OptionalTypedTableElementList([
+        TypedTableColumnDefinition(name: "myCol"),
+        TableConstraint(
+          constraint: .check(
+            BinaryInfixGreaterThanOperatorInvocation(
+              ColumnReference(stringLiteral: "myCol"),
+              UnsignedIntegerConstantExpression(0)
+            )
+          )
+        )
+      ]),
+      "(myCol, CHECK (myCol > 0))"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {

@@ -320,6 +320,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `reloption_list`             | `struct StorageParameterList`                      |
 | `reloptions`                 | `struct _StorageParameters` (internal)             |
 | `substr_list`                | `struct SubstringFunction.List`                    |
+| `TableElement`               | `struct TableElement`                              |
+| `TableElementList`           | `struct TableElementList`                          |
 | `TableFuncElement`           | `struct TableFunctionElement`                      |
 | `TableFuncElementList`       | `struct TableFunctionElementList`                  |
 | `TableLikeOptionList`        | `struct TableLikeOptionList`                       |
@@ -327,6 +329,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `target_el`                  | `struct TargetElement`                             |
 | `target_list`                | `struct TargetList`                                |
 | `trim_list`                  | `struct TrimFunction.List`                         |
+| `TypedTableElement`          | `struct TypedTableElement`                         |
+| `TypedTableElementList`      | `struct TypedTableElementList`                     |
+| `OptTypedTableElementList`   | `struct OptionalTypedTableElementList`             |
 | `rowsfrom_item`              | `struct TableFunction.RowsFromSyntax.Item`         | 
 | `rowsfrom_list`              | `struct TableFunction.RowsFromSyntax.List`         |
 | `select_fetch_first_value`   | `struct LimitClause.FetchClause.RowCount`          |
