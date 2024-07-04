@@ -1993,6 +1993,21 @@ final class SQLGrammarStatementTests: XCTestCase {
     )
   }
 
+  func test_CreateTypedTableStatement() {
+    assertDescription(
+      CreateTypedTableStatement(
+        temporariness: .unlogged,
+        ifNotExists: false,
+        name: "myTypedTable",
+        of: "myType",
+        definitions: .init([
+          TableConstraint(constraint: .primaryKey(columns: ["myCol"])),
+        ])
+      ),
+      "CREATE UNLOGGED TABLE myTypedTable OF myType (PRIMARY KEY (myCol))"
+    )
+  }
+
   func test_DropTableStatement() {
     func __assert(
       _ dropTable: DropTableStatement,

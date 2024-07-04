@@ -338,6 +338,59 @@ public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
 
 }
 
+
+/// A name of a composite type.
+public struct CompositeTypeName: AnyName,
+                                 ExpressibleByStringLiteral,
+                                 _DatabaseSchemaQualifiedNameConvertible {
+  let _databaseSchemaQualifiedName: _DatabaseSchemaQualifiedName
+
+  public var database: DatabaseName? { _databaseSchemaQualifiedName.database }
+
+  public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
+
+  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+
+  public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
+
+  public var attributes: AttributeList? { _databaseSchemaQualifiedName.attributes }
+
+  public init(
+    database: DatabaseName,
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._databaseSchemaQualifiedName = .init(
+      database: database,
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(
+    schema: SchemaName,
+    name: String,
+    caseSensitive: Bool = false
+  ) {
+    self._databaseSchemaQualifiedName = .init(
+      schema: schema,
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  public init(name: String, caseSensitive: Bool = false) {
+    self._databaseSchemaQualifiedName = .init(
+      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+    )
+  }
+
+  @inlinable
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(name: value)
+  }
+}
+
 /// A type representing a name of database.
 /// No corresponding expression exists in "gram.y",
 /// but almost same with the word described as `database_name` in [official documentation](https://www.postgresql.org/docs).
