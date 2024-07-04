@@ -1963,6 +1963,30 @@ final class SQLGrammarStatementTests: XCTestCase {
     )
   }
 
+  func test_CreatePartitionTableStatement() {
+    assertDescription(
+      CreatePartitionTableStatement(
+        name: "subTable",
+        partitionOf: "parentTable",
+        partitionBoundSpecification: .forValuesFrom(
+          .init(item: .init(UnsignedIntegerConstantExpression(10))),
+          to: [.maxValue]
+        )
+      ),
+      "CREATE TABLE subTable PARTITION OF parentTable FOR VALUES FROM (10) TO (MAXVALUE)"
+    )
+    assertDescription(
+      CreatePartitionTableStatement(
+        temporariness: .localTemporary,
+        name: "part1",
+        partitionOf: "parentTable",
+        partitionBoundSpecification: .forValuesWith(modulus: 4, remainder: 0)
+      ),
+      "CREATE LOCAL TEMPORARY TABLE part1 PARTITION OF parentTable " +
+      "FOR VALUES WITH (MODULUS 4, REMAINDER 0)"
+    )
+  }
+
   func test_CreateTableStatement() {
     assertDescription(
       CreateTableStatement(

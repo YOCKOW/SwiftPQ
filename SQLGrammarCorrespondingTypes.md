@@ -31,6 +31,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_drop_behavior`   | `enum DropBehavior`                    |
 | `extract_arg`         | `struct ExtractFunction.Field`         |
 | `first_or_next`       | `enum LimitClause.FetchClause.Keyword` |
+| `NonReservedWord`     | `struct NonReservedWord`               |
 | `row_or_rows`         | `enum LimitClause.FetchClause.Unit`    |
 | `set_quantifier`      | `enum SetQuantifier`                   |
 | `sub_type`            | `enum SatisfyExpression.Kind`          |
@@ -291,6 +292,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `generic_option_name`        | `struct GenericOption.Name`                        |
 | `group_by_item`              | `struct GroupingElement`                           |
 | `group_by_list`              | `struct GroupingList`                              |
+| `hash_partbound`             | `struct HashPartitionBoundList`                    |
+| `hash_partbound_elem`        | `struct HashPartitionBound`                        |
 | `index_elem`                 | `struct IndexElement`                              |
 | `index_elem_options`         | `struct IndexElementOptionSet`                     |
 | `index_params`               | `struct IndexElementList`                          |
@@ -314,6 +317,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `OnCommitOption`             | `enum OnCommitOption`                              |
 | `OptParenthesizedSeqOptList` | `struct OptionalSequenceOptionList`                |
 | `part_elem`                  | `struct PartitionSpecificationParameter`           |
+| `PartitionBoundSpec`         | `struct PartitionBoundSpecification`               |
 | `part_params`                | `struct ParticionSpecificationParameterList`       |
 | `OptTemp`                    | `enum TemporarinessOption`                         |
 | `qualified_name_list`        | `struct QualifiedNameList<Q>`                      |

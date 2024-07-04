@@ -119,6 +119,7 @@ extension InitializableWithNonEmptyList {
 }
 extension InitializableWithNonEmptyList where Self: ExpressibleByArrayLiteral,
                                               Self.NonEmptyListElement == Self.ArrayLiteralElement {
+  @inlinable
   public init(arrayLiteral elements: Self.NonEmptyListElement...) {
     guard let nonEmptyList = NonEmptyList(items: elements) else {
       fatalError("\(Self.self): Missing elements.")

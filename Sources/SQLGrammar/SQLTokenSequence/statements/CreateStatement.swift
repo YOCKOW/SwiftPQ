@@ -138,3 +138,73 @@ public struct CreateTypedTableStatement: CreateStatement {
     self.tableSpace = tableSpace
   }
 }
+
+/// A statement to create a table as a partition of a parent table.
+public struct CreatePartitionTableStatement: CreateStatement {
+  public let temporariness: TemporarinessOption?
+
+  public let ifNotExists: Bool
+
+  public let name: TableName
+
+  public let parentTable: TableName
+
+  public let definitions: OptionalTypedTableElementList
+
+  public let partitionBoundSpecification: PartitionBoundSpecification
+
+  public let partitionSpecification: PartitionSpecification?
+
+  public let accessMethod: TableAccessMethodClause?
+
+  public let storageParameters: WithStorageParametersClause?
+
+  public let onCommit: OnCommitOption?
+
+  public let tableSpace: TableSpaceSpecifier?
+
+  public var tokens: JoinedSQLTokenSequence {
+    return .compacting(
+      SingleToken(.create),
+      temporariness,
+      SingleToken(.table),
+      ifNotExists ? IfNotExists.ifNotExists : nil,
+      name,
+      SingleToken(.partition), SingleToken(.of),
+      parentTable,
+      definitions,
+      partitionBoundSpecification,
+      partitionSpecification,
+      accessMethod,
+      storageParameters,
+      onCommit,
+      tableSpace
+    )
+  }
+
+  public init(
+    temporariness: TemporarinessOption? = nil,
+    ifNotExists: Bool = false,
+    name: TableName,
+    partitionOf parentTable: TableName,
+    definitions: OptionalTypedTableElementList = nil,
+    partitionBoundSpecification: PartitionBoundSpecification,
+    partitionSpecification: PartitionSpecification? = nil,
+    accessMethod: TableAccessMethodClause? = nil,
+    storageParameters: WithStorageParametersClause? = nil,
+    onCommit: OnCommitOption? = nil,
+    tableSpace: TableSpaceSpecifier? = nil
+  ) {
+    self.temporariness = temporariness
+    self.ifNotExists = ifNotExists
+    self.name = name
+    self.parentTable = parentTable
+    self.definitions = definitions
+    self.partitionBoundSpecification = partitionBoundSpecification
+    self.partitionSpecification = partitionSpecification
+    self.accessMethod = accessMethod
+    self.storageParameters = storageParameters
+    self.onCommit = onCommit
+    self.tableSpace = tableSpace
+  }
+}
