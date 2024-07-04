@@ -21,20 +21,26 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macOS-13
+          - macOS-14
         swift-version:
-          - '5.9.2'
+          - '5.10'
+          # - '5.9.2'
         swift-compat-ver:
           - '5'
           # - '4.2'
           # - '4'
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: ikalnytskyi/action-setup-postgres@v5
+    - uses: ikalnytskyi/action-setup-postgres@v6
       with:
         username: swiftpq_test
         password: swiftpq_test
         database: swiftpq_test
+    - name: Install libcurl headers
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install libcurl4-openssl-dev
     - uses: actions/checkout@v4
     - name: Use a cache for ".build" directory.
       uses: actions/cache@v4
