@@ -49,7 +49,7 @@ extension SQLTokenSequence {
 /// A statement that can be also a statement even if parenthesized.
 public protocol ParenthesizableStatement: Statement {}
 
-extension Parenthesized: Statement,
+extension Parenthesized: TopLevelStatement, Statement,
                          ParenthesizableStatement where EnclosedTokens: ParenthesizableStatement {}
 
 public protocol ParenthesizablePreparableStatement: PreparableStatement, ParenthesizableStatement {}

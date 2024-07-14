@@ -36,6 +36,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `set_quantifier`      | `enum SetQuantifier`                   |
 | `sub_type`            | `enum SatisfyExpression.Kind`          |
 | `TableLikeOption`     | `enum TableLikeOption`                 |
+| `opt_transaction`     | `enum TransactionKeyword`              |
 | `type_function_name`  | `struct TypeOrFunctionName`(internal)  |
 | `unicode_normal_form` | `enum UnicodeNormalizationForm`        |
 
@@ -237,6 +238,8 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `SelectStmt`                    | `protocol SelectStatement`             |
 | `simple_select`                 | `protocol SimpleSelectStatement`       |
 | `stmt`                          | `protocol Statement`                   |
+| `toplevel_stmt`                 | `protocol TopLevelStatement`           |
+| `TransactionStmtLegacy`         | `enum LegacyTransactionStatement`      |
 | `UpdateStmt`                    | `struct UpdateStatement`               |
 
 
@@ -301,6 +304,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `indirection_el`             | `enum Indirection.List.Element`                    |
 | `in_expr`                    | `struct InExpression.Subquery`                     |
 | `opt_interval`               | `enum IntervalFieldsPhrase`                        |
+| `iso_level`                  | `enum IsolationLevel`                              |
 | `join_type`                  | `enum JoinType`                                    |
 | `join_qual`                  | `enum JoinCondition`                               |
 | `key_action`                 | `enum ReferentialAction`                           |
@@ -345,6 +349,9 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `SeqOptElem`                 | `struct SequenceOption`                            |
 | `SeqOptList`                 | `struct SequenceOptionList`                        |
 | `TableConstraint`            | `struct TableConstraint`                           |
+| `opt_transaction_chain`      | `enum TransactionChain`                            |
+| `transaction_mode_item`      | `enum TransactionMode`                             |
+| `transaction_mode_list`      | `struct TransactionModeList`                       |
 | `opt_unique_null_treatment`  | `enum NullTreatment`                               |
 | `when_clause_list`           | `struct WhenClauseList`                            |
 | `window_definition`          | `struct WindowDefinition`                          |

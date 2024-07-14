@@ -20,8 +20,11 @@ public protocol SQLTokenSequence: Sequence {
   var tokens: Tokens { get }
 }
 
+/// A type representing a top-level statement which is expressed as `toplevel_stmt` in "gram.y".
+public protocol TopLevelStatement: SQLTokenSequence {}
+
 /// A type representing a statement which is expressed as `stmt` in "gram.y".
-public protocol Statement: SQLTokenSequence {}
+public protocol Statement: TopLevelStatement {}
 
 /// A type that reprents `PreparableStmt` in "gram.y".
 public protocol PreparableStatement: Statement {}

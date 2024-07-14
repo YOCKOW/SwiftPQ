@@ -2096,6 +2096,16 @@ final class SQLGrammarStatementTests: XCTestCase {
     )
   }
 
+  func test_LegacyTransactionStatement() {
+    assertDescription(
+      LegacyTransactionStatement.begin(.transaction, modes: [
+        .isolationLevel(.readCommitted),
+        .deferrable,
+      ]),
+      "BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED, DEFERRABLE"
+    )
+  }
+
   func test_SimpleSelectQuery() {
     assertDescription(
       SimpleSelectQuery.selectAllRows(
