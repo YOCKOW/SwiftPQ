@@ -15,7 +15,7 @@ public final class StatementTerminator: SQLTokenSequence {
 public let statementTerminator: StatementTerminator = .statementTerminator
 
 /// A type representing terminated statement.
-public struct Terminated<Statement>: SQLTokenSequence where Statement: SQLGrammar.Statement {
+public struct Terminated<Statement>: SQLTokenSequence where Statement: TopLevelStatement {
   public typealias Element = SQLToken
 
   public let statement: Statement
