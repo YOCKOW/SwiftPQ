@@ -239,6 +239,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `simple_select`                 | `protocol SimpleSelectStatement`       |
 | `stmt`                          | `protocol Statement`                   |
 | `toplevel_stmt`                 | `protocol TopLevelStatement`           |
+| `TransactionStmt`               | `struct TransactionStatement`          |
 | `TransactionStmtLegacy`         | `enum LegacyTransactionStatement`      |
 | `UpdateStmt`                    | `struct UpdateStatement`               |
 

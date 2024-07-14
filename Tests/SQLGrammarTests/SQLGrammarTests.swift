@@ -2125,4 +2125,31 @@ final class SQLGrammarStatementTests: XCTestCase {
       "TABLE myTable"
     )
   }
+
+  func test_TransactionStatement() {
+    func __assertDescription(
+      _ statement: TransactionStatement, _ expectedDescription: String,
+      _ message: @autoclosure () -> String = "",
+      file: StaticString = #filePath, line: UInt = #line
+    ) {
+      assertDescription(statement, expectedDescription, message(), file: file, line: line)
+    }
+
+    __assertDescription(.abort, "ABORT")
+    __assertDescription(.abort(.transaction, and: .noChain), "ABORT TRANSACTION AND NO CHAIN")
+    __assertDescription(.startTransaction, "START TRANSACTION")
+    __assertDescription(.startTransaction(modes: [.readOnly]), "START TRANSACTION READ ONLY")
+    __assertDescription(.commit, "COMMIT")
+    __assertDescription(.commit(.work, and: .chain), "COMMIT WORK AND CHAIN")
+    __assertDescription(.rollback, "ROLLBACK")
+    __assertDescription(.rollback(.transaction, and: .noChain), "ROLLBACK TRANSACTION AND NO CHAIN")
+    __assertDescription(.savePoint("mySavePoint"), "SAVEPOINT mySavePoint")
+    __assertDescription(.releaseSavePoint("mySavePoint"), "RELEASE SAVEPOINT mySavePoint")
+    __assertDescription(.release("mySavePoint"), "RELEASE mySavePoint")
+    __assertDescription(.rollback(toSavePoint: "mySavePoint"), "ROLLBACK TO SAVEPOINT mySavePoint")
+    __assertDescription(.rollback(.work, to: "mySavePoint"), "ROLLBACK WORK TO mySavePoint")
+    __assertDescription(.prepareTransaction("myTransaction"), "PREPARE TRANSACTION 'myTransaction'")
+    __assertDescription(.commitPrepared("myTransaction"), "COMMIT PREPARED 'myTransaction'")
+    __assertDescription(.rollbackPrepared("myTransaction"), "ROLLBACK PREPARED 'myTransaction'")
+  }
 }
