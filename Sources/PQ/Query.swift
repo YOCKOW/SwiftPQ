@@ -6,6 +6,7 @@
  ************************************************************************************************ */
 
 import CLibPQ
+import SQLGrammar
 
 /// A type representing SQL.
 public struct Query {
@@ -85,13 +86,13 @@ public struct Query {
       }
 
       @inlinable
-      public mutating func appendInterpolation<T>(_ integer: T) where T: SQLIntegerType {
-        self.appendInterpolation(.numeric(integer))
+      public mutating func appendInterpolation<T>(integer: T) where T: SQLIntegerType {
+        self.appendInterpolation(.integer(integer))
       }
 
       @inlinable
-      public mutating func appendInterpolation<T>(_ float: T) where T: SQLFloatType {
-        self.appendInterpolation(.numeric(float))
+      public mutating func appendInterpolation<T>(float: T) where T: SQLFloatType {
+        self.appendInterpolation(.float(float))
       }
     }
 
@@ -114,25 +115,25 @@ public struct Query {
     return .init(command.rawValue)
   }
 
-  /// Create a query concatenating `tokens`.
-  public static func query<S>(from tokens: S, addStatementTerminator: Bool = false) -> Query where S: Sequence, S.Element == SQLToken {
-    var statement = tokens._description
-    if addStatementTerminator {
-      statement += ";"
-    }
-    return Query(statement)
-  }
-
-  /// Create a query containing multiple commands with `separator`. Default separator is "; ".
-  public static func joining<S1, S2>(
-    _ tokenSequences: S1,
-    separator: S2 = statementTerminator,
-    addStatementTerminator: Bool = false
-  ) -> Query where S1: Sequence, S1.Element: Sequence, S1.Element.Element == SQLToken,
-                   S2: Sequence, S2.Element == SQLToken
-  {
-    return query(from: tokenSequences.joined(separator: separator), addStatementTerminator: addStatementTerminator)
-  }
+//  /// Create a query concatenating `tokens`.
+//  public static func query<S>(from tokens: S, addStatementTerminator: Bool = false) -> Query where S: Sequence, S.Element == SQLToken {
+//    var statement = tokens._description
+//    if addStatementTerminator {
+//      statement += ";"
+//    }
+//    return Query(statement)
+//  }
+//
+//  /// Create a query containing multiple commands with `separator`. Default separator is "; ".
+//  public static func joining<S1, S2>(
+//    _ tokenSequences: S1,
+//    separator: S2 = statementTerminator,
+//    addStatementTerminator: Bool = false
+//  ) -> Query where S1: Sequence, S1.Element: Sequence, S1.Element.Element == SQLToken,
+//                   S2: Sequence, S2.Element == SQLToken
+//  {
+//    return query(from: tokenSequences.joined(separator: separator), addStatementTerminator: addStatementTerminator)
+//  }
 }
 
 public enum ExecutionError: Error {

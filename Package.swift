@@ -62,10 +62,11 @@ let package = Package(
       name: "PQ",
       dependencies: [
         "CLibPQ",
+        "PQMacros",
+        "SQLGrammar",
         "SwiftNetworkGear",
         "SwiftUnicodeSupplement",
         "ySwiftExtensions",
-        "PQMacros",
       ]
     ),
     .testTarget(
@@ -82,7 +83,13 @@ let package = Package(
         "SQLGrammar",
       ]
     ),
-    .testTarget(name: "PQTests", dependencies: ["PQ"]),
+    .testTarget(
+      name: "PQTests",
+      dependencies: [
+        "PQ",
+        "SQLGrammar",
+      ]
+    ),
   ]
 )
 

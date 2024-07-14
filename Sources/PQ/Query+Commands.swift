@@ -5,6 +5,8 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+/*
+
 // MARK: - CREATE TABLE
 
 extension Query {
@@ -227,3 +229,5 @@ extension Query {
     return dropTable([name], ifExists: ifExists, option: option)
   }
 }
+
+*/
