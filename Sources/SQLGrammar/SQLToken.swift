@@ -337,6 +337,10 @@ public class SQLToken: CustomStringConvertible {
   public final class Joiner: SQLToken {
     fileprivate static let singleton: Joiner = .init(rawValue: "")
   }
+
+  public final class Newline: SQLToken {
+    fileprivate static let singleton: Newline = .init(rawValue: "\n")
+  }
 }
 
 /// Workaround for https://github.com/apple/swift/issues/70087
@@ -459,4 +463,7 @@ extension SQLToken {
 
   /// Create a joiner token.
   public static let joiner: SQLToken = Joiner.singleton
+
+  /// Create a newline token.
+  public static let newline: SQLToken = Newline.singleton
 }

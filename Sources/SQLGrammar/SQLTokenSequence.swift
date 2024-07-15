@@ -100,7 +100,11 @@ internal extension Sequence where Element: SQLToken {
 
       if token is SQLToken.Joiner {
         continue
-      } else if previousToken is SQLToken.Joiner || previousToken == nil {
+      } else if (
+        previousToken == nil ||
+        previousToken is SQLToken.Joiner ||
+        previousToken is SQLToken.Newline || token is SQLToken.Newline
+      ) {
         description += token.description
       } else {
         description += " \(token.description)"

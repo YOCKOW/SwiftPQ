@@ -113,6 +113,8 @@ public protocol InitializableWithNonEmptyList {
   init(_ list: NonEmptyList<NonEmptyListElement>)
 }
 extension InitializableWithNonEmptyList {
+  /// Initializes the instance with one given element.
+  @inlinable
   public init(_ element: NonEmptyListElement) {
     self.init(NonEmptyList<NonEmptyListElement>(item: element))
   }
