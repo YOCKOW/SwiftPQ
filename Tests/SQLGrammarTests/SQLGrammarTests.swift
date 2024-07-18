@@ -480,6 +480,28 @@ final class SQLGrammarTests: XCTestCase {
       "(myCol, CHECK (myCol > 0))"
     )
   }
+
+  func test_RawParseMode() {
+    assertDescription(
+      RawParseMode.default([DropTableStatement(name: "myOldTable")]),
+      "DROP TABLE myOldTable"
+    )
+    assertDescription(RawParseMode.typeName(.int), "MODE_TYPE_NAME INT")
+    assertDescription(
+      RawParseMode.plpgSQLExpression(.init(allOrDistinct: .all)),
+      "MODE_PLPGSQL_EXPR ALL"
+    )
+    assertDescription(
+      RawParseMode.plpgSQLAssignment1(
+        .init(
+          variable: .init(SQLToken.PositionalParameter(1)),
+          operator: .equalTo,
+          expression: .init(targets: [.all])
+        )
+      ),
+      "MODE_PLPGSQL_ASSIGN1 $1 = *"
+    )
+  }
 }
 
 final class SQLGrammarClauseTests: XCTestCase {
@@ -2094,6 +2116,40 @@ final class SQLGrammarStatementTests: XCTestCase {
         .deferrable,
       ]),
       "BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED, DEFERRABLE"
+    )
+  }
+
+  func test_PLpgSQLAssignmentStatement() {
+    assertDescription(
+      PLpgSQLAssignmentStatement(
+        variable: .init("myVariable"),
+        operator: .colonEquals,
+        expression: .init(
+          allOrDistinct: .all,
+          targets: [.init(ColumnReference(identifier: "col1"), as: "colAlias")],
+          from: FromClause([RelationTableReference("myTable")]),
+          where: WhereClause(condition: BooleanConstantExpression.true),
+          group: GroupClause(columnReferences: [.empty]),
+          having: HavingClause(predicate: BooleanConstantExpression.true),
+          window: WindowClause([
+            WindowDefinition(
+              name: "winName",
+              specification: WindowSpecification(
+                name: nil,
+                partitionBy: nil,
+                orderBy: SortClause(SortBy(BooleanConstantExpression.true)),
+                frame: nil
+              )
+            )
+          ]),
+          orderBy: SortClause(SortBy<ColumnReference>(ColumnReference(columnName: "col1"))),
+          limit: SelectLimitClause.limit(count: SelectLimitValue(10), offset: SelectOffsetValue(2)),
+          forLocking: .forReadOnly
+        )
+      ),
+      "myVariable := ALL col1 AS colAlias FROM myTable WHERE TRUE " +
+      "GROUP BY () HAVING TRUE WINDOW winName AS (ORDER BY TRUE) " +
+      "ORDER BY col1 LIMIT 10 OFFSET 2 FOR READ ONLY"
     )
   }
 

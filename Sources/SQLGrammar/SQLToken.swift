@@ -326,7 +326,7 @@ public class SQLToken: CustomStringConvertible {
 
   public class SpecialCharacter: SQLToken {}
 
-  /// A '$n' token.
+  /// A '$n' token described as `PARAM` in "gram.y".
   public final class PositionalParameter: SpecialCharacter {
     public init(_ position: UInt) {
       super.init(rawValue: "$\(position)")

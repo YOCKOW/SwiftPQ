@@ -21,24 +21,25 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 
 ## One-token symbols
 
-| gram.y                | Swift                                  |
-|-----------------------|----------------------------------------|
-| `attr_name`           | `enum AttributeName`                   |
-| `BareColLabel`        | `struct BareColumnLabel`               |
-| `ColId`               | `struct ColumnIdentifier`              |
-| `ColLabel`            | `struct ColumnLabel`                   |
-| `document_or_content` | `enum XMLOption`                       |
-| `opt_drop_behavior`   | `enum DropBehavior`                    |
-| `extract_arg`         | `struct ExtractFunction.Field`         |
-| `first_or_next`       | `enum LimitClause.FetchClause.Keyword` |
-| `NonReservedWord`     | `struct NonReservedWord`               |
-| `row_or_rows`         | `enum LimitClause.FetchClause.Unit`    |
-| `set_quantifier`      | `enum SetQuantifier`                   |
-| `sub_type`            | `enum SatisfyExpression.Kind`          |
-| `TableLikeOption`     | `enum TableLikeOption`                 |
-| `opt_transaction`     | `enum TransactionKeyword`              |
-| `type_function_name`  | `struct TypeOrFunctionName`(internal)  |
-| `unicode_normal_form` | `enum UnicodeNormalizationForm`        |
+| gram.y                | Swift                                      |
+|-----------------------|--------------------------------------------|
+| `attr_name`           | `enum AttributeName`                       |
+| `BareColLabel`        | `struct BareColumnLabel`                   |
+| `ColId`               | `struct ColumnIdentifier`                  |
+| `ColLabel`            | `struct ColumnLabel`                       |
+| `document_or_content` | `enum XMLOption`                           |
+| `opt_drop_behavior`   | `enum DropBehavior`                        |
+| `extract_arg`         | `struct ExtractFunction.Field`             |
+| `first_or_next`       | `enum LimitClause.FetchClause.Keyword`     |
+| `NonReservedWord`     | `struct NonReservedWord`                   |
+| `plassign_equals`     | `enum PLpgSQLAssignmentStatement.Operator` |
+| `row_or_rows`         | `enum LimitClause.FetchClause.Unit`        |
+| `set_quantifier`      | `enum SetQuantifier`                       |
+| `sub_type`            | `enum SatisfyExpression.Kind`              |
+| `TableLikeOption`     | `enum TableLikeOption`                     |
+| `opt_transaction`     | `enum TransactionKeyword`                  |
+| `type_function_name`  | `struct TypeOrFunctionName`(internal)      |
+| `unicode_normal_form` | `enum UnicodeNormalizationForm`            |
 
 
 ## Type Names
@@ -88,6 +89,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `opt_cycle_clause`                          | `struct CycleClause`                                      |
 | `opt_definition`                            | `struct WithDefinitionClause`                             |
 | `distinct_clause`                           | `struct DistinctClause`                                   |
+| `opt_distinct_clause`                       | `enum AllOrDistinctClause`                                |
 | `filter_clause`                             | `struct FilterClause`                                     |
 | `for_locking_clause`                        | `struct LockingClause`                                    |
 | `opt_frame_clause`                          | `struct FrameClause`                                      |
@@ -185,6 +187,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `json_value_expr`                                                       | `struct JSONValueExpression`                   |
 | `NOT a_expr`                                                            | `struct UnaryPrefixNotOperatorInvocation`      |
 | `NumericOnly`                                                           | `protocol NumericExpression`                   |
+| `PLpgSQL_Expr`                                                          | `struct PLpgSQLExpression`                     |
 | `relation_expr`                                                         | `struct RelationExpression`                    |
 | `row`                                                                   | `struct RowExpression`                         |
 | `row OVERLAPS row`                                                      | `struct BinaryInfixOverlapsOperatorInvocation` |
@@ -233,6 +236,7 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `DROP object_type_any_name ...` | `protocol DropObjectTypeAnyName`       |
 | `DROP TABLE ...`                | `struct DropTable`                     |
 | `InsertStmt`                    | `struct InsertStatement`               |
+| `PLAssignStmt`                  | `struct PLpgSQLAssignmentStatement`
 | `PreparableStmt`                | `protocol PreparableStatement`         |
 | `select_no_parens`              | `protocol BareSelectStatement`         |
 | `SelectStmt`                    | `protocol SelectStatement`             |
@@ -322,9 +326,11 @@ Here are lists that show which Swift type corresponds to a symbol in "gram.y". T
 | `NumericOnly_list`           | `struct NumericExpressionList`                     |
 | `OnCommitOption`             | `enum OnCommitOption`                              |
 | `OptParenthesizedSeqOptList` | `struct OptionalSequenceOptionList`                |
+| `parse_toplevel`             | `enum RawParseMode`                                |
 | `part_elem`                  | `struct PartitionSpecificationParameter`           |
 | `PartitionBoundSpec`         | `struct PartitionBoundSpecification`               |
 | `part_params`                | `struct ParticionSpecificationParameterList`       |
+| `plassign_target`            | `enum PLpgSQLAssignmentStatement.Variable.Target`  |
 | `OptTemp`                    | `enum TemporarinessOption`                         |
 | `qualified_name_list`        | `struct QualifiedNameList<Q>`                      |
 | `reloption_elem`             | `struct StorageParameter`                          |

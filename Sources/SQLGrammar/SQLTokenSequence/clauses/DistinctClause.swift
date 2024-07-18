@@ -20,3 +20,19 @@ public struct DistinctClause: Clause {
     )
   }
 }
+
+/// Representation of a clause described as `opt_distinct_clause` in "gram.y".
+public enum AllOrDistinctClause: Clause {
+  case distinct(DistinctClause)
+  case all
+
+  @inlinable
+  public var tokens: JoinedSQLTokenSequence {
+    switch self {
+    case .distinct(let distinctClause):
+      return distinctClause.tokens
+    case .all:
+      return JoinedSQLTokenSequence(SingleToken(.all))
+    }
+  }
+}
