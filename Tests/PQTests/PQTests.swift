@@ -123,20 +123,22 @@ final class PQTests: XCTestCase {
       password: databasePassword
     )
     
-//    let creationResult = try await connection.execute(
-//      .createTable(
-//        "test_table",
-//        columns: [
-//          .name("id", dataType: .integer),
-//          .name("name", dataType: .characterVarying(16))
-//        ],
-//        ifNotExists: true
-//      )
-//    )
-//    XCTAssertEqual(creationResult, .ok)
-//
-//    let dropResult = try await connection.execute(.dropTable("test_table", ifExists: false))
-//    XCTAssertEqual(dropResult, .ok)
+    let tableName: TableName = "test_table"
+
+    let creationResult = try await connection.execute(
+      .createTable(
+        tableName,
+        definitions: [
+          .column(name: "id", dataType: .integer),
+          .column(name: "name", dataType: .characterVarying(16))
+        ],
+        ifNotExists: true
+      )
+    )
+    XCTAssertEqual(creationResult, .ok)
+
+    let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
+    XCTAssertEqual(dropResult, .ok)
 
     await connection.finish()
   }

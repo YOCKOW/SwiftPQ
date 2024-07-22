@@ -423,7 +423,7 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(
       ColumnDefinition(
         name: "title",
-        dataType: CharacterTypeName.varchar(length: 40).typeName,
+        dataType: .varchar(40),
         qualifiers: .constraints([.init(.notNull)])
       ),
       "title VARCHAR(40) NOT NULL"
@@ -431,7 +431,7 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(
       ColumnDefinition(
         name: "code",
-        dataType: CharacterTypeName.char(length: 5).typeName,
+        dataType: .char(5),
         qualifiers: .constraints([
           .init(NamedColumnConstraint(name: "firstKey", element: .primaryKey))
         ])

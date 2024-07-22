@@ -52,14 +52,53 @@ public struct TableElement: SQLTokenSequence {
     return .init(columnDefinition)
   }
 
+  /// Returns column definition created with the given parameters.
+  @inlinable
+  public static func column(
+    name: ColumnIdentifier,
+    dataType: TypeName,
+    storageMode: ColumnStorageMode? = nil,
+    compressionMode: ColumnCompressionMode? = nil,
+    genericOptions: GenericOptionsClause? = nil,
+    qualifiers: ColumnQualifierList? = nil
+  ) -> TableElement {
+    return .columnDefinition(
+      ColumnDefinition(
+        name: name,
+        dataType: dataType,
+        storageMode: storageMode,
+        compressionMode: compressionMode,
+        genericOptions: genericOptions,
+        qualifiers: qualifiers
+      )
+    )
+  }
+
+
   @inlinable
   public static func tableLikeClause(_ tableLikeClause: TableLikeClause) -> TableElement {
     return .init(tableLikeClause)
   }
 
   @inlinable
+  public static func like(
+    _ sourceTable: TableName,
+    options: TableLikeOptionList? = nil
+  ) -> TableElement {
+    return .tableLikeClause(TableLikeClause(like: sourceTable, options: options))
+  }
+
+  @inlinable
   public static func tableConstraint(_ tableConstraint: TableConstraint) -> TableElement {
     return .init(tableConstraint)
+  }
+
+  @inlinable
+  public static func constraint(
+    name: Name? = nil,
+    _ constraint: TableConstraintElement
+  ) -> TableElement {
+    return .tableConstraint(TableConstraint(name: name, constraint: constraint))
   }
 }
 
@@ -119,9 +158,39 @@ public struct TypedTableElement: SQLTokenSequence {
     return .init(columnDefinition)
   }
 
+  /// Returns column definition created with the given parameters.
+  @inlinable
+  public static func column(
+    name: ColumnIdentifier,
+    dataType: TypeName,
+    storageMode: ColumnStorageMode? = nil,
+    compressionMode: ColumnCompressionMode? = nil,
+    genericOptions: GenericOptionsClause? = nil,
+    qualifiers: ColumnQualifierList? = nil
+  ) -> TableElement {
+    return .columnDefinition(
+      ColumnDefinition(
+        name: name,
+        dataType: dataType,
+        storageMode: storageMode,
+        compressionMode: compressionMode,
+        genericOptions: genericOptions,
+        qualifiers: qualifiers
+      )
+    )
+  }
+
   @inlinable
   public static func tableConstraint(_ tableConstraint: TableConstraint) -> TableElement {
     return .init(tableConstraint)
+  }
+
+  @inlinable
+  public static func constraint(
+    name: Name? = nil,
+    _ constraint: TableConstraintElement
+  ) -> TableElement {
+    return .tableConstraint(TableConstraint(name: name, constraint: constraint))
   }
 }
 

@@ -87,6 +87,7 @@ public struct TypeName: NameRepresentation,
     return sourceName._functionNameWithModifiers
   }
 
+  @inlinable
   public init(_ name: any SimpleTypeName, arrayModifier: ArrayModifier? = nil, isSet: Bool = false) {
     self.name = name
     self.arrayModifier = arrayModifier
@@ -113,15 +114,7 @@ public struct TypeName: NameRepresentation,
     )
   }
 
-  public static let int: TypeName = NumericTypeName.int.typeName
-
-  public static let bigInt: TypeName = NumericTypeName.bigInt.typeName
-
-  public static let float: TypeName = NumericTypeName.float.typeName
-
-  public static let double: TypeName = NumericTypeName.double.typeName
-
-  public static let boolean: TypeName = NumericTypeName.boolean.typeName
+  // `GenericTypeName`s
 
   public static let date: TypeName = GenericTypeName.date.typeName
 
@@ -129,11 +122,225 @@ public struct TypeName: NameRepresentation,
 
   public static let text: TypeName = GenericTypeName.text.typeName
 
+  // `NumericTypeName`s
+
+  public static let int: TypeName = NumericTypeName.int.typeName
+
+  public static let integer: TypeName = NumericTypeName.integer.typeName
+
+  public static let smallInt: TypeName = NumericTypeName.samllInt.typeName
+
+  public static let bigInt: TypeName = NumericTypeName.bigInt.typeName
+
+  public static let real: TypeName = NumericTypeName.real.typeName
+
+  @inlinable
+  public static func float(_ precision: UnsignedIntegerConstantExpression) -> TypeName {
+    return NumericTypeName.float(precision: precision).typeName
+  }
+
+  public static let float: TypeName = NumericTypeName.float.typeName
+
+  public static let doublePrecision: TypeName = NumericTypeName.doublePrecision.typeName
+
+  public static let double: TypeName = NumericTypeName.double.typeName
+
+  @inlinable
+  public static func decimal(_ precision: UnsignedIntegerConstantExpression) -> TypeName {
+    return NumericTypeName.decimal(precision: precision).typeName
+  }
+
+  public static let decimal: TypeName = NumericTypeName.decimal.typeName
+
+  @inlinable
+  public static func dec(_ precision: UnsignedIntegerConstantExpression) -> TypeName {
+    return NumericTypeName.dec(precision: precision).typeName
+  }
+
+  public static let dec: TypeName = NumericTypeName.dec.typeName
+
+  @inlinable
+  public static func numeric<Scale>(
+    _ precision: UnsignedIntegerConstantExpression,
+    _ scale: Scale? = Optional<UnsignedIntegerConstantExpression>.none
+  ) -> TypeName where Scale: SignedIntegerConstantExpression, Scale: GeneralExpression {
+    return NumericTypeName.numeric(precision: precision, scale: scale).typeName
+  }
+
+  public static let numeric: TypeName = NumericTypeName.numeric.typeName
+
+  public static let boolean: TypeName = NumericTypeName.boolean.typeName
+
+  // `BitStringTypeName`s
+
+  @inlinable
+  public static func bit(_ length: UnsignedIntegerConstantExpression) -> TypeName {
+    return BitStringTypeName.fixed(length: length).typeName
+  }
+
+  public static let bit: TypeName = BitStringTypeName.fixed.typeName
+
+  @inlinable
+  public static func bitVarying(_ length: UnsignedIntegerConstantExpression) -> TypeName {
+    return BitStringTypeName.varying(length: length).typeName
+  }
+
+  public static let bitVarying: TypeName = BitStringTypeName.varying.typeName
+
+  // `CharacterTypeName`s
+
+  @inlinable
+  public static func character(
+    varying: Bool = false,
+    length: UnsignedIntegerConstantExpression
+  ) -> TypeName {
+    return CharacterTypeName.character(varying: varying, length: length).typeName
+  }
+
+  @inlinable
+  public static func character(
+    _ length: UnsignedIntegerConstantExpression
+  ) -> TypeName {
+    return CharacterTypeName.character(varying: false, length: length).typeName
+  }
+
+  @inlinable
+  public static func characterVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.characterVarying(length).typeName
+  }
+
+  public static let character: TypeName = CharacterTypeName.character.typeName
+
+  @inlinable
+  public static func char(
+    varying: Bool = false,
+    length: UnsignedIntegerConstantExpression
+  ) -> TypeName {
+    return CharacterTypeName.char(varying: varying, length: length).typeName
+  }
+
+  @inlinable
+  public static func char(
+    _ length: UnsignedIntegerConstantExpression
+  ) -> TypeName {
+    return CharacterTypeName.char(varying: false, length: length).typeName
+  }
+
+  @inlinable
+  public static func charVarying(
+    _ length: UnsignedIntegerConstantExpression
+  ) -> TypeName {
+    return CharacterTypeName.charVarying(length).typeName
+  }
+
+  public static let char: TypeName = CharacterTypeName.char.typeName
+
+  @inlinable
+  public static func varchar(_ length: UnsignedIntegerConstantExpression? = nil) -> TypeName {
+    return CharacterTypeName.varchar(length).typeName
+  }
+
+  public static let varchar: TypeName = CharacterTypeName.varchar.typeName
+
+  @inlinable
+  public static func nationalCharacter(
+    varying: Bool = false,
+    length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.nationalCharacter(varying: varying, length: length).typeName
+  }
+
+  @inlinable
+  public static func nationalCharacterVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.nationalCharacterVarying(length).typeName
+  }
+
+  public static let nationalCharacter: TypeName = CharacterTypeName.nationalCharacter.typeName
+
+  @inlinable
+  public static func nationalChar(
+    varying: Bool = false,
+    length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.nationalChar(varying: varying, length: length).typeName
+  }
+
+  @inlinable
+  public static func nationalCharVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.nationalCharVarying(length).typeName
+  }
+
+  public static let nationalChar: TypeName = CharacterTypeName.nationalChar.typeName
+
+  @inlinable
+  public static func nchar(
+    varying: Bool = false,
+    length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.nchar(varying: varying, length: length).typeName
+  }
+
+  @inlinable
+  public static func ncharVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> TypeName {
+    return CharacterTypeName.ncharVarying(length).typeName
+  }
+
+  public static let nchar: TypeName = CharacterTypeName.nchar.typeName
+
+  // `ConstantDateTimeTypeName`s
+
+  @inlinable
+  public static func timestamp(
+    _ precision: UnsignedIntegerConstantExpression,
+    withTimeZone: Bool? = nil
+  ) -> TypeName {
+    return ConstantDateTimeTypeName.timestamp(precision: precision, withTimeZone: withTimeZone).typeName
+  }
+
+  public static let timestamp: TypeName = ConstantDateTimeTypeName.timestamp.typeName
+
+
+  @inlinable
+  public static func time(
+    _ precision: UnsignedIntegerConstantExpression,
+    withTimeZone: Bool? = nil
+  ) -> TypeName {
+    return ConstantDateTimeTypeName.time(precision: precision, withTimeZone: withTimeZone).typeName
+  }
+
+  public static let time: TypeName = ConstantDateTimeTypeName.time.typeName
+
+  // `ConstantIntervalTypeName`s
+
+  @inlinable
+  public static func interval(option: IntervalOption) -> TypeName {
+    return ConstantIntervalTypeName(option: option).typeName
+  }
+
+  @inlinable
+  public static func interval(_ fields: IntervalFieldsPhrase) -> TypeName {
+    return ConstantIntervalTypeName(fields: fields).typeName
+  }
+
+  @inlinable
+  public static func interval(_ precision: UnsignedIntegerConstantExpression) -> TypeName {
+    return ConstantIntervalTypeName(precision: precision).typeName
+  }
+
   public static let interval: TypeName = ConstantIntervalTypeName().typeName
 }
 
 extension SimpleTypeName {
   /// Returns an instance of `TypeName` created from the name.
+  @inlinable
   public var typeName: TypeName {
     return TypeName(self)
   }
@@ -259,15 +466,21 @@ public enum NumericTypeName: SimpleTypeName,
   /// `DECIMAL` type.
   case decimal(modifiers: GeneralExpressionList? = nil)
 
+  @inlinable
+  public static func decimal(precision: UnsignedIntegerConstantExpression) -> NumericTypeName {
+    return .decimal(modifiers: GeneralExpressionList(precision))
+  }
+
   /// `DECIMAL` type withoug modifiers.
   public static let decimal: NumericTypeName = .decimal()
 
-  public static func decimal(precision: UnsignedIntegerConstantExpression) -> NumericTypeName {
-    fatalError("Unimplemented.")
-  }
-
   /// `DEC` type.
   case dec(modifiers: GeneralExpressionList? = nil)
+
+  @inlinable
+  public static func dec(precision: UnsignedIntegerConstantExpression) -> NumericTypeName {
+    return .dec(modifiers: GeneralExpressionList(precision))
+  }
 
   /// `DEC` type without modifiers.
   public static let dec: NumericTypeName = .dec()
@@ -275,13 +488,20 @@ public enum NumericTypeName: SimpleTypeName,
   /// `NUMERIC` type.
   case numeric(modifiers: GeneralExpressionList? = nil)
 
-  public static func numeric(
+  /// `NUMERIC` type with precision and scale.
+  @inlinable
+  public static func numeric<Scale>(
     precision: UnsignedIntegerConstantExpression,
-    scale: UnsignedIntegerConstantExpression? = nil
-  ) -> NumericTypeName {
-    // TODO: `'-' a_expr` must be implemented.
-    fatalError("Unimplemented.")
+    scale: Scale? = Optional<UnsignedIntegerConstantExpression>.none
+  ) -> NumericTypeName where Scale: SignedIntegerConstantExpression, Scale: GeneralExpression {
+    guard let scale else {
+      return .numeric(modifiers: GeneralExpressionList(precision))
+    }
+    return .numeric(modifiers: GeneralExpressionList(precision, scale))
   }
+
+  /// `NUMERIC` type without modifiers.
+  public static let numeric: NumericTypeName = .numeric(modifiers: nil)
 
   /// `BOOLEAN` type.
   case boolean
@@ -487,7 +707,7 @@ public enum BitStringTypeName: SimpleTypeName,
   internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
     switch self {
     case .fixed(let length):
-      guard let funcName = FunctionName(.bit) else { return nil }
+      guard let funcName = FunctionName(SQLToken.bit) else { return nil }
       let funcArgList = length.map(FunctionArgumentList.init)
       return (funcName, funcArgList)
     case .varying:
@@ -605,6 +825,13 @@ public struct CharacterTypeName: SimpleTypeName,
     return CharacterTypeName(type: .character, varying: varying, length: length)
   }
 
+  /// Create `CHARACTER VARYING` type.
+  public static func characterVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> CharacterTypeName {
+    return .character(varying: true, length: length)
+  }
+
   /// Create fixed-length `CHARACTER` type without specifying length.
   public static let character: CharacterTypeName = .character()
 
@@ -616,11 +843,18 @@ public struct CharacterTypeName: SimpleTypeName,
     return CharacterTypeName(type: .char, varying: varying, length: length)
   }
 
+  /// Create `CHAR VARYING` type.
+  public static func charVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> CharacterTypeName {
+    return .char(varying: true, length: length)
+  }
+
   /// Create fixed-length `CHAR` type without specifying length.
   public static let char: CharacterTypeName = .char()
 
   /// Create `VARCHAR` type.
-  public static func varchar(length: UnsignedIntegerConstantExpression? = nil) -> CharacterTypeName {
+  public static func varchar(_ length: UnsignedIntegerConstantExpression? = nil) -> CharacterTypeName {
     return CharacterTypeName(type: .varchar, varying: false, length: length)
   }
 
@@ -635,6 +869,13 @@ public struct CharacterTypeName: SimpleTypeName,
     return CharacterTypeName(type: .nationalCharacter, varying: varying, length: length)
   }
 
+  @inlinable
+  public static func nationalCharacterVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> CharacterTypeName {
+    return .nationalCharacter(varying: true, length: length)
+  }
+
   /// Create fixed-length `NATIONAL CHARACTER` type without specifying length.
   public static let nationalCharacter: CharacterTypeName = .nationalCharacter()
 
@@ -646,6 +887,14 @@ public struct CharacterTypeName: SimpleTypeName,
     return CharacterTypeName(type: .nationalChar, varying: varying, length: length)
   }
 
+
+  @inlinable
+  public static func nationalCharVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> CharacterTypeName {
+    return .nationalChar(varying: true, length: length)
+  }
+
   /// Create fixed-length `NATIONAL CHAR` type without specifying length.
   public static let nationalChar: CharacterTypeName = .nationalChar()
 
@@ -655,6 +904,13 @@ public struct CharacterTypeName: SimpleTypeName,
     length: UnsignedIntegerConstantExpression? = nil
   ) -> CharacterTypeName {
     return CharacterTypeName(type: .nchar, varying: varying, length: length)
+  }
+
+  @inlinable
+  public static func ncharVarying(
+    _ length: UnsignedIntegerConstantExpression? = nil
+  ) -> CharacterTypeName {
+    return .nchar(varying: true, length: length)
   }
 
   /// Create fixed-length `NCHAR` type without specifying length.
