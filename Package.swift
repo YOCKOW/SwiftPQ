@@ -4,6 +4,14 @@
 import PackageDescription
 import CompilerPluginSupport
 
+let swiftSyntaxVersion: Version = ({
+  #if compiler(>=5.10)
+  return "510.0.1"
+  #else
+  return "509.1.1"
+  #endif
+})()
+
 let package = Package(
   name: "PQ",
   platforms: [
@@ -15,7 +23,7 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(name: "CLibPQ", targets: ["CLibPQ"]),
-    .library(name: "SwiftPQ", targets: ["PQ"]),
+    .library(name: "SwiftPQ", targets: ["SQLGrammar", "PQ"]),
   ],
   dependencies: [
     .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
@@ -23,7 +31,7 @@ let package = Package(
     .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
 
     // For Macros
-    .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.1"),
+    .package(url: "https://github.com/apple/swift-syntax.git", from: swiftSyntaxVersion),
   ],
   targets: [
       // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -44,21 +52,42 @@ let package = Package(
       ]
     ),
     .target(
-      name: "PQ",
+      name: "SQLGrammar",
       dependencies: [
-        "CLibPQ",
-        "SwiftNetworkGear",
         "SwiftUnicodeSupplement",
-        "ySwiftExtensions",
         "PQMacros",
       ]
     ),
-    .testTarget(name: "PQTests", dependencies: ["PQ"]),
+    .target(
+      name: "PQ",
+      dependencies: [
+        "CLibPQ",
+        "PQMacros",
+        "SQLGrammar",
+        "SwiftNetworkGear",
+        "SwiftUnicodeSupplement",
+        "ySwiftExtensions",
+      ]
+    ),
     .testTarget(
       name: "PQMacrosTests",
       dependencies: [
         "PQMacros",
         .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ]
+    ),
+    .testTarget(
+      name: "SQLGrammarTests",
+      dependencies: [
+        "SwiftNetworkGear",
+        "SQLGrammar",
+      ]
+    ),
+    .testTarget(
+      name: "PQTests",
+      dependencies: [
+        "PQ",
+        "SQLGrammar",
       ]
     ),
   ]

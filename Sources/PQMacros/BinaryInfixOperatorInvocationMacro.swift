@@ -41,18 +41,26 @@ public struct BinaryInfixOperatorInvocationMacro: ExpressionMacro {
     of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
     in context: some SwiftSyntaxMacros.MacroExpansionContext
   ) throws -> SwiftSyntax.ExprSyntax {
+    let arguments: LabeledExprListSyntax = ({
+      #if compiler(>=5.10)
+      return node.arguments
+      #else
+      return node.argumentList
+      #endif
+    })()
+
     let (left, op, right): (ExprSyntax, ExprSyntax, ExprSyntax) = try ({
-      switch node.argumentList.count {
+      switch arguments.count {
       case 1:
-        guard let infixOpExpr = node.argumentList.first!.expression.as(InfixOperatorExprSyntax.self) else {
+        guard let infixOpExpr = arguments.first!.expression.as(InfixOperatorExprSyntax.self) else {
           throw Error.unsupportedExpression
         }
         return (infixOpExpr.leftOperand, infixOpExpr.operator, infixOpExpr.rightOperand)
       case 3:
         return (
-          node.argumentList.first!.expression,
-          node.argumentList[node.argumentList.index(after: node.argumentList.startIndex)].expression,
-          node.argumentList.last!.expression
+          arguments.first!.expression,
+          arguments[arguments.index(after: arguments.startIndex)].expression,
+          arguments.last!.expression
         )
       default:
         throw Error.unexpectedNumberOfArguments

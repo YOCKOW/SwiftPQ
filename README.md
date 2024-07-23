@@ -1,7 +1,9 @@
 # What is `SwiftPQ`?
 
 `SwiftPQ` is a simple wrapper of [libpq](https://www.postgresql.org/docs/current/libpq.html) that is a C-API to PostgreSQL.
-You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way.
+You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way[^1].
+
+[^1]: See also [SQLGrammarCorrespondingTypes.md](./SQLGrammarCorrespondingTypes.md)
 
 > [!WARNING]  
 >
@@ -9,7 +11,7 @@ You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way.
 
 # Requirements
 
-* Swift >= 5.9
+* Swift >= 5.10
 * libpq
 
 # Usage
@@ -79,10 +81,10 @@ CREATE TABLE \(identifier: "my_products#1") (
 let result = try await connection.execute(
   .createTable(
     "myFavouriteProducts",
-    columns: [
-      .name("product_no", dataType: .integer),
-      .name("name", dataType: .text),
-      .name("price", dataType: .numeric),
+    definitions: [
+      .column(name: "product_no", dataType: .integer),
+      .column(name: "name", dataType: .text),
+      .column(name: "price", dataType: .numeric),
     ],
     ifNotExists: true
   )

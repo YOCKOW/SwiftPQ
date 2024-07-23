@@ -37,6 +37,9 @@ public struct _BinaryInfixOperatorInvocationMacroOperand: ExpressibleByStringLit
   public static func >>(_ lhs: Self, _ rhs: Self) -> _BinaryInfixOperatorInvocationMacroResult { .result }
 }
 
+
+/*
+
 /// A macro that produces a constructor of `BinaryInfixOperatorInvocation`.
 ///
 ///
@@ -73,3 +76,5 @@ internal macro _WellknownOperators() = #externalMacro(module: "PQMacros", type: 
 
 @attached(member, names: arbitrary)
 internal macro _BinaryInfixOperatorInvocationShortcut() =  #externalMacro(module: "PQMacros", type: "BinaryInfixOperatorInvocationShortcutMacro")
+
+*/
