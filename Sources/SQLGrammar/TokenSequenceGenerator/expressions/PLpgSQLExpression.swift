@@ -27,7 +27,7 @@ public struct PLpgSQLExpression: Expression {
 
   public let forLocking: LockingClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       allOrDistinct,
       targets,

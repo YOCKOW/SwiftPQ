@@ -9,8 +9,8 @@
 public struct RepeatableClause<Seed>: Clause where Seed: GeneralExpression {
   public let seed: Seed
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       SingleToken.repeatable,
       SingleToken.joiner,
       seed.parenthesized
@@ -30,7 +30,7 @@ public struct TableSampleClause: Clause {
 
   public struct Repeatable: Clause {
     private class _Box {
-      var tokens: JoinedSQLTokenSequence {
+      var tokens: JoinedTokenSequence {
         fatalError("Must be overridden.")
       }
 
@@ -46,7 +46,7 @@ public struct TableSampleClause: Clause {
         self._base = base
       }
       
-      override var tokens: JoinedSQLTokenSequence {
+      override var tokens: JoinedTokenSequence {
         return _base.tokens
       }
 
@@ -57,7 +57,7 @@ public struct TableSampleClause: Clause {
 
     private let _box: _Box
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return _box.tokens
     }
 
@@ -72,8 +72,8 @@ public struct TableSampleClause: Clause {
 
   public let repeatable: Repeatable?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       SingleToken.tablesample,
       samplingMethod,
       SingleToken.joiner,

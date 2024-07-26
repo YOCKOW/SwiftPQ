@@ -11,7 +11,7 @@ public struct JSONOutputTypeClause: Clause {
 
   public let format: JSONFormatClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.returning,
       typeName,

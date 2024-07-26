@@ -9,7 +9,7 @@
 public struct FromList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let tableReferences: NonEmptyList<any TableReferenceExpression>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return tableReferences.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 
@@ -38,8 +38,8 @@ public struct FromList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
 public struct FromClause: Clause {
   public let tableReferences: FromList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.from, tableReferences)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.from, tableReferences)
   }
 
   public init(_ tableReferences: FromList) {

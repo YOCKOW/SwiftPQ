@@ -28,7 +28,7 @@ public struct NumericExpressionList: TokenSequenceGenerator,
                                      ExpressibleByArrayLiteral {
   public let expressions: NonEmptyList<any NumericExpression>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return expressions.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 

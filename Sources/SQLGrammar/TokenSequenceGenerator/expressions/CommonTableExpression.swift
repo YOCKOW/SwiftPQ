@@ -38,11 +38,11 @@ public struct CommonTableExpression: Expression {
 
   public let cycleClause: CycleClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting([
       name,
       columnNames.tokensMap({
-        JoinedSQLTokenSequence(SingleToken.joiner, UnknownSQLTokenSequence($0))
+        JoinedTokenSequence(SingleToken.joiner, UnknownSQLTokenSequence($0))
       }),
       SingleToken.as,
       materialized,
@@ -80,7 +80,7 @@ public struct CommonTableExpressionList: TokenSequenceGenerator,
 
   public let expressions: NonEmptyList<CommonTableExpression>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return expressions.joinedByCommas()
   }
 

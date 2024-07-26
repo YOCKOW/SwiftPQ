@@ -21,13 +21,13 @@ public protocol PatternMatchingGeneralExpression: PatternMatchingExpression, Gen
   var escapeCharacter: Optional<any GeneralExpression> { get }
 }
 
-extension PatternMatchingGeneralExpression where Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
+extension PatternMatchingGeneralExpression where Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting([
       self.string,
       self.operator,
       self.pattern,
-      self.escapeCharacter.map({ JoinedSQLTokenSequence([SingleToken.escape, $0]) })
+      self.escapeCharacter.map({ JoinedTokenSequence([SingleToken.escape, $0]) })
     ])
   }
 }

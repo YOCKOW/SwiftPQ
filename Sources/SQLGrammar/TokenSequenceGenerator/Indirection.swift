@@ -16,21 +16,21 @@ public struct Indirection: TokenSequenceGenerator {
       case `subscript`(any GeneralExpression)
       case slice(lowerBound: (any GeneralExpression)?, upperBound: (any GeneralExpression)?)
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         switch self {
         case .attributeName(let attributeName):
-          return JoinedSQLTokenSequence(dotJoiner, attributeName)
+          return JoinedTokenSequence(dotJoiner, attributeName)
         case .any:
-          return JoinedSQLTokenSequence(dotJoiner, SingleToken.asterisk)
+          return JoinedTokenSequence(dotJoiner, SingleToken.asterisk)
         case .subscript(let expression):
-          return JoinedSQLTokenSequence(
+          return JoinedTokenSequence(
             SingleToken.joiner,
             SingleToken.leftSquareBracket,
             AnyTokenSequence(expression),
             SingleToken.rightSquareBracket
           )
         case .slice(let lowerBound, let upperBound):
-          return JoinedSQLTokenSequence.compacting(
+          return JoinedTokenSequence.compacting(
             SingleToken.joiner,
             SingleToken.leftSquareBracket,
             lowerBound.map({ AnyTokenSequence($0) }),
@@ -114,7 +114,7 @@ public struct Indirection: TokenSequenceGenerator {
     self.list = list
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return list.joined()
   }
 }

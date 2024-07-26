@@ -21,25 +21,25 @@ public struct XMLTableExpression: Expression {
 
       private static let _pathToken = SingleToken(Token.identifier("PATH"))
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         switch self {
         case .path(let columnExpr):
-          return JoinedSQLTokenSequence([
+          return JoinedTokenSequence([
             Option._pathToken,
             columnExpr,
           ] as [any TokenSequenceGenerator])
         case .default(let defaultExpr):
-          return JoinedSQLTokenSequence([
+          return JoinedTokenSequence([
             SingleToken.default,
             defaultExpr,
           ] as [any TokenSequenceGenerator])
         case .notNull:
-          return JoinedSQLTokenSequence([
+          return JoinedTokenSequence([
             SingleToken.not,
             SingleToken.null,
           ] as [any TokenSequenceGenerator])
         case .null:
-          return JoinedSQLTokenSequence([
+          return JoinedTokenSequence([
             SingleToken.null,
           ] as [any TokenSequenceGenerator])
         }
@@ -63,9 +63,9 @@ public struct XMLTableExpression: Expression {
     public struct OptionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let options: NonEmptyList<Option>
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         // Sort options based on https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING-XMLTABLE
-        return JoinedSQLTokenSequence(options.sorted(by: { $0._sortOrder < $1._sortOrder }))
+        return JoinedTokenSequence(options.sorted(by: { $0._sortOrder < $1._sortOrder }))
       }
 
       public init(_ options: NonEmptyList<Option>) {
@@ -90,12 +90,12 @@ public struct XMLTableExpression: Expression {
 
       private let _element: _Element
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         switch _element {
         case .name(let name, let type, let options):
           return .compacting(name.asSequence, type, options)
         case .forOrdinality(let name):
-          return JoinedSQLTokenSequence(
+          return JoinedTokenSequence(
             name.asSequence,
             SingleToken.for,
             SingleToken.ordinality
@@ -147,7 +147,7 @@ public struct XMLTableExpression: Expression {
     public struct ColumnList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let columns: NonEmptyList<ColumnElement>
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         return columns.joinedByCommas()
       }
 
@@ -165,8 +165,8 @@ public struct XMLTableExpression: Expression {
 
     public let columns: ColumnList
 
-    public var tokens: JoinedSQLTokenSequence {
-      return JoinedSQLTokenSequence(SingleToken.columns, columns)
+    public var tokens: JoinedTokenSequence {
+      return JoinedTokenSequence(SingleToken.columns, columns)
     }
 
     public init(_ columns: ColumnList) {
@@ -182,10 +182,10 @@ public struct XMLTableExpression: Expression {
 
   public let columns: ColumnsClause
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmltable.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmltable.followedBy(parenthesized: JoinedTokenSequence.compacting([
       namespaces.map({
-        JoinedSQLTokenSequence(
+        JoinedTokenSequence(
           SingleToken.xmlnamespaces.followedBy(parenthesized: $0),
           commaSeparator
         )

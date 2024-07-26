@@ -85,8 +85,8 @@ public struct CrossJoinedTable: JoinedTableExpression {
     static let crossJoin: _CrossJoin = .init()
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence([
       leftTable, 
       _CrossJoin.crossJoin,
       rightTable,
@@ -112,7 +112,7 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
 
   public let condition: JoinCondition
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var sequences: [any TokenSequenceGenerator] = [leftTable]
     if case .natural = condition {
       sequences.append(SingleToken.natural)
@@ -124,19 +124,19 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
     sequences.append(rightTable)
     switch condition {
     case .usingColumnNames(let columns, let alias):
-      sequences.append(JoinedSQLTokenSequence.compacting(
+      sequences.append(JoinedTokenSequence.compacting(
         SingleToken.using,
         columns.parenthesized,
         alias.map({ JoinCondition._AliasClauseForJoinUsing($0) })
       ))
     case .predicate(let booleanExpr):
       sequences.append(
-        JoinedSQLTokenSequence([SingleToken.on, booleanExpr] as [any TokenSequenceGenerator])
+        JoinedTokenSequence([SingleToken.on, booleanExpr] as [any TokenSequenceGenerator])
       )
     case .natural:
       break
     }
-    return JoinedSQLTokenSequence(sequences)
+    return JoinedTokenSequence(sequences)
   }
 
   public init(
@@ -167,7 +167,7 @@ public struct RelationTableReference: TableReferenceExpression {
 
   public let tableSample: TableSampleClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(relation, alias, tableSample)
   }
 
@@ -190,7 +190,7 @@ public struct FunctionTableReference: TableReferenceExpression {
 
   public let alias: FunctionAliasClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       lateral ? SingleToken.lateral : nil,
       function,
@@ -213,7 +213,7 @@ public struct XMLTableReference: TableReferenceExpression {
 
   public let alias: AliasClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       lateral ? SingleToken.lateral : nil,
       function,
@@ -236,7 +236,7 @@ public struct SelectTableReference<Select>: TableReferenceExpression where Selec
 
   public let alias: AliasClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       lateral ? SingleToken.lateral : nil,
       query,
@@ -275,8 +275,8 @@ public struct JoinedTableAliasReference<JoinedTable>: TableReferenceExpression w
 
   public let alias: AliasClause
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(joinedTable, alias)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(joinedTable, alias)
   }
 
   public init(_ joinedTable: Parenthesized<JoinedTable>, alias: AliasClause) {

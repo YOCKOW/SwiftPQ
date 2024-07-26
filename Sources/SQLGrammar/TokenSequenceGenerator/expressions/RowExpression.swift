@@ -14,7 +14,7 @@ public struct RowExpression: Expression {
 
   private let _constructor: _Constructor
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _constructor {
     case .explicit(let expr):
       return expr.tokens

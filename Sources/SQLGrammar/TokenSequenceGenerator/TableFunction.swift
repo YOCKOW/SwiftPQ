@@ -13,7 +13,7 @@ public struct TableFunctionElement: TokenSequenceGenerator {
 
   public let collation: CollateClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(column.asSequence, type, collation)
   }
 
@@ -30,7 +30,7 @@ public struct TableFunctionElementList: TokenSequenceGenerator, ExpressibleByArr
 
   public let elements: NonEmptyList<TableFunctionElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 
@@ -51,8 +51,8 @@ public struct TableFunctionElementList: TokenSequenceGenerator, ExpressibleByArr
 public struct ColumnDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let list: TableFunctionElementList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.as, list.parenthesized)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.as, list.parenthesized)
   }
 
   public init(_ list: TableFunctionElementList) {
@@ -84,7 +84,7 @@ public struct TableFunction: TokenSequenceGenerator {
 
       public let columnDefinitions: ColumnDefinitionList?
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         return .compacting([functionCall, columnDefinitions] as [(any TokenSequenceGenerator)?])
       }
 
@@ -101,7 +101,7 @@ public struct TableFunction: TokenSequenceGenerator {
     public struct List: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let items: NonEmptyList<RowsFromSyntax.Item>
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         return items.joinedByCommas()
       }
 
@@ -125,7 +125,7 @@ public struct TableFunction: TokenSequenceGenerator {
       static let rowsFromTokens: _RowsFromTokens = .init()
     }
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return _RowsFromTokens.rowsFromTokens.followedBy(parenthesized: list)
     }
 
@@ -143,7 +143,7 @@ public struct TableFunction: TokenSequenceGenerator {
 
   public let withOrdinality: Bool
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var sequences: [any TokenSequenceGenerator] = []
 
     switch _kind {
@@ -157,7 +157,7 @@ public struct TableFunction: TokenSequenceGenerator {
       sequences.append(WithOrdinalityClause.withOrdinality)
     }
 
-    return JoinedSQLTokenSequence(sequences)
+    return JoinedTokenSequence(sequences)
   }
 
   public init(functionCall: any WindowlessFunctionExpression, withOrdinality: Bool = false) {

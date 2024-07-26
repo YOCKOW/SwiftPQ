@@ -30,7 +30,7 @@ public struct CreateTableStatement: CreateStatement {
 
   public let tableSpace: TableSpaceSpecifier?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.create,
       temporariness,
@@ -96,7 +96,7 @@ public struct CreateTypedTableStatement: CreateStatement {
 
   public let tableSpace: TableSpaceSpecifier?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.create,
       temporariness,
@@ -163,7 +163,7 @@ public struct CreatePartitionTableStatement: CreateStatement {
 
   public let tableSpace: TableSpaceSpecifier?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.create,
       temporariness,

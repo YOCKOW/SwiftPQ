@@ -9,7 +9,7 @@
 public struct JSONValueExpressionList: TokenSequenceGenerator {
   public let values: NonEmptyList<JSONValueExpression>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return values.joinedByCommas()
   }
 

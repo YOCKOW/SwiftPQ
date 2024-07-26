@@ -62,28 +62,28 @@ public enum TransactionMode: TokenSequenceGenerator {
   case notDeferrable
 
   public final class Tokens: TokenSequence {
-    public let tokens: JoinedSQLTokenSequence
-    private init(_ tokens: JoinedSQLTokenSequence) { self.tokens = tokens }
+    public let tokens: JoinedTokenSequence
+    private init(_ tokens: JoinedTokenSequence) { self.tokens = tokens }
 
     public static func isolationLevel(_ level: IsolationLevel) -> Tokens {
       enum __IsolationLevel {
         static let tokens: UnknownSQLTokenSequence<Array<Token>> = .init([.isolation, .level])
       }
-      return .init(JoinedSQLTokenSequence(__IsolationLevel.tokens, level))
+      return .init(JoinedTokenSequence(__IsolationLevel.tokens, level))
     }
 
     public static let readOnly: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .only]))
+      JoinedTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .only]))
     )
 
     public static let readWrite: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .write]))
+      JoinedTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .write]))
     )
 
-    public static let deferrable: Tokens = .init(JoinedSQLTokenSequence(SingleToken.deferrable))
+    public static let deferrable: Tokens = .init(JoinedTokenSequence(SingleToken.deferrable))
 
     public static let notDeferrable: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.not, .deferrable]))
+      JoinedTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.not, .deferrable]))
     )
   }
 
@@ -113,7 +113,7 @@ public struct TransactionModeList: TokenSequenceGenerator,
   /// A boolean value that indicates whether or not commas are omitted in this clause.
   public var omitCommas: Bool = false
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     if omitCommas {
       return modes.joined()
     } else {
@@ -158,7 +158,7 @@ public enum LegacyTransactionStatement: TopLevelStatement {
   case end(TransactionKeyword? = nil, and: TransactionChain?)
   public static let end: LegacyTransactionStatement = .end(and: nil)
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .begin(let keyword, let modes):
       return .compacting(SingleToken.begin, keyword?.asSequence, modes)
@@ -210,7 +210,7 @@ public struct TransactionStatement: Statement {
 
   public let command: Command
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch command {
     case .abort(let keyword, let chain):
       return .compacting(SingleToken.abort, keyword?.asSequence, chain)
@@ -221,7 +221,7 @@ public struct TransactionStatement: Statement {
     case .rollback(let keyword, let chain):
       return .compacting(SingleToken.rollback, keyword?.asSequence, chain)
     case .savePoint(let id):
-      return JoinedSQLTokenSequence(SingleToken.savepoint, id.asSequence)
+      return JoinedTokenSequence(SingleToken.savepoint, id.asSequence)
     case .release(let omitSavePointKeyword, let savePointName):
       return .compacting(
         SingleToken.release,
@@ -237,11 +237,11 @@ public struct TransactionStatement: Statement {
         savePointName.asSequence
       )
     case .prepareTransaction(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken.prepare, SingleToken.transaction, transactionID)
+      return JoinedTokenSequence(SingleToken.prepare, SingleToken.transaction, transactionID)
     case .commitPrepared(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken.commit, SingleToken.prepared, transactionID)
+      return JoinedTokenSequence(SingleToken.commit, SingleToken.prepared, transactionID)
     case .rollbackPrepared(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken.rollback, SingleToken.prepared, transactionID)
+      return JoinedTokenSequence(SingleToken.rollback, SingleToken.prepared, transactionID)
     }
   }
 

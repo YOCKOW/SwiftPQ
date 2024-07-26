@@ -55,7 +55,7 @@ public struct GenericOptionList: TokenSequenceGenerator,
                                  ExpressibleByArrayLiteral {
   public var options: NonEmptyList<GenericOption>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return options.joinedByCommas()
   }
 
@@ -68,7 +68,7 @@ public struct GenericOptionList: TokenSequenceGenerator,
 public struct GenericOptionsClause: Clause {
   public var options: GenericOptionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.options.followedBy(parenthesized: options)
   }
 

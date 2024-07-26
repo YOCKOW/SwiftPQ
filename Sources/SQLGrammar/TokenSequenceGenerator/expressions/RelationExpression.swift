@@ -11,17 +11,17 @@ public struct RelationExpression: Expression, ExpressibleByStringLiteral {
 
   public let includeDescendantTables: Bool?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch includeDescendantTables {
     case nil:
-      return JoinedSQLTokenSequence(tableName)
+      return JoinedTokenSequence(tableName)
     case true:
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         tableName,
         Token.asterisk.asSequence,
       ] as [any TokenSequenceGenerator])
     case false:
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         Token.only.asSequence,
         tableName,
       ] as [any TokenSequenceGenerator])

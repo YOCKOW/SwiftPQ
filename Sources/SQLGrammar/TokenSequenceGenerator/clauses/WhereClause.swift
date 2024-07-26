@@ -9,8 +9,8 @@
 public struct WhereClause: Clause {
   public let condition: any GeneralExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([SingleToken.where, condition] as [any TokenSequenceGenerator])
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence([SingleToken.where, condition] as [any TokenSequenceGenerator])
   }
 
   public init(condition: any GeneralExpression) {
@@ -22,8 +22,8 @@ public struct WhereClause: Clause {
 public struct WhereParenthesizedExpressionClause: Clause {
   public let predicate: any GeneralExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.where, predicate._asAny.parenthesized)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.where, predicate._asAny.parenthesized)
   }
 
   public init(predicate: any GeneralExpression) {

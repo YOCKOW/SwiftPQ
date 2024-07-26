@@ -13,8 +13,8 @@ public struct WindowDefinition: TokenSequenceGenerator {
   /// Window definition.
   public let specification: WindowSpecification
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(name.asSequence, SingleToken.as, specification)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(name.asSequence, SingleToken.as, specification)
   }
 
   public init(name: ColumnIdentifier, specification: WindowSpecification) {
@@ -27,7 +27,7 @@ public struct WindowDefinition: TokenSequenceGenerator {
 public struct WindowDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let definitions: NonEmptyList<WindowDefinition>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return definitions.joinedByCommas()
   }
 
@@ -47,8 +47,8 @@ public struct WindowDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLi
 public struct WindowClause: Clause {
   public let definitions: WindowDefinitionList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.window, definitions)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.window, definitions)
   }
 
   public init(_ definitions: WindowDefinitionList) {

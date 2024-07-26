@@ -16,7 +16,7 @@ public final class EmptyGroupingSet: TokenSequence {
 public struct CubeClause: Clause {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.cube.followedBy(parenthesized: expressions)
   }
 
@@ -29,7 +29,7 @@ public struct CubeClause: Clause {
 public struct RollUpClause: Clause {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.rollup.followedBy(parenthesized: expressions)
   }
 
@@ -48,7 +48,7 @@ public struct GroupingSetsClause: Clause {
     static let groupingSetsTokens: _GroupingSetsTokens = .init()
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return _GroupingSetsTokens.groupingSetsTokens.followedBy(parenthesized: list)
   }
 
@@ -127,7 +127,7 @@ public enum GroupingElement: TokenSequenceGenerator {
 public struct GroupingList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let elements: NonEmptyList<GroupingElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 
@@ -156,8 +156,8 @@ public struct GroupClause: Clause {
     static let groupByTokens: _GroupByTokens = .init()
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       _GroupByTokens.groupByTokens,
       quantifier?.asSequence,
       columnReferences

@@ -10,8 +10,8 @@
 public struct CollateClause: Clause {
   public let name: CollationName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.collate, name)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.collate, name)
   }
 
   public init(name: CollationName) {

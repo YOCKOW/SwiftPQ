@@ -13,8 +13,8 @@ public struct CopyingTypeColumnReference: TokenSequenceGenerator {
 
   private let _rest: AttributeList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(_top.asSequence, _rest)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(_top.asSequence, _rest)
   }
 
   public init?(table: TableName, column: ColumnReference) {
@@ -58,7 +58,7 @@ public struct FunctionType: TokenSequenceGenerator {
 
   private let _type: _Type
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _type {
     case .typeName(let typeName):
       return typeName.tokens

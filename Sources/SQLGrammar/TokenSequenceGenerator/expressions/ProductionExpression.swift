@@ -192,8 +192,8 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
 
   public let string: Token.StringConstant
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       typeName,
       modifiers?.parenthesized,
       StringConstantExpression(string)
@@ -253,8 +253,8 @@ where Const: ConstantTypeName {
 
   public let string: Token.StringConstant
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(constantTypeName, StringConstantExpression(string)!)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(constantTypeName, StringConstantExpression(string)!)
   }
 
   public init(constantTypeName: Const, string: Token.StringConstant) {
@@ -283,7 +283,7 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
 
   public let option: Option?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     guard let strExpr = StringConstantExpression(string) else {
       fatalError("Failed to create a string constant expression?!")
     }
@@ -291,14 +291,14 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
 
     switch option {
     case .fields(let phrase):
-      return JoinedSQLTokenSequence(intervalToken, strExpr, phrase)
+      return JoinedTokenSequence(intervalToken, strExpr, phrase)
     case .precision(let p):
-      return JoinedSQLTokenSequence(
+      return JoinedTokenSequence(
         intervalToken.followedBy(parenthesized: p),
         strExpr
       )
     case nil:
-      return JoinedSQLTokenSequence(intervalToken, strExpr)
+      return JoinedTokenSequence(intervalToken, strExpr)
     }
   }
 
@@ -394,8 +394,8 @@ public struct PositionalParameterExpression: ProductionExpression {
 
   public let indirection: Indirection?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(SingleToken(parameter), indirection)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(SingleToken(parameter), indirection)
   }
 
   public init(_ parameter: Token.PositionalParameter, indirection: Indirection? = nil) {
@@ -423,8 +423,8 @@ public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpressio
 
   public let indirection: Indirection?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       AnyTokenSequenceGenerator(expression).parenthesized,
       indirection
     )
@@ -450,16 +450,16 @@ public struct CaseExpression: ProductionExpression {
   /// A result in `ELSE ...` clause.
   public let defaultValue: Optional<any GeneralExpression>
 
-  private var _defaultValueTokens: JoinedSQLTokenSequence? {
+  private var _defaultValueTokens: JoinedTokenSequence? {
     guard let defaultValue else { return nil }
-    return JoinedSQLTokenSequence([
+    return JoinedTokenSequence([
       SingleToken.else,
       defaultValue as any TokenSequenceGenerator
     ])
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting([
       SingleToken.case, argument,
       conditionalValues,
       _defaultValueTokens,
@@ -533,7 +533,7 @@ public struct SelectExpression: ProductionExpression  {
 
   public let indirection: Indirection?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(_subquery, indirection)
   }
 
@@ -562,8 +562,8 @@ public struct ExistsExpression: ProductionExpression {
     return _subquery.subquery(as: Subquery.self)
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.exists, _subquery)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.exists, _subquery)
   }
 
   public init<Subquery>(_ parenthesizedSubquery: Parenthesized<Subquery>) where Subquery: SelectStatement {
@@ -586,7 +586,7 @@ public struct ArrayConstructorExpression: ProductionExpression, ValueExpression 
 
       public let subscripts: NonEmptyList<Subscript>
 
-      public var tokens: JoinedSQLTokenSequence {
+      public var tokens: JoinedTokenSequence {
         return subscripts.joinedByCommas()
       }
 
@@ -603,10 +603,10 @@ public struct ArrayConstructorExpression: ProductionExpression, ValueExpression 
 
     private let _values: _Values
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting(
         LeftSquareBracket.leftSquareBracket,
-        ({ (values: _Values) -> JoinedSQLTokenSequence? in
+        ({ (values: _Values) -> JoinedTokenSequence? in
           switch values {
           case .expressionList(let generalExpressionList):
             return generalExpressionList.tokens
@@ -664,16 +664,16 @@ public struct ArrayConstructorExpression: ProductionExpression, ValueExpression 
     return `subscript`
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _elements {
     case .select(let parenthesizedSelectStatement):
-      return JoinedSQLTokenSequence(
+      return JoinedTokenSequence(
         SingleToken.array,
         SingleToken.joiner,
         parenthesizedSelectStatement
       )
     case .subscript(let `subscript`):
-      return JoinedSQLTokenSequence(SingleToken.array, SingleToken.joiner, `subscript`)
+      return JoinedTokenSequence(SingleToken.array, SingleToken.joiner, `subscript`)
     }
   }
 
@@ -704,11 +704,11 @@ public struct ArrayConstructorExpression: ProductionExpression, ValueExpression 
 public struct RowConstructorExpression: ProductionExpression, ValueExpression {
   public let fields: GeneralExpressionList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     if let fields = self.fields {
       return SingleToken.row.followedBy(parenthesized: fields)
     }
-    return JoinedSQLTokenSequence(
+    return JoinedTokenSequence(
       SingleToken.row,
       SingleToken.joiner,
       LeftParenthesis.leftParenthesis,
@@ -772,7 +772,7 @@ public struct ImplicitRowConstructorExpression: ProductionExpression {
 public struct GroupingExpression: ProductionExpression {
   public let groups: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.grouping.followedBy(parenthesized: groups)
   }
 

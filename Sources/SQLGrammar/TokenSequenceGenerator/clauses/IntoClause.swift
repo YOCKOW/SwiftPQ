@@ -9,8 +9,8 @@
 public struct IntoClause: Clause {
   public let name: TemporaryTableName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.into, name)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.into, name)
   }
 
   public init(_ name: TemporaryTableName) {

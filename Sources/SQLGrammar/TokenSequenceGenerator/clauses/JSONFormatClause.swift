@@ -24,7 +24,7 @@ public struct JSONEncodingClause: Clause {
 public struct JSONFormatClause: Clause {
   public let encoding: JSONEncodingClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.format,
       SingleToken.json,

@@ -19,7 +19,7 @@ public struct TypeName: NameRepresentation,
     case oneDimensionalArray(size: UnsignedIntegerConstantExpression?)
     case multipleDimensionalArray(ArrayBoundList)
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .oneDimensionalArray(let size):
         return .compacting(
@@ -45,7 +45,7 @@ public struct TypeName: NameRepresentation,
 
   public let arrayModifier: ArrayModifier?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var sequences: [any TokenSequenceGenerator] = []
 
     if isSet {
@@ -58,7 +58,7 @@ public struct TypeName: NameRepresentation,
       sequences.append(arrayModifier)
     }
 
-    return JoinedSQLTokenSequence(sequences)
+    return JoinedTokenSequence(sequences)
   }
 
   internal var _qualifiedName: (some QualifiedName)? {
@@ -360,7 +360,7 @@ public struct GenericTypeName: SimpleTypeName,
 
   public let modifiers: GeneralExpressionList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken(_name), attributes, modifiers?.parenthesized,
       separator: SingleToken.joiner
@@ -507,50 +507,50 @@ public enum NumericTypeName: SimpleTypeName,
   case boolean
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .int:
-      return JoinedSQLTokenSequence([SingleToken.int])
+      return JoinedTokenSequence([SingleToken.int])
     case .integer:
-      return JoinedSQLTokenSequence([SingleToken.integer])
+      return JoinedTokenSequence([SingleToken.integer])
     case .samllInt:
-      return JoinedSQLTokenSequence([SingleToken.smallint])
+      return JoinedTokenSequence([SingleToken.smallint])
     case .bigInt:
-      return JoinedSQLTokenSequence([SingleToken.bigint])
+      return JoinedTokenSequence([SingleToken.bigint])
     case .real:
-      return JoinedSQLTokenSequence([SingleToken.real])
+      return JoinedTokenSequence([SingleToken.real])
     case .float(let precision):
       var seqCollection: [any TokenSequenceGenerator] = [SingleToken.float]
       if let precision {
         seqCollection.append(SingleToken.joiner)
         seqCollection.append(precision.parenthesized)
       }
-      return JoinedSQLTokenSequence(seqCollection)
+      return JoinedTokenSequence(seqCollection)
     case .doublePrecision:
-      return JoinedSQLTokenSequence(SingleToken.double, SingleToken.precision)
+      return JoinedTokenSequence(SingleToken.double, SingleToken.precision)
     case .decimal(let modifiers):
       var seqCollection: [any TokenSequenceGenerator] = [SingleToken.decimal]
       if let modifiers {
         seqCollection.append(SingleToken.joiner)
         seqCollection.append(modifiers.parenthesized)
       }
-      return JoinedSQLTokenSequence(seqCollection)
+      return JoinedTokenSequence(seqCollection)
     case .dec(let modifiers):
       var seqCollection: [any TokenSequenceGenerator] = [SingleToken.dec]
       if let modifiers {
         seqCollection.append(SingleToken.joiner)
         seqCollection.append(modifiers.parenthesized)
       }
-      return JoinedSQLTokenSequence(seqCollection)
+      return JoinedTokenSequence(seqCollection)
     case .numeric(let modifiers):
       var seqCollection: [any TokenSequenceGenerator] = [SingleToken.numeric]
       if let modifiers {
         seqCollection.append(SingleToken.joiner)
         seqCollection.append(modifiers.parenthesized)
       }
-      return JoinedSQLTokenSequence(seqCollection)
+      return JoinedTokenSequence(seqCollection)
     case .boolean:
-      return JoinedSQLTokenSequence([SingleToken.boolean])
+      return JoinedTokenSequence([SingleToken.boolean])
     }
   }
 
@@ -667,7 +667,7 @@ public enum BitStringTypeName: SimpleTypeName,
   public static let varying: BitStringTypeName = .varying()
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var tokens: [any TokenSequenceGenerator] = [SingleToken.bit]
 
     func __append(length: GeneralExpressionList) {
@@ -683,7 +683,7 @@ public enum BitStringTypeName: SimpleTypeName,
       length.map(__append(length:))
     }
 
-    return JoinedSQLTokenSequence(tokens)
+    return JoinedTokenSequence(tokens)
   }
 
 
@@ -781,7 +781,7 @@ public struct CharacterTypeName: SimpleTypeName,
 
   private let length: UnsignedIntegerConstantExpression?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var seqCollection: [any TokenSequenceGenerator] = [type]
     if varying {
       seqCollection.append(SingleToken.varying)
@@ -790,7 +790,7 @@ public struct CharacterTypeName: SimpleTypeName,
       seqCollection.append(SingleToken.joiner)
       seqCollection.append(length.parenthesized)
     }
-    return JoinedSQLTokenSequence(seqCollection)
+    return JoinedTokenSequence(seqCollection)
   }
 
   internal var _qualifiedName: AnyQualifiedName? {
@@ -943,7 +943,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName,
 
   public let withTimeZone: Bool?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var seqCollection: [any TokenSequenceGenerator] = []
     if let precision {
       seqCollection.append(
@@ -959,7 +959,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName,
         seqCollection.append(WithoutTimeZone.withoutTimeZone)
       }
     }
-    return JoinedSQLTokenSequence(seqCollection)
+    return JoinedTokenSequence(seqCollection)
   }
 
   internal var _qualifiedName: (some QualifiedName)? {
@@ -1032,14 +1032,14 @@ public struct ConstantIntervalTypeName: SimpleTypeName,
                                         _PossiblyFunctionNameWithModifiersConvertible {
   public let option: IntervalOption?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch option {
     case .fields(let phrase):
-      return JoinedSQLTokenSequence(SingleToken.interval, phrase)
+      return JoinedTokenSequence(SingleToken.interval, phrase)
     case .precision(let p):
       return SingleToken.interval.followedBy(parenthesized: p)
     case nil:
-      return JoinedSQLTokenSequence(SingleToken.interval)
+      return JoinedTokenSequence(SingleToken.interval)
     }
   }
 

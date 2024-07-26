@@ -11,8 +11,8 @@ public struct ValuesClause: Clause {
 
   public let rows: NonEmptyList<ColumnList>
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       SingleToken.values,
       rows.map({ $0.parenthesized }).joinedByCommas()
     )

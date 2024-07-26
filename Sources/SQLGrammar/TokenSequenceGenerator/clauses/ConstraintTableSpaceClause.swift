@@ -15,8 +15,8 @@ private let _usingIndexTableSpaceTokens = UnknownSQLTokenSequence<Array<Token>>(
 public struct ConstraintTableSpaceClause: Clause {
   public let tableSpaceName: TableSpaceName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(_usingIndexTableSpaceTokens, tableSpaceName)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(_usingIndexTableSpaceTokens, tableSpaceName)
   }
 
   public init(_ tableSpaceName: TableSpaceName) {

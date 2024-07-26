@@ -21,7 +21,7 @@ public struct ColumnDefinition: TokenSequenceGenerator {
 
   public let qualifiers: ColumnQualifierList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       name.asSequence,
       dataType,

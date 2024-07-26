@@ -19,15 +19,15 @@ public final class RightSquareBracket: Segment {
 public struct ArrayBoundList: TokenSequenceGenerator {
   public let list: NonEmptyList<UnsignedIntegerConstantExpression?>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     let sequences: [any TokenSequenceGenerator] = [SingleToken.joiner] + list.map {
-      return JoinedSQLTokenSequence.compacting(
+      return JoinedTokenSequence.compacting(
         LeftSquareBracket.leftSquareBracket,
         $0,
         RightSquareBracket.rightSquareBracket
       )
     }
-    return JoinedSQLTokenSequence(sequences, separator: SingleToken.joiner)
+    return JoinedTokenSequence(sequences, separator: SingleToken.joiner)
   }
 
   public init(_ list: NonEmptyList<UnsignedIntegerConstantExpression?>) {

@@ -35,7 +35,7 @@ public struct XMLPassingArgument: TokenSequenceGenerator {
 
   public let overriddenMechanism: Mechanism?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting([
       SingleToken.passing,
       defaultMechanism,

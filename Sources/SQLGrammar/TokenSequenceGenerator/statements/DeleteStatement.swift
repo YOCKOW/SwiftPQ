@@ -8,7 +8,7 @@
 /// Representation of `DELETE` statement that is described as `DeleteStmt` in "gram.y".
 @available(*, unavailable, message: "Unimplemented")
 public struct DeleteStatement: Statement, PreparableStatement {
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     fatalError("Unimplemented.")
   }
 }

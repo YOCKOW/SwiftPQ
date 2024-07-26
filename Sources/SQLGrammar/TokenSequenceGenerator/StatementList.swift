@@ -12,7 +12,7 @@ public struct StatementList: TokenSequenceGenerator,
   public var statements: NonEmptyList<any TopLevelStatement>
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return statements.map({ $0 as any TokenSequenceGenerator }).joined(separator: statementTerminator)
   }
 

@@ -67,39 +67,39 @@ public struct SequenceOption: TokenSequenceGenerator {
   public var tokens: Tokens {
     switch _option {
     case .as(let dataType):
-      return Tokens(JoinedSQLTokenSequence([SingleToken.as, dataType]))
+      return Tokens(JoinedTokenSequence([SingleToken.as, dataType]))
     case .cache(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken.cache, numeric]))
+      return Tokens(JoinedTokenSequence([SingleToken.cache, numeric]))
     case .cycle:
       return .cycle
     case .noCycle:
       return .noCycle
     case .increment(let omitByKeyword, let increment):
-      return Tokens(JoinedSQLTokenSequence.compacting([
+      return Tokens(JoinedTokenSequence.compacting([
         SingleToken.increment,
         omitByKeyword ? nil : SingleToken.by,
         increment
       ]))
     case .maxValue(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken.maxvalue, numeric]))
+      return Tokens(JoinedTokenSequence([SingleToken.maxvalue, numeric]))
     case .minValue(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken.minvalue, numeric]))
+      return Tokens(JoinedTokenSequence([SingleToken.minvalue, numeric]))
     case .noMaxValue:
       return .noMaxValue
     case .noMinValue:
       return .noMinValue
     case .ownedBy(let anyName):
-      return Tokens(JoinedSQLTokenSequence([
+      return Tokens(JoinedTokenSequence([
         UnknownSQLTokenSequence<Array<Token>>([.owned, .by]),
         anyName
       ]))
     case .sequenceName(let name):
-      return Tokens(JoinedSQLTokenSequence([
+      return Tokens(JoinedTokenSequence([
         UnknownSQLTokenSequence<Array<Token>>([.sequence, .name]),
         name
       ]))
     case .start(let omitWithKeyword, let start):
-      return Tokens(JoinedSQLTokenSequence.compacting([
+      return Tokens(JoinedTokenSequence.compacting([
         SingleToken.start,
         omitWithKeyword ? nil : SingleToken.with,
         start
@@ -108,7 +108,7 @@ public struct SequenceOption: TokenSequenceGenerator {
       guard let arg = optionalArg else {
         return .restart
       }
-      return Tokens(JoinedSQLTokenSequence.compacting([
+      return Tokens(JoinedTokenSequence.compacting([
         SingleToken.restart,
         arg.omitWithKeyword ? nil : SingleToken.with,
         arg.restart
@@ -218,7 +218,7 @@ public struct SequenceOptionList: TokenSequenceGenerator,
                                   ExpressibleByArrayLiteral {
   public var options: NonEmptyList<SequenceOption>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return options.joined()
   }
 

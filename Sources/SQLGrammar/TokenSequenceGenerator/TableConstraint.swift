@@ -53,7 +53,7 @@ public struct TableConstraintAttributeSpecification: TokenSequenceGenerator, Exp
 
   public var elements: Array<TableConstraintAttributeElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joined()
   }
 
@@ -87,8 +87,8 @@ public struct TableConstraintAttributeSpecification: TokenSequenceGenerator, Exp
 public struct ConstraintIncludeClause: Clause {
   public let columns: ColumnList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.include, columns.parenthesized)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.include, columns.parenthesized)
   }
 
   public init(columns: ColumnList) {
@@ -112,8 +112,8 @@ public struct ExistingIndex: TokenSequenceGenerator {
   public let name: Name
 
   private static let _usingIndexTokens = UnknownSQLTokenSequence<Array<Token>>([.using, .index])
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(ExistingIndex._usingIndexTokens, name)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(ExistingIndex._usingIndexTokens, name)
   }
 
   public init(_ name: Name) {
@@ -129,7 +129,7 @@ public struct ExclusionConstraintElement: TokenSequenceGenerator {
     case constructor(OperatorConstructor)
 
     @inlinable
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .bare(let labeledOperator):
         return labeledOperator.tokens
@@ -143,8 +143,8 @@ public struct ExclusionConstraintElement: TokenSequenceGenerator {
 
   public let `operator`: Operator
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(element, SingleToken.with, `operator`)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(element, SingleToken.with, `operator`)
   }
 
   private init(element: IndexElement, operator: Operator) {
@@ -171,7 +171,7 @@ public struct ExclusionConstraintList: TokenSequenceGenerator,
 
   public var elements: NonEmptyList<ExclusionConstraintElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 
@@ -221,10 +221,10 @@ public struct TableConstraintElement: TokenSequenceGenerator {
       ReferentialActionSet?
     )
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .check(let expr):
-        return JoinedSQLTokenSequence(SingleToken.check, expr._asAny.parenthesized)
+        return JoinedTokenSequence(SingleToken.check, expr._asAny.parenthesized)
       case .unique(
         let nullTreatment,
         let columnList,
@@ -241,7 +241,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
           tableSpaceCaluse
         )
       case .uniqueUsingIndex(let index):
-        return JoinedSQLTokenSequence(SingleToken.unique, index)
+        return JoinedTokenSequence(SingleToken.unique, index)
       case .primaryKey(
         let columnList,
         let includeClause,
@@ -256,7 +256,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
           tableSpaceClause
         )
       case .primaryKeyUsingIndex(let index):
-        return JoinedSQLTokenSequence(SingleToken.primary, SingleToken.key, index)
+        return JoinedTokenSequence(SingleToken.primary, SingleToken.key, index)
       case .exclude(
         let accessMethodClause,
         let constraintList,
@@ -298,7 +298,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
 
   public let attributes: TableConstraintAttributeSpecification?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(constraint, attributes)
   }
 
@@ -454,9 +454,9 @@ public struct TableConstraint: TokenSequenceGenerator {
   
   public let constraint: TableConstraintElement
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
-      name.map({ JoinedSQLTokenSequence(SingleToken.constraint, $0) }),
+      name.map({ JoinedTokenSequence(SingleToken.constraint, $0) }),
       constraint
     )
   }

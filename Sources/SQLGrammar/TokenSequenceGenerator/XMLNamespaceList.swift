@@ -17,16 +17,16 @@ public struct XMLNamespaceListElement: TokenSequenceGenerator {
 
   public let name: Name
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch name {
     case .name(let namespaceName):
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         uri,
         SingleToken.as,
         namespaceName.asSequence
       ] as [any TokenSequenceGenerator])
     case .default:
-      return JoinedSQLTokenSequence([SingleToken.default, uri] as [any TokenSequenceGenerator])
+      return JoinedTokenSequence([SingleToken.default, uri] as [any TokenSequenceGenerator])
     }
   }
 
@@ -48,7 +48,7 @@ public struct XMLNamespaceListElement: TokenSequenceGenerator {
 public struct XMLNamespaceList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let elements: NonEmptyList<XMLNamespaceListElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 

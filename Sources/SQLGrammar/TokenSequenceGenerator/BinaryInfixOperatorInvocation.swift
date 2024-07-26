@@ -22,23 +22,23 @@ public protocol BinaryInfixOperatorInvocation: TokenSequenceGenerator {
 }
 
 extension BinaryInfixOperatorInvocation where Operator: Token,
-                                              Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
+                                              Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
   }
 }
 
 extension BinaryInfixOperatorInvocation where Operator: OperatorTokenConvertible,
-                                              Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
+                                              Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
   }
 }
 
 extension BinaryInfixOperatorInvocation where Operator: OperatorTokenSequence,
-                                              Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(self.leftOperand, self.operator, self.rightOperand)
+                                              Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(self.leftOperand, self.operator, self.rightOperand)
   }
 }
 
@@ -63,8 +63,8 @@ public struct BinaryInfixTypeCastOperatorInvocation<Value>:
 
   public var rightOperand: RightOperand { typeName }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       value,
       SingleToken.joiner,
       `operator`.asSequence,
@@ -97,7 +97,7 @@ public protocol BinaryInfixMathOperatorInvocation:
 public struct BinaryInfixPlusOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -136,7 +136,7 @@ extension RecursiveExpression {
 public struct BinaryInfixMinusOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -175,7 +175,7 @@ extension RecursiveExpression {
 public struct BinaryInfixMultiplyOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -214,7 +214,7 @@ extension RecursiveExpression {
 public struct BinaryInfixDivideOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -254,7 +254,7 @@ extension RecursiveExpression {
 public struct BinaryInfixModuloOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -294,7 +294,7 @@ extension RecursiveExpression {
 public struct BinaryInfixExponentOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -334,7 +334,7 @@ extension RecursiveExpression {
 public struct BinaryInfixLessThanOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -374,7 +374,7 @@ extension RecursiveExpression {
 public struct BinaryInfixGreaterThanOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -413,7 +413,7 @@ extension RecursiveExpression {
 public struct BinaryInfixEqualToOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -453,7 +453,7 @@ extension RecursiveExpression {
 public struct BinaryInfixLessThanOrEqualToOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -493,7 +493,7 @@ extension RecursiveExpression {
 public struct BinaryInfixGreaterThanOrEqualToOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -533,7 +533,7 @@ extension RecursiveExpression {
 public struct BinaryInfixNotEqualToOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixMathOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
 
@@ -575,7 +575,7 @@ extension RecursiveExpression {
 public struct BinaryInfixQualifiedGeneralOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixOperatorInvocation where LeftOperand: Expression, RightOperand: Expression
 {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias RightOperand = RightOperand
   public typealias Operator = QualifiedGeneralOperator
@@ -612,7 +612,7 @@ extension BinaryInfixQualifiedGeneralOperatorInvocation:
 public struct BinaryInfixAndOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixOperatorInvocation, GeneralExpression where LeftOperand: GeneralExpression,
                                                          RightOperand: GeneralExpression {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias Operator = Token
   public typealias RightOperand = RightOperand
@@ -643,7 +643,7 @@ extension GeneralExpression {
 public struct BinaryInfixOrOperatorInvocation<LeftOperand, RightOperand>:
   BinaryInfixOperatorInvocation, GeneralExpression where LeftOperand: GeneralExpression,
                                                          RightOperand: GeneralExpression {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = LeftOperand
   public typealias Operator = Token
   public typealias RightOperand = RightOperand
@@ -673,7 +673,7 @@ extension GeneralExpression {
 /// An invocation of `OVERLAPS` operator that is described as `row OVERLAPS row` in "gram.y".
 public struct BinaryInfixOverlapsOperatorInvocation: BinaryInfixOperatorInvocation,
                                                      GeneralExpression {
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
   public typealias LeftOperand = RowExpression
   public typealias Operator = Token
   public typealias RightOperand = RowExpression

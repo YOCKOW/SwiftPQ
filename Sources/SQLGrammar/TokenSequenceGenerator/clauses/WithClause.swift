@@ -11,7 +11,7 @@ public struct WithClause: Clause {
 
   public let queries: CommonTableExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.with,
       recursive ? SingleToken.recursive : nil,

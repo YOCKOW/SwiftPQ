@@ -17,7 +17,7 @@ public struct CycleClause: Clause {
 
   public let cyclePathColumnName: ColumnIdentifier
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     assert(
       (cycleMarkValue == nil && cycleMarkDefault == nil)
       ||
@@ -29,8 +29,8 @@ public struct CycleClause: Clause {
       columnNames,
       SingleToken.set,
       cycleMarkColumnName.asSequence,
-      cycleMarkValue.map({ JoinedSQLTokenSequence([SingleToken.to, $0]) }),
-      cycleMarkDefault.map({ JoinedSQLTokenSequence([SingleToken.default, $0]) }),
+      cycleMarkValue.map({ JoinedTokenSequence([SingleToken.to, $0]) }),
+      cycleMarkDefault.map({ JoinedTokenSequence([SingleToken.default, $0]) }),
       SingleToken.using,
       cyclePathColumnName.asSequence
     )

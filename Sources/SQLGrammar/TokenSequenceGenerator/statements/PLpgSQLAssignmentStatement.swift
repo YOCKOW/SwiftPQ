@@ -29,7 +29,7 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
     public let indirection: Indirection?
 
     @inlinable
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting(target.asSequence, indirection)
     }
 
@@ -65,8 +65,8 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
 
   public let expression: PLpgSQLExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(variable, self.operator.asSequence, expression)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(variable, self.operator.asSequence, expression)
   }
 
   public init(variable: Variable, `operator`: Operator = .colonEquals, expression: PLpgSQLExpression) {

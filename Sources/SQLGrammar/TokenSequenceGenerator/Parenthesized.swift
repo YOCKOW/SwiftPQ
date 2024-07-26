@@ -19,8 +19,8 @@ public final class RightParenthesis: Segment {
 public struct Parenthesized<EnclosedTokens>: TokenSequence where EnclosedTokens: TokenSequenceGenerator {
   public let enclosedTokens: EnclosedTokens
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       LeftParenthesis.leftParenthesis,
       enclosedTokens,
       RightParenthesis.rightParenthesis
@@ -41,8 +41,8 @@ extension TokenSequenceGenerator {
 extension TokenSequenceGenerator {
   public func followedBy<T>(
     parenthesized expression: T
-  ) -> JoinedSQLTokenSequence where T: TokenSequenceGenerator {
-    return JoinedSQLTokenSequence(self, expression.parenthesized, separator: [.joiner])
+  ) -> JoinedTokenSequence where T: TokenSequenceGenerator {
+    return JoinedTokenSequence(self, expression.parenthesized, separator: [.joiner])
   }
 }
 

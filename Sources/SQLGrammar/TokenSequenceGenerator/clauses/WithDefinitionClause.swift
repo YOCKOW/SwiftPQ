@@ -14,8 +14,8 @@ public struct WithDefinitionClause: Clause {
     return definition.list
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.with, definition)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.with, definition)
   }
 
   public init(_ definition: Definition) {

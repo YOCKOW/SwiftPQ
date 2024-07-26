@@ -175,7 +175,7 @@ public struct DefinitionElement: TokenSequenceGenerator {
 
   public let value: Value?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(key, value, separator: SingleToken(Token.Operator.equalTo))
   }
 
@@ -227,7 +227,7 @@ public struct DefinitonList: TokenSequenceGenerator,
 
   public var parameters: NonEmptyList<DefinitionElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return parameters.joinedByCommas()
   }
 

@@ -63,10 +63,10 @@ public struct SimpleSelectQuery: SimpleSelectStatement {
 
     case distinct(DistinctClause)
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .all:
-        return JoinedSQLTokenSequence(SingleToken.all)
+        return JoinedTokenSequence(SingleToken.all)
       case .distinct(let distinctClause):
         return distinctClause.tokens
       }
@@ -89,7 +89,7 @@ public struct SimpleSelectQuery: SimpleSelectStatement {
 
   public let windowClause: WindowClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       SingleToken.select,
       duplicateRowStrategy,
@@ -200,8 +200,8 @@ public struct TableCommandSyntax: SimpleSelectStatement {
     return relation.tableName
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.table, relation)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.table, relation)
   }
 
   public init(_ relation: RelationExpression) {
@@ -256,7 +256,7 @@ public struct CombinedSelectQuery: SimpleSelectStatement {
 
   public let rightQuery: SelectClause
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       leftQuery,
       operation.asSequence,
@@ -323,7 +323,7 @@ public struct FullyFunctionalSelectQuery: BareSelectStatement {
         LockingClause?
       )
 
-      var tokens: JoinedSQLTokenSequence {
+      var tokens: JoinedTokenSequence {
         switch self {
         case .sortClause(let sortClause):
           return sortClause.tokens
@@ -383,10 +383,10 @@ public struct FullyFunctionalSelectQuery: BareSelectStatement {
 
   private let _pattern: _Pattern
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _pattern {
     case .selectClause(let selectClause, let parameters):
-      return JoinedSQLTokenSequence(selectClause, parameters)
+      return JoinedTokenSequence(selectClause, parameters)
     case .withClause(let withClause, let selectClause, let parameters):
       return .compacting(withClause, selectClause, parameters)
     }

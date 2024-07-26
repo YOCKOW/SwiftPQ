@@ -42,8 +42,8 @@ public struct LockedRelationList: TokenSequenceGenerator,
 
   public let tableNames: QualifiedNameList<TableName>
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.of, tableNames)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.of, tableNames)
   }
 
   public init(_ tableNames: QualifiedNameList<TableName>) {
@@ -82,7 +82,7 @@ public struct LockingMode: TokenSequenceGenerator {
 
   public let waitOption: LockingWaitOption?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(strength, tableNames, waitOption)
   }
 
@@ -131,7 +131,7 @@ public struct LockingModeList: TokenSequenceGenerator,
                                ExpressibleByArrayLiteral {
   public let modes: NonEmptyList<LockingMode>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return modes.joined()
   }
 

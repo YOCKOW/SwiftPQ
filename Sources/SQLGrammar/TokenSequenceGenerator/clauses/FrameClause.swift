@@ -23,18 +23,18 @@ public enum FrameBound: TokenSequenceGenerator {
     .current, .row,
   ])
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .unboundedPreceding:
-      return JoinedSQLTokenSequence(FrameBound._unboundedPrecedingTokens)
+      return JoinedTokenSequence(FrameBound._unboundedPrecedingTokens)
     case .unboundedFollowing:
-      return JoinedSQLTokenSequence(FrameBound._unboundedFollowingTokens)
+      return JoinedTokenSequence(FrameBound._unboundedFollowingTokens)
     case .currentRow:
-      return JoinedSQLTokenSequence(FrameBound._currentRowTokens)
+      return JoinedTokenSequence(FrameBound._currentRowTokens)
     case .preceding(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken.preceding] as [any TokenSequenceGenerator])
+      return JoinedTokenSequence([offset, SingleToken.preceding] as [any TokenSequenceGenerator])
     case .following(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken.following] as [any TokenSequenceGenerator])
+      return JoinedTokenSequence([offset, SingleToken.following] as [any TokenSequenceGenerator])
     }
   }
 }
@@ -45,11 +45,11 @@ public struct FrameExtent: TokenSequenceGenerator {
 
   public let end: FrameBound?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     guard let end = self.end else {
-      return JoinedSQLTokenSequence(start)
+      return JoinedTokenSequence(start)
     }
-    return JoinedSQLTokenSequence(SingleToken.between, start, SingleToken.and, end)
+    return JoinedTokenSequence(SingleToken.between, start, SingleToken.and, end)
   }
 
   public init(start: FrameBound, end: FrameBound?) {
@@ -96,7 +96,7 @@ public struct FrameClause: Clause {
 
   public let exclusion: WindowExclusionClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(SingleToken(mode), extent, exclusion)
   }
 
