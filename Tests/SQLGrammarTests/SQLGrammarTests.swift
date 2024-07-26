@@ -13,20 +13,20 @@ func assertDescription<T>(
   _ tokens: T, _ expectedDescription: String,
   _ message: @autoclosure () -> String = "",
   file: StaticString = #filePath, line: UInt = #line
-) where T: SQLTokenSequence {
+) where T: TokenSequenceGenerator {
   XCTAssertEqual(tokens.description, expectedDescription, message(), file: file, line: line)
 }
 
 final class SQLGrammarTests: XCTestCase {
   func test_keywords() {
-    XCTAssertNotNil(SQLToken.keyword(from: "CREATE"))
-    XCTAssertNotNil(SQLToken.keyword(from: "Drop"))
-    XCTAssertNotNil(SQLToken.keyword(from: "none"))
-    XCTAssertNil(SQLToken.keyword(from: "hogehoge"))
+    XCTAssertNotNil(Token.keyword(from: "CREATE"))
+    XCTAssertNotNil(Token.keyword(from: "Drop"))
+    XCTAssertNotNil(Token.keyword(from: "none"))
+    XCTAssertNil(Token.keyword(from: "hogehoge"))
   }
 
   func test_JoinedSQLTokenSequence() {
-    var tokens: [SQLToken] = []
+    var tokens: [Token] = []
     XCTAssertEqual(tokens.joined().description, "")
     XCTAssertEqual(tokens.joinedByCommas().description, "")
 
@@ -300,11 +300,11 @@ final class SQLGrammarTests: XCTestCase {
           elements: [
             ExclusionConstraintElement(
               IndexElement(columnName: "foo"),
-              with: LabeledOperator(SQLToken.Operator.lessThan)
+              with: LabeledOperator(Token.Operator.lessThan)
             ),
             ExclusionConstraintElement(
               IndexElement(columnName: "bar"),
-              with: LabeledOperator(SQLToken.Operator.greaterThan)
+              with: LabeledOperator(Token.Operator.greaterThan)
             ),
           ],
           where: .init(predicate: BinaryInfixGreaterThanOperatorInvocation(
@@ -494,7 +494,7 @@ final class SQLGrammarTests: XCTestCase {
     assertDescription(
       RawParseMode.plpgSQLAssignment1(
         .init(
-          variable: .init(SQLToken.PositionalParameter(1)),
+          variable: .init(Token.PositionalParameter(1)),
           operator: .equalTo,
           expression: .init(targets: [.all])
         )
@@ -1356,7 +1356,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
         BooleanConstantExpression.true,
         QualifiedGeneralOperator(
           OperatorConstructor(
-            LabeledOperator(labels: ["myOp"], try SQLToken.Operator("|||||"))
+            LabeledOperator(labels: ["myOp"], try Token.Operator("|||||"))
           )
         ),
         BooleanConstantExpression.false
@@ -1368,7 +1368,7 @@ final class SQLGrammarExpressionTests: XCTestCase {
       let invocation = UnaryPrefixQualifiedGeneralOperatorInvocation(
         QualifiedGeneralOperator(
           OperatorConstructor(
-            LabeledOperator(labels: ["myPrefixOp"], try SQLToken.Operator("+@-"))
+            LabeledOperator(labels: ["myPrefixOp"], try Token.Operator("+@-"))
           )
         ),
         UnsignedFloatConstantExpression(1.23)

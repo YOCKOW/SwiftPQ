@@ -90,7 +90,7 @@ public struct WellknownOperatorsMacro: MemberMacro {
       if let tokenClassDecl = declaration.as(ClassDeclSyntax.self) {
         guard tokenClassDecl.name.text == "Operator",
               (tokenClassDecl.inheritanceClause?.inheritedTypes.contains(where: {
-                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "SQLToken"
+                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "Token"
               }) == true)
         else {
           throw Error.unsupportedType
@@ -100,7 +100,7 @@ public struct WellknownOperatorsMacro: MemberMacro {
       if let enumDecl = declaration.as(EnumDeclSyntax.self) {
         guard enumDecl.name.text == "Operator",
               (enumDecl.inheritanceClause?.inheritedTypes.contains(where: {
-                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "SQLTokenSequence"
+                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "TokenSequence"
               }) == true)
         else {
           throw Error.unsupportedType
@@ -119,7 +119,7 @@ public struct WellknownOperatorsMacro: MemberMacro {
         let op = opMap.operator(for: $0)!
         return """
         /// An operator token `\(raw: op)`
-        public static let \(raw: $0): SQLToken.Operator = .init(rawValue: \"\(raw: op)\")
+        public static let \(raw: $0): Token.Operator = .init(rawValue: \"\(raw: op)\")
         """
       }
     case .tokenSequence:
