@@ -105,7 +105,7 @@ extension TokenSequenceGenerator {
   }
 }
 
-/// A type erasure to be used in the case that `any Iterator<SQLToken>` is not available.
+/// A type erasure to be used in the case that `any Iterator<Token>` is not available.
 internal final class AnyTokenSequenceIterator: IteratorProtocol {
   typealias Element = Token
 
