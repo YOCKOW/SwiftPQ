@@ -11,9 +11,7 @@ import SwiftSyntaxMacros
 @main
 struct PQMacrosPlugin: CompilerPlugin {
   let providingMacros: [Macro.Type] = [
-    BinaryInfixOperatorInvocationMacro.self,
-    BinaryInfixOperatorInvocationShortcutMacro.self,
     StaticKeywordExpander.self,
-    WellknownOperatorsMacro.self,
+    WellknownOperatorsExpander.self,
   ]
 }

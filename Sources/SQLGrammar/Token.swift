@@ -240,7 +240,7 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  @_WellknownOperators
+  @_ExpandWellknownOperators
   public final class Operator: Token {
     public enum Error: Swift.Error {
       case empty

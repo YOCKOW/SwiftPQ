@@ -71,14 +71,9 @@ internal final class OperatorMap {
 /// Expand static members of `Operator` and `SQLToken.Operator`
 ///
 /// - Note: Only for the purpose of internal use.
-public struct WellknownOperatorsMacro: MemberMacro {
+public struct WellknownOperatorsExpander: MemberMacro {
   public enum Error: Swift.Error {
     case unsupportedType
-  }
-
-  enum _ExtendedType {
-    case token
-    case tokenSequence
   }
 
   public static func expansion(
@@ -86,51 +81,23 @@ public struct WellknownOperatorsMacro: MemberMacro {
     providingMembersOf declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
-    let extendedType: _ExtendedType = try ({
-      if let tokenClassDecl = declaration.as(ClassDeclSyntax.self) {
-        guard tokenClassDecl.name.text == "Operator",
-              (tokenClassDecl.inheritanceClause?.inheritedTypes.contains(where: {
-                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "Token"
-              }) == true)
-        else {
-          throw Error.unsupportedType
-        }
-        return .token
-      }
-      if let enumDecl = declaration.as(EnumDeclSyntax.self) {
-        guard enumDecl.name.text == "Operator",
-              (enumDecl.inheritanceClause?.inheritedTypes.contains(where: {
-                $0.type.as(IdentifierTypeSyntax.self)?.name.text == "TokenSequence"
-              }) == true)
-        else {
-          throw Error.unsupportedType
-        }
-        return .tokenSequence
-      }
+    guard let tokenClassDecl = declaration.as(ClassDeclSyntax.self),
+          tokenClassDecl.name.text == "Operator",
+          (tokenClassDecl.inheritanceClause?.inheritedTypes.contains(where: {
+            $0.type.as(IdentifierTypeSyntax.self)?.name.text == "Token"
+          }) == true)
+    else {
       throw Error.unsupportedType
-    })()
-
-    let opMap = OperatorMap.map
-
-
-    let generateDecl: (String) -> DeclSyntax = switch extendedType {
-    case .token: 
-      {
-        let op = opMap.operator(for: $0)!
-        return """
-        /// An operator token `\(raw: op)`
-        public static let \(raw: $0): Token.Operator = .init(rawValue: \"\(raw: op)\")
-        """
-      }
-    case .tokenSequence:
-      {
-        """
-        /// Single operator token `\(raw: opMap.operator(for: $0)!)`
-        public static let \(raw: $0): Operator = .single(.\(raw: $0))
-        """
-      }
     }
 
+    let opMap = OperatorMap.map
+    let generateDecl: (String) -> DeclSyntax = {
+      let op = opMap.operator(for: $0)!
+      return """
+      /// An operator token `\(raw: op)`
+      public static let \(raw: $0): Token.Operator = .init(rawValue: \"\(raw: op)\")
+      """
+    }
     return opMap.allOperatorNames.sorted().map(generateDecl)
   }
 }

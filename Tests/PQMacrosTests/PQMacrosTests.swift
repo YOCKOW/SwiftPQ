@@ -13,52 +13,8 @@ import XCTest
 #if canImport(PQMacros)
 import PQMacros
 
-let testMacros: [String: Macro.Type] = [
-  "binOp": BinaryInfixOperatorInvocationMacro.self,
-]
+let testMacros: [String: Macro.Type] = [:]
 #endif
 
 final class PQMacrosTests: XCTestCase {
-  func test_binOp() throws {
-    #if canImport(PQMacros)
-    assertMacroExpansion(
-      """
-      #binOp("a" + "'b'")
-      """,
-      expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.identifier("a"), .plus, SingleToken.string("b"))
-      """,
-      macros: testMacros
-    )
-    assertMacroExpansion(
-      """
-      #binOp(1 < 2.3)
-      """,
-      expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.integer(1), .lessThan, SingleToken.float(2.3))
-      """,
-      macros: testMacros
-    )
-    assertMacroExpansion(
-      """
-      #binOp("n", "=", 2)
-      """,
-      expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .equalTo, SingleToken.integer(2))
-      """,
-      macros: testMacros
-    )
-    assertMacroExpansion(
-      """
-      #binOp("n", "||||||||||", 2)
-      """,
-      expandedSource: """
-      BinaryInfixOperatorInvocation(SingleToken.identifier("n"), .single(.init("||||||||||")), SingleToken.integer(2))
-      """,
-      macros: testMacros
-    )
-    #else
-    throw XCTSkip("macros are only supported when running tests for the host platform")
-    #endif
-  }
 }
