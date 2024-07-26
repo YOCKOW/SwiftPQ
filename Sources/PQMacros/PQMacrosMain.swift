@@ -14,6 +14,6 @@ struct PQMacrosPlugin: CompilerPlugin {
     BinaryInfixOperatorInvocationMacro.self,
     BinaryInfixOperatorInvocationShortcutMacro.self,
     StaticKeywordExpander.self,
-    WellknownOperatorsMacro.self,
+    WellknownOperatorsExpander.self,
   ]
 }
