@@ -271,12 +271,12 @@ public enum OptionalTypedTableElementList: TokenSequenceGenerator,
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private var _iterator: Parenthesized<TypedTableElementList>.Iterator?
       fileprivate init(_ iterator: Parenthesized<TypedTableElementList>.Iterator?) {
         self._iterator = iterator
       }
-      public mutating func next() -> SQLToken? { return _iterator?.next() }
+      public mutating func next() -> Token? { return _iterator?.next() }
     }
     private let _optionalList: OptionalTypedTableElementList
     fileprivate init(_ optionalList: OptionalTypedTableElementList) {

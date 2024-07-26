@@ -55,10 +55,10 @@ public struct PartitionBoundSpecification: TokenSequenceGenerator {
     public let expression: any GeneralExpression
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { return _iterator.next() }
+      public func next() -> Token? { return _iterator.next() }
     }
 
     public typealias Tokens = Self
@@ -93,7 +93,7 @@ public struct PartitionBoundSpecification: TokenSequenceGenerator {
   public let strategy: Strategy
 
   private final class _ForValues: TokenSequenceGenerator {
-    let tokens: Array<SQLToken> = [.for, .values]
+    let tokens: Array<Token> = [.for, .values]
     private init() {}
     static let forValues: _ForValues = .init()
   }

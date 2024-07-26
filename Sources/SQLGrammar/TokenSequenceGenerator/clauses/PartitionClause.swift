@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 private final class PartitionBy: Segment {
-  let tokens: Array<SQLToken> = [.partition, .by]
+  let tokens: Array<Token> = [.partition, .by]
   private init() {}
   static let partitionBy: PartitionBy = .init()
 }
@@ -127,7 +127,7 @@ public enum PartitionStrategy: CustomTokenConvertible {
   case hash
 
   @inlinable
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .range:
       return .range

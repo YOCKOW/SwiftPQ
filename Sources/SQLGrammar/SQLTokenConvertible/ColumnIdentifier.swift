@@ -10,13 +10,13 @@
 /// - Note: `ColId` is not always used as a name of column.
 ///         It means a name that can be column, table, or others' name.
 public struct ColumnIdentifier: LosslessTokenConvertible {
-  public let token: SQLToken
+  public let token: Token
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
-    case is SQLToken.Identifier:
+    case is Token.Identifier:
       self.token = token
-    case let keyword as SQLToken.Keyword where (keyword.isUnreserved || keyword.isAvailableForColumnName):
+    case let keyword as Token.Keyword where (keyword.isUnreserved || keyword.isAvailableForColumnName):
       self.token = keyword
     default:
       return nil
@@ -24,7 +24,7 @@ public struct ColumnIdentifier: LosslessTokenConvertible {
   }
 
   public init(_ description: String) {
-    if let keyword = SQLToken.keyword(from: description),
+    if let keyword = Token.keyword(from: description),
        let id = Self(keyword) {
       self = id
       return

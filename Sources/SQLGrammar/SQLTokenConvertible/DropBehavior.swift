@@ -10,7 +10,7 @@ public enum DropBehavior: LosslessTokenConvertible {
   case cascade
   case restrict
 
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .cascade:
       return .cascade
@@ -19,8 +19,8 @@ public enum DropBehavior: LosslessTokenConvertible {
     }
   }
 
-  public init?(_ token: SQLToken) {
-    guard case let keyword as SQLToken.Keyword = token else { return nil }
+  public init?(_ token: Token) {
+    guard case let keyword as Token.Keyword = token else { return nil }
     switch keyword {
     case .cascade:
       self = .cascade

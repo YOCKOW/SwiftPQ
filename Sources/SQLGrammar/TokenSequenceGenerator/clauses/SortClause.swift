@@ -11,7 +11,7 @@ public enum SortDirection: LosslessTokenConvertible {
   case descending
   public static let `default`: SortDirection = .ascending
 
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .ascending:
       return .asc
@@ -20,8 +20,8 @@ public enum SortDirection: LosslessTokenConvertible {
     }
   }
 
-  public init?(_ token: SQLToken) {
-    guard case let keyword as SQLToken.Keyword = token else { return nil }
+  public init?(_ token: Token) {
+    guard case let keyword as Token.Keyword = token else { return nil }
     if keyword == .asc {
       self = .ascending
     } else if keyword == .desc {
@@ -40,10 +40,10 @@ public enum NullOrdering: Segment {
   /// NULLS LAST
   case last
 
-  private static let _nullsFirst: Array<SQLToken> = [.nulls, .first]
-  private static let _nullsLast: Array<SQLToken> = [.nulls, .last]
+  private static let _nullsFirst: Array<Token> = [.nulls, .first]
+  private static let _nullsLast: Array<Token> = [.nulls, .last]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .first:
       return Self._nullsFirst
@@ -131,7 +131,7 @@ private struct _AnySortBy: TokenSequenceGenerator {
 }
 
 final class OrderBy: Segment {
-  let tokens: [SQLToken] = [.order, .by]
+  let tokens: [Token] = [.order, .by]
   static let orderBy: OrderBy = .init()
 }
 

@@ -13,12 +13,12 @@ public enum JSONKeyUniquenessOption: TokenSequenceGenerator {
   case withoutUniqueKeys
   case withoutUnique
 
-  private static let _withUniqueKeys: Array<SQLToken> = [.with, .unique, .keys]
-  private static let _withUnique: Array<SQLToken> = [.with, .unique]
-  private static let _withoutUniqueKeys: Array<SQLToken> = [.without, .unique, .keys]
-  private static let _withoutUnique: Array<SQLToken> = [.without, .unique]
+  private static let _withUniqueKeys: Array<Token> = [.with, .unique, .keys]
+  private static let _withUnique: Array<Token> = [.with, .unique]
+  private static let _withoutUniqueKeys: Array<Token> = [.without, .unique, .keys]
+  private static let _withoutUnique: Array<Token> = [.without, .unique]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .withUniqueKeys:
       return JSONKeyUniquenessOption._withUniqueKeys

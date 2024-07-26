@@ -13,13 +13,13 @@ public enum FrameBound: TokenSequenceGenerator {
   case preceding(offset: any GeneralExpression)
   case following(offset: any GeneralExpression)
 
-  private static let _unboundedPrecedingTokens: UnknownSQLTokenSequence<Array<SQLToken>> = .init([
+  private static let _unboundedPrecedingTokens: UnknownSQLTokenSequence<Array<Token>> = .init([
     .unbounded, .preceding,
   ])
-  private static let _unboundedFollowingTokens: UnknownSQLTokenSequence<Array<SQLToken>> = .init([
+  private static let _unboundedFollowingTokens: UnknownSQLTokenSequence<Array<Token>> = .init([
     .unbounded, .following,
   ])
-  private static let _currentRowTokens: UnknownSQLTokenSequence<Array<SQLToken>> = .init([
+  private static let _currentRowTokens: UnknownSQLTokenSequence<Array<Token>> = .init([
     .current, .row,
   ])
 
@@ -65,7 +65,7 @@ public struct FrameClause: Clause {
     case rows
     case groups
 
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .range:
         return .range
@@ -76,7 +76,7 @@ public struct FrameClause: Clause {
       }
     }
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       switch token {
       case .range:
         self = .range

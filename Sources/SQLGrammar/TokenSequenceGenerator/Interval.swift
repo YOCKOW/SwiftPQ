@@ -28,7 +28,7 @@ public enum IntervalFieldsPhrase: Segment {
   public static let minuteToSecond: IntervalFieldsPhrase = .minuteToSecond()
 
   public var tokens: JoinedSQLTokenSequence {
-    var tokens: [SQLToken] = []
+    var tokens: [Token] = []
     var precision: UnsignedIntegerConstantExpression? = nil
 
     switch self {

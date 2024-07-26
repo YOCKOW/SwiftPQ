@@ -16,8 +16,8 @@ public enum TemporarinessOption: TokenSequence {
   case unlogged
 
   public final class Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let temporary: Tokens = .init([.temporary])
     public static let temp: Tokens = .init([.temp])

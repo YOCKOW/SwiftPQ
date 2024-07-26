@@ -13,15 +13,15 @@ extension Array {
   }
 }
 
-extension Array where Element == SQLToken {
+extension Array where Element == Token {
   /// Creates a new array from `sequence`.
   @inlinable
-  public init<S>(_ sequence: S) where S: Sequence, S.Element: SQLToken {
+  public init<S>(_ sequence: S) where S: Sequence, S.Element: Token {
     switch sequence {
-    case let array as Array<SQLToken>:
+    case let array as Array<Token>:
       self = array
     default:
-      self = sequence.map({ $0 as SQLToken })
+      self = sequence.map({ $0 as Token })
     }
   }
 }

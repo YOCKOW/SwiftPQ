@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-private class ModeSymbol: SQLToken {
+private class ModeSymbol: Token {
   static let typeName: ModeSymbol = .init(rawValue: "MODE_TYPE_NAME")
   static let plpgSQLExpression: ModeSymbol = .init(rawValue: "MODE_PLPGSQL_EXPR")
   static let plpgSQLAssignment1: ModeSymbol = .init(rawValue: "MODE_PLPGSQL_ASSIGN1")
@@ -15,7 +15,7 @@ private class ModeSymbol: SQLToken {
 
 private extension SingleToken {
   private init(_ mode: ModeSymbol) {
-    self.init(mode as SQLToken)
+    self.init(mode as Token)
   }
 
   static let modeTypeName: SingleToken = .init(.typeName)

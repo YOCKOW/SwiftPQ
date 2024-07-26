@@ -11,7 +11,7 @@ public struct GenericOption: TokenSequenceGenerator {
   public struct Name {
     public let name: ColumnLabel
 
-    public var token: SQLToken {
+    public var token: Token {
       return name.token
     }
 
@@ -34,7 +34,7 @@ public struct GenericOption: TokenSequenceGenerator {
   public let argument: Argument
 
   @inlinable
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     return [name.name.token, argument.argument.token]
   }
 

@@ -13,8 +13,8 @@ public enum MatchType: TokenSequence {
   case simple
 
   public struct Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let full: Tokens = .init([.match, .full])
     public static let partial: Tokens = .init([.match, .partial])

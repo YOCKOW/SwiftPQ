@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 private final class _WithinGroup: Segment {
-  var tokens: Array<SQLToken> = [.within, .group]
+  var tokens: Array<Token> = [.within, .group]
   static let withinGroup: _WithinGroup = .init()
 }
 

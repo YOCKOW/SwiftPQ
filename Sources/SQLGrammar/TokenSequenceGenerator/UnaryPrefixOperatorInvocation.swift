@@ -13,7 +13,7 @@ public protocol UnaryPrefixOperatorInvocation: TokenSequenceGenerator {
   var operand: Operand { get }
 }
 
-extension UnaryPrefixOperatorInvocation where Self.Operator: SQLToken,
+extension UnaryPrefixOperatorInvocation where Self.Operator: Token,
                                               Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.operator.asSequence, self.operand)
@@ -33,7 +33,7 @@ extension UnaryPrefixOperatorInvocation where Self.Operator: TokenSequenceGenera
 public struct UnaryPrefixPlusOperatorInvocation<Operand>:
   UnaryPrefixOperatorInvocation where Operand: TokenSequenceGenerator
 {
-  public let `operator`: SQLToken.Operator = .plus
+  public let `operator`: Token.Operator = .plus
 
   private let _canOmitSpace: Bool
 
@@ -79,7 +79,7 @@ extension UnaryPrefixPlusOperatorInvocation: RestrictedExpression where Operand:
 public struct UnaryPrefixMinusOperatorInvocation<Operand>:
   UnaryPrefixOperatorInvocation where Operand: TokenSequenceGenerator
 {
-  public let `operator`: SQLToken.Operator = .minus
+  public let `operator`: Token.Operator = .minus
 
   private let _canOmitSpace: Bool
 
@@ -155,13 +155,13 @@ extension UnaryPrefixQualifiedGeneralOperatorInvocation:
 public struct UnaryPrefixNotOperatorInvocation<Operand>:
   UnaryPrefixOperatorInvocation, GeneralExpression where Operand: GeneralExpression
 {
-  public typealias Operator = SQLToken
+  public typealias Operator = Token
 
   public typealias Operand = Operand
 
   public typealias Tokens = JoinedSQLTokenSequence
 
-  public let `operator`: SQLToken = .not
+  public let `operator`: Token = .not
 
   public let operand: Operand
 

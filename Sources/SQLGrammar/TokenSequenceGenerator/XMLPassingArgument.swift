@@ -16,10 +16,10 @@ public struct XMLPassingArgument: TokenSequenceGenerator {
     case byReference
     case byValue
 
-    private static let _byReferenceTokens: [SQLToken] = [.by, .ref]
-    private static let _byValueTokens: [SQLToken] = [.by, .value]
+    private static let _byReferenceTokens: [Token] = [.by, .ref]
+    private static let _byValueTokens: [Token] = [.by, .value]
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .byReference:
         return Mechanism._byReferenceTokens

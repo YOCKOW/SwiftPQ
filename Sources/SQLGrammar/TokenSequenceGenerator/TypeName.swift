@@ -352,7 +352,7 @@ public struct GenericTypeName: SimpleTypeName,
                                _PossiblyFunctionNameWithModifiersConvertible {
   private let _name: TypeOrFunctionName
 
-  public var name: SQLToken {
+  public var name: Token {
     return _name.token
   }
 
@@ -379,7 +379,7 @@ public struct GenericTypeName: SimpleTypeName,
 
   /// Creates an instance. Returns `nil` if the given `name` is an invalid token.
   public init?(
-    _ name: SQLToken,
+    _ name: Token,
     attributes: AttributeList? = nil,
     modifiers: GeneralExpressionList? = nil
   ) {
@@ -393,7 +393,7 @@ public struct GenericTypeName: SimpleTypeName,
     attributes: AttributeList? = nil,
     modifiers: GeneralExpressionList? = nil
   ) {
-    self.init(SQLToken.identifier(name), attributes: attributes, modifiers: modifiers)!
+    self.init(Token.identifier(name), attributes: attributes, modifiers: modifiers)!
   }
 
   private var __qualifiedName: (some QualifiedName)? {
@@ -554,7 +554,7 @@ public enum NumericTypeName: SimpleTypeName,
     }
   }
 
-  private func __qualifiedName(from token: SQLToken) -> AnyQualifiedName? {
+  private func __qualifiedName(from token: Token) -> AnyQualifiedName? {
     guard let colId = ColumnIdentifier(token) else { return nil }
     return AnyQualifiedName(identifier: colId, indirection: nil)
   }
@@ -707,7 +707,7 @@ public enum BitStringTypeName: SimpleTypeName,
   internal var _functionNameWithModifiers: (FunctionName, FunctionArgumentList?)? {
     switch self {
     case .fixed(let length):
-      guard let funcName = FunctionName(SQLToken.bit) else { return nil }
+      guard let funcName = FunctionName(Token.bit) else { return nil }
       let funcArgList = length.map(FunctionArgumentList.init)
       return (funcName, funcArgList)
     case .varying:
@@ -737,7 +737,7 @@ public struct CharacterTypeName: SimpleTypeName,
       }
     }
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .character:
         return [.character]
@@ -755,7 +755,7 @@ public struct CharacterTypeName: SimpleTypeName,
     }
 
     fileprivate var _qualifiedName: AnyQualifiedName? {
-      func __name(from token: SQLToken) -> AnyQualifiedName? {
+      func __name(from token: Token) -> AnyQualifiedName? {
         return ColumnIdentifier(token).map({ AnyQualifiedName(identifier: $0, indirection: nil) })
       }
       switch self {
@@ -926,7 +926,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName,
     case timestamp
     case time
 
-    var token: SQLToken {
+    var token: Token {
       switch self {
       case .timestamp:
         return .timestamp
@@ -1224,12 +1224,12 @@ public struct ConstantCharacterTypeName: ConstantTypeName,
 }
 
 private final class WithTimeZone: Segment {
-  let tokens: [SQLToken] = [.with, .time, .zone]
+  let tokens: [Token] = [.with, .time, .zone]
   static let withTimeZone: WithTimeZone = .init()
 }
 
 private final class WithoutTimeZone: Segment {
-  let tokens: [SQLToken] = [.without, .time, .zone]
+  let tokens: [Token] = [.without, .time, .zone]
   static let withoutTimeZone: WithoutTimeZone = .init()
 }
 

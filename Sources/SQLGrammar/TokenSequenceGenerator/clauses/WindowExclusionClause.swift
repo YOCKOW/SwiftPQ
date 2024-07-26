@@ -13,12 +13,12 @@ public enum WindowExclusionClause: Clause {
   case excludeTies
   case excludeNoOthers
 
-  private static let _excludeCurrentRowTokens: Array<SQLToken> = [.exclude, .current, .row]
-  private static let _excludeGroupTokens: Array<SQLToken> = [.exclude, .group]
-  private static let _excludeTiesTokens: Array<SQLToken> = [.exclude, .ties]
-  private static let _excludeNoOthersTokens: Array<SQLToken> = [.exclude, .no, .others]
+  private static let _excludeCurrentRowTokens: Array<Token> = [.exclude, .current, .row]
+  private static let _excludeGroupTokens: Array<Token> = [.exclude, .group]
+  private static let _excludeTiesTokens: Array<Token> = [.exclude, .ties]
+  private static let _excludeNoOthersTokens: Array<Token> = [.exclude, .no, .others]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .excludeCurrentRow:
       return WindowExclusionClause._excludeCurrentRowTokens

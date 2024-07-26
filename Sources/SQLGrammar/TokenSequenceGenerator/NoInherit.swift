@@ -7,7 +7,7 @@
 
 /// Representation of `opt_no_inherit` in "gram.y".
 public final class NoInherit: Segment {
-  public let tokens: Array<SQLToken> = [.no, .inherit]
+  public let tokens: Array<Token> = [.no, .inherit]
   private init() {}
   public static let noInherit: NoInherit = .init()
 }

@@ -11,7 +11,7 @@ public enum XMLOption: LosslessTokenConvertible {
   case document
   case content
 
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .document:
       return .document
@@ -20,7 +20,7 @@ public enum XMLOption: LosslessTokenConvertible {
     }
   }
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
     case .document:
       self = .document

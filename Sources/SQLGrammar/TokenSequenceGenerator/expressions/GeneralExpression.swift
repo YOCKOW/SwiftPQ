@@ -40,7 +40,7 @@ extension GeneralExpression {
 ///  that is described as `a_expr AT TIME ZONE a_expr` in "gram.y".
 public struct AtTimeZoneOperatorInvocation: GeneralExpression {
   private final class _AtTimeZone: Segment {
-    let tokens: Array<SQLToken> = [.at, .time, .zone]
+    let tokens: Array<Token> = [.at, .time, .zone]
     static let atTimeZone: _AtTimeZone = .init()
   }
 
@@ -107,7 +107,7 @@ public struct IsNotNullExpression: GeneralExpression {
   public var useOneKeywordSyntax: Bool = false
 
   private final class _IsNotNull: Segment {
-    let tokens: Array<SQLToken> = [.is, .not, .null]
+    let tokens: Array<Token> = [.is, .not, .null]
     private init() {}
     static let isNotNull: _IsNotNull = .init()
   }
@@ -136,7 +136,7 @@ public struct IsTrueExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsTrue: Segment {
-    let tokens: Array<SQLToken> = [.is, .true]
+    let tokens: Array<Token> = [.is, .true]
     private init() {}
     static let isTrue: _IsTrue = .init()
   }
@@ -160,7 +160,7 @@ public struct IsNotTrueExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsNotTrue: Segment {
-    let tokens: Array<SQLToken> = [.is, .not, .true]
+    let tokens: Array<Token> = [.is, .not, .true]
     private init() {}
     static let isNotTrue: _IsNotTrue = .init()
   }
@@ -184,7 +184,7 @@ public struct IsFalseExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsFalse: Segment {
-    let tokens: Array<SQLToken> = [.is, .false]
+    let tokens: Array<Token> = [.is, .false]
     private init() {}
     static let isFalse: _IsFalse = .init()
   }
@@ -208,7 +208,7 @@ public struct IsNotFalseExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsNotFalse: Segment {
-    let tokens: Array<SQLToken> = [.is, .not, .false]
+    let tokens: Array<Token> = [.is, .not, .false]
     private init() {}
     static let isNotFalse: _IsNotFalse = .init()
   }
@@ -232,7 +232,7 @@ public struct IsUnknownExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsUnknown: Segment {
-    let tokens: Array<SQLToken> = [.is, .unknown]
+    let tokens: Array<Token> = [.is, .unknown]
     private init() {}
     static let isUnknown: _IsUnknown = .init()
   }
@@ -256,7 +256,7 @@ public struct IsNotUnknownExpression: GeneralExpression {
   public let value: any GeneralExpression
 
   private final class _IsNotUnknown: Segment {
-    let tokens: Array<SQLToken> = [.is, .not, .unknown]
+    let tokens: Array<Token> = [.is, .not, .unknown]
     private init() {}
     static let isNotUnknown: _IsNotUnknown = .init()
   }
@@ -350,7 +350,7 @@ public struct NotBetweenExpression: GeneralExpression {
   public var range: Range
 
   private final class _NotBetween: Segment {
-    let tokens: Array<SQLToken> = [.not, .between]
+    let tokens: Array<Token> = [.not, .between]
     private init() {}
     static let notBetween: _NotBetween = .init()
   }
@@ -396,10 +396,10 @@ public struct InExpression: GeneralExpression {
     private let _generator: _Generator
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { return _iterator.next() }
+      public func next() -> Token? { return _iterator.next() }
     }
     public typealias Tokens = Self
 
@@ -483,7 +483,7 @@ public struct NotInExpression: GeneralExpression {
   public let subquery: Subquery
 
   private final class _NotIn: Segment {
-    let tokens: Array<SQLToken> = [.not, .in]
+    let tokens: Array<Token> = [.not, .in]
     private init() {}
     static let notIn: _NotIn = .init()
   }
@@ -545,7 +545,7 @@ public struct SatisfyExpression: GeneralExpression {
     case `some`
     case all
 
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .any:
         return .any
@@ -798,7 +798,7 @@ public struct IsNotJSONTypeExpression: GeneralExpression {
 
 /// `DEFAULT` as an expression.
 public final class DefaultExpression: GeneralExpression {
-  public let tokens: Array<SQLToken> = [.default]
+  public let tokens: Array<Token> = [.default]
   private init() {}
   public static let `default`: DefaultExpression = .init()
 }

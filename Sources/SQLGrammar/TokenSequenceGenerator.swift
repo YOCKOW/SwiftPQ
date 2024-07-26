@@ -8,7 +8,7 @@
 /// A type that holds a sequence of `SQLToken`.
 public protocol TokenSequenceGenerator {
   /// A type representing a sequence of tokens.
-  associatedtype Tokens: Sequence where Self.Tokens.Element: SQLToken
+  associatedtype Tokens: Sequence where Self.Tokens.Element: Token
 
   /// Provide a sequence of tokens.
   var tokens: Tokens { get }
@@ -76,19 +76,19 @@ public protocol Segment: TokenSequenceGenerator {}
 /// A type representing a kind of a clause.
 public protocol Clause: Segment {}
 
-internal extension Sequence where Element: SQLToken {
+internal extension Sequence where Element: Token {
   var _description: String {
     var description = ""
-    var previousToken: SQLToken? = nil
+    var previousToken: Token? = nil
     for token in self {
       defer { previousToken = token }
 
-      if token is SQLToken.Joiner {
+      if token is Token.Joiner {
         continue
       } else if (
         previousToken == nil ||
-        previousToken is SQLToken.Joiner ||
-        previousToken is SQLToken.Newline || token is SQLToken.Newline
+        previousToken is Token.Joiner ||
+        previousToken is Token.Newline || token is Token.Newline
       ) {
         description += token.description
       } else {
@@ -107,28 +107,28 @@ extension TokenSequenceGenerator {
 
 /// A type erasure to be used in the case that `any Iterator<SQLToken>` is not available.
 internal final class AnyTokenSequenceIterator: IteratorProtocol {
-  typealias Element = SQLToken
+  typealias Element = Token
 
   private class _Box {
-    func next() -> SQLToken? { fatalError("Must be overridden.") }
+    func next() -> Token? { fatalError("Must be overridden.") }
   }
-  private class _Base<T>: _Box where T: IteratorProtocol, T.Element: SQLToken {
+  private class _Base<T>: _Box where T: IteratorProtocol, T.Element: Token {
     var _base: T
     init(_ base: T) { self._base = base }
-    override func next() -> SQLToken? { _base.next() }
+    override func next() -> Token? { _base.next() }
   }
 
   private let _box: _Box
 
-  init<Iterator>(_ iterator: Iterator) where Iterator: IteratorProtocol, Iterator.Element: SQLToken {
+  init<Iterator>(_ iterator: Iterator) where Iterator: IteratorProtocol, Iterator.Element: Token {
     self._box = _Base(iterator)
   }
 
-  init<S>(_ sequence: S) where S: Sequence, S.Iterator.Element: SQLToken {
+  init<S>(_ sequence: S) where S: Sequence, S.Iterator.Element: Token {
     self._box = _Base(sequence.makeIterator())
   }
 
-  func next() -> SQLToken? {
+  func next() -> Token? {
     return self._box.next()
   }
 }
@@ -136,7 +136,7 @@ internal final class AnyTokenSequenceIterator: IteratorProtocol {
 /// A type erasure to be used in the case that `any TokenSequenceGenerator` is not available.
 internal class AnyTokenSequenceGenerator: TokenSequenceGenerator {
   class Tokens: Sequence {
-    typealias Element = SQLToken
+    typealias Element = Token
     typealias Iterator = AnyTokenSequenceIterator
     func makeIterator() -> AnyTokenSequenceIterator { fatalError("Must be overridden.") }
 

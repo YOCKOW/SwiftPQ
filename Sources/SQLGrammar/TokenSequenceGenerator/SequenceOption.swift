@@ -26,13 +26,13 @@ public struct SequenceOption: TokenSequenceGenerator {
   private let _option: _Option
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { return _iterator.next() }
+      public func next() -> Token? { return _iterator.next() }
     }
 
     private let _generator: AnyTokenSequenceGenerator
@@ -45,7 +45,7 @@ public struct SequenceOption: TokenSequenceGenerator {
       self.init(generator._asAny)
     }
 
-    private init(_ tokens: Array<SQLToken>) {
+    private init(_ tokens: Array<Token>) {
       self.init(UnknownSQLTokenSequence(tokens)._asAny)
     }
 
@@ -90,12 +90,12 @@ public struct SequenceOption: TokenSequenceGenerator {
       return .noMinValue
     case .ownedBy(let anyName):
       return Tokens(JoinedSQLTokenSequence([
-        UnknownSQLTokenSequence<Array<SQLToken>>([.owned, .by]),
+        UnknownSQLTokenSequence<Array<Token>>([.owned, .by]),
         anyName
       ]))
     case .sequenceName(let name):
       return Tokens(JoinedSQLTokenSequence([
-        UnknownSQLTokenSequence<Array<SQLToken>>([.sequence, .name]),
+        UnknownSQLTokenSequence<Array<Token>>([.sequence, .name]),
         name
       ]))
     case .start(let omitWithKeyword, let start):
@@ -244,12 +244,12 @@ public enum OptionalSequenceOptionList: TokenSequenceGenerator,
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private var _iterator: Parenthesized<SequenceOptionList>.Iterator?
       fileprivate init(_ iterator: Parenthesized<SequenceOptionList>.Iterator?) {
         self._iterator = iterator
       }
-      public mutating func next() -> SQLToken? { return _iterator?.next() }
+      public mutating func next() -> Token? { return _iterator?.next() }
     }
     private let _optionalSequenceOptionList: OptionalSequenceOptionList
     fileprivate init(_ optionalSequenceOptionList: OptionalSequenceOptionList) {

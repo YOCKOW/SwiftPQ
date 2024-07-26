@@ -29,15 +29,15 @@ public enum JoinType: TokenSequenceGenerator {
   case right
   case innter
 
-  private static let _fullOuterTokens: Array<SQLToken> = [.full, .outer]
-  private static let _fullTokens: Array<SQLToken> = [.full]
-  private static let _leftOuterTokens: Array<SQLToken> = [.left, .outer]
-  private static let _leftTokens: Array<SQLToken> = [.left]
-  private static let _rightOuterTokens: Array<SQLToken> = [.right, .outer]
-  private static let _rightTokens: Array<SQLToken> = [.right]
-  private static let _innterTokens: Array<SQLToken> = [.inner]
+  private static let _fullOuterTokens: Array<Token> = [.full, .outer]
+  private static let _fullTokens: Array<Token> = [.full]
+  private static let _leftOuterTokens: Array<Token> = [.left, .outer]
+  private static let _leftTokens: Array<Token> = [.left]
+  private static let _rightOuterTokens: Array<Token> = [.right, .outer]
+  private static let _rightTokens: Array<Token> = [.right]
+  private static let _innterTokens: Array<Token> = [.inner]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .fullOuter:
       return JoinType._fullOuterTokens
@@ -67,7 +67,7 @@ public enum JoinCondition {
   /// `opt_alias_clause_for_join_using`
   fileprivate final class _AliasClauseForJoinUsing: Clause {
     let column: ColumnIdentifier
-    private(set) lazy var tokens: Array<SQLToken> = [.as, column.token]
+    private(set) lazy var tokens: Array<Token> = [.as, column.token]
     init(_ column: ColumnIdentifier) {
       self.column = column
     }
@@ -80,7 +80,7 @@ public struct CrossJoinedTable: JoinedTableExpression {
   let rightTable: any TableReferenceExpression
 
   private final class _CrossJoin: TokenSequenceGenerator {
-    let tokens: Array<SQLToken> = [.cross, .join]
+    let tokens: Array<Token> = [.cross, .join]
     private init() {}
     static let crossJoin: _CrossJoin = .init()
   }

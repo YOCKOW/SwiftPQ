@@ -68,11 +68,11 @@ private extension String {
 
 /// A type representing SQL token.
 @_ExpandStaticKeywords
-public class SQLToken: CustomStringConvertible {
+public class Token: CustomStringConvertible {
   @usableFromInline
   internal let _rawValue: String
 
-  fileprivate func isEqual(to other: SQLToken) -> Bool {
+  fileprivate func isEqual(to other: Token) -> Bool {
     return Swift.type(of: self) == Swift.type(of: other) && self._rawValue == other._rawValue
   }
 
@@ -86,7 +86,7 @@ public class SQLToken: CustomStringConvertible {
   }
 
   /// A token that is able to be recognized as a keyword.
-  public class Keyword: SQLToken {
+  public class Keyword: Token {
     /// A boolean value indicating whether or not it is an `unreserved_keyword`.
     public let isUnreserved: Bool
 
@@ -120,7 +120,7 @@ public class SQLToken: CustomStringConvertible {
     }
   }
 
-  public class Identifier: SQLToken {}
+  public class Identifier: Token {}
 
   public class DelimitedIdentifier: Identifier {
     private let _isUTF8: Bool
@@ -137,7 +137,7 @@ public class SQLToken: CustomStringConvertible {
     }
   }
 
-  public class StringConstant: SQLToken {
+  public class StringConstant: Token {
     private let _isUTF8: Bool
 
     private lazy var _description: String = _rawValue._quoted(mark: "'", isUTF8: _isUTF8)
@@ -152,7 +152,7 @@ public class SQLToken: CustomStringConvertible {
     }
   }
 
-  public class NumericConstant: SQLToken {
+  public class NumericConstant: Token {
     public let isInteger: Bool
 
     public let isFloat: Bool
@@ -197,7 +197,7 @@ public class SQLToken: CustomStringConvertible {
     }
   }
 
-  public class BitStringConstant: SQLToken {
+  public class BitStringConstant: Token {
     public enum Style {
       case binary
       case hexadecimal
@@ -242,7 +242,7 @@ public class SQLToken: CustomStringConvertible {
   }
 
   @_WellknownOperators
-  public final class Operator: SQLToken {
+  public final class Operator: Token {
     public enum Error: Swift.Error {
       case empty
       case invalidCharacter
@@ -324,7 +324,7 @@ public class SQLToken: CustomStringConvertible {
     internal static let typeCast: Operator = Operator(rawValue: "::")
   }
 
-  public class SpecialCharacter: SQLToken {}
+  public class SpecialCharacter: Token {}
 
   /// A '$n' token described as `PARAM` in "gram.y".
   public final class PositionalParameter: SpecialCharacter {
@@ -334,26 +334,26 @@ public class SQLToken: CustomStringConvertible {
   }
 
   /// A token to remove whitespace.
-  public final class Joiner: SQLToken {
+  public final class Joiner: Token {
     fileprivate static let singleton: Joiner = .init(rawValue: "")
   }
 
-  public final class Newline: SQLToken {
+  public final class Newline: Token {
     fileprivate static let singleton: Newline = .init(rawValue: "\n")
   }
 }
 
 /// Workaround for https://github.com/apple/swift/issues/70087
-extension SQLToken: Equatable {
-  public static func ==(lhs: SQLToken, rhs: SQLToken) -> Bool {
+extension Token: Equatable {
+  public static func ==(lhs: Token, rhs: Token) -> Bool {
     return lhs.isEqual(to: rhs)
   }
 }
 
-extension SQLToken {
+extension Token {
   /// Create an identifier token.
   /// "Unicode escapes" may be added when quoting is required and `encodingIsUTF8` is `false`.
-  public static func identifier(_ string: String, forceQuoting: Bool = false, encodingIsUTF8: Bool = true) -> SQLToken {
+  public static func identifier(_ string: String, forceQuoting: Bool = false, encodingIsUTF8: Bool = true) -> Token {
     var requireQuoting = forceQuoting
 
     if !requireQuoting && keyword(from: string) != nil {
@@ -398,72 +398,72 @@ extension SQLToken {
 
   /// Create a string constant token.
   /// "Unicode escapes" are added when `encodingIsUTF8` is `false`.
-  public static func string(_ string: String, encodingIsUTF8: Bool = true) -> SQLToken {
+  public static func string(_ string: String, encodingIsUTF8: Bool = true) -> Token {
     return StringConstant(rawValue: string, encodingIsUTF8: encodingIsUTF8)
   }
 
   /// Create a numeric constant token.
-  public static func integer<T>(_ integer: T) -> SQLToken where T: SQLIntegerType {
+  public static func integer<T>(_ integer: T) -> Token where T: SQLIntegerType {
     return NumericConstant.Integer<T>(integer)
   }
 
   /// Create a numeric constant token.
-  public static func integer(_ integer: UInt) -> SQLToken {
+  public static func integer(_ integer: UInt) -> Token {
     return NumericConstant.Integer<UInt>(integer)
   }
 
   /// Create a numeric constant token.
-  public static func float<T>(_ float: T) -> SQLToken where T: SQLFloatType {
+  public static func float<T>(_ float: T) -> Token where T: SQLFloatType {
     return NumericConstant.Float<T>(float)
   }
 
   public static func bitString(
     _ string: String,
-    style: SQLToken.BitStringConstant.Style
-  ) throws -> SQLToken {
+    style: Token.BitStringConstant.Style
+  ) throws -> Token {
     return try BitStringConstant(string, style: style)
   }
 
   /// Create an operator token.
-  public static func `operator`(_ operatorName: String) throws -> SQLToken {
+  public static func `operator`(_ operatorName: String) throws -> Token {
     return try Operator(operatorName)
   }
 
   /// Create a positional parameter token.
-  public static func positionalParameter(_ position: UInt) -> SQLToken {
+  public static func positionalParameter(_ position: UInt) -> Token {
     return PositionalParameter(position)
   }
 
   /// Create a '(' token.
-  public static let leftParenthesis: SQLToken = SpecialCharacter(rawValue: "(")
+  public static let leftParenthesis: Token = SpecialCharacter(rawValue: "(")
 
   /// Create a ')' token.
-  public static let rightParenthesis: SQLToken = SpecialCharacter(rawValue: ")")
+  public static let rightParenthesis: Token = SpecialCharacter(rawValue: ")")
 
   /// Create a '[' token.
-  public static let leftSquareBracket: SQLToken = SpecialCharacter(rawValue: "[")
+  public static let leftSquareBracket: Token = SpecialCharacter(rawValue: "[")
 
   /// Create a ']' token.
-  public static let rightSquareBracket: SQLToken = SpecialCharacter(rawValue: "]")
+  public static let rightSquareBracket: Token = SpecialCharacter(rawValue: "]")
 
   /// Create a ',' token.
-  public static let comma: SQLToken = SpecialCharacter(rawValue: ",")
+  public static let comma: Token = SpecialCharacter(rawValue: ",")
 
   /// Create a ';' token.
-  public static let semicolon: SQLToken = SpecialCharacter(rawValue: ";")
+  public static let semicolon: Token = SpecialCharacter(rawValue: ";")
 
   /// Create a ':' token.
-  public static let colon: SQLToken = SpecialCharacter(rawValue: ":")
+  public static let colon: Token = SpecialCharacter(rawValue: ":")
 
   /// Create a '*' token.
-  public static let asterisk: SQLToken = SpecialCharacter(rawValue: "*")
+  public static let asterisk: Token = SpecialCharacter(rawValue: "*")
 
   /// Create a '.' token.
-  public static let dot: SQLToken = SpecialCharacter(rawValue: ".")
+  public static let dot: Token = SpecialCharacter(rawValue: ".")
 
   /// Create a joiner token.
-  public static let joiner: SQLToken = Joiner.singleton
+  public static let joiner: Token = Joiner.singleton
 
   /// Create a newline token.
-  public static let newline: SQLToken = Newline.singleton
+  public static let newline: Token = Newline.singleton
 }

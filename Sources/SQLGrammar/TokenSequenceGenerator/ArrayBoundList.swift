@@ -6,12 +6,12 @@
  ************************************************************************************************ */
 
 public final class LeftSquareBracket: Segment {
-  public let tokens: [SQLToken] = [.leftSquareBracket, .joiner]
+  public let tokens: [Token] = [.leftSquareBracket, .joiner]
   public static let leftSquareBracket: LeftSquareBracket = .init()
 }
 
 public final class RightSquareBracket: Segment {
-  public let tokens: [SQLToken] = [.joiner, .rightSquareBracket]
+  public let tokens: [Token] = [.joiner, .rightSquareBracket]
   public static let rightSquareBracket: RightSquareBracket = .init()
 }
 

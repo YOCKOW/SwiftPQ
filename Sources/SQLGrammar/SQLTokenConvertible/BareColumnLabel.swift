@@ -7,13 +7,13 @@
 
 /// A type representing a bare column label which is described as `BareColLabel` in "gram.y".
 public struct BareColumnLabel: LosslessTokenConvertible {
-  public let token: SQLToken
+  public let token: Token
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
-    case is SQLToken.Identifier:
+    case is Token.Identifier:
       self.token = token
-    case let keyword as SQLToken.Keyword where keyword.isBareLabel:
+    case let keyword as Token.Keyword where keyword.isBareLabel:
       self.token = keyword
     default:
       return nil
@@ -21,7 +21,7 @@ public struct BareColumnLabel: LosslessTokenConvertible {
   }
 
   public init(_ description: String) {
-    if let keyword = SQLToken.keyword(from: description),
+    if let keyword = Token.keyword(from: description),
        let id = Self(keyword) {
       self = id
       return

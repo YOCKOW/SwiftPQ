@@ -19,7 +19,7 @@ public enum UnicodeNormalizationForm: LosslessTokenConvertible {
   /// NFKD
   case nfkd
 
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .nfc:
       return .nfc
@@ -32,7 +32,7 @@ public enum UnicodeNormalizationForm: LosslessTokenConvertible {
     }
   }
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
     case .nfc:
       self = .nfc

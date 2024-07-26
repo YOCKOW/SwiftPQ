@@ -31,7 +31,7 @@ public struct Query {
 
       fileprivate enum _Element {
         case string(String)
-        case token(SQLToken)
+        case token(Token)
         case tokenSequence(any TokenSequenceGenerator)
 
         var description: String {
@@ -61,7 +61,7 @@ public struct Query {
         _elements.append(.string(String(string)))
       }
 
-      public mutating func appendInterpolation(_ token: SQLToken) {
+      public mutating func appendInterpolation(_ token: Token) {
         _elements.append(.token(token))
       }
 

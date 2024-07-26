@@ -11,10 +11,10 @@ public enum XMLWhitespaceOption: TokenSequenceGenerator {
   case preserve
   case strip
 
-  private static let _preserveTokens: [SQLToken] = [.preserve, .whitespace]
-  private static let _stripTokens: [SQLToken] = [.strip, .whitespace]
+  private static let _preserveTokens: [Token] = [.preserve, .whitespace]
+  private static let _stripTokens: [Token] = [.strip, .whitespace]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .preserve:
       return XMLWhitespaceOption._preserveTokens

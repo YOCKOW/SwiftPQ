@@ -11,10 +11,10 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
     /// Representation of `plassign_target` in "gram.y".
     public enum Target: CustomTokenConvertible {
       case identifier(ColumnIdentifier)
-      case parameter(SQLToken.PositionalParameter)
+      case parameter(Token.PositionalParameter)
 
       @inlinable
-      public var token: SQLToken {
+      public var token: Token {
         switch self {
         case .identifier(let columnIdentifier):
           return columnIdentifier.token
@@ -38,7 +38,7 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
       self.indirection = indirection
     }
 
-    public init(_ parameter: SQLToken.PositionalParameter, indirection: Indirection? = nil) {
+    public init(_ parameter: Token.PositionalParameter, indirection: Indirection? = nil) {
       self.target = .parameter(parameter)
       self.indirection = indirection
     }
@@ -49,7 +49,7 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
     case colonEquals
     case equalTo
 
-    public var token: SQLToken.Operator {
+    public var token: Token.Operator {
       switch self {
       case .colonEquals:
         return .colonEquals

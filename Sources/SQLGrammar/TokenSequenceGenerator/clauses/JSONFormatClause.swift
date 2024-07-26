@@ -9,7 +9,7 @@
 public struct JSONEncodingClause: Clause {
   public let name: ColumnIdentifier
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     return [.encoding, name.token]
   }
 

@@ -13,10 +13,10 @@ public struct CommonTableExpression: Expression {
     case materialized
     case notMaterialized
 
-    private static let _materializedTokens: Array<SQLToken> = [.materialized]
-    private static let _notMaterializedTokens: Array<SQLToken> = [.not, .materialized]
+    private static let _materializedTokens: Array<Token> = [.materialized]
+    private static let _notMaterializedTokens: Array<Token> = [.not, .materialized]
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .materialized:
         return MaterializeOption._materializedTokens

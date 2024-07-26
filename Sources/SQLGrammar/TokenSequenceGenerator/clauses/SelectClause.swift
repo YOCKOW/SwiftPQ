@@ -52,13 +52,13 @@ public struct SelectClause: Clause  {
   }
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { return _iterator.next() }
+      public func next() -> Token? { return _iterator.next() }
     }
 
     private let _query: SelectQuery

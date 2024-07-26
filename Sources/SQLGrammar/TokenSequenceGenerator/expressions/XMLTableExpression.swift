@@ -19,7 +19,7 @@ public struct XMLTableExpression: Expression {
       case notNull
       case null
 
-      private static let _pathToken = SingleToken(SQLToken.identifier("PATH"))
+      private static let _pathToken = SingleToken(Token.identifier("PATH"))
 
       public var tokens: JoinedSQLTokenSequence {
         switch self {

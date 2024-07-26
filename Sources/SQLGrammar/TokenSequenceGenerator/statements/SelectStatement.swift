@@ -25,9 +25,9 @@ internal struct AnyParenthesizedSelectStatement: TokenSequence {
   let parenthesizedSelectStatement: any SelectStatement
 
   struct Iterator: IteratorProtocol {
-    typealias Element = SQLToken
+    typealias Element = Token
     private let _iterator: AnyTokenSequenceIterator
-    func next() -> SQLToken? { _iterator.next() }
+    func next() -> Token? { _iterator.next() }
     fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
   }
   typealias Tokens = Self
@@ -223,7 +223,7 @@ public struct CombinedSelectQuery: SimpleSelectStatement {
     case intersect
     case except
 
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .union:
         return .union
@@ -234,7 +234,7 @@ public struct CombinedSelectQuery: SimpleSelectStatement {
       }
     }
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       switch token {
       case .union:
         self = .union

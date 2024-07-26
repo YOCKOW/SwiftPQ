@@ -60,7 +60,7 @@ public struct StorageParameter: TokenSequenceGenerator {
   public let value: Value?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(key, value, separator: SingleToken(SQLToken.Operator.equalTo))
+    return .compacting(key, value, separator: SingleToken(Token.Operator.equalTo))
   }
 
   public init(key: Key, value: Value? = nil) {

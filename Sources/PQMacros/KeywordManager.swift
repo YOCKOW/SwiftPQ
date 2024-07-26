@@ -999,7 +999,7 @@ public struct StaticKeywordExpander: MemberMacro {
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
     guard let sqlTokenClassDecl = declaration.as(ClassDeclSyntax.self),
-          sqlTokenClassDecl.name.text == "SQLToken"
+          sqlTokenClassDecl.name.text == "Token"
     else {
       throw Error.unsupportedType
     }
@@ -1020,7 +1020,7 @@ public struct StaticKeywordExpander: MemberMacro {
 
       result.append("""
       /// A token of keyword "\(raw: keyword)".
-      public static let \(swiftIdentifier): SQLToken = Keyword(
+      public static let \(swiftIdentifier): Token = Keyword(
         rawValue: \(StringLiteralExprSyntax(content: keyword)),
         isUnreserved: \(BooleanLiteralExprSyntax(unreserved)),
         isAvailableForColumnName: \(BooleanLiteralExprSyntax(columnName)),
@@ -1101,7 +1101,7 @@ public struct StaticKeywordExpander: MemberMacro {
               var memberExpr = MemberAccessExprSyntax(period: .periodToken(), name: identifier.identifier)
               if identifier.identifier.text == "none" || identifier.identifier.text == "`none`" {
                 // It doesn't mean `nil`!
-                memberExpr.base = .init(DeclReferenceExprSyntax(baseName: .identifier("SQLToken")))
+                memberExpr.base = .init(DeclReferenceExprSyntax(baseName: .identifier("Token")))
               }
               let returnMemberStmt = ReturnStmtSyntax(
                 returnKeyword: .keyword(.return, trailingTrivia: .space),
@@ -1160,7 +1160,7 @@ public struct StaticKeywordExpander: MemberMacro {
 
       result.append("""
       private struct __Keyword {
-        static let closures: [Character: (String) -> SQLToken?] = \(dictionaryExpr)
+        static let closures: [Character: (String) -> Token?] = \(dictionaryExpr)
       }
       """)
     }

@@ -28,13 +28,13 @@ public struct FunctionArgumentExpression: Expression {
     case .named(let name, let value):
       return JoinedSQLTokenSequence([
         name,
-        SingleToken(SQLToken.Operator.arrowSign),
+        SingleToken(Token.Operator.arrowSign),
         value
       ] as [any TokenSequenceGenerator])
     case .legacyNamed(let name, let value):
       return JoinedSQLTokenSequence([
         name,
-        SingleToken(SQLToken.Operator.colonEquals),
+        SingleToken(Token.Operator.colonEquals),
         value
       ] as [any TokenSequenceGenerator])
     }

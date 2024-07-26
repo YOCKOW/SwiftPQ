@@ -18,7 +18,7 @@ public enum TableLikeOption: CustomTokenConvertible {
   case all
 
   @inlinable
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .comments:
       return .comments
@@ -53,7 +53,7 @@ public struct TableLikeOptionList: TokenSequenceGenerator,
     case excluding(TableLikeOption)
 
     @inlinable
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .including(let option):
         return [.including, option.token]

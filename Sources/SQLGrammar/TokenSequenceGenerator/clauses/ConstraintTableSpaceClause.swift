@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-private let _usingIndexTableSpaceTokens = UnknownSQLTokenSequence<Array<SQLToken>>([
+private let _usingIndexTableSpaceTokens = UnknownSQLTokenSequence<Array<Token>>([
   .using,
   .index,
   .tablespace,

@@ -6,13 +6,13 @@
  ************************************************************************************************ */
 
 private final class _IsDistinctFrom: Segment {
-  let tokens: Array<SQLToken> = [.is, .distinct, .from]
+  let tokens: Array<Token> = [.is, .distinct, .from]
   private init() {}
   static let isDistinctFrom: _IsDistinctFrom = .init()
 }
 
 private final class _IsNotDistinctFrom: Segment {
-  let tokens: Array<SQLToken> = [.is, .not, .distinct, .from]
+  let tokens: Array<Token> = [.is, .not, .distinct, .from]
   private init() {}
   static let isNotDistinctFrom: _IsNotDistinctFrom = .init()
 }

@@ -11,10 +11,10 @@ public struct SearchClause: Clause {
     case depthFirst
     case breadthFirst
 
-    private static let _depthFirstTokens: Array<SQLToken> = [.depth, .first]
-    private static let _breadthFirstTokens: Array<SQLToken> = [.breadth, .first]
+    private static let _depthFirstTokens: Array<Token> = [.depth, .first]
+    private static let _breadthFirstTokens: Array<Token> = [.breadth, .first]
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .depthFirst:
         return Ordering._depthFirstTokens

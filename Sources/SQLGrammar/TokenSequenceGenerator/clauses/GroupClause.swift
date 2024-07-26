@@ -7,7 +7,7 @@
 
 /// An empty grouping set that is described as `empty_grouping_set` in "gram.y".
 public final class EmptyGroupingSet: TokenSequence {
-  public let tokens: Array<SQLToken> = [.leftParenthesis, .joiner, .rightParenthesis]
+  public let tokens: Array<Token> = [.leftParenthesis, .joiner, .rightParenthesis]
   private init() {}
   public static let emptyGroupingSet: EmptyGroupingSet = .init()
 }
@@ -43,7 +43,7 @@ public struct GroupingSetsClause: Clause {
   public let list: GroupingList
 
   private final class _GroupingSetsTokens: TokenSequenceGenerator {
-    let tokens: Array<SQLToken> = [.grouping, .sets]
+    let tokens: Array<Token> = [.grouping, .sets]
     private init() {}
     static let groupingSetsTokens: _GroupingSetsTokens = .init()
   }
@@ -66,13 +66,13 @@ public enum GroupingElement: TokenSequenceGenerator {
   case groupingSets(GroupingSetsClause)
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
     private let _tokens: AnyTokenSequenceGenerator
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private var _iterator: AnyTokenSequenceIterator
-      public mutating func next() -> SQLToken? { return _iterator.next() }
+      public mutating func next() -> Token? { return _iterator.next() }
       fileprivate init(_ iterator: AnyTokenSequenceIterator) {
         self._iterator = iterator
       }
@@ -151,7 +151,7 @@ public struct GroupClause: Clause {
   public let columnReferences: GroupingList
 
   private final class _GroupByTokens: Segment {
-    let tokens: Array<SQLToken> = [.group, .by]
+    let tokens: Array<Token> = [.group, .by]
     private init() {}
     static let groupByTokens: _GroupByTokens = .init()
   }

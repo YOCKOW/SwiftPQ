@@ -21,7 +21,7 @@ public protocol BinaryInfixOperatorInvocation: TokenSequenceGenerator {
   var rightOperand: RightOperand { get }
 }
 
-extension BinaryInfixOperatorInvocation where Operator: SQLToken,
+extension BinaryInfixOperatorInvocation where Operator: Token,
                                               Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.leftOperand, self.operator.asSequence, self.rightOperand)
@@ -49,13 +49,13 @@ public struct BinaryInfixTypeCastOperatorInvocation<Value>:
 {
   public typealias LeftOperand = Value
 
-  public typealias Operator = SQLToken.Operator
+  public typealias Operator = Token.Operator
 
   public typealias RightOperand = TypeName
 
   public let value: Value
 
-  public let `operator`: SQLToken.Operator = .typeCast
+  public let `operator`: Token.Operator = .typeCast
 
   public let typeName: TypeName
 
@@ -614,12 +614,12 @@ public struct BinaryInfixAndOperatorInvocation<LeftOperand, RightOperand>:
                                                          RightOperand: GeneralExpression {
   public typealias Tokens = JoinedSQLTokenSequence
   public typealias LeftOperand = LeftOperand
-  public typealias Operator = SQLToken
+  public typealias Operator = Token
   public typealias RightOperand = RightOperand
 
   public let leftOperand: LeftOperand
 
-  public let `operator`: SQLToken = .and
+  public let `operator`: Token = .and
 
   public let rightOperand: RightOperand
 
@@ -645,12 +645,12 @@ public struct BinaryInfixOrOperatorInvocation<LeftOperand, RightOperand>:
                                                          RightOperand: GeneralExpression {
   public typealias Tokens = JoinedSQLTokenSequence
   public typealias LeftOperand = LeftOperand
-  public typealias Operator = SQLToken
+  public typealias Operator = Token
   public typealias RightOperand = RightOperand
 
   public let leftOperand: LeftOperand
 
-  public let `operator`: SQLToken = .or
+  public let `operator`: Token = .or
 
   public let rightOperand: RightOperand
 
@@ -675,12 +675,12 @@ public struct BinaryInfixOverlapsOperatorInvocation: BinaryInfixOperatorInvocati
                                                      GeneralExpression {
   public typealias Tokens = JoinedSQLTokenSequence
   public typealias LeftOperand = RowExpression
-  public typealias Operator = SQLToken
+  public typealias Operator = Token
   public typealias RightOperand = RowExpression
 
   public let leftOperand: RowExpression
 
-  public let `operator`: SQLToken = .overlaps
+  public let `operator`: Token = .overlaps
 
   public let rightOperand: RowExpression
 

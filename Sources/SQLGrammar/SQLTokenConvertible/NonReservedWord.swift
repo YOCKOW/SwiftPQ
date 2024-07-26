@@ -9,13 +9,13 @@
 public struct NonReservedWord: LosslessTokenConvertible, ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
 
-  public let token: SQLToken
+  public let token: Token
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
-    case is SQLToken.Identifier:
+    case is Token.Identifier:
       self.token = token
-    case let keyword as SQLToken.Keyword where (
+    case let keyword as Token.Keyword where (
       keyword.isUnreserved ||
       keyword.isAvailableForColumnName ||
       keyword.isAvailableForTypeOrFunctionName
@@ -27,7 +27,7 @@ public struct NonReservedWord: LosslessTokenConvertible, ExpressibleByStringLite
   }
 
   public init(_ description: String) {
-    if let keyword = SQLToken.keyword(from: description), let word = Self(keyword) {
+    if let keyword = Token.keyword(from: description), let word = Self(keyword) {
       self = word
       return
     }

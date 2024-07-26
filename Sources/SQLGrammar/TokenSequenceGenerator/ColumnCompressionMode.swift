@@ -12,7 +12,7 @@ public struct ColumnCompressionMode: TokenSequenceGenerator {
     case `default`
 
     @inlinable
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .identifier(let columnIdentifier):
         return columnIdentifier.token
@@ -37,7 +37,7 @@ public struct ColumnCompressionMode: TokenSequenceGenerator {
   public let name: ModeName
 
   @inlinable
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     return [.compression, name.token]
   }
 

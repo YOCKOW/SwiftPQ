@@ -13,8 +13,8 @@ public enum OnCommitOption: TokenSequence {
   case preserveRows
 
   public final class Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let drop: Tokens = .init([.on, .commit, .drop])
 

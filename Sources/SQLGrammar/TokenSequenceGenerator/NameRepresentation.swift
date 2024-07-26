@@ -108,7 +108,7 @@ struct _DatabaseSchemaQualifiedName: AnyName, QualifiedName {
 
   let schema: SchemaName?
 
-  let name: SQLToken.Identifier
+  let name: Token.Identifier
 
   @inlinable
   var nameAsColumnIdentifier: ColumnIdentifier { ColumnIdentifier(name)! }
@@ -149,21 +149,21 @@ struct _DatabaseSchemaQualifiedName: AnyName, QualifiedName {
   }
 
   @inlinable
-  init(database: DatabaseName, schema: SchemaName, name: SQLToken.Identifier) {
+  init(database: DatabaseName, schema: SchemaName, name: Token.Identifier) {
     self.database = database
     self.schema = schema
     self.name = name
   }
 
   @inlinable
-  init(schema: SchemaName, name: SQLToken.Identifier) {
+  init(schema: SchemaName, name: Token.Identifier) {
     self.database = nil
     self.schema = schema
     self.name = name
   }
 
   @inlinable
-  init(name: SQLToken.Identifier) {
+  init(name: Token.Identifier) {
     self.database = nil
     self.schema = nil
     self.name = name
@@ -185,7 +185,7 @@ extension _DatabaseSchemaQualifiedName {
 
   private init?(_identifier: ColumnIdentifier, attributes: AttributeList?) {
     guard let attributes = attributes else {
-      guard case let name as SQLToken.Identifier = _identifier.token else {
+      guard case let name as Token.Identifier = _identifier.token else {
         return nil
       }
       self.init(name: name)
@@ -195,7 +195,7 @@ extension _DatabaseSchemaQualifiedName {
     switch attributes.names.count {
     case 1:
       guard case .columnLabel(let columnLabel) = attributes.names.first,
-            case let name as SQLToken.Identifier = columnLabel.token else {
+            case let name as Token.Identifier = columnLabel.token else {
         return nil
       }
       self.init(schema: SchemaName(_identifier), name: name)
@@ -203,7 +203,7 @@ extension _DatabaseSchemaQualifiedName {
       guard case .columnLabel(let schemaAsColumnLabel) = attributes.names.first,
             case .columnLabel(let nameAsColumnLabel) = attributes.names.last,
             let schemaAsColId = ColumnIdentifier(schemaAsColumnLabel.token),
-            case let name as SQLToken.Identifier = nameAsColumnLabel.token else {
+            case let name as Token.Identifier = nameAsColumnLabel.token else {
         return nil
       }
       self.init(
@@ -267,7 +267,7 @@ public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
 
   public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+  public var name: Token.Identifier { _databaseSchemaQualifiedName.name }
 
   public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
@@ -282,7 +282,7 @@ public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
     self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -293,13 +293,13 @@ public struct CollationName: AnyName, _DatabaseSchemaQualifiedNameConvertible {
   ) {
     self._databaseSchemaQualifiedName = .init(
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
     self._databaseSchemaQualifiedName = .init(
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -349,7 +349,7 @@ public struct CompositeTypeName: AnyName,
 
   public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+  public var name: Token.Identifier { _databaseSchemaQualifiedName.name }
 
   public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
@@ -364,7 +364,7 @@ public struct CompositeTypeName: AnyName,
     self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -375,13 +375,13 @@ public struct CompositeTypeName: AnyName,
   ) {
     self._databaseSchemaQualifiedName = .init(
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
     self._databaseSchemaQualifiedName = .init(
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -416,9 +416,9 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   public struct Identifier: LosslessTokenConvertible {
     private let _name: TypeOrFunctionName
 
-    public var token: SQLToken { return _name.token }
+    public var token: Token { return _name.token }
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       guard let name = TypeOrFunctionName(token) else { return nil }
       self._name = name
     }
@@ -432,7 +432,7 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   private let _type: _Type
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
 
     private let _name: FunctionName
 
@@ -463,7 +463,7 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   }
 
   /// Creates a name with given token. Returns `nil` if invalid token was given.
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     guard let identifier = Identifier(token) else { return nil }
     self._type = .identifier(identifier)
   }
@@ -543,7 +543,7 @@ public enum ObjectTypeAnyName: NameRepresentation {
   case textSearchTemplate
   case textSearchConfiguration
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .table:
       return [.table]
@@ -599,7 +599,7 @@ public enum OptionalNameList: TokenSequenceGenerator,
   case some(NameList)
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
 
     private let _list: OptionalNameList
 
@@ -608,7 +608,7 @@ public enum OptionalNameList: TokenSequenceGenerator,
     }
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
 
       private let _iterator: AnyTokenSequenceIterator?
 
@@ -711,7 +711,7 @@ public struct ParameterName: NameRepresentation,
                              ExpressibleByStringLiteral {
   private let _name: TypeOrFunctionName
 
-  public var token: SQLToken {
+  public var token: Token {
     return _name.token
   }
 
@@ -719,7 +719,7 @@ public struct ParameterName: NameRepresentation,
     return .init(_name.token)
   }
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     guard let name = TypeOrFunctionName(token) else { return nil }
     self._name = name
   }
@@ -780,7 +780,7 @@ public struct SequenceName: ExpressibleByStringLiteral,
 
   public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+  public var name: Token.Identifier { _databaseSchemaQualifiedName.name }
 
   public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
@@ -795,7 +795,7 @@ public struct SequenceName: ExpressibleByStringLiteral,
     self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -806,13 +806,13 @@ public struct SequenceName: ExpressibleByStringLiteral,
   ) {
     self._databaseSchemaQualifiedName = .init(
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
     self._databaseSchemaQualifiedName = .init(
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -846,7 +846,7 @@ public struct TableName: ExpressibleByStringLiteral,
 
   public var schema: SchemaName? { _databaseSchemaQualifiedName.schema }
 
-  public var name: SQLToken.Identifier { _databaseSchemaQualifiedName.name }
+  public var name: Token.Identifier { _databaseSchemaQualifiedName.name }
 
   public var identifier: ColumnIdentifier { _databaseSchemaQualifiedName.identifier }
 
@@ -861,7 +861,7 @@ public struct TableName: ExpressibleByStringLiteral,
     self._databaseSchemaQualifiedName = .init(
       database: database,
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -872,13 +872,13 @@ public struct TableName: ExpressibleByStringLiteral,
   ) {
     self._databaseSchemaQualifiedName = .init(
       schema: schema,
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
   public init(name: String, caseSensitive: Bool = false) {
     self._databaseSchemaQualifiedName = .init(
-      name: SQLToken.identifier(name, forceQuoting: caseSensitive) as! SQLToken.Identifier
+      name: Token.identifier(name, forceQuoting: caseSensitive) as! Token.Identifier
     )
   }
 
@@ -944,7 +944,7 @@ public struct TemporaryTableName: NameRepresentation {
     case unlogged
 
     @inlinable
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .localTempoary:
         return [.local, .temporary]

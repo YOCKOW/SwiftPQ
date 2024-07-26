@@ -7,13 +7,13 @@
 
 /// A name available for type or function. Described as `type_function_name` in "gram.y".
 internal struct TypeOrFunctionName: LosslessTokenConvertible {
-  let token: SQLToken
+  let token: Token
 
-  init?(_ token: SQLToken) {
+  init?(_ token: Token) {
     switch token {
-    case is SQLToken.Identifier:
+    case is Token.Identifier:
       self.token = token
-    case let keyword as SQLToken.Keyword where (
+    case let keyword as Token.Keyword where (
       keyword.isUnreserved || keyword.isAvailableForTypeOrFunctionName
     ):
       self.token = token

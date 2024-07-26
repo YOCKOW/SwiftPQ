@@ -12,7 +12,7 @@ public struct ColumnStorageMode: TokenSequenceGenerator {
     case `default`
 
     @inlinable
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .identifier(let columnIdentifier):
         return columnIdentifier.token
@@ -33,7 +33,7 @@ public struct ColumnStorageMode: TokenSequenceGenerator {
   public let name: ModeName
 
   @inlinable
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     return [.storage, name.token]
   }
 

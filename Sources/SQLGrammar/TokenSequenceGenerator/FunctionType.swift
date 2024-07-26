@@ -67,7 +67,7 @@ public struct FunctionType: TokenSequenceGenerator {
         isSet ? SingleToken(.setof) : nil,
         ref,
         SingleToken.joiner,
-        SingleToken(try! SQLToken.Operator("%")),
+        SingleToken(try! Token.Operator("%")),
         SingleToken.joiner,
         SingleToken(.type)
       )

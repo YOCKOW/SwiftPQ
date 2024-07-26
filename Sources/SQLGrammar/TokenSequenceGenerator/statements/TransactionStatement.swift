@@ -11,7 +11,7 @@ public enum TransactionKeyword: CustomTokenConvertible {
   case work
   case transaction
 
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .work:
       return .work
@@ -29,8 +29,8 @@ public enum IsolationLevel: TokenSequenceGenerator {
   case serializable
 
   public final class Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let readUncommitted: Tokens = .init([.read, .uncommitted])
     public static let readCommitted: Tokens = .init([.read, .committed])
@@ -67,23 +67,23 @@ public enum TransactionMode: TokenSequenceGenerator {
 
     public static func isolationLevel(_ level: IsolationLevel) -> Tokens {
       enum __IsolationLevel {
-        static let tokens: UnknownSQLTokenSequence<Array<SQLToken>> = .init([.isolation, .level])
+        static let tokens: UnknownSQLTokenSequence<Array<Token>> = .init([.isolation, .level])
       }
       return .init(JoinedSQLTokenSequence(__IsolationLevel.tokens, level))
     }
 
     public static let readOnly: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<SQLToken>>([.read, .only]))
+      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .only]))
     )
 
     public static let readWrite: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<SQLToken>>([.read, .write]))
+      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .write]))
     )
 
     public static let deferrable: Tokens = .init(JoinedSQLTokenSequence(SingleToken(.deferrable)))
 
     public static let notDeferrable: Tokens = .init(
-      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<SQLToken>>([.not, .deferrable]))
+      JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.not, .deferrable]))
     )
   }
 
@@ -132,8 +132,8 @@ public enum TransactionChain: TokenSequenceGenerator {
   case noChain
 
   public final class Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
     public static let chain: Tokens = .init([.and, .chain])
     public static let noChain: Tokens = .init([.and, .no, .chain])
   }

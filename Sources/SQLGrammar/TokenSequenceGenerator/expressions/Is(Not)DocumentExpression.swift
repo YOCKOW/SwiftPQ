@@ -6,13 +6,13 @@
  ************************************************************************************************ */
 
 private final class _IsDocument: Segment {
-  let tokens: Array<SQLToken> = [.is, .document]
+  let tokens: Array<Token> = [.is, .document]
   private init() {}
   static let isDocument: _IsDocument = .init()
 }
 
 private final class _IsNotDocument: Segment {
-  let tokens: Array<SQLToken> = [.is, .not, .document]
+  let tokens: Array<Token> = [.is, .not, .document]
   private init() {}
   static let isNotDocument: _IsNotDocument = .init()
 }

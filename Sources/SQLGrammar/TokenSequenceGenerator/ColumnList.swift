@@ -10,7 +10,7 @@ public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLi
   public let name: ColumnIdentifier
 
   @inlinable
-  public var token: SQLToken {
+  public var token: Token {
     return name.token
   }
 
@@ -18,7 +18,7 @@ public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLi
     self.name = name
   }
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     guard let id = ColumnIdentifier(token) else { return nil }
     self.init(id)
   }
@@ -64,12 +64,12 @@ public enum OptionalColumnList: TokenSequenceGenerator,
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private var _iterator: ColumnList.Tokens.Iterator?
       fileprivate init(_ iterator: ColumnList.Tokens.Iterator?) {
         self._iterator = iterator
       }
-      public mutating func next() -> SQLToken? { return _iterator?.next() }
+      public mutating func next() -> Token? { return _iterator?.next() }
     }
     private let _optionalColumnList: OptionalColumnList
     fileprivate init(_ optionalColumnList: OptionalColumnList) {

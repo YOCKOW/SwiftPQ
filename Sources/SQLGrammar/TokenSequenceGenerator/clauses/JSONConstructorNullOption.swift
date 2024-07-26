@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 public class JSONConstructorNullOptionTokens: Segment, TokenSequence {
-  public let tokens: Array<SQLToken>
-  fileprivate init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+  public let tokens: Array<Token>
+  fileprivate init(_ tokens: Array<Token>) { self.tokens = tokens }
 }
 
 private final class NullOnNull: JSONConstructorNullOptionTokens {

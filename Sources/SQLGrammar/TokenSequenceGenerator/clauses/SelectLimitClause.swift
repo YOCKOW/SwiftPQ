@@ -12,10 +12,10 @@ public enum SelectLimitValue: TokenSequence {
   case all
 
   public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
+    public typealias Element = Token
     private let _iterator: AnyTokenSequenceIterator
     fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-    public func next() -> SQLToken? { _iterator.next() }
+    public func next() -> Token? { _iterator.next() }
   }
 
   public typealias Tokens = Self
@@ -40,10 +40,10 @@ public struct SelectOffsetValue: TokenSequence {
   public let value: any GeneralExpression
 
   public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
+    public typealias Element = Token
     private let _iterator: AnyTokenSequenceIterator
     fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-    public func next() -> SQLToken? { _iterator.next() }
+    public func next() -> Token? { _iterator.next() }
   }
 
   public typealias Tokens = Self
@@ -71,7 +71,7 @@ public struct LimitClause: Clause {
       case first
       case next
 
-      public var token: SQLToken {
+      public var token: Token {
         switch self {
         case .first:
           return .first
@@ -87,10 +87,10 @@ public struct LimitClause: Clause {
 
       public struct Tokens: Sequence {
         public struct Iterator: IteratorProtocol {
-          public typealias Element = SQLToken
+          public typealias Element = Token
           private let _iterator: AnyTokenSequenceIterator
           fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-          public func next() -> SQLToken? { _iterator.next() }
+          public func next() -> Token? { _iterator.next() }
         }
 
         private let _count: RowCount
@@ -140,7 +140,7 @@ public struct LimitClause: Clause {
       case row
       case rows
 
-      public var token: SQLToken {
+      public var token: Token {
         switch self {
         case .row:
           return .row
@@ -155,7 +155,7 @@ public struct LimitClause: Clause {
       case only
       case withTies
 
-      public var tokens: Array<SQLToken> {
+      public var tokens: Array<Token> {
         switch self {
         case .only:
           return [.only]

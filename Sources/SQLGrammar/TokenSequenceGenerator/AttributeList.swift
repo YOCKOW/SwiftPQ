@@ -15,7 +15,7 @@ public enum AttributeName: NameRepresentation {
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
       public func next() -> Element? { return _iterator.next() }

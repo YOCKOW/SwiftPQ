@@ -16,8 +16,8 @@ public enum TableConstraintAttributeElement: TokenSequence {
   case noInherit
 
   public struct Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let notDeferrable: Tokens = .init([.not, .deferrable])
     public static let deferrable: Tokens = .init([.deferrable])
@@ -111,7 +111,7 @@ private extension Optional where Wrapped == TableConstraintAttributeSpecificatio
 public struct ExistingIndex: TokenSequenceGenerator {
   public let name: Name
 
-  private static let _usingIndexTokens = UnknownSQLTokenSequence<Array<SQLToken>>([.using, .index])
+  private static let _usingIndexTokens = UnknownSQLTokenSequence<Array<Token>>([.using, .index])
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(ExistingIndex._usingIndexTokens, name)
   }

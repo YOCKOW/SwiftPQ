@@ -10,7 +10,7 @@
 public struct DefinitionArgument: TokenSequence {
   private enum _Argument {
     case functionType(FunctionType)
-    case reservedKeyword(SQLToken.Keyword)
+    case reservedKeyword(Token.Keyword)
     case qualifiedOperator(QualifiedOperator)
     case numeric(any NumericExpression)
     case stringConstant(StringConstantExpression)
@@ -20,10 +20,10 @@ public struct DefinitionArgument: TokenSequence {
   private let _argument: _Argument
 
   public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
+    public typealias Element = Token
     private let _iterator: AnyTokenSequenceIterator
     fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
-    public func next() -> SQLToken? { return _iterator.next() }
+    public func next() -> Token? { return _iterator.next() }
   }
 
   public typealias Tokens = Self
@@ -49,8 +49,8 @@ public struct DefinitionArgument: TokenSequence {
     self._argument = .functionType(functionType)
   }
 
-  public init?(_ token: SQLToken) {
-    guard case let keyword as SQLToken.Keyword = token, keyword.isReserved else { return nil }
+  public init?(_ token: Token) {
+    guard case let keyword as Token.Keyword = token, keyword.isReserved else { return nil }
     self._argument = .reservedKeyword(keyword)
   }
 
@@ -74,7 +74,7 @@ public struct DefinitionArgument: TokenSequence {
     return .init(functionType)
   }
 
-  public static func keyword(_ token: SQLToken) -> DefinitionArgument? {
+  public static func keyword(_ token: Token) -> DefinitionArgument? {
     return .init(token)
   }
 
@@ -95,10 +95,10 @@ public struct DefinitionArgument: TokenSequence {
 
 extension DefinitionArgument {
   /// `TRUE`
-  public static let `true`: DefinitionArgument = DefinitionArgument(SQLToken.true)!
+  public static let `true`: DefinitionArgument = DefinitionArgument(Token.true)!
 
   /// `FALSE`
-  public static let `false`: DefinitionArgument = DefinitionArgument(SQLToken.false)!
+  public static let `false`: DefinitionArgument = DefinitionArgument(Token.false)!
 }
 
 
@@ -146,7 +146,7 @@ extension DefinitionArgument: ExpressibleByStringLiteral {
 public struct DefinitionElement: TokenSequenceGenerator {
   public struct Key: TokenSequenceGenerator, ExpressibleByStringLiteral {
     public let key: ColumnLabel
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       return [key.token]
     }
     public init(_ key: ColumnLabel) {
@@ -176,7 +176,7 @@ public struct DefinitionElement: TokenSequenceGenerator {
   public let value: Value?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(key, value, separator: SingleToken(SQLToken.Operator.equalTo))
+    return .compacting(key, value, separator: SingleToken(Token.Operator.equalTo))
   }
 
   public init(key: Key, value: Value? = nil) {

@@ -7,7 +7,7 @@
 
 /// Statement terminator (;)
 public final class StatementTerminator: TokenSequenceGenerator {
-  public let tokens: [SQLToken] = [.joiner, .semicolon, .newline]
+  public let tokens: [Token] = [.joiner, .semicolon, .newline]
   public static let statementTerminator: StatementTerminator = .init()
 }
 

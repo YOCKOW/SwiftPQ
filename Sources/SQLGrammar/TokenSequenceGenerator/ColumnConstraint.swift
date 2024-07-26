@@ -187,8 +187,8 @@ public enum ColumnConstraintAttribute: TokenSequenceGenerator {
   case initiallyImmediate
 
   public struct Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let deferrable: Tokens = .init([.deferrable])
     public static let notDeferrable: Tokens = .init([.not, .deferrable])
@@ -239,12 +239,12 @@ public struct ColumnQualifier: TokenSequenceGenerator {
     case collation(Collation)
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: AnyTokenSequenceIterator
       fileprivate init<S>(_ sequence: S) where S: TokenSequenceGenerator {
         self._iterator = sequence._anyIterator
       }
-      public func next() -> SQLToken? {
+      public func next() -> Token? {
         return _iterator.next()
       }
     }

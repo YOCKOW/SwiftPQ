@@ -7,13 +7,13 @@
 
 /// A type with a token representation.
 public protocol CustomTokenConvertible {
-  associatedtype Token: SQLToken = SQLToken
-  var token: Token { get }
+  associatedtype CustomToken: Token = Token
+  var token: CustomToken { get }
 }
 
 /// A type that can be represented as a token in a lossless, unambiguous way.
 public protocol LosslessTokenConvertible: CustomTokenConvertible {
-  init?(_ token: Token)
+  init?(_ token: CustomToken)
 }
 
 

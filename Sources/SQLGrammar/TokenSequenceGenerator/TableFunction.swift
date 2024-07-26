@@ -69,7 +69,7 @@ public struct ColumnDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLi
 
 /// A clause that is described as `opt_ordinality` in "gram.y".
 private final class WithOrdinalityClause: Clause {
-  let tokens: Array<SQLToken> = [.with, .ordinality]
+  let tokens: Array<Token> = [.with, .ordinality]
   private init() {}
   static let withOrdinality: WithOrdinalityClause = .init()
 }
@@ -120,7 +120,7 @@ public struct TableFunction: TokenSequenceGenerator {
     public let list: List
 
     private final class _RowsFromTokens: TokenSequenceGenerator {
-      let tokens: Array<SQLToken> = [.rows, .from]
+      let tokens: Array<Token> = [.rows, .from]
       private init() {}
       static let rowsFromTokens: _RowsFromTokens = .init()
     }

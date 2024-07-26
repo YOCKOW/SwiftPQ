@@ -11,7 +11,7 @@ public struct JSONKeyValuePair: TokenSequenceGenerator {
     case valueKeyword
     case colon
 
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .valueKeyword:
         return .value
@@ -20,7 +20,7 @@ public struct JSONKeyValuePair: TokenSequenceGenerator {
       }
     }
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       switch token {
       case .value:
         self = .valueKeyword

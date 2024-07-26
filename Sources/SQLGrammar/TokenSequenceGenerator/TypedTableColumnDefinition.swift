@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 private final class WithOptions: Segment {
-  let tokens: Array<SQLToken> = [.with, .options]
+  let tokens: Array<Token> = [.with, .options]
   private init() {}
   static let withOptions: WithOptions = .init()
 }

@@ -8,24 +8,24 @@
 /// A type that represents an operator described as `all_Op` in "gram.y".
 ///
 /// Conforming types are `MathOperator` and `GeneralOperator`.
-public protocol OperatorTokenConvertible: LosslessTokenConvertible where Token == SQLToken.Operator {
+public protocol OperatorTokenConvertible: LosslessTokenConvertible where CustomToken == Token.Operator {
   // This requirement should be automatically inherited from the parent protocol,
   // but this initializer cannot be favored from extension without this explicit requirement.
-  init?(_ operatorToken: SQLToken.Operator)
+  init?(_ operatorToken: Token.Operator)
 }
 extension OperatorTokenConvertible {
-  public init?(_ token: SQLToken) {
-    guard case let operatorToken as SQLToken.Operator = token else { return nil }
+  public init?(_ token: Token) {
+    guard case let operatorToken as Token.Operator = token else { return nil }
     self.init(operatorToken)
   }
 }
 
 /// Mathematical operator described as `MathOp` in "gram.y".
 public struct MathOperator: OperatorTokenConvertible {
-  public let token: SQLToken.Operator
+  public let token: Token.Operator
 
   @inlinable
-  public init?(_ operatorToken: SQLToken.Operator) {
+  public init?(_ operatorToken: Token.Operator) {
     guard operatorToken.isMathOperator else { return nil }
     self.token = operatorToken
   }
@@ -69,10 +69,10 @@ public struct MathOperator: OperatorTokenConvertible {
 
 /// An operator that consists of only one token that is not a math operator.
 public struct GeneralOperator: OperatorTokenConvertible {
-  public let token: SQLToken.Operator
+  public let token: Token.Operator
 
   @inlinable
-  public init?(_ operatorToken: SQLToken.Operator) {
+  public init?(_ operatorToken: Token.Operator) {
     guard !operatorToken.isMathOperator else { return nil }
     self.token = operatorToken
   }
@@ -89,7 +89,7 @@ public struct LabeledOperator: OperatorTokenSequence {
   public let `operator`: any OperatorTokenConvertible
 
   public var tokens: JoinedSQLTokenSequence {
-    var tokens: [SQLToken] = labels.map(\.token)
+    var tokens: [Token] = labels.map(\.token)
     tokens.append(`operator`.token)
     return tokens.joined(separator: dotJoiner)
   }
@@ -102,7 +102,7 @@ public struct LabeledOperator: OperatorTokenSequence {
     self.operator = `operator`
   }
 
-  public init(labels: [ColumnIdentifier] = [], _ `operator`: SQLToken.Operator) {
+  public init(labels: [ColumnIdentifier] = [], _ `operator`: Token.Operator) {
     if let mathOp = MathOperator(`operator`) {
       self.init(labels: labels, mathOp)
     } else {
@@ -114,7 +114,7 @@ public struct LabeledOperator: OperatorTokenSequence {
     self.init(labels: [schema.identifier], `operator`)
   }
 
-  public init(schema: SchemaName, _ `operator`: SQLToken.Operator) {
+  public init(schema: SchemaName, _ `operator`: Token.Operator) {
     self.init(labels: [schema.identifier], `operator`)
   }
 }
@@ -158,7 +158,7 @@ public struct QualifiedOperator: OperatorTokenSequence {
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
 
       private var _iterator: AnyTokenSequenceIterator
 
@@ -166,14 +166,14 @@ public struct QualifiedOperator: OperatorTokenSequence {
         switch qualifiedOperator._type {
         case .bare(let someOperator):
           self._iterator = AnyTokenSequenceIterator(
-            SingleTokenIterator<SQLToken.Operator>(someOperator.token)
+            SingleTokenIterator<Token.Operator>(someOperator.token)
           )
         case .constructor(let operatorConstructor):
           self._iterator = operatorConstructor._anyIterator
         }
       }
 
-      public mutating func next() -> SQLToken? {
+      public mutating func next() -> Token? {
         return _iterator.next()
       }
     }
@@ -231,10 +231,10 @@ public struct SubqueryOperator: OperatorTokenSequence {
 
     struct Tokens: Sequence {
       struct Iterator: IteratorProtocol {
-        typealias Element = SQLToken
+        typealias Element = Token
         private let _iterator: AnyTokenSequenceIterator
         init(_ iterator: AnyTokenSequenceIterator)  { self._iterator = iterator }
-        func next() -> SQLToken? { return _iterator.next() }
+        func next() -> Token? { return _iterator.next() }
       }
       private let _operator: _Operator
       fileprivate init(_ operator: _Operator) { self._operator = `operator` }
@@ -265,10 +265,10 @@ public struct SubqueryOperator: OperatorTokenSequence {
 
   public struct Tokens: Sequence {
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
       private let _iterator: _Operator.Tokens.Iterator
       fileprivate init(_ iterator: _Operator.Tokens.Iterator) { self._iterator = iterator }
-      public func next() -> SQLToken? { return _iterator.next() }
+      public func next() -> Token? { return _iterator.next() }
     }
     private let _operator: _Operator
     fileprivate init(_ operator: _Operator) { self._operator = `operator` }

@@ -6,12 +6,12 @@
  ************************************************************************************************ */
 
 public final class LeftParenthesis: Segment {
-  public let tokens: [SQLToken] = [.leftParenthesis, .joiner]
+  public let tokens: [Token] = [.leftParenthesis, .joiner]
   static let leftParenthesis: LeftParenthesis = .init()
 }
 
 public final class RightParenthesis: Segment {
-  public let tokens: [SQLToken] = [.joiner, .rightParenthesis]
+  public let tokens: [Token] = [.joiner, .rightParenthesis]
   public static let rightParenthesis: RightParenthesis = .init()
 }
 

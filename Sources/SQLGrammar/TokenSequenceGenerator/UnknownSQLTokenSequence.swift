@@ -7,7 +7,7 @@
 
 /// Unknown sequence of tokens.
 internal final class UnknownSQLTokenSequence<Base>: TokenSequenceGenerator where Base: Sequence,
-                                                                           Base.Element: SQLToken {
+                                                                           Base.Element: Token {
   typealias Element = Base.Element
   typealias Tokens = Base
 

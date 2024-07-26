@@ -18,11 +18,11 @@ public struct RelationExpression: Expression, ExpressibleByStringLiteral {
     case true:
       return JoinedSQLTokenSequence([
         tableName,
-        SQLToken.asterisk.asSequence,
+        Token.asterisk.asSequence,
       ] as [any TokenSequenceGenerator])
     case false:
       return JoinedSQLTokenSequence([
-        SQLToken.only.asSequence,
+        Token.only.asSequence,
         tableName,
       ] as [any TokenSequenceGenerator])
     default: // ????

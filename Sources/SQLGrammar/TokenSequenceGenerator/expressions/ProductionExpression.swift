@@ -62,10 +62,10 @@ public protocol SingleTokenConstantExpression: ConstantExpression
   where Self.Tokens == Array<Self.ConstantToken>
 {
   /// A token that represents the constant value.
-  associatedtype ConstantToken: SQLToken
+  associatedtype ConstantToken: Token
 
   var token: ConstantToken { get }
-  init?(_ token: SQLToken)
+  init?(_ token: Token)
 }
 
 extension SingleTokenConstantExpression {
@@ -80,13 +80,13 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
                                                  ExpressibleByIntegerLiteral {
   public typealias IntegerLiteralType = UInt64
 
-  public typealias ConstantToken = SQLToken.NumericConstant
+  public typealias ConstantToken = Token.NumericConstant
 
-  public let token: SQLToken.NumericConstant
+  public let token: Token.NumericConstant
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     guard
-      case let numericConstantToken as SQLToken.NumericConstant = token,
+      case let numericConstantToken as Token.NumericConstant = token,
       numericConstantToken.isInteger
     else {
       return nil
@@ -95,7 +95,7 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
   }
 
   public init<T>(_ uint: T) where T: SQLIntegerType {
-    self.token = SQLToken.NumericConstant.Integer<T>(uint)
+    self.token = Token.NumericConstant.Integer<T>(uint)
   }
 
   public init(integerLiteral value: UInt64) {
@@ -107,13 +107,13 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
 public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
                                                ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Double
-  public typealias ConstantToken = SQLToken.NumericConstant
+  public typealias ConstantToken = Token.NumericConstant
 
-  public let token: SQLToken.NumericConstant
+  public let token: Token.NumericConstant
 
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     guard
-      case let numericConstantToken as SQLToken.NumericConstant = token,
+      case let numericConstantToken as Token.NumericConstant = token,
       numericConstantToken.isFloat
     else {
       return nil
@@ -125,7 +125,7 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
     if float < 0 {
       return nil
     }
-    self.token = SQLToken.NumericConstant.Float<T>(float)
+    self.token = Token.NumericConstant.Float<T>(float)
   }
 
   public init(floatLiteral value: FloatLiteralType) {
@@ -139,17 +139,17 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
 /// String constant representation, which is described as `Sconst` (`SCONST`) in "gram.y".
 public struct StringConstantExpression: SingleTokenConstantExpression, ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
-  public typealias ConstantToken = SQLToken.StringConstant
+  public typealias ConstantToken = Token.StringConstant
 
-  public let token: SQLToken.StringConstant
+  public let token: Token.StringConstant
 
-  public init?(_ token: SQLToken) {
-    guard case let strToken as SQLToken.StringConstant = token else { return nil }
+  public init?(_ token: Token) {
+    guard case let strToken as Token.StringConstant = token else { return nil }
     self.token = strToken
   }
 
   public init<S>(_ string: S, encodingIsUTF8: Bool = true) where S: StringProtocol {
-    self.token = SQLToken.StringConstant(rawValue: String(string), encodingIsUTF8: encodingIsUTF8)
+    self.token = Token.StringConstant(rawValue: String(string), encodingIsUTF8: encodingIsUTF8)
   }
 
   public init(stringLiteral value: StringLiteralType) {
@@ -160,12 +160,12 @@ public struct StringConstantExpression: SingleTokenConstantExpression, Expressib
 
 /// Bit-string constant representation, which is described as `BCONST` and `XCONST` in "gram.y".
 public struct BitStringConstantExpression: SingleTokenConstantExpression {
-  public typealias ConstantToken = SQLToken.BitStringConstant
+  public typealias ConstantToken = Token.BitStringConstant
 
-  public let token: SQLToken.BitStringConstant
+  public let token: Token.BitStringConstant
   
-  public init?(_ token: SQLToken) {
-    guard case let bToken as SQLToken.BitStringConstant = token else { return nil }
+  public init?(_ token: Token) {
+    guard case let bToken as Token.BitStringConstant = token else { return nil }
     self.token = bToken
   }
 }
@@ -190,7 +190,7 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
 
   public let modifiers: FunctionArgumentList?
 
-  public let string: SQLToken.StringConstant
+  public let string: Token.StringConstant
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence.compacting(
@@ -203,7 +203,7 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
   public init(
     typeName: FunctionName,
     modifiers: FunctionArgumentList? = nil,
-    string: SQLToken.StringConstant
+    string: Token.StringConstant
   ) {
     self.typeName = typeName
     self.modifiers = modifiers
@@ -213,9 +213,9 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
   public init?(
     typeName: FunctionName,
     modifiers: FunctionArgumentList? = nil,
-    string: SQLToken
+    string: Token
   ) {
-    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+    guard case let stringConstantToken as Token.StringConstant = string else {
       return nil
     }
     self.init(typeName: typeName, modifiers: modifiers, string: stringConstantToken)
@@ -226,7 +226,7 @@ public struct GenericTypeCastStringLiteralSyntax: ConstantExpression {
     modifiers: FunctionArgumentList? = nil,
     string: String
   ) {
-    self.init(typeName: typeName, modifiers: modifiers, string: SQLToken.string(string))
+    self.init(typeName: typeName, modifiers: modifiers, string: Token.string(string))
   }
 
   public init?(typeName: TypeName, string: String) {
@@ -251,26 +251,26 @@ where Const: ConstantTypeName {
   
   public let constantTypeName: Const
 
-  public let string: SQLToken.StringConstant
+  public let string: Token.StringConstant
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(constantTypeName, StringConstantExpression(string)!)
   }
 
-  public init(constantTypeName: Const, string: SQLToken.StringConstant) {
+  public init(constantTypeName: Const, string: Token.StringConstant) {
     self.constantTypeName = constantTypeName
     self.string = string
   }
 
-  public init?(constantTypeName: Const, string: SQLToken) {
-    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+  public init?(constantTypeName: Const, string: Token) {
+    guard case let stringConstantToken as Token.StringConstant = string else {
       return nil
     }
     self.init(constantTypeName: constantTypeName, string: stringConstantToken)
   }
 
   public init(constantTypeName: Const, string: String) {
-    self.init(constantTypeName: constantTypeName, string: SQLToken.string(string))!
+    self.init(constantTypeName: constantTypeName, string: Token.string(string))!
   }
 }
 
@@ -279,7 +279,7 @@ where Const: ConstantTypeName {
 public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
   public typealias Option = IntervalOption
 
-  public let string: SQLToken.StringConstant
+  public let string: Token.StringConstant
 
   public let option: Option?
 
@@ -302,59 +302,59 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
     }
   }
 
-  public init(string: SQLToken.StringConstant, option: Option? = nil) {
+  public init(string: Token.StringConstant, option: Option? = nil) {
     self.string = string
     self.option = option
   }
 
-  public init?(string: SQLToken, option: Option? = nil) {
-    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+  public init?(string: Token, option: Option? = nil) {
+    guard case let stringConstantToken as Token.StringConstant = string else {
       return nil
     }
     self.init(string: stringConstantToken, option: option)
   }
 
   public init?(string: String, option: Option? = nil) {
-    self.init(string: SQLToken.string(string), option: option)
+    self.init(string: Token.string(string), option: option)
   }
 
-  public init(string: SQLToken.StringConstant, fields: IntervalFieldsPhrase) {
+  public init(string: Token.StringConstant, fields: IntervalFieldsPhrase) {
     self.string = string
     self.option = .fields(fields)
   }
 
-  public init?(string: SQLToken, fields: IntervalFieldsPhrase) {
-    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+  public init?(string: Token, fields: IntervalFieldsPhrase) {
+    guard case let stringConstantToken as Token.StringConstant = string else {
       return nil
     }
     self.init(string: stringConstantToken, fields: fields)
   }
 
   public init?(string: String, fields: IntervalFieldsPhrase) {
-    self.init(string: SQLToken.string(string), fields: fields)
+    self.init(string: Token.string(string), fields: fields)
   }
 
-  public init(string: SQLToken.StringConstant, precision: UnsignedIntegerConstantExpression) {
+  public init(string: Token.StringConstant, precision: UnsignedIntegerConstantExpression) {
     self.string = string
     self.option = .precision(precision)
   }
 
-  public init?(string: SQLToken, precision: UnsignedIntegerConstantExpression) {
-    guard case let stringConstantToken as SQLToken.StringConstant = string else {
+  public init?(string: Token, precision: UnsignedIntegerConstantExpression) {
+    guard case let stringConstantToken as Token.StringConstant = string else {
       return nil
     }
     self.init(string: stringConstantToken, precision: precision)
   }
 
   public init?(string: String, precision: UnsignedIntegerConstantExpression) {
-    self.init(string: SQLToken.string(string), precision: precision)
+    self.init(string: Token.string(string), precision: precision)
   }
 }
 
 /// A boolean constant as an expression: `TRUE` or `FALSE`.
 public class BooleanConstantExpression: ConstantExpression {
   public let value: Bool
-  public let tokens: Array<SQLToken>
+  public let tokens: Array<Token>
 
   private init(_ value: Bool) {
     self.value = value
@@ -381,7 +381,7 @@ public class BooleanConstantExpression: ConstantExpression {
 
 /// `NULL` as an expression.
 public final class NullConstantExpression: ConstantExpression {
-  public let tokens: Array<SQLToken> = [.null]
+  public let tokens: Array<Token> = [.null]
   public static let null: NullConstantExpression = .init()
 }
 
@@ -390,7 +390,7 @@ public final class NullConstantExpression: ConstantExpression {
 /// An expression of positional paramter and its indirection,
 ///  that is described as `PARAM opt_indirection` in "gram.y".
 public struct PositionalParameterExpression: ProductionExpression {
-  public let parameter: SQLToken.PositionalParameter
+  public let parameter: Token.PositionalParameter
 
   public let indirection: Indirection?
 
@@ -398,13 +398,13 @@ public struct PositionalParameterExpression: ProductionExpression {
     return JoinedSQLTokenSequence.compacting(SingleToken(parameter), indirection)
   }
 
-  public init(_ parameter: SQLToken.PositionalParameter, indirection: Indirection? = nil) {
+  public init(_ parameter: Token.PositionalParameter, indirection: Indirection? = nil) {
     self.parameter = parameter
     self.indirection = indirection
   }
 
-  public init?(_ token: SQLToken, indirection: Indirection? = nil) {
-    guard case let parameterToken as SQLToken.PositionalParameter = token else {
+  public init?(_ token: Token, indirection: Indirection? = nil) {
+    guard case let parameterToken as Token.PositionalParameter = token else {
       return nil
     }
     self.parameter = parameterToken

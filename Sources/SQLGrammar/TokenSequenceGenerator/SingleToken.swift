@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-public struct SingleTokenIterator<T>: IteratorProtocol where T: SQLToken {
+public struct SingleTokenIterator<T>: IteratorProtocol where T: Token {
   public let token: T
   private var _finished: Bool = false
 
@@ -24,10 +24,10 @@ public struct SingleTokenIterator<T>: IteratorProtocol where T: SQLToken {
 
 /// A type that contains only one token, but conforms to `SQLTokenSequence`.
 public struct SingleToken: TokenSequence {
-  public let token: SQLToken
+  public let token: Token
 
   @inlinable
-  internal init(_ token: SQLToken) {
+  internal init(_ token: Token) {
     self.token = token
   }
 
@@ -37,26 +37,26 @@ public struct SingleToken: TokenSequence {
   }
 
   public typealias Tokens = Self
-  public typealias Iterator = SingleTokenIterator<SQLToken>
+  public typealias Iterator = SingleTokenIterator<Token>
 
   public func makeIterator() -> Iterator {
     return .init(token)
   }
 
   public var isPositionalParameter: Bool {
-    return token is SQLToken.PositionalParameter
+    return token is Token.PositionalParameter
   }
 
   public var isIdentifier: Bool {
-    return token is SQLToken.Identifier || token is SQLToken.DelimitedIdentifier
+    return token is Token.Identifier || token is Token.DelimitedIdentifier
   }
 
   public var isInteger: Bool {
-    return (token as? SQLToken.NumericConstant)?.isInteger == true
+    return (token as? Token.NumericConstant)?.isInteger == true
   }
 
   public var isFloat: Bool {
-    return (token as? SQLToken.NumericConstant)?.isFloat == true
+    return (token as? Token.NumericConstant)?.isFloat == true
   }
 
   public static func positionalParameter(_ position: UInt) throws -> SingleToken {
@@ -82,7 +82,7 @@ public struct SingleToken: TokenSequence {
   public static let joiner: SingleToken = .init(.joiner)
 }
 
-internal extension SQLToken {
+internal extension Token {
   @inlinable
   var asSequence: some TokenSequence { return SingleToken(self) }
 }

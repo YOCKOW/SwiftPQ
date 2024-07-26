@@ -27,7 +27,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
       case all
       case distinct
 
-      public var token: SQLToken {
+      public var token: Token {
         switch self {
         case .all:
           return .all
@@ -36,7 +36,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
         }
       }
 
-      public init?(_ token: SQLToken) {
+      public init?(_ token: Token) {
         switch token {
         case .all:
           self = .all
@@ -255,7 +255,7 @@ public struct AggregateWindowFunction: FunctionExpression, ValueExpression {
 // MARK: - CommonFunctionSubexpression a.k.a. func_expr_common_subexpr
 
 private final class _CollationFor: Segment {
-  let tokens: Array<SQLToken> = [.collation, .for]
+  let tokens: Array<Token> = [.collation, .for]
   static let collationFor: _CollationFor = .init()
 }
 
@@ -274,13 +274,13 @@ public struct CollationFor<Expression>: CommonFunctionSubexpression where Expres
 
 /// A representation of `CURRENT_DATE`.
 public final class CurrentDate: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.currentDate]
+  public let tokens: Array<Token> = [.currentDate]
   public static let currentDate: CurrentDate = .init()
 }
 
 /// A type of function that returns value related to the current date and time.
 public protocol CurrentTimeExpression: CommonFunctionSubexpression {
-  var function: SQLToken { get }
+  var function: Token { get }
   var precision: UnsignedIntegerConstantExpression? { get }
 }
 extension CurrentTimeExpression {
@@ -294,7 +294,7 @@ extension CurrentTimeExpression {
 
 /// A representation of `CURRENT_TIME` or `CURRENT_TIME(precision)`
 public struct CurrentTime: CurrentTimeExpression, CommonFunctionSubexpression {
-  public let function: SQLToken = .currentTime
+  public let function: Token = .currentTime
   public let precision: UnsignedIntegerConstantExpression?
 
   public init(precision: UnsignedIntegerConstantExpression? = nil) {
@@ -304,7 +304,7 @@ public struct CurrentTime: CurrentTimeExpression, CommonFunctionSubexpression {
 
 /// A representation of `CURRENT_TIMESTAMP` or `CURRENT_TIMESTAMP(precision)`
 public struct CurrentTimestamp: CurrentTimeExpression, CommonFunctionSubexpression {
-  public let function: SQLToken = .currentTimestamp
+  public let function: Token = .currentTimestamp
   public let precision: UnsignedIntegerConstantExpression?
 
   public init(precision: UnsignedIntegerConstantExpression? = nil) {
@@ -314,7 +314,7 @@ public struct CurrentTimestamp: CurrentTimeExpression, CommonFunctionSubexpressi
 
 /// A representation of `LOCALTIME` or `LOCALTIME(precision)`
 public struct LocalTime: CurrentTimeExpression, CommonFunctionSubexpression {
-  public let function: SQLToken = .localtime
+  public let function: Token = .localtime
   public let precision: UnsignedIntegerConstantExpression?
 
   public init(precision: UnsignedIntegerConstantExpression? = nil) {
@@ -324,7 +324,7 @@ public struct LocalTime: CurrentTimeExpression, CommonFunctionSubexpression {
 
 /// A representation of `LOCALTIMESTAMP` or `LOCALTIMESTAMP(precision)`
 public struct LocalTimestamp: CurrentTimeExpression, CommonFunctionSubexpression {
-  public let function: SQLToken = .localtimestamp
+  public let function: Token = .localtimestamp
   public let precision: UnsignedIntegerConstantExpression?
 
   public init(precision: UnsignedIntegerConstantExpression? = nil) {
@@ -334,43 +334,43 @@ public struct LocalTimestamp: CurrentTimeExpression, CommonFunctionSubexpression
 
 /// A representation of `CURRENT_ROLE`.
 public final class CurrentRole: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.currentRole]
+  public let tokens: Array<Token> = [.currentRole]
   public static let currentRole: CurrentDate = .init()
 }
 
 /// A representation of `CURRENT_USER`.
 public final class CurrentUser: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.currentUser]
+  public let tokens: Array<Token> = [.currentUser]
   public static let currentUser: CurrentUser = .init()
 }
 
 /// A representation of `SESSION_USER`.
 public final class SessionUser: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.sessionUser]
+  public let tokens: Array<Token> = [.sessionUser]
   public static let sessionUser: SessionUser = .init()
 }
 
 /// A representation of `SYSTEM_USER`.
 public final class SystemUser: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.systemUser]
+  public let tokens: Array<Token> = [.systemUser]
   public static let systemUser: SystemUser = .init()
 }
 
 /// A representation of `USER`.
 public final class User: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.user]
+  public let tokens: Array<Token> = [.user]
   public static let user: User = .init()
 }
 
 /// A representation of `CURRENT_CATALOG`.
 public final class CurrentCatalog: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.currentCatalog]
+  public let tokens: Array<Token> = [.currentCatalog]
   public static let currentCatalog: CurrentCatalog = .init()
 }
 
 /// A representation of `CURRENT_SCHEMA`.
 public final class CurrentSchema: CommonFunctionSubexpression {
-  public let tokens: Array<SQLToken> = [.currentSchema]
+  public let tokens: Array<Token> = [.currentSchema]
   public static let currentSchema: CurrentSchema = .init()
 }
 
@@ -399,13 +399,13 @@ public struct ExtractFunction: CommonFunctionSubexpression {
   /// A token that selects what field to extract from the source value.
   /// It corresponds to `extract_arg` in "gram.y".
   public struct Field: LosslessTokenConvertible {
-    public let token: SQLToken
+    public let token: Token
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       switch token {
-      case is SQLToken.Identifier:
+      case is Token.Identifier:
         self.token = token
-      case let keyword as SQLToken.Keyword:
+      case let keyword as Token.Keyword:
         guard (
           keyword == .year ||
           keyword == .month ||
@@ -417,7 +417,7 @@ public struct ExtractFunction: CommonFunctionSubexpression {
           return nil
         }
         self.token = keyword
-      case is SQLToken.StringConstant:
+      case is Token.StringConstant:
         self.token = token
       default:
         return nil
@@ -799,7 +799,7 @@ public struct TrimFunction: CommonFunctionSubexpression {
     case trailing
     case both
 
-    public var token: SQLToken {
+    public var token: Token {
       switch self {
       case .leading:
         return .leading
@@ -810,7 +810,7 @@ public struct TrimFunction: CommonFunctionSubexpression {
       }
     }
 
-    public init?(_ token: SQLToken) {
+    public init?(_ token: Token) {
       switch token {
       case .leading:
         self = .leading
@@ -1159,7 +1159,7 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
     case noValue
 
     private final class _NoValue: Segment {
-      let tokens: Array<SQLToken> = [.version, .no, .value]
+      let tokens: Array<Token> = [.version, .no, .value]
       static let noValue: _NoValue = .init()
     }
     private static let _noValueTokens: JoinedSQLTokenSequence = .init(_NoValue.noValue)
@@ -1181,11 +1181,11 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
     case no
     case noValue
 
-    private static let _yesTokens: Array<SQLToken> = [.standalone, .yes]
-    private static let _noTokens: Array<SQLToken> = [.standalone, .no]
-    private static let _noValueTokens: Array<SQLToken> = [.standalone, .no, .value]
+    private static let _yesTokens: Array<Token> = [.standalone, .yes]
+    private static let _noTokens: Array<Token> = [.standalone, .no]
+    private static let _noValueTokens: Array<Token> = [.standalone, .no, .value]
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .yes:
         return Standalone._yesTokens
@@ -1236,10 +1236,10 @@ public struct XMLSerializeFunction: CommonFunctionSubexpression {
     case indent
     case noIndent
 
-    private static let _indentTokens: Array<SQLToken> = [.indent]
-    private static let _noIndentTokens: Array<SQLToken> = [.no, .indent]
+    private static let _indentTokens: Array<Token> = [.indent]
+    private static let _noIndentTokens: Array<Token> = [.no, .indent]
 
-    public var tokens: Array<SQLToken> {
+    public var tokens: Array<Token> {
       switch self {
       case .indent:
         return IndentOption._indentTokens

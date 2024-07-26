@@ -14,12 +14,12 @@ public enum LockingStrength: Segment {
   case share
   case keyShare
 
-  private static let _forUpdateTokens: Array<SQLToken> = [.for, .update]
-  private static let _forNoKeyUpdateTokens: Array<SQLToken> = [.for, .no, .key, .update]
-  private static let _forShareTokens: Array<SQLToken> = [.for, .share]
-  private static let _forKeyShareTokens: Array<SQLToken> = [.for, .key, .share]
+  private static let _forUpdateTokens: Array<Token> = [.for, .update]
+  private static let _forNoKeyUpdateTokens: Array<Token> = [.for, .no, .key, .update]
+  private static let _forShareTokens: Array<Token> = [.for, .share]
+  private static let _forKeyShareTokens: Array<Token> = [.for, .key, .share]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .update:
       return LockingStrength._forUpdateTokens
@@ -60,10 +60,10 @@ public enum LockingWaitOption: Segment {
   case noWait
   case skip
 
-  private static let _noWaitTokens: Array<SQLToken> = [.nowait]
-  private static let _skipTokens: Array<SQLToken> = [.skip, .locked]
+  private static let _noWaitTokens: Array<Token> = [.nowait]
+  private static let _skipTokens: Array<Token> = [.skip, .locked]
 
-  public var tokens: Array<SQLToken> {
+  public var tokens: Array<Token> {
     switch self {
     case .noWait:
       return LockingWaitOption._noWaitTokens
@@ -149,7 +149,7 @@ public struct LockingClause: Clause {
     case readOnly
     case others(LockingModeList)
 
-    private static let _readOnlyTokens: Array<SQLToken> = [.for, .read, .only]
+    private static let _readOnlyTokens: Array<Token> = [.for, .read, .only]
 
     var tokens: AnyTokenSequenceGenerator.Tokens {
       switch self {
@@ -178,10 +178,10 @@ public struct LockingClause: Clause {
   }
 
   public struct Tokens: Sequence {
-    public typealias Element = SQLToken
+    public typealias Element = Token
 
     public struct Iterator: IteratorProtocol {
-      public typealias Element = SQLToken
+      public typealias Element = Token
 
       private let _iterator: AnyTokenSequenceIterator
 
@@ -189,7 +189,7 @@ public struct LockingClause: Clause {
         self._iterator = iterator
       }
 
-      public func next() -> SQLToken? {
+      public func next() -> Token? {
         return _iterator.next()
       }
     }

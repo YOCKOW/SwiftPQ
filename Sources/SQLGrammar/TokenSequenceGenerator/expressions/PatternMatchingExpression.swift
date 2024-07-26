@@ -35,7 +35,7 @@ extension PatternMatchingGeneralExpression where Self.Tokens == JoinedSQLTokenSe
 /// Representation of `LIKE` expression described as `a_expr LIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct LikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.like]
+    public let tokens: Array<Token> = [.like]
     private init() {}
     public static let like: Operator = .init()
   }
@@ -72,7 +72,7 @@ extension GeneralExpression {
 /// Representation of `NOT LIKE` expression described as `a_expr NOT_LA LIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotLikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.not, .like]
+    public let tokens: Array<Token> = [.not, .like]
     private init() {}
     public static let notLike: Operator = .init()
   }
@@ -109,7 +109,7 @@ extension GeneralExpression {
 /// Representation of `ILIKE` expression described as `a_expr ILIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct CaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.ilike]
+    public let tokens: Array<Token> = [.ilike]
     private init() {}
     public static let iLike: Operator = .init()
   }
@@ -146,7 +146,7 @@ extension GeneralExpression {
 /// Representation of `NOT ILIKE` expression described as `a_expr NOT_LA ILIKE a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotCaseInsensitiveLikeExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.not, .ilike]
+    public let tokens: Array<Token> = [.not, .ilike]
     private init() {}
     public static let notIlike: Operator = .init()
   }
@@ -183,7 +183,7 @@ extension GeneralExpression {
 /// Representation of `SIMILAR TO` expression described as `a_expr SIMILAR TO a_expr [ESCAPE a_expr]` in "gram.y".
 public struct SimilarToExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.similar, .to]
+    public let tokens: Array<Token> = [.similar, .to]
     private init() {}
     public static let similarTo: Operator = .init()
   }
@@ -220,7 +220,7 @@ extension GeneralExpression {
 /// Representation of `NOT SIMILAR TO` expression described as `a_expr NOT_LA SIMILAR TO a_expr [ESCAPE a_expr]` in "gram.y".
 public struct NotSimilarToExpression: PatternMatchingGeneralExpression {
   public final class Operator: Segment {
-    public let tokens: Array<SQLToken> = [.not, .similar, .to]
+    public let tokens: Array<Token> = [.not, .similar, .to]
     private init() {}
     public static let notSimilarTo: Operator = .init()
   }

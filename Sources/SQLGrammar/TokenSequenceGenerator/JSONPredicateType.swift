@@ -14,8 +14,8 @@ public enum JSONPredicateType: TokenSequence {
   case jsonScalar
 
   public final class Tokens: TokenSequence {
-    public let tokens: Array<SQLToken>
-    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public let tokens: Array<Token>
+    private init(_ tokens: Array<Token>) { self.tokens = tokens }
 
     public static let json: Tokens = .init([.json])
     public static let jsonValue: Tokens = .init([.json, .value])

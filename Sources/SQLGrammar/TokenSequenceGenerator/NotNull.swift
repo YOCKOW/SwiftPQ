@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 internal final class NotNull: Segment {
-  let tokens: Array<SQLToken> = [.not, .null]
+  let tokens: Array<Token> = [.not, .null]
   private init() {}
   static let notNull: NotNull = .init()
 }

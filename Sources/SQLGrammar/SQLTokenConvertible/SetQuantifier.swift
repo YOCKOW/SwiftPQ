@@ -11,7 +11,7 @@ public enum SetQuantifier: LosslessTokenConvertible {
   case distinct
 
   @inlinable
-  public var token: SQLToken {
+  public var token: Token {
     switch self {
     case .all:
       return .all
@@ -21,7 +21,7 @@ public enum SetQuantifier: LosslessTokenConvertible {
   }
 
   @inlinable
-  public init?(_ token: SQLToken) {
+  public init?(_ token: Token) {
     switch token {
     case .all:
       self = .all
