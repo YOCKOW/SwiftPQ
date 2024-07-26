@@ -13,8 +13,21 @@ import XCTest
 #if canImport(PQMacros)
 import PQMacros
 
-let testMacros: [String: Macro.Type] = [:]
+let testMacros: [String: Macro.Type] = [
+  "const": ConstantExpressionMacro.self,
+]
 #endif
 
 final class PQMacrosTests: XCTestCase {
+  func test_const() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      #"#const("string constant")"#,
+      expandedSource: #"StringConstantExpression("string constant")"#,
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
 }

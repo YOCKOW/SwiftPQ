@@ -2213,3 +2213,11 @@ final class SQLGrammarStatementTests: XCTestCase {
     __assertDescription(.rollbackPrepared("myTransaction"), "ROLLBACK PREPARED 'myTransaction'")
   }
 }
+
+
+final class SQLGrammarMacroExpansionTests: XCTestCase {
+  func test_const() {
+    XCTAssertEqual(#const("My String").description, #"'My String'"#)
+  }
+}
+
