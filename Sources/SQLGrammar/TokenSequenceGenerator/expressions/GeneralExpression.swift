@@ -19,7 +19,7 @@ public struct CollationExpression: GeneralExpression {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence([
       expression,
-      SingleToken(.collate),
+      SingleToken.collate,
       collation,
     ])
   }
@@ -82,9 +82,9 @@ public struct IsNullExpression: GeneralExpression {
 
   public var tokens: JoinedSQLTokenSequence {
     if useOneKeywordSyntax {
-      return JoinedSQLTokenSequence([value, SingleToken(.isnull)])
+      return JoinedSQLTokenSequence([value, SingleToken.isnull])
     }
-    return JoinedSQLTokenSequence([value, SingleToken(.is), SingleToken(.null)])
+    return JoinedSQLTokenSequence([value, SingleToken.is, SingleToken.null])
   }
 
   public init(value: any GeneralExpression) {
@@ -114,7 +114,7 @@ public struct IsNotNullExpression: GeneralExpression {
 
   public var tokens: JoinedSQLTokenSequence {
     if useOneKeywordSyntax {
-      return JoinedSQLTokenSequence([value, SingleToken(.notnull)])
+      return JoinedSQLTokenSequence([value, SingleToken.notnull])
     }
     return JoinedSQLTokenSequence([value, _IsNotNull.isNotNull])
   }
@@ -287,14 +287,14 @@ public struct BetweenExpression: GeneralExpression {
       var sequences: [any TokenSequenceGenerator] = []
       switch isSymmetric {
       case true:
-        sequences.append(SingleToken(.symmetric))
+        sequences.append(SingleToken.symmetric)
       case false:
-        sequences.append(SingleToken(.asymmetric))
+        sequences.append(SingleToken.asymmetric)
       default:
         break
       }
       sequences.append(
-        JoinedSQLTokenSequence([lowerEndpoint, upperEndpoint], separator: SingleToken(.and))
+        JoinedSQLTokenSequence([lowerEndpoint, upperEndpoint], separator: SingleToken.and)
       )
       return JoinedSQLTokenSequence(sequences)
     }
@@ -314,7 +314,7 @@ public struct BetweenExpression: GeneralExpression {
   public var range: Range
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([value, range], separator: SingleToken(.between))
+    return JoinedSQLTokenSequence([value, range], separator: SingleToken.between)
   }
 
   public init(value: any GeneralExpression, range: Range) {
@@ -430,7 +430,7 @@ public struct InExpression: GeneralExpression {
   public let subquery: Subquery
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([value, subquery], separator: SingleToken(.in))
+    return JoinedSQLTokenSequence([value, subquery], separator: SingleToken.in)
   }
 
   public init(_ value: any GeneralExpression, in subquery: Subquery) {
@@ -671,7 +671,7 @@ public struct UniquePredicateExpression: GeneralExpression {
   }
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(SingleToken(.unique), nullTreatment, _subquery)
+    return .compacting(SingleToken.unique, nullTreatment, _subquery)
   }
 
   public init<S>(
@@ -701,7 +701,7 @@ public struct IsNormalizedExpression: GeneralExpression {
   public let form: UnicodeNormalizationForm?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting([text, SingleToken(.is), form?.asSequence, SingleToken(.normalized)])
+    return .compacting([text, SingleToken.is, form?.asSequence, SingleToken.normalized])
   }
 
   public init(text: any GeneralExpression, form: UnicodeNormalizationForm? = nil) {
@@ -727,7 +727,7 @@ public struct IsNotNormalizedExpression: GeneralExpression {
   public let form: UnicodeNormalizationForm?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting([text, SingleToken(.is), SingleToken(.not), form?.asSequence, SingleToken(.normalized)])
+    return .compacting([text, SingleToken.is, SingleToken.not, form?.asSequence, SingleToken.normalized])
   }
 
   public init(text: any GeneralExpression, form: UnicodeNormalizationForm? = nil) {
@@ -756,7 +756,7 @@ public struct IsJSONTypeExpression: GeneralExpression {
   public let keyUniquenessOption: JSONKeyUniquenessOption?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting([value, SingleToken(.is), type, keyUniquenessOption])
+    return .compacting([value, SingleToken.is, type, keyUniquenessOption])
   }
 
   public init(
@@ -781,7 +781,7 @@ public struct IsNotJSONTypeExpression: GeneralExpression {
   public let keyUniquenessOption: JSONKeyUniquenessOption?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting([value, SingleToken(.is), SingleToken(.not), type, keyUniquenessOption])
+    return .compacting([value, SingleToken.is, SingleToken.not, type, keyUniquenessOption])
   }
 
   public init(

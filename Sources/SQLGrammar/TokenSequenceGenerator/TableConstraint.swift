@@ -88,7 +88,7 @@ public struct ConstraintIncludeClause: Clause {
   public let columns: ColumnList
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.include), columns.parenthesized)
+    return JoinedSQLTokenSequence(SingleToken.include, columns.parenthesized)
   }
 
   public init(columns: ColumnList) {
@@ -144,7 +144,7 @@ public struct ExclusionConstraintElement: TokenSequenceGenerator {
   public let `operator`: Operator
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(element, SingleToken(.with), `operator`)
+    return JoinedSQLTokenSequence(element, SingleToken.with, `operator`)
   }
 
   private init(element: IndexElement, operator: Operator) {
@@ -224,7 +224,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
     public var tokens: JoinedSQLTokenSequence {
       switch self {
       case .check(let expr):
-        return JoinedSQLTokenSequence(SingleToken(.check), expr._asAny.parenthesized)
+        return JoinedSQLTokenSequence(SingleToken.check, expr._asAny.parenthesized)
       case .unique(
         let nullTreatment,
         let columnList,
@@ -233,7 +233,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
         let tableSpaceCaluse
       ):
         return .compacting(
-          SingleToken(.unique),
+          SingleToken.unique,
           nullTreatment,
           columnList.parenthesized,
           includeClause,
@@ -241,7 +241,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
           tableSpaceCaluse
         )
       case .uniqueUsingIndex(let index):
-        return JoinedSQLTokenSequence(SingleToken(.unique), index)
+        return JoinedSQLTokenSequence(SingleToken.unique, index)
       case .primaryKey(
         let columnList,
         let includeClause,
@@ -249,14 +249,14 @@ public struct TableConstraintElement: TokenSequenceGenerator {
         let tableSpaceClause
       ):
         return .compacting(
-          SingleToken(.primary), SingleToken(.key),
+          SingleToken.primary, SingleToken.key,
           columnList.parenthesized,
           includeClause,
           withDefinitionClause,
           tableSpaceClause
         )
       case .primaryKeyUsingIndex(let index):
-        return JoinedSQLTokenSequence(SingleToken(.primary), SingleToken(.key), index)
+        return JoinedSQLTokenSequence(SingleToken.primary, SingleToken.key, index)
       case .exclude(
         let accessMethodClause,
         let constraintList,
@@ -266,7 +266,7 @@ public struct TableConstraintElement: TokenSequenceGenerator {
         let whereClause
       ):
         return .compacting(
-          SingleToken(.exclude),
+          SingleToken.exclude,
           accessMethodClause,
           constraintList.parenthesized,
           includeClause,
@@ -282,9 +282,9 @@ public struct TableConstraintElement: TokenSequenceGenerator {
         let actions
       ):
         return .compacting(
-          SingleToken(.foreign), SingleToken(.key),
+          SingleToken.foreign, SingleToken.key,
           columns.parenthesized,
-          SingleToken(.references),
+          SingleToken.references,
           refTable,
           refColumns,
           matchType,
@@ -456,7 +456,7 @@ public struct TableConstraint: TokenSequenceGenerator {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      name.map({ JoinedSQLTokenSequence(SingleToken(.constraint), $0) }),
+      name.map({ JoinedSQLTokenSequence(SingleToken.constraint, $0) }),
       constraint
     )
   }

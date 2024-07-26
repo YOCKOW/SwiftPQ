@@ -13,7 +13,7 @@ public struct JSONOutputTypeClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.returning),
+      SingleToken.returning,
       typeName,
       format
     )

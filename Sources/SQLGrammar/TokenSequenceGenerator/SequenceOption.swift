@@ -53,7 +53,7 @@ public struct SequenceOption: TokenSequenceGenerator {
       return Iterator(_generator.tokens.makeIterator())
     }
 
-    public static let cycle: Tokens = .init(SingleToken(.cycle))
+    public static let cycle: Tokens = .init(SingleToken.cycle)
 
     public static let noCycle: Tokens = .init([.no, .cycle])
 
@@ -61,29 +61,29 @@ public struct SequenceOption: TokenSequenceGenerator {
 
     public static let noMinValue: Tokens = .init([.no, .minvalue])
 
-    public static let restart: Tokens = .init(SingleToken(.restart))
+    public static let restart: Tokens = .init(SingleToken.restart)
   }
 
   public var tokens: Tokens {
     switch _option {
     case .as(let dataType):
-      return Tokens(JoinedSQLTokenSequence([SingleToken(.as), dataType]))
+      return Tokens(JoinedSQLTokenSequence([SingleToken.as, dataType]))
     case .cache(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken(.cache), numeric]))
+      return Tokens(JoinedSQLTokenSequence([SingleToken.cache, numeric]))
     case .cycle:
       return .cycle
     case .noCycle:
       return .noCycle
     case .increment(let omitByKeyword, let increment):
       return Tokens(JoinedSQLTokenSequence.compacting([
-        SingleToken(.increment),
-        omitByKeyword ? nil : SingleToken(.by),
+        SingleToken.increment,
+        omitByKeyword ? nil : SingleToken.by,
         increment
       ]))
     case .maxValue(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken(.maxvalue), numeric]))
+      return Tokens(JoinedSQLTokenSequence([SingleToken.maxvalue, numeric]))
     case .minValue(let numeric):
-      return Tokens(JoinedSQLTokenSequence([SingleToken(.minvalue), numeric]))
+      return Tokens(JoinedSQLTokenSequence([SingleToken.minvalue, numeric]))
     case .noMaxValue:
       return .noMaxValue
     case .noMinValue:
@@ -100,8 +100,8 @@ public struct SequenceOption: TokenSequenceGenerator {
       ]))
     case .start(let omitWithKeyword, let start):
       return Tokens(JoinedSQLTokenSequence.compacting([
-        SingleToken(.start),
-        omitWithKeyword ? nil : SingleToken(.with),
+        SingleToken.start,
+        omitWithKeyword ? nil : SingleToken.with,
         start
       ]))
     case .restart(let optionalArg):
@@ -109,8 +109,8 @@ public struct SequenceOption: TokenSequenceGenerator {
         return .restart
       }
       return Tokens(JoinedSQLTokenSequence.compacting([
-        SingleToken(.restart),
-        arg.omitWithKeyword ? nil : SingleToken(.with),
+        SingleToken.restart,
+        arg.omitWithKeyword ? nil : SingleToken.with,
         arg.restart
       ]))
     }

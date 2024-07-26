@@ -11,11 +11,11 @@ public struct DistinctClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     guard let expressions = self.expressions else {
-      return JoinedSQLTokenSequence(SingleToken(.distinct))
+      return JoinedSQLTokenSequence(SingleToken.distinct)
     }
     return JoinedSQLTokenSequence(
-      SingleToken(.distinct),
-      SingleToken(.on),
+      SingleToken.distinct,
+      SingleToken.on,
       expressions.parenthesized
     )
   }
@@ -32,7 +32,7 @@ public enum AllOrDistinctClause: Clause {
     case .distinct(let distinctClause):
       return distinctClause.tokens
     case .all:
-      return JoinedSQLTokenSequence(SingleToken(.all))
+      return JoinedSQLTokenSequence(SingleToken.all)
     }
   }
 }

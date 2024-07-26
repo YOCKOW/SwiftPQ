@@ -25,7 +25,7 @@ public enum SelectLimitValue: TokenSequence {
     case .count(let count):
       return Iterator(count._anyIterator)
     case .all:
-      return Iterator(AnyTokenSequenceIterator(SingleToken(.all)))
+      return Iterator(AnyTokenSequenceIterator(SingleToken.all))
     }
   }
 
@@ -175,7 +175,7 @@ public struct LimitClause: Clause {
 
     public var tokens: JoinedSQLTokenSequence {
       return .compacting([
-        SingleToken(.fetch),
+        SingleToken.fetch,
         keyword.asSequence,
         count,
         unit.asSequence,
@@ -214,7 +214,7 @@ public struct LimitClause: Clause {
     switch _type {
     case .limit(let count, let offset):
       return .compacting(
-        SingleToken(.limit),
+        SingleToken.limit,
         count,
         offset.map({
           JoinedSQLTokenSequence(commaSeparator, $0)
@@ -268,9 +268,9 @@ public struct OffsetClause: Clause {
   public var tokens: JoinedSQLTokenSequence {
     switch _value {
     case .offset(let offset):
-      return JoinedSQLTokenSequence([SingleToken(.offset), offset])
+      return JoinedSQLTokenSequence([SingleToken.offset, offset])
     case .rowCount(let rowCount, let unit):
-      return JoinedSQLTokenSequence([SingleToken(.offset), rowCount, unit.asSequence])
+      return JoinedSQLTokenSequence([SingleToken.offset, rowCount, unit.asSequence])
     }
   }
 

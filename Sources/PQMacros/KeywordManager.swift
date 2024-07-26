@@ -958,6 +958,8 @@ final class KeywordManager {
     .union(reservedKeywords)
     .union(bareLabelKeywords)
   )
+
+  private(set) lazy var sortedAllKeywords: Array<String> = allKeywords.sorted()
 }
 
 private extension String {
@@ -993,22 +995,12 @@ public struct StaticKeywordExpander: MemberMacro {
     case unsupportedType
   }
 
-  public static func expansion(
-    of node: AttributeSyntax,
-    providingMembersOf declaration: some DeclGroupSyntax,
-    in context: some MacroExpansionContext
+  private static func _expandStaticPropertiesOfTokenType(
+    manager: KeywordManager
   ) throws -> [DeclSyntax] {
-    guard let sqlTokenClassDecl = declaration.as(ClassDeclSyntax.self),
-          sqlTokenClassDecl.name.text == "Token"
-    else {
-      throw Error.unsupportedType
-    }
-    let manager = KeywordManager.default
-    let allKeywords = manager.allKeywords.sorted()
-
     var result: [DeclSyntax] = []
     var initialMap: [Character: [(String, IdentifierPatternSyntax)]] = [:]
-    for keyword in allKeywords {
+    for keyword in manager.sortedAllKeywords {
       let unreserved = manager.unreservedKeywords.contains(keyword)
       let columnName = manager.columnNameKeywords.contains(keyword)
       let typeFunc = manager.typeFunctionNameKeywords.contains(keyword)
@@ -1176,5 +1168,37 @@ public struct StaticKeywordExpander: MemberMacro {
     """)
 
     return result
+  }
+
+  private static func _expandStaticPropertiesOfSingleTokenType(
+    manager: KeywordManager
+  ) throws -> [DeclSyntax] {
+    var result: [DeclSyntax] = []
+    
+    for keyword in manager.sortedAllKeywords {
+      let identifier = keyword._swiftIdentifier
+      result.append("""
+      /// A single token of keyword "`\(raw: keyword)`"
+      public static let \(identifier): SingleToken = SingleToken(Token.\(identifier))
+      """)
+    }
+
+    return result
+  }
+
+  public static func expansion(
+    of node: AttributeSyntax,
+    providingMembersOf declaration: some DeclGroupSyntax,
+    in context: some MacroExpansionContext
+  ) throws -> [DeclSyntax] {
+    if let sqlTokenClassDecl = declaration.as(ClassDeclSyntax.self),
+       sqlTokenClassDecl.name.text == "Token" {
+      return try _expandStaticPropertiesOfTokenType(manager: .default)
+    } else if let singleTokenStructDecl = declaration.as(StructDeclSyntax.self),
+              singleTokenStructDecl.name.text == "SingleToken" {
+      return try _expandStaticPropertiesOfSingleTokenType(manager: .default)
+    } else {
+      throw Error.unsupportedType
+    }
   }
 }

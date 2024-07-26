@@ -52,7 +52,7 @@ public struct ColumnDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLi
   public let list: TableFunctionElementList
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.as), list.parenthesized)
+    return JoinedSQLTokenSequence(SingleToken.as, list.parenthesized)
   }
 
   public init(_ list: TableFunctionElementList) {

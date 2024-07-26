@@ -15,8 +15,8 @@ public struct WhenClause<Condition, Result>: Clause where Condition: GeneralExpr
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(
-      SingleToken(.when), condition,
-      SingleToken(.then), result
+      SingleToken.when, condition,
+      SingleToken.then, result
     )
   }
 

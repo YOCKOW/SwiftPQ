@@ -11,7 +11,7 @@ public struct InheritClause: Clause {
   public var parentTables: QualifiedNameList<TableName>
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.inherits), parentTables.parenthesized)
+    return JoinedSQLTokenSequence(SingleToken.inherits, parentTables.parenthesized)
   }
 
   public init(_ parentTables: QualifiedNameList<TableName>) {

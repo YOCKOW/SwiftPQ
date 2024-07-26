@@ -10,7 +10,7 @@ public struct HavingClause: Clause {
   public let predicate: any GeneralExpression
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([SingleToken(.having), predicate])
+    return JoinedSQLTokenSequence([SingleToken.having, predicate])
   }
 
   public init(predicate: any GeneralExpression) {

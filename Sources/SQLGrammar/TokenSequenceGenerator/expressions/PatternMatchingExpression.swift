@@ -27,7 +27,7 @@ extension PatternMatchingGeneralExpression where Self.Tokens == JoinedSQLTokenSe
       self.string,
       self.operator,
       self.pattern,
-      self.escapeCharacter.map({ JoinedSQLTokenSequence([SingleToken(.escape), $0]) })
+      self.escapeCharacter.map({ JoinedSQLTokenSequence([SingleToken.escape, $0]) })
     ])
   }
 }

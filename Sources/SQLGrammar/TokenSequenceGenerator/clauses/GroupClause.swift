@@ -17,7 +17,7 @@ public struct CubeClause: Clause {
   public let expressions: GeneralExpressionList
 
   public var tokens: JoinedSQLTokenSequence {
-    return SingleToken(.cube).followedBy(parenthesized: expressions)
+    return SingleToken.cube.followedBy(parenthesized: expressions)
   }
 
   public init(_ expressions: GeneralExpressionList) {
@@ -30,7 +30,7 @@ public struct RollUpClause: Clause {
   public let expressions: GeneralExpressionList
 
   public var tokens: JoinedSQLTokenSequence {
-    return SingleToken(.rollup).followedBy(parenthesized: expressions)
+    return SingleToken.rollup.followedBy(parenthesized: expressions)
   }
 
   public init(_ expressions: GeneralExpressionList) {

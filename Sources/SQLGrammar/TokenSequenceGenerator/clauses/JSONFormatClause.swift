@@ -26,8 +26,8 @@ public struct JSONFormatClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.format),
-      SingleToken(.json),
+      SingleToken.format,
+      SingleToken.json,
       encoding
     )
   }

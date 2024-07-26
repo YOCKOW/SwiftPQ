@@ -17,7 +17,7 @@ public struct XMLAttribute: TokenSequenceGenerator {
         value,
         name.map(SingleToken.init),
       ] as [(any TokenSequenceGenerator)?],
-      separator: SingleToken(.as)
+      separator: SingleToken.as
     )
   }
 

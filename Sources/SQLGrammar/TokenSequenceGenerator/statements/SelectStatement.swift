@@ -66,7 +66,7 @@ public struct SimpleSelectQuery: SimpleSelectStatement {
     public var tokens: JoinedSQLTokenSequence {
       switch self {
       case .all:
-        return JoinedSQLTokenSequence(SingleToken(.all))
+        return JoinedSQLTokenSequence(SingleToken.all)
       case .distinct(let distinctClause):
         return distinctClause.tokens
       }
@@ -91,7 +91,7 @@ public struct SimpleSelectQuery: SimpleSelectStatement {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.select),
+      SingleToken.select,
       duplicateRowStrategy,
       targets,
       intoClause,
@@ -201,7 +201,7 @@ public struct TableCommandSyntax: SimpleSelectStatement {
   }
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.table), relation)
+    return JoinedSQLTokenSequence(SingleToken.table, relation)
   }
 
   public init(_ relation: RelationExpression) {

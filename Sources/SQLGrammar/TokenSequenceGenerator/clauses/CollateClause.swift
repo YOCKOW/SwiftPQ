@@ -11,7 +11,7 @@ public struct CollateClause: Clause {
   public let name: CollationName
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.collate), name)
+    return JoinedSQLTokenSequence(SingleToken.collate, name)
   }
 
   public init(name: CollationName) {

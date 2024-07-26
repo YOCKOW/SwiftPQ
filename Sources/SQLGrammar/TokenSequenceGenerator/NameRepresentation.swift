@@ -973,7 +973,7 @@ public struct TemporaryTableName: NameRepresentation {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence.compacting(
       prefix,
-      omitTableToken ? nil : SingleToken(.table),
+      omitTableToken ? nil : SingleToken.table,
       name
     )
   }

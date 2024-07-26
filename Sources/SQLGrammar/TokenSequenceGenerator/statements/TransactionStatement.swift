@@ -80,7 +80,7 @@ public enum TransactionMode: TokenSequenceGenerator {
       JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.read, .write]))
     )
 
-    public static let deferrable: Tokens = .init(JoinedSQLTokenSequence(SingleToken(.deferrable)))
+    public static let deferrable: Tokens = .init(JoinedSQLTokenSequence(SingleToken.deferrable))
 
     public static let notDeferrable: Tokens = .init(
       JoinedSQLTokenSequence(UnknownSQLTokenSequence<Array<Token>>([.not, .deferrable]))
@@ -161,9 +161,9 @@ public enum LegacyTransactionStatement: TopLevelStatement {
   public var tokens: JoinedSQLTokenSequence {
     switch self {
     case .begin(let keyword, let modes):
-      return .compacting(SingleToken(.begin), keyword?.asSequence, modes)
+      return .compacting(SingleToken.begin, keyword?.asSequence, modes)
     case .end(let keyword, let chain):
-      return .compacting(SingleToken(.end), keyword?.asSequence, chain)
+      return .compacting(SingleToken.end, keyword?.asSequence, chain)
     }
   }
 }
@@ -213,35 +213,35 @@ public struct TransactionStatement: Statement {
   public var tokens: JoinedSQLTokenSequence {
     switch command {
     case .abort(let keyword, let chain):
-      return .compacting(SingleToken(.abort), keyword?.asSequence, chain)
+      return .compacting(SingleToken.abort, keyword?.asSequence, chain)
     case .startTransaction(let modes):
-      return .compacting(SingleToken(.start), SingleToken(.transaction), modes)
+      return .compacting(SingleToken.start, SingleToken.transaction, modes)
     case .commit(let keyword, let chain):
-      return .compacting(SingleToken(.commit), keyword?.asSequence, chain)
+      return .compacting(SingleToken.commit, keyword?.asSequence, chain)
     case .rollback(let keyword, let chain):
-      return .compacting(SingleToken(.rollback), keyword?.asSequence, chain)
+      return .compacting(SingleToken.rollback, keyword?.asSequence, chain)
     case .savePoint(let id):
-      return JoinedSQLTokenSequence(SingleToken(.savepoint), id.asSequence)
+      return JoinedSQLTokenSequence(SingleToken.savepoint, id.asSequence)
     case .release(let omitSavePointKeyword, let savePointName):
       return .compacting(
-        SingleToken(.release),
-        omitSavePointKeyword ? nil : SingleToken(.savepoint),
+        SingleToken.release,
+        omitSavePointKeyword ? nil : SingleToken.savepoint,
         savePointName.asSequence
       )
     case .rollbackToSavePoint(let keyword, let omitSavePointKeyword, let savePointName):
       return .compacting(
-        SingleToken(.rollback),
+        SingleToken.rollback,
         keyword?.asSequence,
-        SingleToken(.to),
-        omitSavePointKeyword ? nil : SingleToken(.savepoint),
+        SingleToken.to,
+        omitSavePointKeyword ? nil : SingleToken.savepoint,
         savePointName.asSequence
       )
     case .prepareTransaction(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken(.prepare), SingleToken(.transaction), transactionID)
+      return JoinedSQLTokenSequence(SingleToken.prepare, SingleToken.transaction, transactionID)
     case .commitPrepared(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken(.commit), SingleToken(.prepared), transactionID)
+      return JoinedSQLTokenSequence(SingleToken.commit, SingleToken.prepared, transactionID)
     case .rollbackPrepared(let transactionID):
-      return JoinedSQLTokenSequence(SingleToken(.rollback), SingleToken(.prepared), transactionID)
+      return JoinedSQLTokenSequence(SingleToken.rollback, SingleToken.prepared, transactionID)
     }
   }
 

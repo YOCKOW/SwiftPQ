@@ -32,11 +32,11 @@ public struct SearchClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(
-      SingleToken(.search),
+      SingleToken.search,
       ordering,
-      SingleToken(.by),
+      SingleToken.by,
       columnNames,
-      SingleToken(.set),
+      SingleToken.set,
       searchSequenceColumnName.asSequence
     )
   }
