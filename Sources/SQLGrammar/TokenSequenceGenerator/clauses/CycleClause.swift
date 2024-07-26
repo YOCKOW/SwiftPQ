@@ -25,13 +25,13 @@ public struct CycleClause: Clause {
     )
 
     return .compacting(
-      SingleToken(.cycle),
+      SingleToken.cycle,
       columnNames,
-      SingleToken(.set),
+      SingleToken.set,
       cycleMarkColumnName.asSequence,
-      cycleMarkValue.map({ JoinedSQLTokenSequence([SingleToken(.to), $0]) }),
-      cycleMarkDefault.map({ JoinedSQLTokenSequence([SingleToken(.default), $0]) }),
-      SingleToken(.using),
+      cycleMarkValue.map({ JoinedSQLTokenSequence([SingleToken.to, $0]) }),
+      cycleMarkDefault.map({ JoinedSQLTokenSequence([SingleToken.default, $0]) }),
+      SingleToken.using,
       cyclePathColumnName.asSequence
     )
   }

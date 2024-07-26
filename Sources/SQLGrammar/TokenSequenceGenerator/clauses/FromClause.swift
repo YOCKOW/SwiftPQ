@@ -39,7 +39,7 @@ public struct FromClause: Clause {
   public let tableReferences: FromList
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.from), tableReferences)
+    return JoinedSQLTokenSequence(SingleToken.from, tableReferences)
   }
 
   public init(_ tableReferences: FromList) {

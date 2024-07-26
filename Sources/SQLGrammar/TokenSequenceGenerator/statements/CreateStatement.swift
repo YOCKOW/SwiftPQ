@@ -32,9 +32,9 @@ public struct CreateTableStatement: CreateStatement {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.create),
+      SingleToken.create,
       temporariness,
-      SingleToken(.table),
+      SingleToken.table,
       ifNotExists ? IfNotExists.ifNotExists : nil,
       name,
       LeftParenthesis.leftParenthesis,
@@ -98,12 +98,12 @@ public struct CreateTypedTableStatement: CreateStatement {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.create),
+      SingleToken.create,
       temporariness,
-      SingleToken(.table),
+      SingleToken.table,
       ifNotExists ? IfNotExists.ifNotExists : nil,
       name,
-      SingleToken(.of),
+      SingleToken.of,
       typeName,
       definitions,
       partitionSpecification,
@@ -165,12 +165,12 @@ public struct CreatePartitionTableStatement: CreateStatement {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.create),
+      SingleToken.create,
       temporariness,
-      SingleToken(.table),
+      SingleToken.table,
       ifNotExists ? IfNotExists.ifNotExists : nil,
       name,
-      SingleToken(.partition), SingleToken(.of),
+      SingleToken.partition, SingleToken.of,
       parentTable,
       definitions,
       partitionBoundSpecification,

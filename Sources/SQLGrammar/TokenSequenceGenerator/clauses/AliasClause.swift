@@ -17,7 +17,7 @@ public struct AliasClause: Clause {
   public let columnAliases: NameList?
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any TokenSequenceGenerator] = omitAsToken ? [] : [SingleToken(.as)]
+    var sequences: [any TokenSequenceGenerator] = omitAsToken ? [] : [SingleToken.as]
     sequences.append(alias.asSequence)
     if let columnAliases {
       sequences.append(columnAliases.parenthesized)

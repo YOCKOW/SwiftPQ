@@ -13,8 +13,8 @@ public struct WithClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return .compacting(
-      SingleToken(.with),
-      recursive ? SingleToken(.recursive) : nil,
+      SingleToken.with,
+      recursive ? SingleToken.recursive : nil,
       queries
     )
   }

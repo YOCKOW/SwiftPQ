@@ -11,7 +11,7 @@ public struct RepeatableClause<Seed>: Clause where Seed: GeneralExpression {
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(
-      SingleToken(.repeatable),
+      SingleToken.repeatable,
       SingleToken.joiner,
       seed.parenthesized
     )
@@ -74,7 +74,7 @@ public struct TableSampleClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence.compacting(
-      SingleToken(.tablesample),
+      SingleToken.tablesample,
       samplingMethod,
       SingleToken.joiner,
       arguments.parenthesized,

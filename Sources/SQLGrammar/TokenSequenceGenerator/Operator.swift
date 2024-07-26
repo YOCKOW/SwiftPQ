@@ -125,7 +125,7 @@ public struct OperatorConstructor: OperatorTokenSequence {
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(
-      SingleToken(.operator), SingleToken(.joiner),
+      SingleToken.operator, SingleToken.joiner,
       self.operator.parenthesized
     )
   }

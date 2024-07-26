@@ -83,7 +83,7 @@ public struct TableLikeClause: Clause {
   public var options: TableLikeOptionList?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(SingleToken(.like), sourceTable, options)
+    return .compacting(SingleToken.like, sourceTable, options)
   }
 
   public init(like sourceTable: TableName, options: TableLikeOptionList? = nil) {

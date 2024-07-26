@@ -69,7 +69,7 @@ public struct GenericOptionsClause: Clause {
   public var options: GenericOptionList
 
   public var tokens: JoinedSQLTokenSequence {
-    return SingleToken(.options).followedBy(parenthesized: options)
+    return SingleToken.options.followedBy(parenthesized: options)
   }
 
   public init(_ options: GenericOptionList) {

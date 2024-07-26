@@ -30,17 +30,17 @@ public struct XMLTableExpression: Expression {
           ] as [any TokenSequenceGenerator])
         case .default(let defaultExpr):
           return JoinedSQLTokenSequence([
-            SingleToken(.default),
+            SingleToken.default,
             defaultExpr,
           ] as [any TokenSequenceGenerator])
         case .notNull:
           return JoinedSQLTokenSequence([
-            SingleToken(.not),
-            SingleToken(.null),
+            SingleToken.not,
+            SingleToken.null,
           ] as [any TokenSequenceGenerator])
         case .null:
           return JoinedSQLTokenSequence([
-            SingleToken(.null),
+            SingleToken.null,
           ] as [any TokenSequenceGenerator])
         }
       }
@@ -97,8 +97,8 @@ public struct XMLTableExpression: Expression {
         case .forOrdinality(let name):
           return JoinedSQLTokenSequence(
             name.asSequence,
-            SingleToken(.for),
-            SingleToken(.ordinality)
+            SingleToken.for,
+            SingleToken.ordinality
           )
         }
       }
@@ -166,7 +166,7 @@ public struct XMLTableExpression: Expression {
     public let columns: ColumnList
 
     public var tokens: JoinedSQLTokenSequence {
-      return JoinedSQLTokenSequence(SingleToken(.columns), columns)
+      return JoinedSQLTokenSequence(SingleToken.columns, columns)
     }
 
     public init(_ columns: ColumnList) {
@@ -183,10 +183,10 @@ public struct XMLTableExpression: Expression {
   public let columns: ColumnsClause
 
   public var tokens: JoinedSQLTokenSequence {
-    return SingleToken(.xmltable).followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+    return SingleToken.xmltable.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
       namespaces.map({
         JoinedSQLTokenSequence(
-          SingleToken(.xmlnamespaces).followedBy(parenthesized: $0),
+          SingleToken.xmlnamespaces.followedBy(parenthesized: $0),
           commaSeparator
         )
       }),

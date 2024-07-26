@@ -80,7 +80,15 @@ public struct SingleToken: TokenSequence {
     return .init(.string(string))
   }
 
+  public static let asterisk: SingleToken = .init(.asterisk)
+
+  public static let colon: SingleToken = .init(.colon)
+
   public static let joiner: SingleToken = .init(.joiner)
+
+  public static let leftSquareBracket: SingleToken = .init(.leftSquareBracket)
+
+  public static let rightSquareBracket: SingleToken = .init(.rightSquareBracket)
 }
 
 internal extension Token {

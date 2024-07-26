@@ -41,7 +41,7 @@ public struct DefinitionArgument: TokenSequence {
     case .stringConstant(let stringConstantExpression):
       return .init(stringConstantExpression._anyIterator)
     case .none:
-      return .init(SingleToken(.none)._anyIterator)
+      return .init(SingleToken.none._anyIterator)
     }
   }
 

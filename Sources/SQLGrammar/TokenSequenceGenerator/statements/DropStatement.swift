@@ -19,7 +19,7 @@ public protocol DropStatement: Statement {
 extension DropStatement where Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence.compacting(
-      SingleToken(.drop),
+      SingleToken.drop,
       itemType,
       ifExists ? ifExistsSegment : nil,
       itemNames,

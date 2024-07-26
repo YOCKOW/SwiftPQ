@@ -17,9 +17,9 @@ public struct WithStorageParametersClause: Clause {
   public var tokens: JoinedSQLTokenSequence {
     switch _syntax {
     case .with(let parameters):
-      return JoinedSQLTokenSequence(SingleToken(.with), parameters)
+      return JoinedSQLTokenSequence(SingleToken.with, parameters)
     case .withoutOIDs:
-      return JoinedSQLTokenSequence(SingleToken(.without), SingleToken(.oids))
+      return JoinedSQLTokenSequence(SingleToken.without, SingleToken.oids)
     }
   }
 

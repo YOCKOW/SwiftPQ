@@ -21,22 +21,22 @@ public struct Indirection: TokenSequenceGenerator {
         case .attributeName(let attributeName):
           return JoinedSQLTokenSequence(dotJoiner, attributeName)
         case .any:
-          return JoinedSQLTokenSequence(dotJoiner, SingleToken(.asterisk))
+          return JoinedSQLTokenSequence(dotJoiner, SingleToken.asterisk)
         case .subscript(let expression):
           return JoinedSQLTokenSequence(
-            SingleToken(.joiner),
-            SingleToken(.leftSquareBracket),
+            SingleToken.joiner,
+            SingleToken.leftSquareBracket,
             AnyTokenSequence(expression),
-            SingleToken(.rightSquareBracket)
+            SingleToken.rightSquareBracket
           )
         case .slice(let lowerBound, let upperBound):
           return JoinedSQLTokenSequence.compacting(
-            SingleToken(.joiner),
-            SingleToken(.leftSquareBracket),
+            SingleToken.joiner,
+            SingleToken.leftSquareBracket,
             lowerBound.map({ AnyTokenSequence($0) }),
-            SingleToken(.colon),
+            SingleToken.colon,
             upperBound.map({ AnyTokenSequence($0) }),
-            SingleToken(.rightSquareBracket)
+            SingleToken.rightSquareBracket
           )
         }
       }

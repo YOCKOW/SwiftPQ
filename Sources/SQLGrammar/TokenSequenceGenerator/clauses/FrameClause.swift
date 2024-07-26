@@ -32,9 +32,9 @@ public enum FrameBound: TokenSequenceGenerator {
     case .currentRow:
       return JoinedSQLTokenSequence(FrameBound._currentRowTokens)
     case .preceding(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken(.preceding)] as [any TokenSequenceGenerator])
+      return JoinedSQLTokenSequence([offset, SingleToken.preceding] as [any TokenSequenceGenerator])
     case .following(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken(.following)] as [any TokenSequenceGenerator])
+      return JoinedSQLTokenSequence([offset, SingleToken.following] as [any TokenSequenceGenerator])
     }
   }
 }
@@ -49,7 +49,7 @@ public struct FrameExtent: TokenSequenceGenerator {
     guard let end = self.end else {
       return JoinedSQLTokenSequence(start)
     }
-    return JoinedSQLTokenSequence(SingleToken(.between), start, SingleToken(.and), end)
+    return JoinedSQLTokenSequence(SingleToken.between, start, SingleToken.and, end)
   }
 
   public init(start: FrameBound, end: FrameBound?) {

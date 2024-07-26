@@ -21,15 +21,15 @@ public enum ReferentialAction: TokenSequenceGenerator {
   public var tokens: JoinedSQLTokenSequence {
     switch self {
     case .noAction:
-      return JoinedSQLTokenSequence(SingleToken(.no), SingleToken(.action))
+      return JoinedSQLTokenSequence(SingleToken.no, SingleToken.action)
     case .restrict:
-      return JoinedSQLTokenSequence(SingleToken(.restrict))
+      return JoinedSQLTokenSequence(SingleToken.restrict)
     case .cascade:
-      return JoinedSQLTokenSequence(SingleToken(.cascade))
+      return JoinedSQLTokenSequence(SingleToken.cascade)
     case .setNull(let list):
-      return JoinedSQLTokenSequence(SingleToken(.set), SingleToken(.null), list)
+      return JoinedSQLTokenSequence(SingleToken.set, SingleToken.null, list)
     case .setDefault(let list):
-      return JoinedSQLTokenSequence(SingleToken(.set), SingleToken(.default), list)
+      return JoinedSQLTokenSequence(SingleToken.set, SingleToken.default, list)
     }
   }
 }
@@ -48,14 +48,14 @@ public struct ReferentialActionSet: TokenSequenceGenerator {
     /// `key_delete` in "gram.y".
     public final class OnDelete: Action {
       public override var tokens: JoinedSQLTokenSequence {
-        return JoinedSQLTokenSequence(SingleToken(.on), SingleToken(.delete), action)
+        return JoinedSQLTokenSequence(SingleToken.on, SingleToken.delete, action)
       }
     }
 
     /// `key_update` in "gram.y".
     public final class OnUpdate: Action {
       public override var tokens: JoinedSQLTokenSequence {
-        return JoinedSQLTokenSequence(SingleToken(.on), SingleToken(.update), action)
+        return JoinedSQLTokenSequence(SingleToken.on, SingleToken.update, action)
       }
     }
 

@@ -14,7 +14,7 @@ public struct WindowDefinition: TokenSequenceGenerator {
   public let specification: WindowSpecification
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(name.asSequence, SingleToken(.as), specification)
+    return JoinedSQLTokenSequence(name.asSequence, SingleToken.as, specification)
   }
 
   public init(name: ColumnIdentifier, specification: WindowSpecification) {
@@ -48,7 +48,7 @@ public struct WindowClause: Clause {
   public let definitions: WindowDefinitionList
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.window), definitions)
+    return JoinedSQLTokenSequence(SingleToken.window, definitions)
   }
 
   public init(_ definitions: WindowDefinitionList) {

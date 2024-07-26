@@ -17,9 +17,9 @@ public struct OverClause: Clause {
   public var tokens: JoinedSQLTokenSequence {
     switch _window {
     case .specification(let spec):
-      return JoinedSQLTokenSequence(SingleToken(.over), spec)
+      return JoinedSQLTokenSequence(SingleToken.over, spec)
     case .name(let id):
-      return JoinedSQLTokenSequence(SingleToken(.over), SingleToken(id))
+      return JoinedSQLTokenSequence(SingleToken.over, SingleToken(id))
     }
   }
 

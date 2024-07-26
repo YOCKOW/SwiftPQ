@@ -40,47 +40,47 @@ public struct ColumnConstraintElement: TokenSequenceGenerator {
       case .notNull:
         return JoinedSQLTokenSequence(NotNull.notNull)
       case .null:
-        return JoinedSQLTokenSequence(SingleToken(.null))
+        return JoinedSQLTokenSequence(SingleToken.null)
       case .unique(let nullTreatment, let withDefinitionClause, let tableSpaceClause):
         return .compacting(
-          SingleToken(.unique),
+          SingleToken.unique,
           nullTreatment,
           withDefinitionClause,
           tableSpaceClause
         )
       case .primaryKey(let withDefinitionClause, let tableSpaceClause):
         return .compacting(
-          SingleToken(.primary), SingleToken(.key),
+          SingleToken.primary, SingleToken.key,
           withDefinitionClause,
           tableSpaceClause
         )
       case .check(let expr, let noInherit):
         return .compacting(
-          SingleToken(.check),
+          SingleToken.check,
           expr._asAny.parenthesized,
           noInherit ? NoInherit.noInherit : nil
         )
       case .default(let expr):
-        return JoinedSQLTokenSequence([SingleToken(.default), expr])
+        return JoinedSQLTokenSequence([SingleToken.default, expr])
       case .generatedAsIdentity(let when, let seqOptions):
         return JoinedSQLTokenSequence(
-          SingleToken(.generated),
+          SingleToken.generated,
           when,
-          SingleToken(.as),
-          SingleToken(.identity),
+          SingleToken.as,
+          SingleToken.identity,
           seqOptions
         )
       case .generatedAsStoredValue(let when, let generator):
         return JoinedSQLTokenSequence(
-          SingleToken(.generated),
+          SingleToken.generated,
           when,
-          SingleToken(.as),
+          SingleToken.as,
           generator._asAny.parenthesized,
-          SingleToken(.stored)
+          SingleToken.stored
         )
       case .references(let refTable, let refColumns, let matchType, let actions):
         return .compacting(
-          SingleToken(.references),
+          SingleToken.references,
           refTable,
           refColumns,
           matchType,
@@ -218,7 +218,7 @@ public struct NamedColumnConstraint: TokenSequenceGenerator {
   public var element: ColumnConstraintElement
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting(name.map({ JoinedSQLTokenSequence(SingleToken(.constraint), $0) }), element)
+    return .compacting(name.map({ JoinedSQLTokenSequence(SingleToken.constraint, $0) }), element)
   }
 
   public init(name: Name? = nil, element: ColumnConstraintElement) {

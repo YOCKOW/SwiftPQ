@@ -22,11 +22,11 @@ public struct XMLNamespaceListElement: TokenSequenceGenerator {
     case .name(let namespaceName):
       return JoinedSQLTokenSequence([
         uri,
-        SingleToken(.as),
+        SingleToken.as,
         namespaceName.asSequence
       ] as [any TokenSequenceGenerator])
     case .default:
-      return JoinedSQLTokenSequence([SingleToken(.default), uri] as [any TokenSequenceGenerator])
+      return JoinedSQLTokenSequence([SingleToken.default, uri] as [any TokenSequenceGenerator])
     }
   }
 

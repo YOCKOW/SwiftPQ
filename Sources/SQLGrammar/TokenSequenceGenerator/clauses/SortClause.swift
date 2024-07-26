@@ -76,7 +76,7 @@ public struct SortBy<Expression>: TokenSequenceGenerator where Expression: Gener
     case .direction(let sortDirection):
       sequences.append(SingleToken(sortDirection))
     case .operator(let qualifiedOperator):
-      sequences.append(SingleToken(.using))
+      sequences.append(SingleToken.using)
       sequences.append(qualifiedOperator)
     case nil:
       break

@@ -43,7 +43,7 @@ public struct LockedRelationList: TokenSequenceGenerator,
   public let tableNames: QualifiedNameList<TableName>
 
   public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken(.of), tableNames)
+    return JoinedSQLTokenSequence(SingleToken.of, tableNames)
   }
 
   public init(_ tableNames: QualifiedNameList<TableName>) {

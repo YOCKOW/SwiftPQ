@@ -101,17 +101,17 @@ public struct PartitionBoundSpecification: TokenSequenceGenerator {
   public var tokens: JoinedSQLTokenSequence {
     switch strategy {
     case .hash(let list):
-      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken(.with), list.parenthesized)
+      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken.with, list.parenthesized)
     case .list(let list):
-      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken(.in), list.parenthesized)
+      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken.in, list.parenthesized)
     case .range(let from, let to):
       return JoinedSQLTokenSequence(
         _ForValues.forValues,
-        SingleToken(.from), from.parenthesized,
-        SingleToken(.to), to.parenthesized
+        SingleToken.from, from.parenthesized,
+        SingleToken.to, to.parenthesized
       )
     case .default:
-      return JoinedSQLTokenSequence(SingleToken(.default))
+      return JoinedSQLTokenSequence(SingleToken.default)
     }
   }
 

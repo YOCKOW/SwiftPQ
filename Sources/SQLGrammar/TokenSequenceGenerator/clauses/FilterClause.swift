@@ -10,8 +10,8 @@ public struct FilterClause: Clause {
   public let predicate: any GeneralExpression
 
   public var tokens: JoinedSQLTokenSequence {
-    return SingleToken(.filter).followedBy(parenthesized: JoinedSQLTokenSequence([
-      SingleToken(.where),
+    return SingleToken.filter.followedBy(parenthesized: JoinedSQLTokenSequence([
+      SingleToken.where,
       predicate
     ] as [any TokenSequenceGenerator]))
   }

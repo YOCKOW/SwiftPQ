@@ -44,7 +44,7 @@ public struct CommonTableExpression: Expression {
       columnNames.tokensMap({
         JoinedSQLTokenSequence(SingleToken.joiner, UnknownSQLTokenSequence($0))
       }),
-      SingleToken(.as),
+      SingleToken.as,
       materialized,
       LeftParenthesis.leftParenthesis,
       subquery,

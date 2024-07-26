@@ -13,7 +13,7 @@ public struct ValuesClause: Clause {
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(
-      SingleToken(.values),
+      SingleToken.values,
       rows.map({ $0.parenthesized }).joinedByCommas()
     )
   }

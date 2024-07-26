@@ -64,12 +64,12 @@ public struct FunctionType: TokenSequenceGenerator {
       return typeName.tokens
     case .copyingType(let isSet, let ref):
       return .compacting(
-        isSet ? SingleToken(.setof) : nil,
+        isSet ? SingleToken.setof : nil,
         ref,
         SingleToken.joiner,
         SingleToken(try! Token.Operator("%")),
         SingleToken.joiner,
-        SingleToken(.type)
+        SingleToken.type
       )
     }
   }

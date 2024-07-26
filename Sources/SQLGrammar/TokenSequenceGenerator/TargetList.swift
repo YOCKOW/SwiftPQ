@@ -21,7 +21,7 @@ public struct TargetElement: TokenSequenceGenerator {
     case .expressionAsColumnLabel(let expression, let columnLabel):
       return JoinedSQLTokenSequence([
         expression,
-        SingleToken(.as),
+        SingleToken.as,
         columnLabel.asSequence
       ] as Array<any TokenSequenceGenerator>)
     case .expressionWithBareColumnLabel(let expression, let bareColumnLabel):
@@ -32,7 +32,7 @@ public struct TargetElement: TokenSequenceGenerator {
     case .expression(let expression):
       return JoinedSQLTokenSequence([expression])
     case .all:
-      return JoinedSQLTokenSequence(SingleToken(.asterisk))
+      return JoinedSQLTokenSequence(SingleToken.asterisk)
     }
   }
 
