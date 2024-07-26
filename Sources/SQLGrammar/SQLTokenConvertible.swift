@@ -19,5 +19,5 @@ public protocol LosslessTokenConvertible: CustomTokenConvertible {
 
 internal extension CustomTokenConvertible {
   @inlinable
-  var asSequence: some SQLTokenSequence { self.token.asSequence }
+  var asSequence: some TokenSequence { self.token.asSequence }
 }

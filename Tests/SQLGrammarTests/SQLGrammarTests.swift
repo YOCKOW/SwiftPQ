@@ -13,7 +13,7 @@ func assertDescription<T>(
   _ tokens: T, _ expectedDescription: String,
   _ message: @autoclosure () -> String = "",
   file: StaticString = #filePath, line: UInt = #line
-) where T: SQLTokenSequence {
+) where T: TokenSequenceGenerator {
   XCTAssertEqual(tokens.description, expectedDescription, message(), file: file, line: line)
 }
 

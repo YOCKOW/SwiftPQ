@@ -8,7 +8,7 @@
 extension Array {
   /// Creates a new array from `sequence`.
   @inlinable
-  public init<T>(_ sequence: T) where T: SQLTokenSequence, T.Tokens == Array<Element> {
+  public init<T>(_ sequence: T) where T: TokenSequenceGenerator, T.Tokens == Array<Element> {
     self = sequence.tokens
   }
 }
