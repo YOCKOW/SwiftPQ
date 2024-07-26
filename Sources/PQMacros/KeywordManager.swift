@@ -996,12 +996,11 @@ public struct StaticKeywordExpander: MemberMacro {
   }
 
   private static func _expandStaticPropertiesOfTokenType(
-    manager: KeywordManager,
-    keywords: Array<String>
+    manager: KeywordManager
   ) throws -> [DeclSyntax] {
     var result: [DeclSyntax] = []
     var initialMap: [Character: [(String, IdentifierPatternSyntax)]] = [:]
-    for keyword in keywords {
+    for keyword in manager.sortedAllKeywords {
       let unreserved = manager.unreservedKeywords.contains(keyword)
       let columnName = manager.columnNameKeywords.contains(keyword)
       let typeFunc = manager.typeFunctionNameKeywords.contains(keyword)
@@ -1171,16 +1170,33 @@ public struct StaticKeywordExpander: MemberMacro {
     return result
   }
 
+  private static func _expandStaticPropertiesOfSingleTokenType(
+    manager: KeywordManager
+  ) throws -> [DeclSyntax] {
+    var result: [DeclSyntax] = []
+    
+    for keyword in manager.sortedAllKeywords {
+      let identifier = keyword._swiftIdentifier
+      result.append("""
+      /// A single token of keyword "`\(raw: keyword)`"
+      public static let \(identifier): SingleToken = SingleToken(Token.\(identifier))
+      """)
+    }
+
+    return result
+  }
+
   public static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
-    let manager = KeywordManager.default
-
     if let sqlTokenClassDecl = declaration.as(ClassDeclSyntax.self),
        sqlTokenClassDecl.name.text == "Token" {
-      return try _expandStaticPropertiesOfTokenType(manager: .default, keywords: manager.sortedAllKeywords)
+      return try _expandStaticPropertiesOfTokenType(manager: .default)
+    } else if let singleTokenStructDecl = declaration.as(StructDeclSyntax.self),
+              singleTokenStructDecl.name.text == "SingleToken" {
+      return try _expandStaticPropertiesOfSingleTokenType(manager: .default)
     } else {
       throw Error.unsupportedType
     }

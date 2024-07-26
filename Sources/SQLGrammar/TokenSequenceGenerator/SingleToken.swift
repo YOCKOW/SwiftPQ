@@ -23,6 +23,7 @@ public struct SingleTokenIterator<T>: IteratorProtocol where T: Token {
 }
 
 /// A type that contains only one token, but conforms to `SQLTokenSequence`.
+@_ExpandStaticKeywords
 public struct SingleToken: TokenSequence {
   public let token: Token
 
