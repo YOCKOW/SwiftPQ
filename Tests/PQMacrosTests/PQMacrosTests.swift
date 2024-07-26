@@ -31,6 +31,12 @@ final class PQMacrosTests: XCTestCase {
       expandedSource: #"UnsignedIntegerConstantExpression(123)"#,
       macros: testMacros
     )
+
+    assertMacroExpansion(
+      #"#const(123.45)"#,
+      expandedSource: #"UnsignedFloatConstantExpression(123.45)"#,
+      macros: testMacros
+    )
     #else
     throw XCTSkip("macros are only supported when running tests for the host platform")
     #endif

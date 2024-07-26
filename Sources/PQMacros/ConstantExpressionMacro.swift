@@ -35,6 +35,8 @@ public struct ConstantExpressionMacro: ExpressionMacro {
       return "StringConstantExpression(\(stringExpr))"
     } else if let intExpr = constantSwiftExpr.as(IntegerLiteralExprSyntax.self) {
       return "UnsignedIntegerConstantExpression(\(intExpr))"
+    } else if let floatExpr = constantSwiftExpr.as(FloatLiteralExprSyntax.self) {
+      return "UnsignedFloatConstantExpression(\(floatExpr))"
     }
 
     throw Error.unsupportedConstant
