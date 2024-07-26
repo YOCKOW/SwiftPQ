@@ -26,6 +26,11 @@ final class PQMacrosTests: XCTestCase {
       expandedSource: #"StringConstantExpression("string constant")"#,
       macros: testMacros
     )
+    assertMacroExpansion(
+      #"#const(123)"#,
+      expandedSource: #"UnsignedIntegerConstantExpression(123)"#,
+      macros: testMacros
+    )
     #else
     throw XCTSkip("macros are only supported when running tests for the host platform")
     #endif

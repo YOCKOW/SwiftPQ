@@ -2218,6 +2218,7 @@ final class SQLGrammarStatementTests: XCTestCase {
 final class SQLGrammarMacroExpansionTests: XCTestCase {
   func test_const() {
     XCTAssertEqual(#const("My String").description, #"'My String'"#)
+    XCTAssertEqual(#const(12345).description, #"12345"#)
   }
 }
 

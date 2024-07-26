@@ -33,8 +33,10 @@ public struct ConstantExpressionMacro: ExpressionMacro {
 
     if let stringExpr = constantSwiftExpr.as(StringLiteralExprSyntax.self) {
       return "StringConstantExpression(\(stringExpr))"
+    } else if let intExpr = constantSwiftExpr.as(IntegerLiteralExprSyntax.self) {
+      return "UnsignedIntegerConstantExpression(\(intExpr))"
     }
-    
+
     throw Error.unsupportedConstant
   }
 }
