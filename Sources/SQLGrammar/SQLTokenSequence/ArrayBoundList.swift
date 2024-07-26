@@ -16,11 +16,11 @@ public final class RightSquareBracket: Segment {
 }
 
 /// A list that represents `opt_array_bounds` described in "gram.y".
-public struct ArrayBoundList: SQLTokenSequence {
+public struct ArrayBoundList: TokenSequenceGenerator {
   public let list: NonEmptyList<UnsignedIntegerConstantExpression?>
 
   public var tokens: JoinedSQLTokenSequence {
-    let sequences: [any SQLTokenSequence] = [SingleToken.joiner] + list.map {
+    let sequences: [any TokenSequenceGenerator] = [SingleToken.joiner] + list.map {
       return JoinedSQLTokenSequence.compacting(
         LeftSquareBracket.leftSquareBracket,
         $0,

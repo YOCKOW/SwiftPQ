@@ -7,12 +7,12 @@
 
 /// A match type used when referencing tables or columns. This is described as `key_match` in
 ///  "gram.y".
-public enum MatchType: SQLTokenSequence {
+public enum MatchType: TokenSequence {
   case full
   case partial
   case simple
 
-  public struct Tokens: SQLTokenSequence {
+  public struct Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -31,10 +31,5 @@ public enum MatchType: SQLTokenSequence {
     case .simple:
       return .simple
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }

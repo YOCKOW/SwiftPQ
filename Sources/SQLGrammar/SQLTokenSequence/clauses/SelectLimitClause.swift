@@ -6,15 +6,15 @@
  ************************************************************************************************ */
 
 /// A value used in `LIMIT` clause. It is described as `select_limit_value` in "gram.y".
-public enum SelectLimitValue: SQLTokenSequence {
+public enum SelectLimitValue: TokenSequence {
   /// The maximum number of rows to return.
   case count(any GeneralExpression)
   case all
 
   public struct Iterator: IteratorProtocol {
     public typealias Element = SQLToken
-    private let _iterator: AnySQLTokenSequenceIterator
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+    private let _iterator: AnyTokenSequenceIterator
+    fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
     public func next() -> SQLToken? { _iterator.next() }
   }
 
@@ -23,9 +23,9 @@ public enum SelectLimitValue: SQLTokenSequence {
   public func makeIterator() -> Iterator {
     switch self {
     case .count(let count):
-      return Iterator(count._asAny.makeIterator())
+      return Iterator(count._anyIterator)
     case .all:
-      return Iterator(AnySQLTokenSequenceIterator(SingleToken(.all)))
+      return Iterator(AnyTokenSequenceIterator(SingleToken(.all)))
     }
   }
 
@@ -36,20 +36,20 @@ public enum SelectLimitValue: SQLTokenSequence {
 
 /// A value used in `OFFSET` clause or `LIMIT` clause.
 /// It is described as `select_offset_value` in "gram.y".
-public struct SelectOffsetValue: SQLTokenSequence {
+public struct SelectOffsetValue: TokenSequence {
   public let value: any GeneralExpression
 
   public struct Iterator: IteratorProtocol {
     public typealias Element = SQLToken
-    private let _iterator: AnySQLTokenSequenceIterator
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+    private let _iterator: AnyTokenSequenceIterator
+    fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
     public func next() -> SQLToken? { _iterator.next() }
   }
 
   public typealias Tokens = Self
 
   public func makeIterator() -> Iterator {
-    return Iterator(value._asAny.makeIterator())
+    return Iterator(value._anyIterator)
   }
 
   public init(_ value: any GeneralExpression) {
@@ -82,19 +82,24 @@ public struct LimitClause: Clause {
     }
 
     /// An expression for row count that is described as `select_fetch_first_value` in "gram.y".
-    public struct RowCount: SQLTokenSequence {
-      public let value: any SQLTokenSequence
+    public struct RowCount: TokenSequenceGenerator {
+      public let value: any TokenSequenceGenerator
 
-      public struct Iterator: IteratorProtocol {
-        public typealias Element = SQLToken
-        private let _iterator: AnySQLTokenSequenceIterator
-        fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
-        public func next() -> SQLToken? { _iterator.next() }
+      public struct Tokens: Sequence {
+        public struct Iterator: IteratorProtocol {
+          public typealias Element = SQLToken
+          private let _iterator: AnyTokenSequenceIterator
+          fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
+          public func next() -> SQLToken? { _iterator.next() }
+        }
+
+        private let _count: RowCount
+        fileprivate init(_ count: RowCount) { self._count = count }
+        public func makeIterator() -> Iterator { return Iterator(_count.value._anyIterator) }
       }
-      public typealias Tokens = Self
 
-      public func makeIterator() -> Iterator {
-        return Iterator(value._asAny.makeIterator())
+      public var tokens: Tokens {
+        return Tokens(self)
       }
 
       public init<T>(_ value: T) where T: ProductionExpression {
@@ -251,7 +256,7 @@ public struct OffsetClause: Clause {
 
   private let _value: _Value
 
-  public var value: any SQLTokenSequence {
+  public var value: any TokenSequenceGenerator {
     switch _value {
     case .offset(let offset):
       return offset.value

@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing a list that is described as `any_name_list` in "gram.y".
-public struct AnyNameList: SQLTokenSequence {
+public struct AnyNameList: TokenSequenceGenerator {
   public let names: NonEmptyList<any AnyName>
 
   public init(names: NonEmptyList<any AnyName>) {
@@ -14,7 +14,7 @@ public struct AnyNameList: SQLTokenSequence {
   }
 
   public var tokens: JoinedSQLTokenSequence {
-    return names.map({ $0 as any SQLTokenSequence }).joinedByCommas()
+    return names.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 }
 

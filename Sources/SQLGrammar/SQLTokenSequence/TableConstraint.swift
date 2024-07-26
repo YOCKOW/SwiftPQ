@@ -7,7 +7,7 @@
 
 
 /// An element of constraint attribute that is described as `ConstraintAttributeElem` in "gram.y".
-public enum TableConstraintAttributeElement: SQLTokenSequence {
+public enum TableConstraintAttributeElement: TokenSequence {
   case notDeferrable
   case deferrable
   case initiallyImmediate
@@ -15,7 +15,7 @@ public enum TableConstraintAttributeElement: SQLTokenSequence {
   case notValid
   case noInherit
 
-  public struct Tokens: SQLTokenSequence {
+  public struct Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -44,16 +44,11 @@ public enum TableConstraintAttributeElement: SQLTokenSequence {
       return .noInherit
     }
   }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
-  }
 }
 
 /// A list of `TableConstraintAttributeElement` that is described as
 /// `ConstraintAttributeSpec` in "gram.y".
-public struct TableConstraintAttributeSpecification: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct TableConstraintAttributeSpecification: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public typealias ArrayLiteralElement = TableConstraintAttributeElement
 
   public var elements: Array<TableConstraintAttributeElement>
@@ -113,7 +108,7 @@ private extension Optional where Wrapped == TableConstraintAttributeSpecificatio
 }
 
 /// Representation of `ExistingIndex` in "gram.y".
-public struct ExistingIndex: SQLTokenSequence {
+public struct ExistingIndex: TokenSequenceGenerator {
   public let name: Name
 
   private static let _usingIndexTokens = UnknownSQLTokenSequence<Array<SQLToken>>([.using, .index])
@@ -128,8 +123,8 @@ public struct ExistingIndex: SQLTokenSequence {
 
 /// An element used in an `EXCLUDE` constraint. This is described as `ExclusionConstraintElem` in
 /// "gram.y".
-public struct ExclusionConstraintElement: SQLTokenSequence {
-  public enum Operator: SQLTokenSequence {
+public struct ExclusionConstraintElement: TokenSequenceGenerator {
+  public enum Operator: TokenSequenceGenerator {
     case bare(LabeledOperator)
     case constructor(OperatorConstructor)
 
@@ -168,7 +163,7 @@ public struct ExclusionConstraintElement: SQLTokenSequence {
 
 /// A list of `ExclusionConstraintElement`. This is described as `ExclusionConstraintList` in
 /// "gram.y".
-public struct ExclusionConstraintList: SQLTokenSequence,
+public struct ExclusionConstraintList: TokenSequenceGenerator,
                                        InitializableWithNonEmptyList,
                                        ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = ExclusionConstraintElement
@@ -186,8 +181,8 @@ public struct ExclusionConstraintList: SQLTokenSequence,
 }
 
 /// An element of table constraint that is described as `ConstraintElem` in "gram.y".
-public struct TableConstraintElement: SQLTokenSequence {
-  public enum ConstraintType: SQLTokenSequence {
+public struct TableConstraintElement: TokenSequenceGenerator {
+  public enum ConstraintType: TokenSequenceGenerator {
     case check(any GeneralExpression)
 
     case unique(
@@ -454,7 +449,7 @@ public struct TableConstraintElement: SQLTokenSequence {
 }
 
 /// Representation of `TableConstraint` in "gram.y".
-public struct TableConstraint: SQLTokenSequence {
+public struct TableConstraint: TokenSequenceGenerator {
   public let name: Name?
   
   public let constraint: TableConstraintElement

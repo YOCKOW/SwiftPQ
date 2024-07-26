@@ -11,7 +11,7 @@ public enum GeneratedWhenClause: Clause {
   case always
   case byDefault
 
-  public struct Tokens: SQLTokenSequence {
+  public struct Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
     public static let always: Tokens = .init([.always])
@@ -26,10 +26,5 @@ public enum GeneratedWhenClause: Clause {
     case .byDefault:
       return .byDefault
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }

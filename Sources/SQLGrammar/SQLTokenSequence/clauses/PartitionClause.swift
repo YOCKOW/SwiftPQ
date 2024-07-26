@@ -27,25 +27,21 @@ public struct PartitionClause: Clause {
 }
 
 /// A parameter of partition specifitcation. This is described as `part_elem` in "gram.y".
-public struct PartitionSpecificationParameter: SQLTokenSequence {
-  private enum _NameOrExpression: SQLTokenSequence {
+public struct PartitionSpecificationParameter: TokenSequenceGenerator {
+  private enum _NameOrExpression: TokenSequenceGenerator {
     case name(ColumnIdentifier)
     case funcExpression(any WindowlessFunctionExpression)
     case generalExpression(any GeneralExpression)
 
-    var tokens: AnySQLTokenSequence {
+    var tokens: AnyTokenSequenceGenerator.Tokens {
       switch self {
       case .name(let columnIdentifier):
-        return columnIdentifier.asSequence._asAny
+        return columnIdentifier.asSequence._asAny.tokens
       case .funcExpression(let windowlessFunctionExpression):
-        return windowlessFunctionExpression._asAny
+        return windowlessFunctionExpression._asAny.tokens
       case .generalExpression(let generalExpression):
-        return generalExpression._asAny.parenthesized._asAny
+        return generalExpression._asAny.parenthesized._asAny.tokens
       }
-    }
-
-    func makeIterator() -> AnySQLTokenSequenceIterator {
-      return tokens.makeIterator()
     }
   }
 
@@ -107,7 +103,7 @@ public struct PartitionSpecificationParameter: SQLTokenSequence {
 }
 
 /// A list of `PartitionSpecificationParameter`s. This is described as `part_params` in "gram.y".
-public struct PartitionSpecificationParameterList: SQLTokenSequence,
+public struct PartitionSpecificationParameterList: TokenSequenceGenerator,
                                                    InitializableWithNonEmptyList,
                                                    ExpressibleByArrayLiteral {
   public let parameters: NonEmptyList<PartitionSpecificationParameter>

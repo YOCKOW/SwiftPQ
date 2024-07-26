@@ -54,7 +54,7 @@ public enum NullOrdering: Segment {
 }
 
 /// Representation of an expression to sort. It is described as `sortby` in "gram.y".
-public struct SortBy<Expression>: SQLTokenSequence where Expression: GeneralExpression {
+public struct SortBy<Expression>: TokenSequenceGenerator where Expression: GeneralExpression {
   public enum Sorter {
     /// A keyword `ASC` or `DESC`
     case direction(SortDirection)
@@ -70,7 +70,7 @@ public struct SortBy<Expression>: SQLTokenSequence where Expression: GeneralExpr
   public let nullOrdering: NullOrdering?
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any SQLTokenSequence] = [expression]
+    var sequences: [any TokenSequenceGenerator] = [expression]
 
     switch sorter {
     case .direction(let sortDirection):
@@ -110,7 +110,7 @@ public struct SortBy<Expression>: SQLTokenSequence where Expression: GeneralExpr
   }
 }
 
-private struct _AnySortBy: SQLTokenSequence {
+private struct _AnySortBy: TokenSequenceGenerator {
   class _Box {
     var tokens: JoinedSQLTokenSequence { fatalError("Must be overridden.") }
   }
@@ -138,7 +138,7 @@ final class OrderBy: Segment {
 /// A type that represents `ORDER BY` clause described as `sort_clause` in "gram.y".
 public struct SortClause: Clause {
   /// A list of `SortBy` instances. It is described as `sortby_list` in "gram.y".
-  public struct List: SQLTokenSequence {
+  public struct List: TokenSequenceGenerator {
     private var _list: NonEmptyList<_AnySortBy>
 
     public init<FirstSortByExpr, each OptionalSortByExpr>(

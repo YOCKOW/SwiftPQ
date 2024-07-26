@@ -7,33 +7,23 @@
 
 /// A keywords to determine how to treat `NULL`.
 /// It is described as `opt_unique_null_treatment` in "gram.y".
-public enum NullTreatment: SQLTokenSequence {
+public enum NullTreatment: TokenSequenceGenerator {
   case distinct
   case notDistinct
 
-  public class Tokens: Segment {
+  public class Tokens: Segment, TokenSequence {
     public let tokens: Array<SQLToken>
-    init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
-  }
-  private final class _NullsDistinct: Tokens {
-    private init() { super.init([.nulls, .distinct]) }
-    static let nullsDistinct: _NullsDistinct = .init()
-  }
-  private final class _NullsNotDistinct: Tokens {
-    private init() { super.init([.nulls, .not, .distinct]) }
-    static let nullsNotDistinct: _NullsNotDistinct = .init()
+    private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
+    public static let nullsDistinct: Tokens = .init([.nulls, .distinct])
+    public static let nullsNotDistinct: Tokens = .init([.nulls, .not, .distinct])
   }
 
   public var tokens: Tokens {
     switch self {
     case .distinct:
-      return _NullsDistinct.nullsDistinct
+      return .nullsDistinct
     case .notDistinct:
-      return _NullsNotDistinct.nullsNotDistinct
+      return .nullsNotDistinct
     }
-  }
-
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }

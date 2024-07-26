@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An option to be used when a table is created. This is described as `OptTemp` in "gram.y".
-public enum TemporarinessOption: SQLTokenSequence {
+public enum TemporarinessOption: TokenSequence {
   case temporary
   case temp
   case localTemporary
@@ -15,7 +15,7 @@ public enum TemporarinessOption: SQLTokenSequence {
   case globalTemp
   case unlogged
 
-  public final class Tokens: SQLTokenSequence {
+  public final class Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -46,10 +46,5 @@ public enum TemporarinessOption: SQLTokenSequence {
     case .unlogged:
       return .unlogged
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }

@@ -22,7 +22,7 @@ public protocol JSONAggregateFunctionExpression: WindowlessFunctionExpression {}
 
 /// A type that represents `func_application` described in "gram.y".
 public struct FunctionApplication: WindowlessFunctionExpression {
-  public struct ArgumentList: SQLTokenSequence {
+  public struct ArgumentList: TokenSequenceGenerator {
     public enum AggregatePattern: LosslessTokenConvertible {
       case all
       case distinct
@@ -57,7 +57,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
     public let orderBy: SortClause?
 
     public var tokens: JoinedSQLTokenSequence {
-      var sequences: [any SQLTokenSequence] = []
+      var sequences: [any TokenSequenceGenerator] = []
 
       if let aggregate = self.aggregate {
         sequences.append(aggregate.asSequence)
@@ -132,7 +132,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
   }
 
   /// Enclosed expression(s) as argument list.
-  public enum Arguments: SQLTokenSequence {
+  public enum Arguments: TokenSequenceGenerator {
     case any
 
     case list(ArgumentList)
@@ -385,7 +385,7 @@ public struct TypeCastFunction: CommonFunctionSubexpression, ValueExpression {
       value,
       SingleToken(.as),
       typeName
-    ] as [any SQLTokenSequence]))
+    ] as [any TokenSequenceGenerator]))
   }
 
   public init(_ value: any GeneralExpression, `as` typeName: TypeName) {
@@ -452,7 +452,7 @@ public struct ExtractFunction: CommonFunctionSubexpression {
         field.asSequence,
         SingleToken(.from),
         source,
-      ] as [any SQLTokenSequence])
+      ] as [any TokenSequenceGenerator])
     }
   }
 
@@ -485,7 +485,7 @@ public struct NormalizeFunction: CommonFunctionSubexpression {
         [
           text,
           form.map(SingleToken.init),
-        ] as [(any SQLTokenSequence)?],
+        ],
         separator: commaSeparator
       )
     )
@@ -500,7 +500,7 @@ public struct NormalizeFunction: CommonFunctionSubexpression {
 /// A representation of `OVERLAY '(' overlay_list ')'` or `OVERLAY '(' func_arg_list_opt ')'`.
 public struct OverlayFunction: CommonFunctionSubexpression {
   /// A representation of `overlay_list`.
-  public struct List: SQLTokenSequence {
+  public struct List: TokenSequenceGenerator {
     public let targetText: any GeneralExpression
 
     public let replacementText: any GeneralExpression
@@ -516,8 +516,8 @@ public struct OverlayFunction: CommonFunctionSubexpression {
         replacementText,
         SingleToken(.from),
         startIndex,
-        length.map({ JoinedSQLTokenSequence([SingleToken(.for), $0] as [any SQLTokenSequence]) }),
-      ] as [(any SQLTokenSequence)?])
+        length.map({ JoinedSQLTokenSequence([SingleToken(.for), $0] as [any TokenSequenceGenerator]) }),
+      ] as [(any TokenSequenceGenerator)?])
     }
 
     public init(
@@ -533,7 +533,7 @@ public struct OverlayFunction: CommonFunctionSubexpression {
     }
   }
 
-  private enum _Arguments: SQLTokenSequence {
+  private enum _Arguments: TokenSequenceGenerator {
     case list(List)
     case functionArgumentList(FunctionArgumentList?)
 
@@ -590,7 +590,7 @@ public struct PositionFunction: CommonFunctionSubexpression {
       substring,
       SingleToken(.in),
       text,
-    ] as [any SQLTokenSequence])
+    ] as [any TokenSequenceGenerator])
     return SingleToken(.position).followedBy(parenthesized: list)
   }
 
@@ -603,7 +603,7 @@ public struct PositionFunction: CommonFunctionSubexpression {
 /// A representation of `SUBSTRING '(' substr_list ')'` or `SUBSTRING '(' func_arg_list_opt ')'`.
 public struct SubstringFunction: CommonFunctionSubexpression {
   /// A representation of `substr_list`.
-  public struct List: SQLTokenSequence {
+  public struct List: TokenSequenceGenerator {
     private enum _Pattern {
       case range(startIndex: (any GeneralExpression)?, length: (any GeneralExpression)?)
       case sqlRegularExpression(pattern: any GeneralExpression, escapeCharacter: any GeneralExpression)
@@ -642,7 +642,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
     }
 
     public var tokens: JoinedSQLTokenSequence {
-      var sequences: [any SQLTokenSequence] = [targetText]
+      var sequences: [any TokenSequenceGenerator] = [targetText]
       switch _pattern {
       case .range(let startIndex, let length):
         assert(startIndex != nil || length != nil, "Invalid range?!")
@@ -660,7 +660,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
           pattern,
           SingleToken(.escape),
           escapeCharacter,
-        ] as [any SQLTokenSequence])
+        ] as [any TokenSequenceGenerator])
       }
       return JoinedSQLTokenSequence(sequences)
     }
@@ -704,7 +704,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
     }
   }
 
-  private enum _Arguments: SQLTokenSequence {
+  private enum _Arguments: TokenSequenceGenerator {
     case list(List)
     case functionArgumentList(FunctionArgumentList?)
 
@@ -783,7 +783,7 @@ public struct TreatFunction: CommonFunctionSubexpression {
       value,
       SingleToken(.as),
       typeName
-    ] as [any SQLTokenSequence]))
+    ] as [any TokenSequenceGenerator]))
   }
 
   public init(_ value: any GeneralExpression, `as` typeName: TypeName) {
@@ -825,7 +825,7 @@ public struct TrimFunction: CommonFunctionSubexpression {
   }
 
   /// A representation of `trim_list`.
-  public struct List: SQLTokenSequence {
+  public struct List: TokenSequenceGenerator {
     private enum _Style {
       case trimFromTarget(any GeneralExpression, GeneralExpressionList)
       case from(GeneralExpressionList)
@@ -841,7 +841,7 @@ public struct TrimFunction: CommonFunctionSubexpression {
           trimCharacters,
           SingleToken(.from),
           target,
-        ] as [any SQLTokenSequence])
+        ] as [any TokenSequenceGenerator])
       case .from(let list):
         return JoinedSQLTokenSequence(SingleToken(.from), list)
       case .onlyList(let list):
@@ -1058,7 +1058,7 @@ public struct XMLExistsFunction: CommonFunctionSubexpression {
     return SingleToken(.xmlexists).followedBy(parenthesized: JoinedSQLTokenSequence([
       xmlQuery,
       argument,
-    ] as [any SQLTokenSequence]))
+    ] as [any TokenSequenceGenerator]))
   }
 
   public init(xmlQuery: any ProductionExpression, argument: XMLPassingArgument) {
@@ -1100,7 +1100,7 @@ public struct XMLParseFunction: CommonFunctionSubexpression {
       SingleToken(option),
       text,
       whitespaceOption,
-    ] as [(any SQLTokenSequence)?]))
+    ] as [(any TokenSequenceGenerator)?]))
   }
 
   public init(
@@ -1135,9 +1135,9 @@ public struct XMLPIFunction: CommonFunctionSubexpression {
       SingleToken(.name),
       SingleToken(name),
       content.map({
-        JoinedSQLTokenSequence([commaSeparator, $0] as [any SQLTokenSequence])
+        JoinedSQLTokenSequence([commaSeparator, $0] as [any TokenSequenceGenerator])
       }),
-    ] as [(any SQLTokenSequence)?]))
+    ] as [(any TokenSequenceGenerator)?]))
   }
 
   public init(name: ColumnLabel, content: (any GeneralExpression)?) {
@@ -1167,7 +1167,7 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
     public var tokens: JoinedSQLTokenSequence {
       switch self {
       case .version(let expr):
-        return JoinedSQLTokenSequence([SingleToken(.version), expr] as [any SQLTokenSequence])
+        return JoinedSQLTokenSequence([SingleToken(.version), expr] as [any TokenSequenceGenerator])
       case .noValue:
         return XMLRootFunction.Version._noValueTokens
       }
@@ -1209,7 +1209,7 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
       commaSeparator,
       version,
       standalone.map({ JoinedSQLTokenSequence(commaSeparator, $0) }),
-    ] as [(any SQLTokenSequence)?]))
+    ] as [(any TokenSequenceGenerator)?]))
   }
 
   public init(xml: any GeneralExpression, version: Version, standalone: Standalone?) {
@@ -1264,7 +1264,7 @@ public struct XMLSerializeFunction: CommonFunctionSubexpression {
       SingleToken(.as),
       typeName,
       indentOption,
-    ] as [(any SQLTokenSequence)?]))
+    ] as [(any TokenSequenceGenerator)?]))
   }
 
   public init(
@@ -1282,7 +1282,7 @@ public struct XMLSerializeFunction: CommonFunctionSubexpression {
 
 /// A representation of `JSON_OBJECT ( ... )`.
 public struct JSONObjectFunction: CommonFunctionSubexpression {
-  public struct Arguments: SQLTokenSequence {
+  public struct Arguments: TokenSequenceGenerator {
     public let keyValuePairs: JSONKeyValuePairList?
 
     public let nullOption: JSONObjectConstructorNullOption?
@@ -1385,7 +1385,7 @@ public struct JSONObjectFunction: CommonFunctionSubexpression {
 
 /// A representation of `JSON_ARRAY( ... )`.
 public struct JSONArrayFunction: CommonFunctionSubexpression {
-  private enum _Arguments: SQLTokenSequence {
+  private enum _Arguments: TokenSequenceGenerator {
     case valueList(
       JSONValueExpressionList,
       nullOption: JSONArrayConstructorNullOption?,
@@ -1403,7 +1403,7 @@ public struct JSONArrayFunction: CommonFunctionSubexpression {
       case .valueList(let list, let nullOption, let outputType):
         return .compacting(list, nullOption, outputType)
       case .selectStatement(let query, let format, let outputType):
-        return .compacting([query, format, outputType] as [(any SQLTokenSequence)?])
+        return .compacting([query, format, outputType] as [(any TokenSequenceGenerator)?])
       case .outputType(let outputType):
         return .compacting(outputType)
       }
@@ -1552,7 +1552,7 @@ public struct JSONAggregateWindowFunction: FunctionExpression {
   public let window: OverClause?
 
   public var tokens: JoinedSQLTokenSequence {
-    return .compacting([function, filter, window] as [(any SQLTokenSequence)?])
+    return .compacting([function, filter, window] as [(any TokenSequenceGenerator)?])
   }
 
   public init(

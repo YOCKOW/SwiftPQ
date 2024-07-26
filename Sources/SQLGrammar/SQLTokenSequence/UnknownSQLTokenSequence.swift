@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Unknown sequence of tokens.
-internal final class UnknownSQLTokenSequence<Base>: SQLTokenSequence where Base: Sequence,
+internal final class UnknownSQLTokenSequence<Base>: TokenSequenceGenerator where Base: Sequence,
                                                                            Base.Element: SQLToken {
   typealias Element = Base.Element
   typealias Tokens = Base
@@ -16,11 +16,6 @@ internal final class UnknownSQLTokenSequence<Base>: SQLTokenSequence where Base:
   @inlinable
   init(_ base: Base) {
     self.tokens = base
-  }
-
-  @inlinable
-  func makeIterator() -> Base.Iterator {
-    return tokens.makeIterator()
   }
 
   @inlinable

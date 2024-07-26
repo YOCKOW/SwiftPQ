@@ -23,7 +23,7 @@ public struct SingleTokenIterator<T>: IteratorProtocol where T: SQLToken {
 }
 
 /// A type that contains only one token, but conforms to `SQLTokenSequence`.
-public struct SingleToken: SQLTokenSequence {
+public struct SingleToken: TokenSequence {
   public let token: SQLToken
 
   @inlinable
@@ -36,6 +36,7 @@ public struct SingleToken: SQLTokenSequence {
     self.init(object.token)
   }
 
+  public typealias Tokens = Self
   public typealias Iterator = SingleTokenIterator<SQLToken>
 
   public func makeIterator() -> Iterator {
@@ -83,5 +84,5 @@ public struct SingleToken: SQLTokenSequence {
 
 internal extension SQLToken {
   @inlinable
-  var asSequence: some SQLTokenSequence { return SingleToken(self) }
+  var asSequence: some TokenSequence { return SingleToken(self) }
 }

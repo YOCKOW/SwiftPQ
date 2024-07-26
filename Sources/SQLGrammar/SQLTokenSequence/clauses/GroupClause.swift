@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An empty grouping set that is described as `empty_grouping_set` in "gram.y".
-public final class EmptyGroupingSet: SQLTokenSequence {
+public final class EmptyGroupingSet: TokenSequence {
   public let tokens: Array<SQLToken> = [.leftParenthesis, .joiner, .rightParenthesis]
   private init() {}
   public static let emptyGroupingSet: EmptyGroupingSet = .init()
@@ -42,7 +42,7 @@ public struct RollUpClause: Clause {
 public struct GroupingSetsClause: Clause {
   public let list: GroupingList
 
-  private final class _GroupingSetsTokens: SQLTokenSequence {
+  private final class _GroupingSetsTokens: TokenSequenceGenerator {
     let tokens: Array<SQLToken> = [.grouping, .sets]
     private init() {}
     static let groupingSetsTokens: _GroupingSetsTokens = .init()
@@ -58,7 +58,7 @@ public struct GroupingSetsClause: Clause {
 }
 
 /// An element used in `GROUP BY` clause, that is described as `group_by_item` in "gram.y".
-public enum GroupingElement: SQLTokenSequence {
+public enum GroupingElement: TokenSequenceGenerator {
   case expression(any GeneralExpression)
   case empty
   case cube(CubeClause)
@@ -67,30 +67,30 @@ public enum GroupingElement: SQLTokenSequence {
 
   public struct Tokens: Sequence {
     public typealias Element = SQLToken
-    private let _tokens: AnySQLTokenSequence
-    
+    private let _tokens: AnyTokenSequenceGenerator
+
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
-      private var _iterator: AnySQLTokenSequenceIterator
+      private var _iterator: AnyTokenSequenceIterator
       public mutating func next() -> SQLToken? { return _iterator.next() }
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) {
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) {
         self._iterator = iterator
       }
     }
 
     public func makeIterator() -> Iterator {
-      return Iterator(_tokens.makeIterator())
+      return Iterator(_tokens._anyIterator)
     }
 
-    fileprivate init<S>(_ tokens: S) where S: SQLTokenSequence {
-      self._tokens = AnySQLTokenSequence(tokens)
+    fileprivate init<S>(_ tokens: S) where S: TokenSequenceGenerator {
+      self._tokens = AnyTokenSequenceGenerator(tokens)
     }
   }
 
   public var tokens: Tokens {
     switch self {
     case .expression(let expr):
-      return Tokens(JoinedSQLTokenSequence([expr])) // Use JoinedSQLTokenSequence to hack
+      return Tokens(expr._asAny)
     case .empty:
       return Tokens(EmptyGroupingSet.emptyGroupingSet)
     case .cube(let cubeClause):
@@ -100,11 +100,6 @@ public enum GroupingElement: SQLTokenSequence {
     case .groupingSets(let groupingSetsClause):
       return Tokens(groupingSetsClause)
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 
   public init(_ expression: any GeneralExpression) {
@@ -129,7 +124,7 @@ public enum GroupingElement: SQLTokenSequence {
 }
 
 /// A list of `GroupingElement`, that is described as `group_by_list` in "gram.y".
-public struct GroupingList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct GroupingList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let elements: NonEmptyList<GroupingElement>
 
   public var tokens: JoinedSQLTokenSequence {

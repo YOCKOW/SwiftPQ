@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A representation of`window_specification` in "gram.y"
-public struct WindowSpecification: SQLTokenSequence {
+public struct WindowSpecification: TokenSequenceGenerator {
   /// Existing window name.
   public let name: ColumnIdentifier?
 
@@ -20,10 +20,6 @@ public struct WindowSpecification: SQLTokenSequence {
     return Parenthesized<JoinedSQLTokenSequence>(
       .compacting(name?.asSequence, partitionBy, orderBy, frame)
     )
-  }
-
-  public func makeIterator() -> Parenthesized<JoinedSQLTokenSequence>.Iterator {
-    return tokens.makeIterator()
   }
 
   public init(

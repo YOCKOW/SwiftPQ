@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Comma as a separator.
-public final class CommaSeparator: SQLTokenSequence {
+public final class CommaSeparator: TokenSequenceGenerator {
   public let tokens: [SQLToken] = [.joiner, .comma]
   public static let commaSeparator: CommaSeparator = .init()
 }

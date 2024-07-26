@@ -29,7 +29,7 @@ private extension SingleToken {
 /// Corresponding type to an enum [`RawParseMode`](https://doxygen.postgresql.org/parser_8h.html#a07cc1510116b0047dad7ba4f1fd23a41)
 /// defined in PostgreSQL's "parser.h".
 /// This is described as `parse_toplevel` in "gram.y".
-public enum RawParseMode: SQLTokenSequence {
+public enum RawParseMode: TokenSequenceGenerator {
   case `default`(StatementList)
   case typeName(TypeName)
   case plpgSQLExpression(PLpgSQLExpression)

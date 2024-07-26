@@ -13,25 +13,25 @@ public enum AttributeName: NameRepresentation {
     self = .columnLabel(label)
   }
 
-  public final class Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-
-    private let _iterator: AnySQLTokenSequenceIterator
-
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) {
-      self._iterator = iterator
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
+      public func next() -> Element? { return _iterator.next() }
     }
-
-    public func next() -> Element? {
-      return _iterator.next()
+    private let _name: AttributeName
+    fileprivate init(_ name: AttributeName) { self._name = name }
+    public func makeIterator() -> Iterator {
+      switch _name {
+      case .columnLabel(let columnLabel):
+        return .init(columnLabel.token.asSequence._anyIterator)
+      }
     }
   }
 
-  public func makeIterator() -> Iterator {
-    switch self {
-    case .columnLabel(let columnLabel):
-      return .init(AnySQLTokenSequenceIterator(columnLabel.token.asSequence))
-    }
+  public var tokens: Tokens {
+    return Tokens(self)
   }
 }
 internal protocol _AttributeNameConvertible {
@@ -43,7 +43,7 @@ extension ColumnLabel: _AttributeNameConvertible {
 }
 
 /// A type representing attributes which is expressed as `attrs` in "gram.y".
-public struct AttributeList: SQLTokenSequence {  
+public struct AttributeList: TokenSequenceGenerator {  
   public var names: NonEmptyList<AttributeName>
 
   public init(names: NonEmptyList<AttributeName>) {

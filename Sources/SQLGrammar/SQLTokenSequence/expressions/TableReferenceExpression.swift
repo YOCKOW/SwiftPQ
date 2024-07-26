@@ -20,7 +20,7 @@ extension Parenthesized: JoinedTableExpression,
 // MARK: - JoinedTableExpression a.k.a. joined_table implementations
 
 /// Representation of `join_type` (and `opt_outer`).
-public enum JoinType: SQLTokenSequence {
+public enum JoinType: TokenSequenceGenerator {
   case fullOuter
   case full
   case leftOuter
@@ -79,7 +79,7 @@ public struct CrossJoinedTable: JoinedTableExpression {
   let leftTable: any TableReferenceExpression
   let rightTable: any TableReferenceExpression
 
-  private final class _CrossJoin: SQLTokenSequence {
+  private final class _CrossJoin: TokenSequenceGenerator {
     let tokens: Array<SQLToken> = [.cross, .join]
     private init() {}
     static let crossJoin: _CrossJoin = .init()
@@ -90,7 +90,7 @@ public struct CrossJoinedTable: JoinedTableExpression {
       leftTable, 
       _CrossJoin.crossJoin,
       rightTable,
-    ] as [any SQLTokenSequence])
+    ] as [any TokenSequenceGenerator])
   }
 
   public init(
@@ -113,7 +113,7 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
   public let condition: JoinCondition
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any SQLTokenSequence] = [leftTable]
+    var sequences: [any TokenSequenceGenerator] = [leftTable]
     if case .natural = condition {
       sequences.append(SingleToken(.natural))
     }
@@ -131,7 +131,7 @@ public struct QualifiedJoinedTable: JoinedTableExpression {
       ))
     case .predicate(let booleanExpr):
       sequences.append(
-        JoinedSQLTokenSequence([SingleToken(.on), booleanExpr] as [any SQLTokenSequence])
+        JoinedSQLTokenSequence([SingleToken(.on), booleanExpr] as [any TokenSequenceGenerator])
       )
     case .natural:
       break

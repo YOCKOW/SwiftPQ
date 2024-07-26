@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Dot as a joiner.
-public final class DotJoiner: SQLTokenSequence {
+public final class DotJoiner: TokenSequenceGenerator {
   public let tokens: [SQLToken] = [.joiner, .dot, .joiner]
   public static let dotJoiner: DotJoiner = .init()
 }

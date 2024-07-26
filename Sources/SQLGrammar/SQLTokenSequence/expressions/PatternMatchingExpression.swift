@@ -14,7 +14,7 @@ public protocol PatternMatchingExpression: Expression {}
 /// `[NOT] LIKE`, `[NOT] ILIKE`, or `[NOT] SIMILAR TO`.
 public protocol PatternMatchingGeneralExpression: PatternMatchingExpression, GeneralExpression {
   /// An operator of pattern matching.
-  associatedtype Operator: SQLTokenSequence
+  associatedtype Operator: TokenSequenceGenerator
   var string: any GeneralExpression { get }
   var `operator`: Operator { get }
   var pattern: any GeneralExpression { get }

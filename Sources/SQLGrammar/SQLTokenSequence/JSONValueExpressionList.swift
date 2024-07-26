@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A list of JSON values, described as `json_value_expr_list` in "gram.y".
-public struct JSONValueExpressionList: SQLTokenSequence {
+public struct JSONValueExpressionList: TokenSequenceGenerator {
   public let values: NonEmptyList<JSONValueExpression>
 
   public var tokens: JoinedSQLTokenSequence {

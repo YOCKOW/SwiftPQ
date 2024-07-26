@@ -7,7 +7,7 @@
  ************************************************************************************************ */
 
 /// An element of XML namespace list that is described as `xml_namespace_el` in "gram.y".
-public struct XMLNamespaceListElement: SQLTokenSequence {
+public struct XMLNamespaceListElement: TokenSequenceGenerator {
   public enum Name {
     case name(ColumnLabel)
     case `default`
@@ -24,9 +24,9 @@ public struct XMLNamespaceListElement: SQLTokenSequence {
         uri,
         SingleToken(.as),
         namespaceName.asSequence
-      ] as [any SQLTokenSequence])
+      ] as [any TokenSequenceGenerator])
     case .default:
-      return JoinedSQLTokenSequence([SingleToken(.default), uri] as [any SQLTokenSequence])
+      return JoinedSQLTokenSequence([SingleToken(.default), uri] as [any TokenSequenceGenerator])
     }
   }
 
@@ -45,7 +45,7 @@ public struct XMLNamespaceListElement: SQLTokenSequence {
 }
 
 /// A list that is described as `xml_namespace_list` in "gram.y".
-public struct XMLNamespaceList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct XMLNamespaceList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let elements: NonEmptyList<XMLNamespaceListElement>
 
   public var tokens: JoinedSQLTokenSequence {

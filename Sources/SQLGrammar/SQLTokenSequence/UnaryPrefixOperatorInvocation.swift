@@ -6,9 +6,9 @@
  ************************************************************************************************ */
 
 /// A type that represents a unary prfeix operator invocation.
-public protocol UnaryPrefixOperatorInvocation: SQLTokenSequence {
+public protocol UnaryPrefixOperatorInvocation: TokenSequenceGenerator {
   associatedtype Operator
-  associatedtype Operand: SQLTokenSequence
+  associatedtype Operand: TokenSequenceGenerator
   var `operator`: Operator { get }
   var operand: Operand { get }
 }
@@ -20,7 +20,7 @@ extension UnaryPrefixOperatorInvocation where Self.Operator: SQLToken,
   }
 }
 
-extension UnaryPrefixOperatorInvocation where Self.Operator: SQLTokenSequence,
+extension UnaryPrefixOperatorInvocation where Self.Operator: TokenSequenceGenerator,
                                               Self.Tokens == JoinedSQLTokenSequence {
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence(self.operator, self.operand)
@@ -31,7 +31,7 @@ extension UnaryPrefixOperatorInvocation where Self.Operator: SQLTokenSequence,
 
 /// Representation of "`'+' operand`".
 public struct UnaryPrefixPlusOperatorInvocation<Operand>:
-  UnaryPrefixOperatorInvocation where Operand: SQLTokenSequence
+  UnaryPrefixOperatorInvocation where Operand: TokenSequenceGenerator
 {
   public let `operator`: SQLToken.Operator = .plus
 
@@ -77,7 +77,7 @@ extension UnaryPrefixPlusOperatorInvocation: RestrictedExpression where Operand:
 
 /// Representation of "`'-' operand`".
 public struct UnaryPrefixMinusOperatorInvocation<Operand>:
-  UnaryPrefixOperatorInvocation where Operand: SQLTokenSequence
+  UnaryPrefixOperatorInvocation where Operand: TokenSequenceGenerator
 {
   public let `operator`: SQLToken.Operator = .minus
 
@@ -124,7 +124,7 @@ extension UnaryPrefixMinusOperatorInvocation: RestrictedExpression where Operand
 
 /// Representation of `qual_Op a_expr` or `qual_Op b_expr`.
 public struct UnaryPrefixQualifiedGeneralOperatorInvocation<Operand>:
-  UnaryPrefixOperatorInvocation where Operand: SQLTokenSequence 
+  UnaryPrefixOperatorInvocation where Operand: TokenSequenceGenerator 
 {
   public typealias Operator = QualifiedGeneralOperator
 

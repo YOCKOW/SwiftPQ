@@ -8,7 +8,7 @@
 /// A column reference for "[copying types](https://www.postgresql.org/docs/current/plpgsql-declarations.html#PLPGSQL-DECLARATION-TYPE)".
 ///
 /// This is representation of `type_function_name attrs`.
-public struct CopyingTypeColumnReference: SQLTokenSequence {
+public struct CopyingTypeColumnReference: TokenSequenceGenerator {
   private let _top: TypeOrFunctionName
 
   private let _rest: AttributeList
@@ -50,7 +50,7 @@ public struct CopyingTypeColumnReference: SQLTokenSequence {
 }
 
 /// A declaration of a type that is described as `func_type` in "gram.y".
-public struct FunctionType: SQLTokenSequence {
+public struct FunctionType: TokenSequenceGenerator {
   private enum _Type {
     case typeName(TypeName)
     case copyingType(isSet: Bool, CopyingTypeColumnReference)

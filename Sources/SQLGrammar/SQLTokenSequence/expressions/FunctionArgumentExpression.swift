@@ -30,13 +30,13 @@ public struct FunctionArgumentExpression: Expression {
         name,
         SingleToken(SQLToken.Operator.arrowSign),
         value
-      ] as [any SQLTokenSequence])
+      ] as [any TokenSequenceGenerator])
     case .legacyNamed(let name, let value):
       return JoinedSQLTokenSequence([
         name,
         SingleToken(SQLToken.Operator.colonEquals),
         value
-      ] as [any SQLTokenSequence])
+      ] as [any TokenSequenceGenerator])
     }
   }
 
@@ -62,7 +62,7 @@ extension GeneralExpression {
 }
 
 /// A list of function arguments. Described as `func_arg_list` in "gram.y".
-public struct FunctionArgumentList: SQLTokenSequence {
+public struct FunctionArgumentList: TokenSequenceGenerator {
   public var arguments: NonEmptyList<FunctionArgumentExpression>
 
   public init(_ arguments: NonEmptyList<FunctionArgumentExpression>) {

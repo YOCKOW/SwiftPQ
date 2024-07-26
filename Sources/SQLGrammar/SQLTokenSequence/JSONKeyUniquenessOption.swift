@@ -7,7 +7,7 @@
 
 /// An option to determine key uniquness in JSON object,
 /// described as `json_key_uniqueness_constraint_opt` in "gram.y".
-public enum JSONKeyUniquenessOption: SQLTokenSequence {
+public enum JSONKeyUniquenessOption: TokenSequenceGenerator {
   case withUniqueKeys
   case withUnique
   case withoutUniqueKeys

@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Tokens to be passed as an argument described as `xmlexists_argument` in "gram.y".
-public struct XMLPassingArgument: SQLTokenSequence {
+public struct XMLPassingArgument: TokenSequenceGenerator {
   /// A mechanism that apply when passing an XML argument from SQL
   /// to an XML function or receiving a result.
   /// It is described as`xml_passing_mech` in "gram.y".
@@ -41,7 +41,7 @@ public struct XMLPassingArgument: SQLTokenSequence {
       defaultMechanism,
       xml,
       overriddenMechanism,
-    ] as [(any SQLTokenSequence)?] )
+    ] as [(any TokenSequenceGenerator)?] )
   }
 
   public init(

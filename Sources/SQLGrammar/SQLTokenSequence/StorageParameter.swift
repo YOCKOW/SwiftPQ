@@ -9,8 +9,8 @@
 /// A pair of a key and an optional value. This is `reloption_elem` in "gram.y".
 ///
 /// Reference: "[Storage Parameters](https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS)".
-public struct StorageParameter: SQLTokenSequence {
-  public struct Key: SQLTokenSequence {
+public struct StorageParameter: TokenSequenceGenerator {
+  public struct Key: TokenSequenceGenerator {
     /// Labels of which the name consists.
     public let labels: NonEmptyList<ColumnLabel>
 
@@ -41,17 +41,13 @@ public struct StorageParameter: SQLTokenSequence {
     // TODO: Add more static constants
   }
 
-  public struct Value: SQLTokenSequence {
+  public struct Value: TokenSequenceGenerator {
     public let value: DefinitionArgument
 
     public typealias Tokens = DefinitionArgument.Tokens
 
     public var tokens: Tokens {
       return value.tokens
-    }
-
-    public func makeIterator() -> Tokens.Iterator {
-      return tokens.makeIterator()
     }
 
     public init(_ value: DefinitionArgument) {
@@ -104,7 +100,7 @@ extension StorageParameter.Value: ExpressibleByBooleanLiteral,
 }
 
 /// A list of `StorageParameter`. This is described as `reloption_list` in "gram.y".
-public struct StorageParameterList: SQLTokenSequence,
+public struct StorageParameterList: TokenSequenceGenerator,
                                     InitializableWithNonEmptyList,
                                     ExpressibleByArrayLiteral,
                                     ExpressibleByDictionaryLiteral {
@@ -134,13 +130,10 @@ public struct StorageParameterList: SQLTokenSequence,
 }
 
 /// `reloptions` in "gram.y".
-internal struct _StorageParameters: SQLTokenSequence {
+internal struct _StorageParameters: TokenSequenceGenerator {
   let list: StorageParameterList
   var tokens: Parenthesized<StorageParameterList> {
     return list.parenthesized
-  }
-  func makeIterator() -> Parenthesized<StorageParameterList>.Iterator {
-    return tokens.makeIterator()
   }
   init(_ list: StorageParameterList) {
     self.list = list

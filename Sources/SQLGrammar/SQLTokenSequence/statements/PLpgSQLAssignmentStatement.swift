@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 /// Representation of PL/pgSQL Assignment statement described as `PLAssignStmt` in "gram.y".
-public struct PLpgSQLAssignmentStatement: SQLTokenSequence {
-  public struct Variable: SQLTokenSequence {
+public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
+  public struct Variable: TokenSequenceGenerator {
     /// Representation of `plassign_target` in "gram.y".
     public enum Target: CustomTokenConvertible {
       case identifier(ColumnIdentifier)

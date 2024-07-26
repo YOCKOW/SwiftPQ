@@ -6,14 +6,14 @@
  ************************************************************************************************ */
 
 /// List of statements. This is described as `stmtmulti` in "gram.y".
-public struct StatementList: SQLTokenSequence,
+public struct StatementList: TokenSequenceGenerator,
                              InitializableWithNonEmptyList,
                              ExpressibleByArrayLiteral {
   public var statements: NonEmptyList<any TopLevelStatement>
 
   @inlinable
   public var tokens: JoinedSQLTokenSequence {
-    return statements.map({ $0 as any SQLTokenSequence }).joined(separator: statementTerminator)
+    return statements.map({ $0 as any TokenSequenceGenerator }).joined(separator: statementTerminator)
   }
 
   public init(_ statements: NonEmptyList<any TopLevelStatement>) {

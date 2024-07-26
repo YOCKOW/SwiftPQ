@@ -12,7 +12,7 @@ public struct JSONValueExpression: Expression {
   public let format: JSONFormatClause?
 
   public var tokens: JoinedSQLTokenSequence {
-    JoinedSQLTokenSequence.compacting([value, format] as [(any SQLTokenSequence)?])
+    JoinedSQLTokenSequence.compacting([value, format] as [(any TokenSequenceGenerator)?])
   }
 
   public init(value: any GeneralExpression, format: JSONFormatClause? = nil) {

@@ -70,7 +70,7 @@ struct AnyWhenClause: Clause {
 }
 
 /// A list of "when clause", that is described as `when_clause_list` in "gram.y".
-public struct WhenClauseList: SQLTokenSequence {
+public struct WhenClauseList: TokenSequenceGenerator {
   private var _clauses: NonEmptyList<AnyWhenClause>
 
   public var tokens: JoinedSQLTokenSequence {

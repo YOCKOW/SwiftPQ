@@ -6,10 +6,10 @@
  ************************************************************************************************ */
 
 /// A type that represents a binary infix operator invocation.
-public protocol BinaryInfixOperatorInvocation: SQLTokenSequence {
-  associatedtype LeftOperand: SQLTokenSequence
+public protocol BinaryInfixOperatorInvocation: TokenSequenceGenerator {
+  associatedtype LeftOperand: TokenSequenceGenerator
   associatedtype Operator
-  associatedtype RightOperand: SQLTokenSequence
+  associatedtype RightOperand: TokenSequenceGenerator
 
   /// Left operand.
   var leftOperand: LeftOperand { get }

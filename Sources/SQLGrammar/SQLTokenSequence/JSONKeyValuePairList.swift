@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A list of JSON key-value pairs, described as `json_name_and_value_list` in "gram.y".
-public struct JSONKeyValuePairList: SQLTokenSequence {
+public struct JSONKeyValuePairList: TokenSequenceGenerator {
   public let pairs: NonEmptyList<JSONKeyValuePair>
 
   public var tokens: JoinedSQLTokenSequence {

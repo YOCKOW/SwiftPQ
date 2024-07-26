@@ -34,7 +34,7 @@ public enum LockingStrength: Segment {
 }
 
 /// A list of locked tables. Described as `locked_rels_list` in "gram.y".
-public struct LockedRelationList: SQLTokenSequence,
+public struct LockedRelationList: TokenSequenceGenerator,
                                   InitializableWithNonEmptyList,
                                   ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = TableName
@@ -75,7 +75,7 @@ public enum LockingWaitOption: Segment {
 
 /// A combination of *strength*, *relation list*(optional), and *wait option*(optional).
 /// Described as `for_locking_item` in "gram.y".
-public struct LockingMode: SQLTokenSequence {
+public struct LockingMode: TokenSequenceGenerator {
   public let strength: LockingStrength
 
   public let tableNames: LockedRelationList?
@@ -126,7 +126,7 @@ public struct LockingMode: SQLTokenSequence {
 }
 
 /// A list of locking modes. Described as `for_locking_items` in "gram.y".
-public struct LockingModeList: SQLTokenSequence,
+public struct LockingModeList: TokenSequenceGenerator,
                                InitializableWithNonEmptyList,
                                ExpressibleByArrayLiteral {
   public let modes: NonEmptyList<LockingMode>
@@ -145,23 +145,19 @@ public struct LockingModeList: SQLTokenSequence,
 /// `FOR {UPDATE | NO KEY UPDATE | SHARE | KEY SHARE} ...` clause
 /// that is described as `for_locking_clause` in "gram.y".
 public struct LockingClause: Clause {
-  private enum _LockingMode: SQLTokenSequence {
+  private enum _LockingMode: TokenSequenceGenerator {
     case readOnly
     case others(LockingModeList)
 
     private static let _readOnlyTokens: Array<SQLToken> = [.for, .read, .only]
 
-    var tokens: AnySQLTokenSequence {
+    var tokens: AnyTokenSequenceGenerator.Tokens {
       switch self {
       case .readOnly:
-        return AnySQLTokenSequence(UnknownSQLTokenSequence(_LockingMode._readOnlyTokens))
+        return AnyTokenSequenceGenerator(UnknownSQLTokenSequence(_LockingMode._readOnlyTokens)).tokens
       case .others(let list):
-        return AnySQLTokenSequence(list)
+        return AnyTokenSequenceGenerator(list).tokens
       }
-    }
-
-    func makeIterator() -> AnySQLTokenSequenceIterator {
-      return tokens.makeIterator()
     }
   }
 
@@ -187,9 +183,9 @@ public struct LockingClause: Clause {
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
 
-      private let _iterator: AnySQLTokenSequenceIterator
+      private let _iterator: AnyTokenSequenceIterator
 
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) {
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) {
         self._iterator = iterator
       }
 
@@ -198,7 +194,7 @@ public struct LockingClause: Clause {
       }
     }
 
-    private let _tokens: AnySQLTokenSequence
+    private let _tokens: AnyTokenSequenceGenerator.Tokens
 
     fileprivate init(_ clause: LockingClause) {
       self._tokens = clause._mode.tokens
@@ -211,10 +207,6 @@ public struct LockingClause: Clause {
 
   public var tokens: Tokens {
     return Tokens(self)
-  }
-
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 
   private init(mode: _LockingMode) {

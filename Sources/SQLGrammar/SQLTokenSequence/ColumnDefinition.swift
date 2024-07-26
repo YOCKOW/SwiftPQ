@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Definition for a column. This is described as `columnDef` in "gram.y".
-public struct ColumnDefinition: SQLTokenSequence {
+public struct ColumnDefinition: TokenSequenceGenerator {
   /// Column name.
   public let name: ColumnIdentifier
 

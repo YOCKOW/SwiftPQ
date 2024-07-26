@@ -277,14 +277,14 @@ extension GeneralExpression {
 
 /// Representation of `BETWEEN` predicate expression.
 public struct BetweenExpression: GeneralExpression {
-  public struct Range: SQLTokenSequence {
+  public struct Range: TokenSequenceGenerator {
     public var isSymmetric: Bool?
 
     public let lowerEndpoint: any RestrictedExpression
     public let upperEndpoint: any GeneralExpression
 
     public var tokens: JoinedSQLTokenSequence {
-      var sequences: [any SQLTokenSequence] = []
+      var sequences: [any TokenSequenceGenerator] = []
       switch isSymmetric {
       case true:
         sequences.append(SingleToken(.symmetric))
@@ -387,7 +387,7 @@ extension GeneralExpression {
 /// An expression that is described as `a_expr IN_P in_expr` in "gram.y".
 public struct InExpression: GeneralExpression {
   /// Representation of subquery that is described as `in_expr` in "gram.y".
-  public struct Subquery: SQLTokenSequence {
+  public struct Subquery: TokenSequence {
     private enum _Generator {
       case parenthesizedSelect(AnyParenthesizedSelectStatement)
       case expressionList(GeneralExpressionList)
@@ -397,8 +397,8 @@ public struct InExpression: GeneralExpression {
 
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
       public func next() -> SQLToken? { return _iterator.next() }
     }
     public typealias Tokens = Self
@@ -585,7 +585,7 @@ public struct SatisfyExpression: GeneralExpression {
   }
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any SQLTokenSequence] = [value, comparator, kind.asSequence]
+    var sequences: [any TokenSequenceGenerator] = [value, comparator, kind.asSequence]
     switch _elements {
     case .subquery(let parenthesizedSelectStatement):
       sequences.append(parenthesizedSelectStatement)

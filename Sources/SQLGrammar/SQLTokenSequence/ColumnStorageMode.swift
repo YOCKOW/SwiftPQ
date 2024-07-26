@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// The storage mode for the column that is described as `column_storage` in "gram.y".
-public struct ColumnStorageMode: SQLTokenSequence {
+public struct ColumnStorageMode: TokenSequenceGenerator {
   public enum ModeName: CustomTokenConvertible {
     case identifier(ColumnIdentifier)
     case `default`

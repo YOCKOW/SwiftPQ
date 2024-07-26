@@ -79,7 +79,7 @@ public struct GeneralOperator: OperatorTokenConvertible {
 }
 
 /// A token sequence that represents a kind of operator.
-public protocol OperatorTokenSequence: SQLTokenSequence {}
+public protocol OperatorTokenSequence: TokenSequenceGenerator {}
 
 /// Representation of a schema-qualified operator name that is described as `any_operator`
 /// in "gram.y".
@@ -156,45 +156,46 @@ public struct QualifiedOperator: OperatorTokenSequence {
     self._type = .constructor(constructor)
   }
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
 
-    private var _iterator: AnySQLTokenSequenceIterator
+      private var _iterator: AnyTokenSequenceIterator
 
-    fileprivate init(_ qualifiedOperator: QualifiedOperator) {
-      switch qualifiedOperator._type {
-      case .bare(let someOperator):
-        self._iterator = AnySQLTokenSequenceIterator(
-          SingleTokenIterator<SQLToken.Operator>(someOperator.token)
-        )
-      case .constructor(let operatorConstructor):
-        self._iterator = AnySQLTokenSequenceIterator(operatorConstructor)
+      fileprivate init(_ qualifiedOperator: QualifiedOperator) {
+        switch qualifiedOperator._type {
+        case .bare(let someOperator):
+          self._iterator = AnyTokenSequenceIterator(
+            SingleTokenIterator<SQLToken.Operator>(someOperator.token)
+          )
+        case .constructor(let operatorConstructor):
+          self._iterator = operatorConstructor._anyIterator
+        }
+      }
+
+      public mutating func next() -> SQLToken? {
+        return _iterator.next()
       }
     }
-
-    public mutating func next() -> SQLToken? {
-      return _iterator.next()
+    private let _operator: QualifiedOperator
+    fileprivate init(_ operator: QualifiedOperator) { self._operator = `operator` }
+    public func makeIterator() -> Iterator {
+      return .init(_operator)
     }
   }
 
-  public func makeIterator() -> Iterator {
-    return .init(self)
+  public var tokens: Tokens {
+    return Tokens(self)
   }
 }
 
 /// Qualified general operator described as `qual_Op` in "gram.y".
 public struct QualifiedGeneralOperator: OperatorTokenSequence {
-  public typealias Element = QualifiedOperator.Element
-  public typealias Tokens = QualifiedOperator
-  public typealias Iterator = QualifiedOperator.Iterator
+  public typealias Tokens = QualifiedOperator.Tokens
 
   private let _qualifiedOperator: QualifiedOperator
 
-  public var tokens: QualifiedOperator { return _qualifiedOperator }
-
-  public func makeIterator() -> QualifiedOperator.Iterator {
-    return _qualifiedOperator.makeIterator()
-  }
+  public var tokens: QualifiedOperator.Tokens { return _qualifiedOperator.tokens }
 
   public init(_ generalOperator: GeneralOperator) {
     self._qualifiedOperator = .init(generalOperator)
@@ -213,7 +214,7 @@ public struct QualifiedGeneralOperator: OperatorTokenSequence {
 /// An operator that is used in `ANY/SOME/ALL` expression.
 /// It is described as `subquery_Op` in "gram.y".
 public struct SubqueryOperator: OperatorTokenSequence {
-  fileprivate enum _Operator: SQLTokenSequence {
+  fileprivate enum _Operator: TokenSequenceGenerator {
     /// `all_Op`
     case token(any OperatorTokenConvertible)
 
@@ -228,42 +229,56 @@ public struct SubqueryOperator: OperatorTokenSequence {
 
     case notCaseInsensitiveLike
 
-    struct Iterator: IteratorProtocol {
-      typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      init<S>(_ sequence: S) where S: SQLTokenSequence { self._iterator = .init(sequence) }
-      func next() -> SQLToken? { return _iterator.next() }
+    struct Tokens: Sequence {
+      struct Iterator: IteratorProtocol {
+        typealias Element = SQLToken
+        private let _iterator: AnyTokenSequenceIterator
+        init(_ iterator: AnyTokenSequenceIterator)  { self._iterator = iterator }
+        func next() -> SQLToken? { return _iterator.next() }
+      }
+      private let _operator: _Operator
+      fileprivate init(_ operator: _Operator) { self._operator = `operator` }
+      func makeIterator() -> Iterator {
+        switch _operator {
+        case .token(let op):
+          return Iterator(op.asSequence._anyIterator)
+        case .constructor(let constructor):
+          return Iterator(constructor._anyIterator)
+        case .like:
+          return Iterator(LikeExpression.Operator.like._anyIterator)
+        case .notLike:
+          return Iterator(NotLikeExpression.Operator.notLike._anyIterator)
+        case .caseInsensitiveLike:
+          return Iterator(CaseInsensitiveLikeExpression.Operator.iLike._anyIterator)
+        case .notCaseInsensitiveLike:
+          return Iterator(NotCaseInsensitiveLikeExpression.Operator.notIlike._anyIterator)
+        }
+      }
     }
 
-    func makeIterator() -> Iterator {
-      switch self {
-      case .token(let op):
-        return Iterator(op.asSequence)
-      case .constructor(let constructor):
-        return Iterator(constructor)
-      case .like:
-        return Iterator(LikeExpression.Operator.like)
-      case .notLike:
-        return Iterator(NotLikeExpression.Operator.notLike)
-      case .caseInsensitiveLike:
-        return Iterator(CaseInsensitiveLikeExpression.Operator.iLike)
-      case .notCaseInsensitiveLike:
-        return Iterator(NotCaseInsensitiveLikeExpression.Operator.notIlike)
-      }
+    var tokens: Tokens {
+      return Tokens(self)
     }
   }
 
   private let _operator: _Operator
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-    private let _iterator: _Operator.Iterator
-    fileprivate init(_ iterator: _Operator.Iterator) { self._iterator = iterator }
-    public func next() -> SQLToken? { return _iterator.next() }
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private let _iterator: _Operator.Tokens.Iterator
+      fileprivate init(_ iterator: _Operator.Tokens.Iterator) { self._iterator = iterator }
+      public func next() -> SQLToken? { return _iterator.next() }
+    }
+    private let _operator: _Operator
+    fileprivate init(_ operator: _Operator) { self._operator = `operator` }
+    public func makeIterator() -> Iterator {
+      return Iterator(_operator.tokens.makeIterator())
+    }
   }
 
-  public func makeIterator() -> Iterator {
-    return Iterator(_operator.makeIterator())
+  public var tokens: Tokens {
+    return Tokens(_operator)
   }
 
   private init(_operator: _Operator) {

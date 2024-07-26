@@ -6,11 +6,11 @@
  ************************************************************************************************ */
 
 /// A list, that is described as `from_list`, used in `FROM` clause.
-public struct FromList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct FromList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let tableReferences: NonEmptyList<any TableReferenceExpression>
 
   public var tokens: JoinedSQLTokenSequence {
-    return tableReferences.map({ $0 as any SQLTokenSequence }).joinedByCommas()
+    return tableReferences.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 
   public init(tableReferences: NonEmptyList<any TableReferenceExpression>) {

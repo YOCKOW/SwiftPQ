@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 /// An element of column constraint that is described as `ColConstraintElem` in "gram.y".
-public struct ColumnConstraintElement: SQLTokenSequence {
-  public enum ConstraintType: SQLTokenSequence {
+public struct ColumnConstraintElement: TokenSequenceGenerator {
+  public enum ConstraintType: TokenSequenceGenerator {
     case notNull
     
     case null
@@ -180,13 +180,13 @@ public struct ColumnConstraintElement: SQLTokenSequence {
 }
 
 /// Representation of `ConstraintAttr` in "gram.y".
-public enum ColumnConstraintAttribute: SQLTokenSequence {
+public enum ColumnConstraintAttribute: TokenSequenceGenerator {
   case deferrable
   case notDeferrable
   case initiallyDeferred
   case initiallyImmediate
 
-  public struct Tokens: SQLTokenSequence {
+  public struct Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -209,15 +209,10 @@ public enum ColumnConstraintAttribute: SQLTokenSequence {
       return .initiallyImmediate
     }
   }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
-  }
 }
 
 /// Representation of `CONSTRAINT name ColConstraintElem` or `ColConstraintElem` in "gram.y".
-public struct NamedColumnConstraint: SQLTokenSequence {
+public struct NamedColumnConstraint: TokenSequenceGenerator {
   public var name: Name?
 
   public var element: ColumnConstraintElement
@@ -237,17 +232,17 @@ public struct NamedColumnConstraint: SQLTokenSequence {
 /// This type includes `ConstraintAttr` and `COLLATE any_name`, and thus it is different from
 /// `TableConstraint` syntactically.
 /// So the name of this type is `ColumnQualifier` instead of `ColumnConstraint`.
-public struct ColumnQualifier: SQLTokenSequence {
-  public enum QualifierType: SQLTokenSequence {
+public struct ColumnQualifier: TokenSequenceGenerator {
+  public enum QualifierType: TokenSequence {
     case constraint(NamedColumnConstraint)
     case attribute(ColumnConstraintAttribute)
     case collation(Collation)
 
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      fileprivate init<S>(_ sequence: S) where S: SQLTokenSequence {
-        self._iterator = sequence._asAny.makeIterator()
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init<S>(_ sequence: S) where S: TokenSequenceGenerator {
+        self._iterator = sequence._anyIterator
       }
       public func next() -> SQLToken? {
         return _iterator.next()
@@ -273,11 +268,6 @@ public struct ColumnQualifier: SQLTokenSequence {
   @inlinable
   public var tokens: QualifierType.Tokens {
     return qualifier.tokens
-  }
-
-  @inlinable
-  public func makeIterator() -> QualifierType.Tokens.Iterator {
-    return tokens.makeIterator()
   }
 
   private init(qualifier: QualifierType) {
@@ -340,7 +330,7 @@ extension ConstraintCheckingTimeOption: _ColumnQualifierConvertible {
 }
 
 /// A list of column qualifiers. This is described as `ColQualList` in "gram.y".
-public struct ColumnQualifierList: SQLTokenSequence {
+public struct ColumnQualifierList: TokenSequenceGenerator {
   /// Column constraint described as `column_constraint` in
   /// [Official Documentation](https://www.postgresql.org/docs/current/sql-createtable.html).
   public struct Constraint {

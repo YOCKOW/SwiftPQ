@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Representation of `hash_partbound_elem` in "gram.y".
-public struct HashPartitionBound: SQLTokenSequence {
+public struct HashPartitionBound: TokenSequenceGenerator {
   public let name: NonReservedWord
 
   public let value: UnsignedIntegerConstantExpression
@@ -30,7 +30,7 @@ public struct HashPartitionBound: SQLTokenSequence {
 }
 
 /// A list of `HashPartitionBound`. This is described as `hash_partbound` in "gram.y".
-public struct HashPartitionBoundList: SQLTokenSequence,
+public struct HashPartitionBoundList: TokenSequenceGenerator,
                                       InitializableWithNonEmptyList,
                                       ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = HashPartitionBound
@@ -49,22 +49,22 @@ public struct HashPartitionBoundList: SQLTokenSequence,
 }
 
 /// Representation of `PartitionBoundSpec` in "gram.y".
-public struct PartitionBoundSpecification: SQLTokenSequence {
+public struct PartitionBoundSpecification: TokenSequenceGenerator {
   /// Representation of `partition_bound_expr` in [Official documentation](https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-PARTITION).
-  public struct BoundExpression: SQLTokenSequence {
+  public struct BoundExpression: TokenSequence {
     public let expression: any GeneralExpression
 
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
       public func next() -> SQLToken? { return _iterator.next() }
     }
 
     public typealias Tokens = Self
 
     public func makeIterator() -> Iterator {
-      return Iterator(expression._asAny.makeIterator())
+      return Iterator(expression._anyIterator)
     }
 
     public init<Expr>(_ expression: Expr) where Expr: GeneralExpression {
@@ -92,7 +92,7 @@ public struct PartitionBoundSpecification: SQLTokenSequence {
 
   public let strategy: Strategy
 
-  private final class _ForValues: SQLTokenSequence {
+  private final class _ForValues: TokenSequenceGenerator {
     let tokens: Array<SQLToken> = [.for, .values]
     private init() {}
     static let forValues: _ForValues = .init()

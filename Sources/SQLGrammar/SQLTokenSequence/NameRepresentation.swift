@@ -8,7 +8,7 @@
 import Foundation
 
 /// A type that represents a kind of name.
-public protocol NameRepresentation: SQLTokenSequence {}
+public protocol NameRepresentation: TokenSequenceGenerator {}
 
 /// A type representing a name that is described as `any_name` in "gram.y".
 public protocol AnyName: NameRepresentation {
@@ -395,11 +395,11 @@ public struct CompositeTypeName: AnyName,
 /// No corresponding expression exists in "gram.y",
 /// but almost same with the word described as `database_name` in [official documentation](https://www.postgresql.org/docs).
 public struct DatabaseName: NameRepresentation {
-  public typealias Elment = SQLToken
-  public typealias Tokens = Self
-  public typealias Iterator = SingleToken.Iterator
-
   public let identifier: ColumnIdentifier
+
+  public var tokens: SingleToken {
+    return SingleToken(identifier)
+  }
 
   public init(_ identifier: ColumnIdentifier) {
     self.identifier = identifier
@@ -407,10 +407,6 @@ public struct DatabaseName: NameRepresentation {
 
   public init(_ name: String) {
     self.init(ColumnIdentifier(name))
-  }
-
-  public func makeIterator() -> Iterator {
-    return SingleToken.Iterator(identifier.token)
   }
 }
 
@@ -445,12 +441,8 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
     }
 
     public struct Iterator: IteratorProtocol {
-      private var _iterator: AnySQLTokenSequenceIterator
-
-      fileprivate init<S>(_ seq: S) where S: Sequence, S.Element: SQLToken {
-        self._iterator = AnySQLTokenSequenceIterator(seq)
-      }
-
+      private var _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
       public func next() -> Element? {
         return _iterator.next()
       }
@@ -459,19 +451,15 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
     public func makeIterator() -> Iterator {
       switch _name._type {
       case .identifier(let identifier):
-        return .init(SingleToken(identifier))
+        return .init(identifier.asSequence._anyIterator)
       case .qualifiedName(let qualifiedName):
-        return .init(qualifiedName)
+        return .init(qualifiedName._anyIterator)
       }
     }
   }
 
   public var tokens: Tokens {
     return .init(self)
-  }
-
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 
   /// Creates a name with given token. Returns `nil` if invalid token was given.
@@ -506,10 +494,6 @@ public struct Name: NameRepresentation, ExpressibleByStringLiteral {
     return SingleToken(identifier)
   }
 
-  public func makeIterator() -> SingleTokenIterator<SQLToken> {
-    return tokens.makeIterator()
-  }
-
   public init(_ identifier: ColumnIdentifier) {
     self.identifier = identifier
   }
@@ -524,7 +508,7 @@ extension ColumnIdentifier {
 }
 
 /// Representation of `name_list` in "gram.y".
-public struct NameList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct NameList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let names: NonEmptyList<Name>
 
   public var tokens: JoinedSQLTokenSequence {
@@ -608,7 +592,7 @@ public struct OperatorClass: AnyName {
 ///
 /// This should not be represented by `Optional<NameList>`
 /// because `opt_name_list` must emit parenthesized `name_list` if it has a value.
-public enum OptionalNameList: SQLTokenSequence,
+public enum OptionalNameList: TokenSequenceGenerator,
                               ExpressibleByNilLiteral,
                               ExpressibleByArrayLiteral {
   case none
@@ -626,13 +610,13 @@ public enum OptionalNameList: SQLTokenSequence,
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
 
-      private let _iterator: AnySQLTokenSequenceIterator?
+      private let _iterator: AnyTokenSequenceIterator?
 
       public mutating func next() -> Element? {
         return _iterator?.next()
       }
 
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator?) {
+      fileprivate init(_ iterator: AnyTokenSequenceIterator?) {
         self._iterator = iterator
       }
     }
@@ -642,7 +626,7 @@ public enum OptionalNameList: SQLTokenSequence,
       case .none:
         return Iterator(nil)
       case .some(let list):
-        return Iterator(AnySQLTokenSequenceIterator(list.parenthesized))
+        return Iterator(list.parenthesized._anyIterator)
       }
     }
   }
@@ -698,11 +682,6 @@ public enum OptionalNameList: SQLTokenSequence,
   }
 
   @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
-  }
-
-  @inlinable
   public init(nilLiteral: ()) {
     self = .none
   }
@@ -740,10 +719,6 @@ public struct ParameterName: NameRepresentation,
     return .init(_name.token)
   }
 
-  public func makeIterator() -> SingleToken.Iterator {
-    return tokens.makeIterator()
-  }
-
   public init?(_ token: SQLToken) {
     guard let name = TypeOrFunctionName(token) else { return nil }
     self._name = name
@@ -755,7 +730,7 @@ public struct ParameterName: NameRepresentation,
 }
 
 /// A list of qualified names. Described as `qualified_name_list` in "gram.y".
-public struct QualifiedNameList<Q>: SQLTokenSequence,
+public struct QualifiedNameList<Q>: TokenSequenceGenerator,
                                     InitializableWithNonEmptyList,
                                     ExpressibleByArrayLiteral where Q: QualifiedName {
   public let names: NonEmptyList<Q>
@@ -772,11 +747,12 @@ public struct QualifiedNameList<Q>: SQLTokenSequence,
 /// A type representing a name of schema.
 public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
   public typealias StringLiteralType = String
-  public typealias Elment = SQLToken
-  public typealias Tokens = Self
-  public typealias Iterator = SingleToken.Iterator
 
   public let identifier: ColumnIdentifier
+
+  public var tokens: SingleToken {
+    return SingleToken(identifier)
+  }
 
   public init(_ identifier: ColumnIdentifier) {
     self.identifier = identifier
@@ -788,10 +764,6 @@ public struct SchemaName: ExpressibleByStringLiteral, NameRepresentation {
 
   public init(stringLiteral value: String) {
     self.init(value)
-  }
-
-  public func makeIterator() -> Iterator {
-    return SingleToken.Iterator(identifier.token)
   }
 }
 
@@ -936,10 +908,6 @@ public struct TableSpaceName: NameRepresentation, ExpressibleByStringLiteral {
 
   public var tokens: Tokens {
     return name.tokens
-  }
-
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 
   public init(_ name: Name) {

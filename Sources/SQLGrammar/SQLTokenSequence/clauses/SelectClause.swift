@@ -8,15 +8,15 @@
 /// A type that is described as `select_clause` in "gram.y".
 public struct SelectClause: Clause  {
   public class SelectQuery {
-    fileprivate func makeIterator() -> AnySQLTokenSequenceIterator {
+    fileprivate func makeIterator() -> AnyTokenSequenceIterator {
       fatalError("Must be overridden.")
     }
 
     fileprivate class _SelectStatement<T>: SelectQuery where T: SelectStatement {
       let statement: T
 
-      override func makeIterator() -> AnySQLTokenSequenceIterator {
-        return AnySQLTokenSequenceIterator(statement)
+      override func makeIterator() -> AnyTokenSequenceIterator {
+        return statement._anyIterator
       }
 
       init(_ statement: T) {
@@ -51,22 +51,15 @@ public struct SelectClause: Clause  {
     self.init(query: SelectQuery._ParenthesizedSelectStatement<T>(parenthesized))
   }
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-
-    private let _iterator: AnySQLTokenSequenceIterator
-
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) {
-      self._iterator = iterator
-    }
-
-    public mutating func next() -> SQLToken? {
-      return _iterator.next()
-    }
-  }
-
   public struct Tokens: Sequence {
     public typealias Element = SQLToken
+
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
+      public func next() -> SQLToken? { return _iterator.next() }
+    }
 
     private let _query: SelectQuery
 
@@ -81,10 +74,6 @@ public struct SelectClause: Clause  {
 
   public var tokens: Tokens {
     return Tokens(query)
-  }
-
-  public func makeIterator() -> Iterator {
-    return tokens.makeIterator()
   }
 }
 

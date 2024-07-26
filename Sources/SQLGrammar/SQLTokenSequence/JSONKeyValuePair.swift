@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A JSON name-value pair, described as `json_name_and_value` in "gram.y".
-public struct JSONKeyValuePair: SQLTokenSequence {
+public struct JSONKeyValuePair: TokenSequenceGenerator {
   public enum Delimiter: LosslessTokenConvertible {
     case valueKeyword
     case colon
@@ -43,7 +43,7 @@ public struct JSONKeyValuePair: SQLTokenSequence {
       key,
       SingleToken(delimiter),
       value
-    ] as [any SQLTokenSequence])
+    ] as [any TokenSequenceGenerator])
   }
 
   public init(key: any GeneralExpression, value: JSONValueExpression) {

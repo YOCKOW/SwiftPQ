@@ -29,7 +29,7 @@ public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLi
 }
 
 /// A list of column identifiers. Described as `columnList` in "gram.y".
-public struct ColumnList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct ColumnList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let names: NonEmptyList<ColumnListElement>
 
   public var tokens: JoinedSQLTokenSequence {
@@ -52,7 +52,7 @@ public struct ColumnList: SQLTokenSequence, ExpressibleByArrayLiteral {
 ///
 /// This should not be represented by `Optional<ColumnList>`
 /// because `opt_column_list` must emit parenthesized `columnList` if it has a value.
-public enum OptionalColumnList: SQLTokenSequence,
+public enum OptionalColumnList: TokenSequenceGenerator,
                                 InitializableWithNonEmptyList,
                                 ExpressibleByNilLiteral,
                                 ExpressibleByArrayLiteral {
@@ -62,20 +62,27 @@ public enum OptionalColumnList: SQLTokenSequence,
   case none
   case some(ColumnList)
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-    private var _iterator: ColumnList.Iterator?
-    fileprivate init(_ iterator: ColumnList.Iterator?) {
-      self._iterator = iterator
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private var _iterator: ColumnList.Tokens.Iterator?
+      fileprivate init(_ iterator: ColumnList.Tokens.Iterator?) {
+        self._iterator = iterator
+      }
+      public mutating func next() -> SQLToken? { return _iterator?.next() }
     }
-    public mutating func next() -> SQLToken? { return _iterator?.next() }
+    private let _optionalColumnList: OptionalColumnList
+    fileprivate init(_ optionalColumnList: OptionalColumnList) {
+      self._optionalColumnList = optionalColumnList
+    }
+    public func makeIterator() -> Iterator {
+      guard case .some(let list) = _optionalColumnList else { return Iterator(nil) }
+      return Iterator(list.parenthesized.makeIterator())
+    }
   }
 
-  public typealias Tokens = Self
-
-  public func makeIterator() -> Iterator {
-    guard case .some(let list) = self else { return Iterator(nil) }
-    return Iterator(list.parenthesized.makeIterator())
+  public var tokens: Tokens {
+    return Tokens(self)
   }
 
   @inlinable

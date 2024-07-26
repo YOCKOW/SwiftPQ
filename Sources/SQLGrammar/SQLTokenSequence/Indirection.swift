@@ -6,11 +6,11 @@
  ************************************************************************************************ */
 
 /// A type representing `indirection`.
-public struct Indirection: SQLTokenSequence {
+public struct Indirection: TokenSequenceGenerator {
   @dynamicMemberLookup
   public struct List: BidirectionalCollection, MutableCollection {
     /// A type representing an element of `Indirection.List` that is described as `indirection_el` in "gram.y".
-    public enum Element: SQLTokenSequence {
+    public enum Element: TokenSequenceGenerator {
       case attributeName(AttributeName)
       case any
       case `subscript`(any GeneralExpression)
@@ -26,16 +26,16 @@ public struct Indirection: SQLTokenSequence {
           return JoinedSQLTokenSequence(
             SingleToken(.joiner),
             SingleToken(.leftSquareBracket),
-            AnySQLTokenSequence(expression),
+            AnyTokenSequence(expression),
             SingleToken(.rightSquareBracket)
           )
         case .slice(let lowerBound, let upperBound):
           return JoinedSQLTokenSequence.compacting(
             SingleToken(.joiner),
             SingleToken(.leftSquareBracket),
-            lowerBound.map({ AnySQLTokenSequence($0) }),
+            lowerBound.map({ AnyTokenSequence($0) }),
             SingleToken(.colon),
-            upperBound.map({ AnySQLTokenSequence($0) }),
+            upperBound.map({ AnyTokenSequence($0) }),
             SingleToken(.rightSquareBracket)
           )
         }

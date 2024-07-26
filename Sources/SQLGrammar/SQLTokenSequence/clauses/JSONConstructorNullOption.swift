@@ -5,20 +5,17 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-public class JSONConstructorNullOptionTokens: Segment {
-  public var tokens: Array<SQLToken> { fatalError("Must be overriden.") }
+public class JSONConstructorNullOptionTokens: Segment, TokenSequence {
+  public let tokens: Array<SQLToken>
+  fileprivate init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 }
 
 private final class NullOnNull: JSONConstructorNullOptionTokens {
-  let _tokens: Array<SQLToken> = [.null, .on, .null]
-  override var tokens: Array<SQLToken> { _tokens }
-  static let nullOnNull: NullOnNull = .init()
+  static let nullOnNull: NullOnNull = .init([.null, .on, .null])
 }
 
 private final class AbsentOnNull: JSONConstructorNullOptionTokens {
-  let _tokens: Array<SQLToken> = [.absent, .on, .null]
-  override var tokens: Array<SQLToken> { _tokens }
-  static let absentOnNull: AbsentOnNull = .init()
+  static let absentOnNull: AbsentOnNull = .init([.absent, .on, .null])
 }
 
 /// An option whether or not `NULL` should be ignored while JSON object construction.
@@ -36,10 +33,6 @@ public enum JSONObjectConstructorNullOption: Clause {
       return AbsentOnNull.absentOnNull
     }
   }
-
-  public func makeIterator() -> JSONConstructorNullOptionTokens.Iterator {
-    return tokens.makeIterator()
-  }
 }
 
 /// An option whether or not `NULL` should be ignored while JSON array construction.
@@ -56,9 +49,5 @@ public enum JSONArrayConstructorNullOption: Clause {
     case .absentOnNull:
       return AbsentOnNull.absentOnNull
     }
-  }
-
-  public func makeIterator() -> JSONConstructorNullOptionTokens.Iterator {
-    return tokens.makeIterator()
   }
 }

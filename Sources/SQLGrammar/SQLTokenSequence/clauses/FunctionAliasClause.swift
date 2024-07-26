@@ -23,7 +23,7 @@ public struct FunctionAliasClause: Clause {
     case .simpleAlias(let aliasClause):
       return aliasClause.tokens
     case .aliasWithTableFunctionElementList(let omitAsToken, let alias, let list):
-      var sequences: [any SQLTokenSequence] = omitAsToken ? [] : [SingleToken(.as)]
+      var sequences: [any TokenSequenceGenerator] = omitAsToken ? [] : [SingleToken(.as)]
       if let alias {
         sequences.append(alias.asSequence)
       }

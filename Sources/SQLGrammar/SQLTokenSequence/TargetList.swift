@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing an element that is described as `target_el` in "gram.y".
-public struct TargetElement: SQLTokenSequence {
+public struct TargetElement: TokenSequenceGenerator {
   private enum _ElementType {
     case expressionAsColumnLabel(any GeneralExpression, ColumnLabel)
     case expressionWithBareColumnLabel(any GeneralExpression, BareColumnLabel)
@@ -23,12 +23,12 @@ public struct TargetElement: SQLTokenSequence {
         expression,
         SingleToken(.as),
         columnLabel.asSequence
-      ] as Array<any SQLTokenSequence>)
+      ] as Array<any TokenSequenceGenerator>)
     case .expressionWithBareColumnLabel(let expression, let bareColumnLabel):
       return JoinedSQLTokenSequence([
         expression,
         bareColumnLabel.asSequence
-      ] as Array<any SQLTokenSequence>)
+      ] as Array<any TokenSequenceGenerator>)
     case .expression(let expression):
       return JoinedSQLTokenSequence([expression])
     case .all:
@@ -65,7 +65,7 @@ public struct TargetElement: SQLTokenSequence {
 }
 
 /// A list of targets, that is described as `target_list` in "gram.y".
-public struct TargetList: SQLTokenSequence,
+public struct TargetList: TokenSequenceGenerator,
                           InitializableWithNonEmptyList,
                           ExpressibleByArrayLiteral {
   public var elements: NonEmptyList<TargetElement>

@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A bound that specifies frame start or end. It is described as `frame_bound` in "gram.y".
-public enum FrameBound: SQLTokenSequence {
+public enum FrameBound: TokenSequenceGenerator {
   case unboundedPreceding
   case unboundedFollowing
   case currentRow
@@ -32,15 +32,15 @@ public enum FrameBound: SQLTokenSequence {
     case .currentRow:
       return JoinedSQLTokenSequence(FrameBound._currentRowTokens)
     case .preceding(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken(.preceding)] as [any SQLTokenSequence])
+      return JoinedSQLTokenSequence([offset, SingleToken(.preceding)] as [any TokenSequenceGenerator])
     case .following(let offset):
-      return JoinedSQLTokenSequence([offset, SingleToken(.following)] as [any SQLTokenSequence])
+      return JoinedSQLTokenSequence([offset, SingleToken(.following)] as [any TokenSequenceGenerator])
     }
   }
 }
 
 /// A range of frame, that is described as `frame_extent` in "gram.y".
-public struct FrameExtent: SQLTokenSequence {
+public struct FrameExtent: TokenSequenceGenerator {
   public let start: FrameBound
 
   public let end: FrameBound?

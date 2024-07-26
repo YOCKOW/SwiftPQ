@@ -44,11 +44,11 @@ public enum TableLikeOption: CustomTokenConvertible {
 
 
 /// A list of `TableLikeOption`s. This is described as `TableLikeOptionList` in "gram.y".
-public struct TableLikeOptionList: SQLTokenSequence,
+public struct TableLikeOptionList: TokenSequenceGenerator,
                                    InitializableWithNonEmptyList,
                                    ExpressibleByArrayLiteral {
   /// An element of `TableLikeOptionList`.
-  public enum Option: SQLTokenSequence {
+  public enum Option: TokenSequenceGenerator {
     case including(TableLikeOption)
     case excluding(TableLikeOption)
 

@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 /// Representation of `index_elem_options` in "gram.y".
-public struct IndexElementOptionSet: SQLTokenSequence {
-  public struct OperatorClassOption: SQLTokenSequence {
+public struct IndexElementOptionSet: TokenSequenceGenerator {
+  public struct OperatorClassOption: TokenSequenceGenerator {
     public let name: OperatorClass
 
     public let parameters: StorageParameterList?
@@ -52,13 +52,13 @@ public struct IndexElementOptionSet: SQLTokenSequence {
 }
 
 /// Representation of `index_elem` in "gram.y".
-public struct IndexElement: SQLTokenSequence {
+public struct IndexElement: TokenSequenceGenerator {
   public enum Column {
     case name(ColumnIdentifier)
     case functionCall(any WindowlessFunctionExpression)
     case expression(any GeneralExpression)
 
-    fileprivate var _tokens: AnySQLTokenSequence {
+    fileprivate var _tokens: AnyTokenSequenceGenerator {
       switch self {
       case .name(let id):
         return id.asSequence._asAny
@@ -105,7 +105,7 @@ public struct IndexElement: SQLTokenSequence {
 
 
 /// A list of `IndexElement`. This is described as `index_params` in "gram.y".
-public struct IndexElementList: SQLTokenSequence,
+public struct IndexElementList: TokenSequenceGenerator,
                                 InitializableWithNonEmptyList,
                                 ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = IndexElement

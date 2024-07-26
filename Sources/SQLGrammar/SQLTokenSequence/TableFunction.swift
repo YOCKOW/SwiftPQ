@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An element that is described as `TableFuncElement` in "gram.y".
-public struct TableFunctionElement: SQLTokenSequence {
+public struct TableFunctionElement: TokenSequenceGenerator {
   public let column: ColumnIdentifier
 
   public let type: TypeName
@@ -25,7 +25,7 @@ public struct TableFunctionElement: SQLTokenSequence {
 }
 
 /// A list of `TableFunctionElement`s that is described as `TableFuncElementList` in "gram.y".
-public struct TableFunctionElementList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct TableFunctionElementList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public typealias ArrayLiteralElement = TableFunctionElement
 
   public let elements: NonEmptyList<TableFunctionElement>
@@ -48,7 +48,7 @@ public struct TableFunctionElementList: SQLTokenSequence, ExpressibleByArrayLite
 
 
 /// A list of column definitions, that is described as `opt_col_def_list` in "gram.y".
-public struct ColumnDefinitionList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct ColumnDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let list: TableFunctionElementList
 
   public var tokens: JoinedSQLTokenSequence {
@@ -75,17 +75,17 @@ private final class WithOrdinalityClause: Clause {
 }
 
 /// A part of table function that is described as `func_table` in "gram.y"
-public struct TableFunction: SQLTokenSequence {
+public struct TableFunction: TokenSequenceGenerator {
   /// A syntax described as `ROWS FROM '(' rowsfrom_list ')'` in "gram.y"
-  public struct RowsFromSyntax: SQLTokenSequence {
+  public struct RowsFromSyntax: TokenSequenceGenerator {
     /// An item described as `rowsfrom_item` in "gram.y".
-    public struct Item: SQLTokenSequence {
+    public struct Item: TokenSequenceGenerator {
       public let functionCall: any WindowlessFunctionExpression
 
       public let columnDefinitions: ColumnDefinitionList?
 
       public var tokens: JoinedSQLTokenSequence {
-        return .compacting([functionCall, columnDefinitions] as [(any SQLTokenSequence)?])
+        return .compacting([functionCall, columnDefinitions] as [(any TokenSequenceGenerator)?])
       }
 
       public init(
@@ -98,7 +98,7 @@ public struct TableFunction: SQLTokenSequence {
     }
 
     /// A list of `rowsfrom_item`s that is described as `rowsfrom_list` in "gram.y".
-    public struct List: SQLTokenSequence, ExpressibleByArrayLiteral {
+    public struct List: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let items: NonEmptyList<RowsFromSyntax.Item>
 
       public var tokens: JoinedSQLTokenSequence {
@@ -119,7 +119,7 @@ public struct TableFunction: SQLTokenSequence {
 
     public let list: List
 
-    private final class _RowsFromTokens: SQLTokenSequence {
+    private final class _RowsFromTokens: TokenSequenceGenerator {
       let tokens: Array<SQLToken> = [.rows, .from]
       private init() {}
       static let rowsFromTokens: _RowsFromTokens = .init()
@@ -144,7 +144,7 @@ public struct TableFunction: SQLTokenSequence {
   public let withOrdinality: Bool
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any SQLTokenSequence] = []
+    var sequences: [any TokenSequenceGenerator] = []
 
     switch _kind {
     case .functionCall(let expr):

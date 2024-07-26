@@ -7,8 +7,8 @@
 
 /// A type representing "DROP" statement that is described as `DropStmt` in "gram.y".
 public protocol DropStatement: Statement {
-  associatedtype ItemTypeName: SQLTokenSequence
-  associatedtype ItemNameList: SQLTokenSequence
+  associatedtype ItemTypeName: TokenSequenceGenerator
+  associatedtype ItemNameList: TokenSequenceGenerator
 
   var itemType: ItemTypeName { get }
   var ifExists: Bool { get }

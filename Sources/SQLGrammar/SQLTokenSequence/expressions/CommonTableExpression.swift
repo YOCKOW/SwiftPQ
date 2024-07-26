@@ -72,7 +72,7 @@ public struct CommonTableExpression: Expression {
 }
 
 /// A list of `CommonTableExpression`. Described as `cte_list` in "gram.y".
-public struct CommonTableExpressionList: SQLTokenSequence,
+public struct CommonTableExpressionList: TokenSequenceGenerator,
                                          InitializableWithNonEmptyList,
                                          ExpressibleByArrayLiteral {
   public typealias ArrayLiteralElement = CommonTableExpression

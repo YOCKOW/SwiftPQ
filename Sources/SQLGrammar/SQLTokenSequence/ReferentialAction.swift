@@ -7,7 +7,7 @@
 
 /// An action performed when the data in the referenced columns is changed. This is described as
 /// `key_action` in "gram.y".
-public enum ReferentialAction: SQLTokenSequence {
+public enum ReferentialAction: TokenSequenceGenerator {
   case noAction
   case restrict
   case cascade
@@ -35,8 +35,8 @@ public enum ReferentialAction: SQLTokenSequence {
 }
 
 /// A set of `ReferentialAction`s. Described as `key_actions` in "gram.y".
-public struct ReferentialActionSet: SQLTokenSequence {
-  public class Action: SQLTokenSequence {
+public struct ReferentialActionSet: TokenSequenceGenerator {
+  public class Action: TokenSequenceGenerator {
     public let action: ReferentialAction
 
     fileprivate init(_ action: ReferentialAction) {

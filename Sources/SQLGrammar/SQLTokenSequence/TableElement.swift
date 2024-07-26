@@ -6,8 +6,8 @@
  ************************************************************************************************ */
 
 /// An element to define column(s). This is described as `TableElement` in "gram.y".
-public struct TableElement: SQLTokenSequence {
-  public enum Clause: SQLTokenSequence {
+public struct TableElement: TokenSequenceGenerator {
+  public enum Clause: TokenSequenceGenerator {
     case columnDefinition(ColumnDefinition)
     case tableLikeClause(TableLikeClause)
     case tableConstraint(TableConstraint)
@@ -103,7 +103,7 @@ public struct TableElement: SQLTokenSequence {
 }
 
 /// A type that can be a `TableElement`.
-public protocol TableElementConvertible: SQLTokenSequence {
+public protocol TableElementConvertible: TokenSequenceGenerator {
   var tableElement: TableElement { get }
 }
 extension ColumnDefinition: TableElementConvertible {
@@ -120,8 +120,8 @@ extension TableConstraint: TableElementConvertible {
 }
 
 /// An element to define column(s). This is described as `TypedTableElement` in "gram.y".
-public struct TypedTableElement: SQLTokenSequence {
-  public enum Clause: SQLTokenSequence {
+public struct TypedTableElement: TokenSequenceGenerator {
+  public enum Clause: TokenSequenceGenerator {
     case columnDefinition(TypedTableColumnDefinition)
     case tableConstraint(TableConstraint)
 
@@ -195,7 +195,7 @@ public struct TypedTableElement: SQLTokenSequence {
 }
 
 /// A type that can be a `TypedTableElement`.
-public protocol TypedTableElementConvertible: SQLTokenSequence {
+public protocol TypedTableElementConvertible: TokenSequenceGenerator {
   var typedTableElement: TypedTableElement { get }
 }
 extension TypedTableColumnDefinition: TypedTableElementConvertible {
@@ -209,7 +209,7 @@ extension TableConstraint: TypedTableElementConvertible {
 
 
 /// A list of `TableElement`s. This is described as `TableElementList` in "gram.y".
-public struct TableElementList: SQLTokenSequence,
+public struct TableElementList: TokenSequenceGenerator,
                                 InitializableWithNonEmptyList,
                                 ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = TableElement
@@ -232,7 +232,7 @@ public struct TableElementList: SQLTokenSequence,
 }
 
 /// A list of `TypedTableElement`s. This is described as `TypedTableElementList` in "gram.y".
-public struct TypedTableElementList: SQLTokenSequence,
+public struct TypedTableElementList: TokenSequenceGenerator,
                                      InitializableWithNonEmptyList,
                                      ExpressibleByArrayLiteral {
   public typealias NonEmptyListElement = TypedTableElement
@@ -259,7 +259,7 @@ public struct TypedTableElementList: SQLTokenSequence,
 ///
 /// This should not be represented by `Optional<TypedTableElementList>`
 /// because `OptTypedTableElementList` must emit parenthesized `TypedTableElementList` if it has a value.
-public enum OptionalTypedTableElementList: SQLTokenSequence,
+public enum OptionalTypedTableElementList: TokenSequenceGenerator,
                                            InitializableWithNonEmptyList,
                                            ExpressibleByNilLiteral,
                                            ExpressibleByArrayLiteral {
@@ -269,20 +269,27 @@ public enum OptionalTypedTableElementList: SQLTokenSequence,
   case none
   case some(TypedTableElementList)
 
-  public struct Iterator: IteratorProtocol {
-   public typealias Element = SQLToken
-   private var _iterator: Parenthesized<TypedTableElementList>.Iterator?
-   fileprivate init(_ iterator: Parenthesized<TypedTableElementList>.Iterator?) {
-     self._iterator = iterator
-   }
-   public mutating func next() -> SQLToken? { return _iterator?.next() }
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private var _iterator: Parenthesized<TypedTableElementList>.Iterator?
+      fileprivate init(_ iterator: Parenthesized<TypedTableElementList>.Iterator?) {
+        self._iterator = iterator
+      }
+      public mutating func next() -> SQLToken? { return _iterator?.next() }
+    }
+    private let _optionalList: OptionalTypedTableElementList
+    fileprivate init(_ optionalList: OptionalTypedTableElementList) {
+      self._optionalList = optionalList
+    }
+    public func makeIterator() -> Iterator {
+      guard case .some(let list) = _optionalList else { return Iterator(nil) }
+      return Iterator(list.parenthesized.makeIterator())
+    }
   }
 
-  public typealias Tokens = Self
-
-  public func makeIterator() -> Iterator {
-   guard case .some(let list) = self else { return Iterator(nil) }
-   return Iterator(list.parenthesized.makeIterator())
+  public var tokens: Tokens {
+    return Tokens(self)
   }
 
   @inlinable

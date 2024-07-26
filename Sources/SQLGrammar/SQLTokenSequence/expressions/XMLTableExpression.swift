@@ -10,7 +10,7 @@ public struct XMLTableExpression: Expression {
   /// A clause represented by `COLUMNS xmltable_column_list`.
   public struct ColumnsClause: Clause {
     /// An option that is described as `xmltable_column_option_el` in "gram.y".
-    public enum Option: SQLTokenSequence {
+    public enum Option: TokenSequenceGenerator {
       // "gram.y" accepts `IDENT b_expr`, but the `IDENT` must be "PATH" according to the document.
       // https://www.postgresql.org/docs/current/functions-xml.html#FUNCTIONS-XML-PROCESSING-XMLTABLE
 
@@ -27,21 +27,21 @@ public struct XMLTableExpression: Expression {
           return JoinedSQLTokenSequence([
             Option._pathToken,
             columnExpr,
-          ] as [any SQLTokenSequence])
+          ] as [any TokenSequenceGenerator])
         case .default(let defaultExpr):
           return JoinedSQLTokenSequence([
             SingleToken(.default),
             defaultExpr,
-          ] as [any SQLTokenSequence])
+          ] as [any TokenSequenceGenerator])
         case .notNull:
           return JoinedSQLTokenSequence([
             SingleToken(.not),
             SingleToken(.null),
-          ] as [any SQLTokenSequence])
+          ] as [any TokenSequenceGenerator])
         case .null:
           return JoinedSQLTokenSequence([
             SingleToken(.null),
-          ] as [any SQLTokenSequence])
+          ] as [any TokenSequenceGenerator])
         }
       }
 
@@ -60,7 +60,7 @@ public struct XMLTableExpression: Expression {
     }
 
     /// A list of column options, that is described as `xmltable_column_option_list` in "gram.y".
-    public struct OptionList: SQLTokenSequence, ExpressibleByArrayLiteral {
+    public struct OptionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let options: NonEmptyList<Option>
 
       public var tokens: JoinedSQLTokenSequence {
@@ -82,7 +82,7 @@ public struct XMLTableExpression: Expression {
 
     /// An element of column to be produced in the output table,
     /// that is described as `xmltable_column_el` in "gram.y".
-    public struct ColumnElement: SQLTokenSequence {
+    public struct ColumnElement: TokenSequenceGenerator {
       private enum _Element {
         case name(ColumnIdentifier, type: TypeName, options: OptionList?)
         case forOrdinality(name: ColumnIdentifier)
@@ -144,7 +144,7 @@ public struct XMLTableExpression: Expression {
     }
 
     /// A list of columns, that is described as `xmltable_column_list` in "gram.y".
-    public struct ColumnList: SQLTokenSequence, ExpressibleByArrayLiteral {
+    public struct ColumnList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
       public let columns: NonEmptyList<ColumnElement>
 
       public var tokens: JoinedSQLTokenSequence {
@@ -193,7 +193,7 @@ public struct XMLTableExpression: Expression {
       row,
       passing,
       columns,
-    ] as [(any SQLTokenSequence)?]))
+    ] as [(any TokenSequenceGenerator)?]))
   }
 
   public init(

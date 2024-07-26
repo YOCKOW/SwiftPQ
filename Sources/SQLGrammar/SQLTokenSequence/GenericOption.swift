@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An element of generic options. This is described as `generic_option_elem` in "gram.y".
-public struct GenericOption: SQLTokenSequence {
+public struct GenericOption: TokenSequenceGenerator {
   /// Representation of `generic_option_name` in "gram.y".
   public struct Name {
     public let name: ColumnLabel
@@ -50,7 +50,7 @@ public struct GenericOption: SQLTokenSequence {
 }
 
 /// A list of `GenericOption`. This is described as `generic_option_list` in "gram.y".
-public struct GenericOptionList: SQLTokenSequence,
+public struct GenericOptionList: TokenSequenceGenerator,
                                  InitializableWithNonEmptyList,
                                  ExpressibleByArrayLiteral {
   public var options: NonEmptyList<GenericOption>

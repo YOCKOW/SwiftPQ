@@ -12,7 +12,7 @@ private final class WithOptions: Segment {
 }
 
 /// Column definition used in typed table. This is described as `columnOptions` in "gram.y".
-public struct TypedTableColumnDefinition: SQLTokenSequence {
+public struct TypedTableColumnDefinition: TokenSequenceGenerator {
   /// Column name.
   public let name: ColumnIdentifier
 

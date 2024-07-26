@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A representation of XML attribute that is described as `xml_attribute_el` in "gram.y".
-public struct XMLAttribute: SQLTokenSequence {
+public struct XMLAttribute: TokenSequenceGenerator {
   public let name: ColumnLabel?
 
   public let value: any GeneralExpression
@@ -16,7 +16,7 @@ public struct XMLAttribute: SQLTokenSequence {
       [
         value,
         name.map(SingleToken.init),
-      ] as [(any SQLTokenSequence)?],
+      ] as [(any TokenSequenceGenerator)?],
       separator: SingleToken(.as)
     )
   }
@@ -34,7 +34,7 @@ public struct XMLAttribute: SQLTokenSequence {
 }
 
 /// A list of XML attributes that is described as `xml_attribute_list` in "gram.y".
-public struct XMLAttributeList: SQLTokenSequence {
+public struct XMLAttributeList: TokenSequenceGenerator {
   public let attributes: NonEmptyList<XMLAttribute>
 
   public var tokens: JoinedSQLTokenSequence {

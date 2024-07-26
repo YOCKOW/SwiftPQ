@@ -23,13 +23,13 @@ extension UnaryPrefixPlusOperatorInvocation: SignedIntegerConstantExpression whe
 extension UnaryPrefixMinusOperatorInvocation: SignedIntegerConstantExpression where Operand == UnsignedIntegerConstantExpression {}
 
 /// A list of numeric expressions, that is described as `NumericOnly_list` in "gram.y".
-public struct NumericExpressionList: SQLTokenSequence,
+public struct NumericExpressionList: TokenSequenceGenerator,
                                      InitializableWithNonEmptyList,
                                      ExpressibleByArrayLiteral {
   public let expressions: NonEmptyList<any NumericExpression>
 
   public var tokens: JoinedSQLTokenSequence {
-    return expressions.map({ $0 as any SQLTokenSequence }).joinedByCommas()
+    return expressions.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 
   public init(_ expressions: NonEmptyList<any NumericExpression>) {

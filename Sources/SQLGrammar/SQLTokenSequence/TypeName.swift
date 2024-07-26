@@ -46,7 +46,7 @@ public struct TypeName: NameRepresentation,
   public let arrayModifier: ArrayModifier?
 
   public var tokens: JoinedSQLTokenSequence {
-    var sequences: [any SQLTokenSequence] = []
+    var sequences: [any TokenSequenceGenerator] = []
 
     if isSet {
       sequences.append(SingleToken(.setof))
@@ -520,7 +520,7 @@ public enum NumericTypeName: SimpleTypeName,
     case .real:
       return JoinedSQLTokenSequence([SingleToken(.real)])
     case .float(let precision):
-      var seqCollection: [any SQLTokenSequence] = [SingleToken(.float)]
+      var seqCollection: [any TokenSequenceGenerator] = [SingleToken(.float)]
       if let precision {
         seqCollection.append(SingleToken(.joiner))
         seqCollection.append(precision.parenthesized)
@@ -529,21 +529,21 @@ public enum NumericTypeName: SimpleTypeName,
     case .doublePrecision:
       return JoinedSQLTokenSequence(SingleToken(.double), SingleToken(.precision))
     case .decimal(let modifiers):
-      var seqCollection: [any SQLTokenSequence] = [SingleToken(.decimal)]
+      var seqCollection: [any TokenSequenceGenerator] = [SingleToken(.decimal)]
       if let modifiers {
         seqCollection.append(SingleToken(.joiner))
         seqCollection.append(modifiers.parenthesized)
       }
       return JoinedSQLTokenSequence(seqCollection)
     case .dec(let modifiers):
-      var seqCollection: [any SQLTokenSequence] = [SingleToken(.dec)]
+      var seqCollection: [any TokenSequenceGenerator] = [SingleToken(.dec)]
       if let modifiers {
         seqCollection.append(SingleToken(.joiner))
         seqCollection.append(modifiers.parenthesized)
       }
       return JoinedSQLTokenSequence(seqCollection)
     case .numeric(let modifiers):
-      var seqCollection: [any SQLTokenSequence] = [SingleToken(.numeric)]
+      var seqCollection: [any TokenSequenceGenerator] = [SingleToken(.numeric)]
       if let modifiers {
         seqCollection.append(SingleToken(.joiner))
         seqCollection.append(modifiers.parenthesized)
@@ -668,7 +668,7 @@ public enum BitStringTypeName: SimpleTypeName,
 
   @inlinable
   public var tokens: JoinedSQLTokenSequence {
-    var tokens: [any SQLTokenSequence] = [SingleToken(.bit)]
+    var tokens: [any TokenSequenceGenerator] = [SingleToken(.bit)]
 
     func __append(length: GeneralExpressionList) {
       tokens.append(SingleToken.joiner)
@@ -720,7 +720,7 @@ public enum BitStringTypeName: SimpleTypeName,
 public struct CharacterTypeName: SimpleTypeName,
                                  _PossiblyQualifiedNameConvertible,
                                  _PossiblyFunctionNameWithModifiersConvertible {
-  public enum CharacterType: SQLTokenSequence {
+  public enum CharacterType: TokenSequenceGenerator {
     case character
     case char
     case varchar
@@ -782,7 +782,7 @@ public struct CharacterTypeName: SimpleTypeName,
   private let length: UnsignedIntegerConstantExpression?
 
   public var tokens: JoinedSQLTokenSequence {
-    var seqCollection: [any SQLTokenSequence] = [type]
+    var seqCollection: [any TokenSequenceGenerator] = [type]
     if varying {
       seqCollection.append(SingleToken(.varying))
     }
@@ -944,7 +944,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName,
   public let withTimeZone: Bool?
 
   public var tokens: JoinedSQLTokenSequence {
-    var seqCollection: [any SQLTokenSequence] = []
+    var seqCollection: [any TokenSequenceGenerator] = []
     if let precision {
       seqCollection.append(
         SingleToken(type.token).followedBy(parenthesized: precision)

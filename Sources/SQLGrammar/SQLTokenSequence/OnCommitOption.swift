@@ -7,12 +7,12 @@
 
 /// An option to controll the behavior of temporary tables at the end of a transaction block.
 /// This is described as `OnCommitOption` in "gram.y".
-public enum OnCommitOption: SQLTokenSequence {
+public enum OnCommitOption: TokenSequence {
   case drop
   case deleteRows
   case preserveRows
 
-  public final class Tokens: SQLTokenSequence {
+  public final class Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -33,10 +33,5 @@ public enum OnCommitOption: SQLTokenSequence {
     case .preserveRows:
       return .preserveRows
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }

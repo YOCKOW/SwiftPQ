@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A window name and its definition. Described as `window_definition` in "gram.y".
-public struct WindowDefinition: SQLTokenSequence {
+public struct WindowDefinition: TokenSequenceGenerator {
   /// Window name.
   public let name: ColumnIdentifier
 
@@ -24,7 +24,7 @@ public struct WindowDefinition: SQLTokenSequence {
 }
 
 /// A list of window definitions that is described as `window_deinition_list` in "gram.y".
-public struct WindowDefinitionList: SQLTokenSequence, ExpressibleByArrayLiteral {
+public struct WindowDefinitionList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let definitions: NonEmptyList<WindowDefinition>
 
   public var tokens: JoinedSQLTokenSequence {

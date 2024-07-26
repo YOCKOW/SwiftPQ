@@ -7,7 +7,7 @@
 
 /// An option to determine how to parse XML whitespaces.
 /// It is described as `xml_whitespace_option` in "gram.y".
-public enum XMLWhitespaceOption: SQLTokenSequence {
+public enum XMLWhitespaceOption: TokenSequenceGenerator {
   case preserve
   case strip
 

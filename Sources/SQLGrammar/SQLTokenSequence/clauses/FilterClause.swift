@@ -13,7 +13,7 @@ public struct FilterClause: Clause {
     return SingleToken(.filter).followedBy(parenthesized: JoinedSQLTokenSequence([
       SingleToken(.where),
       predicate
-    ] as [any SQLTokenSequence]))
+    ] as [any TokenSequenceGenerator]))
   }
 
   public init(where predicate: any GeneralExpression) {

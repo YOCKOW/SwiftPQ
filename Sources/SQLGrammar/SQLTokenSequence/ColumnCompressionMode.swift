@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// The compression method for the column that is described as `column_compression` in "gram.y".
-public struct ColumnCompressionMode: SQLTokenSequence {
+public struct ColumnCompressionMode: TokenSequenceGenerator {
   public enum ModeName: CustomTokenConvertible, ExpressibleByStringLiteral {
     case identifier(ColumnIdentifier)
     case `default`

@@ -21,19 +21,19 @@ public protocol SimpleSelectStatement: BareSelectStatement {}
 extension Parenthesized: SelectStatement where EnclosedTokens: SelectStatement {}
 
 /// A type-erasure for `Parenthesized<SelectStatement>`(`select`).
-internal struct AnyParenthesizedSelectStatement: SQLTokenSequence {
+internal struct AnyParenthesizedSelectStatement: TokenSequence {
   let parenthesizedSelectStatement: any SelectStatement
 
   struct Iterator: IteratorProtocol {
     typealias Element = SQLToken
-    private let _iterator: AnySQLTokenSequenceIterator
+    private let _iterator: AnyTokenSequenceIterator
     func next() -> SQLToken? { _iterator.next() }
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+    fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
   }
   typealias Tokens = Self
 
   func makeIterator() -> Iterator {
-    return Iterator(parenthesizedSelectStatement._asAny.makeIterator())
+    return Iterator(parenthesizedSelectStatement._anyIterator)
   }
 
   func subquery<T>(as selectStatementType: T.Type) -> T? where T: SelectStatement {
@@ -56,7 +56,7 @@ internal struct AnyParenthesizedSelectStatement: SQLTokenSequence {
 
 /// A `SELECT` statement that is one of `simple_select`(`SimpleSelectStatement`).
 public struct SimpleSelectQuery: SimpleSelectStatement {
-  public enum DuplicateRowStrategy: SQLTokenSequence {
+  public enum DuplicateRowStrategy: TokenSequenceGenerator {
     /// A specifier to return all candidate rows.
     /// Grammatically this represents `opt_all_clause` in "gram.y".
     case all

@@ -22,13 +22,13 @@ public enum TransactionKeyword: CustomTokenConvertible {
 }
 
 /// Isolation level for transaction mode that is described as `iso_level` in "gram.y".
-public enum IsolationLevel: SQLTokenSequence {
+public enum IsolationLevel: TokenSequenceGenerator {
   case readUncommitted
   case readCommitted
   case repeatableRead
   case serializable
 
-  public final class Tokens: SQLTokenSequence {
+  public final class Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
 
@@ -51,22 +51,17 @@ public enum IsolationLevel: SQLTokenSequence {
       return .serializable
     }
   }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
-  }
 }
 
 /// A mode for transaction that is described as `transaction_mode_item` in "gram.y".
-public enum TransactionMode: SQLTokenSequence {
+public enum TransactionMode: TokenSequenceGenerator {
   case isolationLevel(IsolationLevel)
   case readOnly
   case readWrite
   case deferrable
   case notDeferrable
 
-  public final class Tokens: SQLTokenSequence {
+  public final class Tokens: TokenSequence {
     public let tokens: JoinedSQLTokenSequence
     private init(_ tokens: JoinedSQLTokenSequence) { self.tokens = tokens }
 
@@ -107,15 +102,10 @@ public enum TransactionMode: SQLTokenSequence {
       return .notDeferrable
     }
   }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
-  }
 }
 
 /// A list of `TransactionMode`. This is described as `transaction_mode_list` in "gram.y".
-public struct TransactionModeList: SQLTokenSequence,
+public struct TransactionModeList: TokenSequenceGenerator,
                                    InitializableWithNonEmptyList,
                                    ExpressibleByArrayLiteral {
   public var modes: NonEmptyList<TransactionMode>
@@ -137,11 +127,11 @@ public struct TransactionModeList: SQLTokenSequence,
 }
 
 /// Specifier of transaction chain that is described as `opt_transaction_chain` in "gram.y".
-public enum TransactionChain: SQLTokenSequence {
+public enum TransactionChain: TokenSequenceGenerator {
   case chain
   case noChain
 
-  public final class Tokens: SQLTokenSequence {
+  public final class Tokens: TokenSequence {
     public let tokens: Array<SQLToken>
     private init(_ tokens: Array<SQLToken>) { self.tokens = tokens }
     public static let chain: Tokens = .init([.and, .chain])
@@ -156,11 +146,6 @@ public enum TransactionChain: SQLTokenSequence {
     case .noChain:
       return .noChain
     }
-  }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator {
-    return tokens.makeIterator()
   }
 }
 

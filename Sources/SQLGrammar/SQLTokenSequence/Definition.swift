@@ -7,7 +7,7 @@
 
 /// A value that is used in key-value pairs for definitions.
 /// This is described as `def_arg` in "gram.y".
-public struct DefinitionArgument: SQLTokenSequence {
+public struct DefinitionArgument: TokenSequence {
   private enum _Argument {
     case functionType(FunctionType)
     case reservedKeyword(SQLToken.Keyword)
@@ -21,8 +21,8 @@ public struct DefinitionArgument: SQLTokenSequence {
 
   public struct Iterator: IteratorProtocol {
     public typealias Element = SQLToken
-    private let _iterator: AnySQLTokenSequenceIterator
-    fileprivate init(_ iterator: AnySQLTokenSequenceIterator) { self._iterator = iterator }
+    private let _iterator: AnyTokenSequenceIterator
+    fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
     public func next() -> SQLToken? { return _iterator.next() }
   }
 
@@ -31,17 +31,17 @@ public struct DefinitionArgument: SQLTokenSequence {
   public func makeIterator() -> Iterator {
     switch _argument {
     case .functionType(let functionType):
-      return .init(functionType._asAny.makeIterator())
+      return .init(functionType._anyIterator)
     case .reservedKeyword(let keyword):
-      return .init(keyword.asSequence._asAny.makeIterator())
+      return .init(keyword.asSequence._anyIterator)
     case .qualifiedOperator(let qualifiedOperator):
-      return .init(qualifiedOperator._asAny.makeIterator())
+      return .init(qualifiedOperator._anyIterator)
     case .numeric(let numericExpression):
-      return .init(numericExpression._asAny.makeIterator())
+      return .init(numericExpression._anyIterator)
     case .stringConstant(let stringConstantExpression):
-      return .init(stringConstantExpression._asAny.makeIterator())
+      return .init(stringConstantExpression._anyIterator)
     case .none:
-      return .init(SingleToken(.none)._asAny.makeIterator())
+      return .init(SingleToken(.none)._anyIterator)
     }
   }
 
@@ -143,8 +143,8 @@ extension DefinitionArgument: ExpressibleByStringLiteral {
 
 
 /// A pair of a key and an optional value. This is `def_elem` in "gram.y".
-public struct DefinitionElement: SQLTokenSequence {
-  public struct Key: SQLTokenSequence, ExpressibleByStringLiteral {
+public struct DefinitionElement: TokenSequenceGenerator {
+  public struct Key: TokenSequenceGenerator, ExpressibleByStringLiteral {
     public let key: ColumnLabel
     public var tokens: Array<SQLToken> {
       return [key.token]
@@ -157,17 +157,13 @@ public struct DefinitionElement: SQLTokenSequence {
     }
   }
 
-  public struct Value: SQLTokenSequence {
+  public struct Value: TokenSequenceGenerator {
     public let value: DefinitionArgument
 
     public typealias Tokens = DefinitionArgument.Tokens
 
     public var tokens: Tokens {
       return value.tokens
-    }
-
-    public func makeIterator() -> Tokens.Iterator {
-      return tokens.makeIterator()
     }
 
     public init(_ value: DefinitionArgument) {
@@ -220,7 +216,7 @@ extension DefinitionElement.Value: ExpressibleByBooleanLiteral,
 }
 
 /// A list of `DefinitionElement`. This is described as `def_list` in "gram.y".
-public struct DefinitonList: SQLTokenSequence,
+public struct DefinitonList: TokenSequenceGenerator,
                              InitializableWithNonEmptyList,
                              ExpressibleByArrayLiteral,
                              ExpressibleByDictionaryLiteral {
@@ -250,15 +246,11 @@ public struct DefinitonList: SQLTokenSequence,
 }
 
 /// `definition` in "gram.y".
-public struct Definition: SQLTokenSequence {
+public struct Definition: TokenSequenceGenerator {
   public let list: DefinitonList
 
   public var tokens: Parenthesized<DefinitonList> {
     return list.parenthesized
-  }
-
-  public func makeIterator() -> Parenthesized<DefinitonList>.Iterator {
-    return tokens.makeIterator()
   }
 
   public init(_ list: DefinitonList) {

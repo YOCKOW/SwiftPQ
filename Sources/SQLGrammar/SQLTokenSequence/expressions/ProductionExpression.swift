@@ -58,20 +58,20 @@ public protocol ConstantExpression: ProductionExpression {}
 // MARK: - SingleTokenConstantExpression
 
 /// A type of constant expression that contains only one token.
-public protocol SingleTokenConstantExpression: ConstantExpression
-where Tokens == Array<Element>,
-      Iterator == SingleTokenIterator<Element> {
-  var token: Element { get }
+public protocol SingleTokenConstantExpression: ConstantExpression 
+  where Self.Tokens == Array<Self.ConstantToken>
+{
+  /// A token that represents the constant value.
+  associatedtype ConstantToken: SQLToken
+
+  var token: ConstantToken { get }
   init?(_ token: SQLToken)
 }
 
 extension SingleTokenConstantExpression {
-  public var tokens: Tokens {
+  @inlinable
+  public var tokens: Array<ConstantToken> {
     return [self.token]
-  }
-
-  public func makeIterator() -> Iterator {
-    return .init(self.token)
   }
 }
 
@@ -80,7 +80,7 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
                                                  ExpressibleByIntegerLiteral {
   public typealias IntegerLiteralType = UInt64
 
-  public typealias Element = SQLToken.NumericConstant
+  public typealias ConstantToken = SQLToken.NumericConstant
 
   public let token: SQLToken.NumericConstant
 
@@ -107,7 +107,7 @@ public struct UnsignedIntegerConstantExpression: SingleTokenConstantExpression,
 public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
                                                ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Double
-  public typealias Element = SQLToken.NumericConstant
+  public typealias ConstantToken = SQLToken.NumericConstant
 
   public let token: SQLToken.NumericConstant
 
@@ -139,7 +139,7 @@ public struct UnsignedFloatConstantExpression: SingleTokenConstantExpression,
 /// String constant representation, which is described as `Sconst` (`SCONST`) in "gram.y".
 public struct StringConstantExpression: SingleTokenConstantExpression, ExpressibleByStringLiteral {
   public typealias StringLiteralType = String
-  public typealias Element = SQLToken.StringConstant
+  public typealias ConstantToken = SQLToken.StringConstant
 
   public let token: SQLToken.StringConstant
 
@@ -160,7 +160,7 @@ public struct StringConstantExpression: SingleTokenConstantExpression, Expressib
 
 /// Bit-string constant representation, which is described as `BCONST` and `XCONST` in "gram.y".
 public struct BitStringConstantExpression: SingleTokenConstantExpression {
-  public typealias Element = SQLToken.BitStringConstant
+  public typealias ConstantToken = SQLToken.BitStringConstant
 
   public let token: SQLToken.BitStringConstant
   
@@ -425,7 +425,7 @@ public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpressio
 
   public var tokens: JoinedSQLTokenSequence {
     return JoinedSQLTokenSequence.compacting(
-      AnySQLTokenSequence(expression).parenthesized,
+      AnyTokenSequenceGenerator(expression).parenthesized,
       indirection
     )
   }
@@ -454,7 +454,7 @@ public struct CaseExpression: ProductionExpression {
     guard let defaultValue else { return nil }
     return JoinedSQLTokenSequence([
       SingleToken(.else),
-      defaultValue as any SQLTokenSequence
+      defaultValue as any TokenSequenceGenerator
     ])
   }
 
@@ -464,7 +464,7 @@ public struct CaseExpression: ProductionExpression {
       conditionalValues,
       _defaultValueTokens,
       SingleToken(.end)
-    ] as Array<(any SQLTokenSequence)?>)
+    ] as Array<(any TokenSequenceGenerator)?>)
   }
 
   public init(
@@ -578,9 +578,9 @@ public struct ExistsExpression: ProductionExpression {
 /// An expression described as `ARRAY select_with_parens` or `ARRAY array_expr` in "gram.y".
 public struct ArrayConstructorExpression: ProductionExpression, ValueExpression {
   /// Representation of `array_expr` in "gram.y".
-  public struct Subscript: SQLTokenSequence {
+  public struct Subscript: TokenSequenceGenerator {
     /// A list of `Subscript`(`array_expr`) that is described as `array_expr_list` in "gram.y".
-    public struct List: SQLTokenSequence, InitializableWithNonEmptyList, ExpressibleByArrayLiteral {
+    public struct List: TokenSequenceGenerator, InitializableWithNonEmptyList, ExpressibleByArrayLiteral {
       public typealias NonEmptyListElement = Subscript
       public typealias ArrayLiteralElement = Subscript
 
@@ -743,10 +743,6 @@ public struct ImplicitRowConstructorExpression: ProductionExpression {
   public var tokens: Parenthesized<GeneralExpressionList> {
     assert(fields.expressions.count >= 2, "Unexpected number of fields?!")
     return fields.parenthesized
-  }
-
-  public func makeIterator() -> Parenthesized<GeneralExpressionList>.Iterator {
-    return tokens.makeIterator()
   }
 
   public init(prefixFields: GeneralExpressionList, lastField: any GeneralExpression) {

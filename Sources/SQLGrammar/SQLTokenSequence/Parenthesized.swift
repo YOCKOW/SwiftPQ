@@ -16,7 +16,7 @@ public final class RightParenthesis: Segment {
 }
 
 /// Representation of parenthesized sequence of tokens.
-public struct Parenthesized<EnclosedTokens>: SQLTokenSequence where EnclosedTokens: SQLTokenSequence {
+public struct Parenthesized<EnclosedTokens>: TokenSequence where EnclosedTokens: TokenSequenceGenerator {
   public let enclosedTokens: EnclosedTokens
 
   public var tokens: JoinedSQLTokenSequence {
@@ -32,16 +32,16 @@ public struct Parenthesized<EnclosedTokens>: SQLTokenSequence where EnclosedToke
   }
 }
 
-extension SQLTokenSequence {
+extension TokenSequenceGenerator {
   public var parenthesized: Parenthesized<Self> {
     return Parenthesized<Self>(self)
   }
 }
 
-extension SQLTokenSequence {
+extension TokenSequenceGenerator {
   public func followedBy<T>(
     parenthesized expression: T
-  ) -> JoinedSQLTokenSequence where T: SQLTokenSequence {
+  ) -> JoinedSQLTokenSequence where T: TokenSequenceGenerator {
     return JoinedSQLTokenSequence(self, expression.parenthesized, separator: [.joiner])
   }
 }

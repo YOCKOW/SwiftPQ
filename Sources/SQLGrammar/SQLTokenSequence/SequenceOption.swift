@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An option of sequence. This is described as `SeqOptElem` in "gram.y".
-public struct SequenceOption: SQLTokenSequence {
+public struct SequenceOption: TokenSequenceGenerator {
   private enum _Option {
     case `as`(any SimpleTypeName)
     case cache(any NumericExpression)
@@ -30,29 +30,27 @@ public struct SequenceOption: SQLTokenSequence {
 
     public struct Iterator: IteratorProtocol {
       public typealias Element = SQLToken
-      private let _iterator: AnySQLTokenSequenceIterator
-      fileprivate init(_ iterator: AnySQLTokenSequenceIterator) {
-        self._iterator = iterator
-      }
+      private let _iterator: AnyTokenSequenceIterator
+      fileprivate init(_ iterator: AnyTokenSequenceIterator) { self._iterator = iterator }
       public func next() -> SQLToken? { return _iterator.next() }
     }
 
-    private let _tokens: AnySQLTokenSequence
+    private let _generator: AnyTokenSequenceGenerator
 
-    fileprivate init(_ tokens: AnySQLTokenSequence) {
-      self._tokens = tokens
+    fileprivate init(_ generator: AnyTokenSequenceGenerator) {
+      self._generator = generator
     }
 
-    fileprivate init<S>(_ tokens: S) where S: SQLTokenSequence {
-      self._tokens = tokens._asAny
+    fileprivate init<S>(_ generator: S) where S: TokenSequenceGenerator {
+      self.init(generator._asAny)
     }
 
     private init(_ tokens: Array<SQLToken>) {
-      self._tokens = UnknownSQLTokenSequence(tokens)._asAny
+      self.init(UnknownSQLTokenSequence(tokens)._asAny)
     }
 
     public func makeIterator() -> Iterator {
-      return Iterator(_tokens.makeIterator())
+      return Iterator(_generator.tokens.makeIterator())
     }
 
     public static let cycle: Tokens = .init(SingleToken(.cycle))
@@ -117,9 +115,6 @@ public struct SequenceOption: SQLTokenSequence {
       ]))
     }
   }
-
-  @inlinable
-  public func makeIterator() -> Tokens.Iterator { return tokens.makeIterator() }
 
   private init(_ option: _Option) {
     self._option = option
@@ -218,7 +213,7 @@ public struct SequenceOption: SQLTokenSequence {
 }
 
 /// A list of `SequenceOption`(a.k.a. `SeqOptElem`). This is described as `SeqOptList` in "gram.y".
-public struct SequenceOptionList: SQLTokenSequence,
+public struct SequenceOptionList: TokenSequenceGenerator,
                                   InitializableWithNonEmptyList,
                                   ExpressibleByArrayLiteral {
   public var options: NonEmptyList<SequenceOption>
@@ -237,7 +232,7 @@ public struct SequenceOptionList: SQLTokenSequence,
 ///
 /// This should not be represented by `Optional<SequenceOptionList>`
 /// because `OptParenthesizedSeqOptList` must emit parenthesized `SeqOptList` if it has a value.
-public enum OptionalSequenceOptionList: SQLTokenSequence,
+public enum OptionalSequenceOptionList: TokenSequenceGenerator,
                                         InitializableWithNonEmptyList,
                                         ExpressibleByNilLiteral,
                                         ExpressibleByArrayLiteral {
@@ -247,20 +242,27 @@ public enum OptionalSequenceOptionList: SQLTokenSequence,
   case none
   case some(SequenceOptionList)
 
-  public struct Iterator: IteratorProtocol {
-    public typealias Element = SQLToken
-    private var _iterator: SequenceOptionList.Iterator?
-    fileprivate init(_ iterator: SequenceOptionList.Iterator?) {
-      self._iterator = iterator
+  public struct Tokens: Sequence {
+    public struct Iterator: IteratorProtocol {
+      public typealias Element = SQLToken
+      private var _iterator: Parenthesized<SequenceOptionList>.Iterator?
+      fileprivate init(_ iterator: Parenthesized<SequenceOptionList>.Iterator?) {
+        self._iterator = iterator
+      }
+      public mutating func next() -> SQLToken? { return _iterator?.next() }
     }
-    public mutating func next() -> SQLToken? { return _iterator?.next() }
+    private let _optionalSequenceOptionList: OptionalSequenceOptionList
+    fileprivate init(_ optionalSequenceOptionList: OptionalSequenceOptionList) {
+      self._optionalSequenceOptionList = optionalSequenceOptionList
+    }
+    public func makeIterator() -> Iterator {
+      guard case .some(let list) = _optionalSequenceOptionList else { return Iterator(nil) }
+      return Iterator(list.parenthesized.makeIterator())
+    }
   }
 
-  public typealias Tokens = Self
-
-  public func makeIterator() -> Iterator {
-    guard case .some(let list) = self else { return Iterator(nil) }
-    return Iterator(list.parenthesized.makeIterator())
+  public var tokens: Tokens {
+    return Tokens(self)
   }
 
   @inlinable

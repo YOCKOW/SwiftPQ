@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Specifier of table space that is described as `OptTableSpace` in "gram.y".
-public struct TableSpaceSpecifier: SQLTokenSequence {
+public struct TableSpaceSpecifier: TokenSequenceGenerator {
   public let tableSpaceName: TableSpaceName
 
   public var tokens: JoinedSQLTokenSequence {
