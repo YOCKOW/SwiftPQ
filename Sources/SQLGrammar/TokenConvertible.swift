@@ -1,5 +1,5 @@
 /* *************************************************************************************************
- SQLTokenConvertible.swift
+ TokenConvertible.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
