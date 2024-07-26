@@ -18,18 +18,18 @@ public enum ReferentialAction: TokenSequenceGenerator {
 
   public static let setDefault: ReferentialAction = .setDefault(nil)
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .noAction:
-      return JoinedSQLTokenSequence(SingleToken.no, SingleToken.action)
+      return JoinedTokenSequence(SingleToken.no, SingleToken.action)
     case .restrict:
-      return JoinedSQLTokenSequence(SingleToken.restrict)
+      return JoinedTokenSequence(SingleToken.restrict)
     case .cascade:
-      return JoinedSQLTokenSequence(SingleToken.cascade)
+      return JoinedTokenSequence(SingleToken.cascade)
     case .setNull(let list):
-      return JoinedSQLTokenSequence(SingleToken.set, SingleToken.null, list)
+      return JoinedTokenSequence(SingleToken.set, SingleToken.null, list)
     case .setDefault(let list):
-      return JoinedSQLTokenSequence(SingleToken.set, SingleToken.default, list)
+      return JoinedTokenSequence(SingleToken.set, SingleToken.default, list)
     }
   }
 }
@@ -43,19 +43,19 @@ public struct ReferentialActionSet: TokenSequenceGenerator {
       self.action = action
     }
 
-    public var tokens: JoinedSQLTokenSequence { fatalError("Must be overridden.") }
+    public var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
 
     /// `key_delete` in "gram.y".
     public final class OnDelete: Action {
-      public override var tokens: JoinedSQLTokenSequence {
-        return JoinedSQLTokenSequence(SingleToken.on, SingleToken.delete, action)
+      public override var tokens: JoinedTokenSequence {
+        return JoinedTokenSequence(SingleToken.on, SingleToken.delete, action)
       }
     }
 
     /// `key_update` in "gram.y".
     public final class OnUpdate: Action {
-      public override var tokens: JoinedSQLTokenSequence {
-        return JoinedSQLTokenSequence(SingleToken.on, SingleToken.update, action)
+      public override var tokens: JoinedTokenSequence {
+        return JoinedTokenSequence(SingleToken.on, SingleToken.update, action)
       }
     }
 
@@ -70,7 +70,7 @@ public struct ReferentialActionSet: TokenSequenceGenerator {
 
   public let actions: Array<Action>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return actions.joined()
   }
 

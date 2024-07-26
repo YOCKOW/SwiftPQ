@@ -37,20 +37,20 @@ public enum RawParseMode: TokenSequenceGenerator {
   case plpgSQLAssignment2(PLpgSQLAssignmentStatement)
   case plpgSQLAssignment3(PLpgSQLAssignmentStatement)
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .default(let statementList):
       return statementList.tokens
     case .typeName(let typeName):
-      return JoinedSQLTokenSequence(SingleToken.modeTypeName, typeName)
+      return JoinedTokenSequence(SingleToken.modeTypeName, typeName)
     case .plpgSQLExpression(let expr):
-      return JoinedSQLTokenSequence(SingleToken.modePLpgSQLExpression, expr)
+      return JoinedTokenSequence(SingleToken.modePLpgSQLExpression, expr)
     case .plpgSQLAssignment1(let stmt):
-      return JoinedSQLTokenSequence(SingleToken.modePLpgSQLAssignment1, stmt)
+      return JoinedTokenSequence(SingleToken.modePLpgSQLAssignment1, stmt)
     case .plpgSQLAssignment2(let stmt):
-      return JoinedSQLTokenSequence(SingleToken.modePLpgSQLAssignment2, stmt)
+      return JoinedTokenSequence(SingleToken.modePLpgSQLAssignment2, stmt)
     case .plpgSQLAssignment3(let stmt):
-      return JoinedSQLTokenSequence(SingleToken.modePLpgSQLAssignment3, stmt)
+      return JoinedTokenSequence(SingleToken.modePLpgSQLAssignment3, stmt)
     }
   }
 }

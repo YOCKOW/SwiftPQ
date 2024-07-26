@@ -38,8 +38,8 @@ public struct JSONKeyValuePair: TokenSequenceGenerator {
 
   public let value: JSONValueExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence([
       key,
       SingleToken(delimiter),
       value

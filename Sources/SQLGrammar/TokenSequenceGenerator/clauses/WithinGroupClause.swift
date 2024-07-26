@@ -14,7 +14,7 @@ private final class _WithinGroup: Segment {
 public struct WithinGroupClause: Clause {
   public let orderBy: SortClause
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return _WithinGroup.withinGroup.followedBy(parenthesized: orderBy)
   }
 

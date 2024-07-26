@@ -8,7 +8,7 @@
 /// Representation of `MERGE INTO` statement that is described as `MergeStmt` in "gram.y".
 @available(*, unavailable, message: "Unimplemented")
 public struct MergeStatement: Statement, PreparableStatement {
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     fatalError("Unimplemented.")
   }
 }

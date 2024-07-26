@@ -17,8 +17,8 @@ private final class PartitionBy: Segment {
 public struct PartitionClause: Clause {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(PartitionBy.partitionBy, expressions)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(PartitionBy.partitionBy, expressions)
   }
 
   public init(_ expressions: GeneralExpressionList) {
@@ -67,7 +67,7 @@ public struct PartitionSpecificationParameter: TokenSequenceGenerator {
 
   public let operatorClass: OperatorClass?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(_nameOrExpression, collation, operatorClass)
   }
 
@@ -108,7 +108,7 @@ public struct PartitionSpecificationParameterList: TokenSequenceGenerator,
                                                    ExpressibleByArrayLiteral {
   public let parameters: NonEmptyList<PartitionSpecificationParameter>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return parameters.joinedByCommas()
   }
 
@@ -149,8 +149,8 @@ public struct PartitionSpecification: Clause {
 
   public let parameters: PartitionSpecificationParameterList
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       PartitionBy.partitionBy,
       strategy.asSequence,
       parameters.parenthesized

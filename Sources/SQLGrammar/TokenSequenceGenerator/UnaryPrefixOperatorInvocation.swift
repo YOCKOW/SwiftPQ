@@ -14,16 +14,16 @@ public protocol UnaryPrefixOperatorInvocation: TokenSequenceGenerator {
 }
 
 extension UnaryPrefixOperatorInvocation where Self.Operator: Token,
-                                              Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(self.operator.asSequence, self.operand)
+                                              Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(self.operator.asSequence, self.operand)
   }
 }
 
 extension UnaryPrefixOperatorInvocation where Self.Operator: TokenSequenceGenerator,
-                                              Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(self.operator, self.operand)
+                                              Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(self.operator, self.operand)
   }
 }
 
@@ -40,7 +40,7 @@ public struct UnaryPrefixPlusOperatorInvocation<Operand>:
   public let operand: Operand
 
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       self.operator.asSequence,
       self._canOmitSpace ? SingleToken.joiner : nil,
@@ -86,7 +86,7 @@ public struct UnaryPrefixMinusOperatorInvocation<Operand>:
   public let operand: Operand
 
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       self.operator.asSequence,
       self._canOmitSpace ? SingleToken.joiner : nil,
@@ -130,7 +130,7 @@ public struct UnaryPrefixQualifiedGeneralOperatorInvocation<Operand>:
 
   public typealias Operand = Operand
 
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
 
   public let `operator`: QualifiedGeneralOperator
 
@@ -159,7 +159,7 @@ public struct UnaryPrefixNotOperatorInvocation<Operand>:
 
   public typealias Operand = Operand
 
-  public typealias Tokens = JoinedSQLTokenSequence
+  public typealias Tokens = JoinedTokenSequence
 
   public let `operator`: Token = .not
 

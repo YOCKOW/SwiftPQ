@@ -15,10 +15,10 @@ public protocol AnyName: NameRepresentation {
   var identifier: ColumnIdentifier { get }
   var attributes: AttributeList? { get }
 }
-extension  AnyName where Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
+extension  AnyName where Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
     // Note: `Attributes` include leading period!
-    return JoinedSQLTokenSequence.compacting(SingleToken(identifier), attributes)
+    return JoinedTokenSequence.compacting(SingleToken(identifier), attributes)
   }
 }
 
@@ -27,9 +27,9 @@ public protocol QualifiedName: NameRepresentation {
   var identifier: ColumnIdentifier { get }
   var indirection: Indirection? { get }
 }
-extension QualifiedName where Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(SingleToken(identifier), indirection)
+extension QualifiedName where Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(SingleToken(identifier), indirection)
   }
 }
 
@@ -41,9 +41,9 @@ extension QualifiedName where Self: AnyName {
   }
 }
 
-extension QualifiedName where Self: AnyName, Self.Tokens == JoinedSQLTokenSequence {
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(SingleToken(identifier), attributes)
+extension QualifiedName where Self: AnyName, Self.Tokens == JoinedTokenSequence {
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(SingleToken(identifier), attributes)
   }
 }
 
@@ -511,7 +511,7 @@ extension ColumnIdentifier {
 public struct NameList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let names: NonEmptyList<Name>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return names.joinedByCommas()
   }
 
@@ -735,7 +735,7 @@ public struct QualifiedNameList<Q>: TokenSequenceGenerator,
                                     ExpressibleByArrayLiteral where Q: QualifiedName {
   public let names: NonEmptyList<Q>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return names.joinedByCommas()
   }
 
@@ -970,8 +970,8 @@ public struct TemporaryTableName: NameRepresentation {
 
   public let name: TableName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       prefix,
       omitTableToken ? nil : SingleToken.table,
       name

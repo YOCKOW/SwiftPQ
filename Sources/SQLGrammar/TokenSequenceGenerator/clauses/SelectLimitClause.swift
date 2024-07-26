@@ -173,7 +173,7 @@ public struct LimitClause: Clause {
 
     public let option: Option
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting([
         SingleToken.fetch,
         keyword.asSequence,
@@ -210,14 +210,14 @@ public struct LimitClause: Clause {
     return true
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _type {
     case .limit(let count, let offset):
       return .compacting(
         SingleToken.limit,
         count,
         offset.map({
-          JoinedSQLTokenSequence(commaSeparator, $0)
+          JoinedTokenSequence(commaSeparator, $0)
         })
       )
     case .fetch(let fetchClause):
@@ -265,12 +265,12 @@ public struct OffsetClause: Clause {
     }
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _value {
     case .offset(let offset):
-      return JoinedSQLTokenSequence([SingleToken.offset, offset])
+      return JoinedTokenSequence([SingleToken.offset, offset])
     case .rowCount(let rowCount, let unit):
-      return JoinedSQLTokenSequence([SingleToken.offset, rowCount, unit.asSequence])
+      return JoinedTokenSequence([SingleToken.offset, rowCount, unit.asSequence])
     }
   }
 
@@ -301,7 +301,7 @@ public struct SelectLimitClause: Clause {
 
   private let _order: _ClauseOrder
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     assert(limit != nil || offset != nil)
     switch _order {
     case .limitOffset:

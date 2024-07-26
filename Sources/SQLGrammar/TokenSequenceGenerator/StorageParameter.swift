@@ -14,7 +14,7 @@ public struct StorageParameter: TokenSequenceGenerator {
     /// Labels of which the name consists.
     public let labels: NonEmptyList<ColumnLabel>
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return labels.joined(separator: dotJoiner)
     }
 
@@ -59,7 +59,7 @@ public struct StorageParameter: TokenSequenceGenerator {
 
   public let value: Value?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(key, value, separator: SingleToken(Token.Operator.equalTo))
   }
 
@@ -111,7 +111,7 @@ public struct StorageParameterList: TokenSequenceGenerator,
 
   public var parameters: NonEmptyList<StorageParameter>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return parameters.joinedByCommas()
   }
 

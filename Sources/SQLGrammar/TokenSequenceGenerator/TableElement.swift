@@ -13,7 +13,7 @@ public struct TableElement: TokenSequenceGenerator {
     case tableConstraint(TableConstraint)
 
     @inlinable
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .columnDefinition(let columnDefinition):
         return columnDefinition.tokens
@@ -28,7 +28,7 @@ public struct TableElement: TokenSequenceGenerator {
   public let clause: Clause
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return clause.tokens
   }
 
@@ -126,7 +126,7 @@ public struct TypedTableElement: TokenSequenceGenerator {
     case tableConstraint(TableConstraint)
 
     @inlinable
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .columnDefinition(let columnDefinition):
         return columnDefinition.tokens
@@ -139,7 +139,7 @@ public struct TypedTableElement: TokenSequenceGenerator {
   public let clause: Clause
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return clause.tokens
   }
 
@@ -217,7 +217,7 @@ public struct TableElementList: TokenSequenceGenerator,
 
   public var elements: NonEmptyList<TableElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 
@@ -240,7 +240,7 @@ public struct TypedTableElementList: TokenSequenceGenerator,
 
   public var elements: NonEmptyList<TypedTableElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 

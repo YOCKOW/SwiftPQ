@@ -13,8 +13,8 @@ public struct WhenClause<Condition, Result>: Clause where Condition: GeneralExpr
 
   public let result: Result
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       SingleToken.when, condition,
       SingleToken.then, result
     )
@@ -31,7 +31,7 @@ struct AnyWhenClause: Clause {
   private class _Box {
     var condition: any GeneralExpression { fatalError("Must be overridden.") }
     var result: any GeneralExpression { fatalError("Must be overridden.") }
-    var tokens: JoinedSQLTokenSequence { fatalError("Must be overridden.") }
+    var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
   }
   private class _Base<C, R>: _Box where C: GeneralExpression, R: GeneralExpression {
     let _base: WhenClause<C, R>
@@ -39,7 +39,7 @@ struct AnyWhenClause: Clause {
 
     override var condition: any GeneralExpression { _base.condition }
     override var result: any GeneralExpression { _base.result }
-    override var tokens: JoinedSQLTokenSequence { _base.tokens }
+    override var tokens: JoinedTokenSequence { _base.tokens }
   }
 
   private let _box: _Box
@@ -48,7 +48,7 @@ struct AnyWhenClause: Clause {
 
   var result: any GeneralExpression { _box.result }
 
-  var tokens: JoinedSQLTokenSequence { _box.tokens }
+  var tokens: JoinedTokenSequence { _box.tokens }
 
   func `as`<Condition, Result>(
     _ expectedType: WhenClause<Condition, Result>.Type
@@ -73,7 +73,7 @@ struct AnyWhenClause: Clause {
 public struct WhenClauseList: TokenSequenceGenerator {
   private var _clauses: NonEmptyList<AnyWhenClause>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return _clauses.joined()
   }
 

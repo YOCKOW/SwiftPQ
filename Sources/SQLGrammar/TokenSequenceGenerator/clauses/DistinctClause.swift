@@ -9,11 +9,11 @@
 public struct DistinctClause: Clause {
   public let expressions: GeneralExpressionList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     guard let expressions = self.expressions else {
-      return JoinedSQLTokenSequence(SingleToken.distinct)
+      return JoinedTokenSequence(SingleToken.distinct)
     }
-    return JoinedSQLTokenSequence(
+    return JoinedTokenSequence(
       SingleToken.distinct,
       SingleToken.on,
       expressions.parenthesized
@@ -27,12 +27,12 @@ public enum AllOrDistinctClause: Clause {
   case all
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch self {
     case .distinct(let distinctClause):
       return distinctClause.tokens
     case .all:
-      return JoinedSQLTokenSequence(SingleToken.all)
+      return JoinedTokenSequence(SingleToken.all)
     }
   }
 }

@@ -27,7 +27,7 @@ public enum IntervalFieldsPhrase: Segment {
   case minuteToSecond(precision: UnsignedIntegerConstantExpression? = nil)
   public static let minuteToSecond: IntervalFieldsPhrase = .minuteToSecond()
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var tokens: [Token] = []
     var precision: UnsignedIntegerConstantExpression? = nil
 
@@ -68,7 +68,7 @@ public enum IntervalFieldsPhrase: Segment {
     if let precision {
       return tokensSeq.followedBy(parenthesized: precision)
     } else {
-      return JoinedSQLTokenSequence(tokensSeq)
+      return JoinedTokenSequence(tokensSeq)
     }
   }
 }

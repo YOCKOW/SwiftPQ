@@ -56,7 +56,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
 
     public let orderBy: SortClause?
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       var sequences: [any TokenSequenceGenerator] = []
 
       if let aggregate = self.aggregate {
@@ -81,7 +81,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
         sequences.append(orderBy)
       }
 
-      return JoinedSQLTokenSequence(sequences)
+      return JoinedTokenSequence(sequences)
     }
 
     /// Create a list described as `func_arg_list opt_sort_clause`.
@@ -137,10 +137,10 @@ public struct FunctionApplication: WindowlessFunctionExpression {
 
     case list(ArgumentList)
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .any:
-        return JoinedSQLTokenSequence(SingleToken.asterisk)
+        return JoinedTokenSequence(SingleToken.asterisk)
       case .list(let argumentList):
         return argumentList.tokens
       }
@@ -152,7 +152,7 @@ public struct FunctionApplication: WindowlessFunctionExpression {
 
   public let arguments: Arguments?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     if let arguments {
       return functionName.followedBy(parenthesized: arguments)
     }
@@ -235,7 +235,7 @@ public struct AggregateWindowFunction: FunctionExpression, ValueExpression {
 
   public let window: OverClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(application, withinGroup, filter, window)
   }
 
@@ -263,8 +263,8 @@ private final class _CollationFor: Segment {
 public struct CollationFor<Expression>: CommonFunctionSubexpression where Expression: GeneralExpression {
   public let expression: Expression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(_CollationFor.collationFor, expression.parenthesized)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(_CollationFor.collationFor, expression.parenthesized)
   }
 
   public init(_ expression: Expression) {
@@ -284,11 +284,11 @@ public protocol CurrentTimeExpression: CommonFunctionSubexpression {
   var precision: UnsignedIntegerConstantExpression? { get }
 }
 extension CurrentTimeExpression {
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     if let precision = self.precision {
       return function.asSequence.followedBy(parenthesized: precision)
     }
-    return JoinedSQLTokenSequence(function.asSequence)
+    return JoinedTokenSequence(function.asSequence)
   }
 }
 
@@ -380,8 +380,8 @@ public struct TypeCastFunction: CommonFunctionSubexpression, ValueExpression {
 
   public let typeName: TypeName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.cast.followedBy(parenthesized: JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.cast.followedBy(parenthesized: JoinedTokenSequence([
       value,
       SingleToken.as,
       typeName
@@ -447,8 +447,8 @@ public struct ExtractFunction: CommonFunctionSubexpression {
   private struct _List: Segment {
     let field: Field
     let source: any GeneralExpression
-    var tokens: JoinedSQLTokenSequence {
-      return JoinedSQLTokenSequence([
+    var tokens: JoinedTokenSequence {
+      return JoinedTokenSequence([
         field.asSequence,
         SingleToken.from,
         source,
@@ -462,7 +462,7 @@ public struct ExtractFunction: CommonFunctionSubexpression {
 
   public var source: any GeneralExpression { return _list.source }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.extract.followedBy(parenthesized: _list)
   }
 
@@ -479,9 +479,9 @@ public struct NormalizeFunction: CommonFunctionSubexpression {
 
   public let form: UnicodeNormalizationForm?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.normalize.followedBy(
-      parenthesized: JoinedSQLTokenSequence.compacting(
+      parenthesized: JoinedTokenSequence.compacting(
         [
           text,
           form.map(SingleToken.init),
@@ -509,14 +509,14 @@ public struct OverlayFunction: CommonFunctionSubexpression {
 
     public let length: (any GeneralExpression)?
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting([
         targetText,
         SingleToken.placing,
         replacementText,
         SingleToken.from,
         startIndex,
-        length.map({ JoinedSQLTokenSequence([SingleToken.for, $0] as [any TokenSequenceGenerator]) }),
+        length.map({ JoinedTokenSequence([SingleToken.for, $0] as [any TokenSequenceGenerator]) }),
       ] as [(any TokenSequenceGenerator)?])
     }
 
@@ -537,19 +537,19 @@ public struct OverlayFunction: CommonFunctionSubexpression {
     case list(List)
     case functionArgumentList(FunctionArgumentList?)
 
-    var tokens: JoinedSQLTokenSequence {
+    var tokens: JoinedTokenSequence {
       switch self {
       case .list(let list):
         return list.tokens
       case .functionArgumentList(let list):
-        return list?.tokens ?? JoinedSQLTokenSequence()
+        return list?.tokens ?? JoinedTokenSequence()
       }
     }
   }
 
   private let _arguments: _Arguments
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.overlay.followedBy(parenthesized: _arguments)
   }
 
@@ -585,8 +585,8 @@ public struct PositionFunction: CommonFunctionSubexpression {
 
   public let text: any RestrictedExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    let list = JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    let list = JoinedTokenSequence([
       substring,
       SingleToken.in,
       text,
@@ -641,7 +641,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
       return escapeCharacter
     }
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       var sequences: [any TokenSequenceGenerator] = [targetText]
       switch _pattern {
       case .range(let startIndex, let length):
@@ -662,7 +662,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
           escapeCharacter,
         ] as [any TokenSequenceGenerator])
       }
-      return JoinedSQLTokenSequence(sequences)
+      return JoinedTokenSequence(sequences)
     }
 
     private init(targetText: any GeneralExpression, pattern: _Pattern) {
@@ -708,12 +708,12 @@ public struct SubstringFunction: CommonFunctionSubexpression {
     case list(List)
     case functionArgumentList(FunctionArgumentList?)
 
-    var tokens: JoinedSQLTokenSequence {
+    var tokens: JoinedTokenSequence {
       switch self {
       case .list(let list):
         return list.tokens
       case .functionArgumentList(let list):
-        return list?.tokens ?? JoinedSQLTokenSequence()
+        return list?.tokens ?? JoinedTokenSequence()
       }
     }
   }
@@ -725,7 +725,7 @@ public struct SubstringFunction: CommonFunctionSubexpression {
     return list
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.substring.followedBy(parenthesized: _arguments)
   }
 
@@ -778,8 +778,8 @@ public struct TreatFunction: CommonFunctionSubexpression {
 
   public let typeName: TypeName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.treat.followedBy(parenthesized: JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.treat.followedBy(parenthesized: JoinedTokenSequence([
       value,
       SingleToken.as,
       typeName
@@ -834,18 +834,18 @@ public struct TrimFunction: CommonFunctionSubexpression {
 
     private let _style: _Style
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch _style {
       case .trimFromTarget(let trimCharacters, let target):
-        return JoinedSQLTokenSequence([
+        return JoinedTokenSequence([
           trimCharacters,
           SingleToken.from,
           target,
         ] as [any TokenSequenceGenerator])
       case .from(let list):
-        return JoinedSQLTokenSequence(SingleToken.from, list)
+        return JoinedTokenSequence(SingleToken.from, list)
       case .onlyList(let list):
-        return JoinedSQLTokenSequence(list)
+        return JoinedTokenSequence(list)
       }
     }
 
@@ -902,8 +902,8 @@ public struct TrimFunction: CommonFunctionSubexpression {
     return _list.targetText
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.trim.followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.trim.followedBy(parenthesized: JoinedTokenSequence.compacting(
       trimmingEnd.map(SingleToken.init),
       _list
     ))
@@ -944,7 +944,7 @@ public struct NullIfFunction: CommonFunctionSubexpression {
   public let leftValue: any GeneralExpression
   public let rightValue: any GeneralExpression
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.nullif.followedBy(parenthesized: [leftValue, rightValue].joinedByCommas())
   }
 
@@ -958,7 +958,7 @@ public struct NullIfFunction: CommonFunctionSubexpression {
 public struct CoalesceFunction: CommonFunctionSubexpression {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.coalesce.followedBy(parenthesized: expressions)
   }
 
@@ -971,7 +971,7 @@ public struct CoalesceFunction: CommonFunctionSubexpression {
 public struct GreatestFunction: CommonFunctionSubexpression {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.greatest.followedBy(parenthesized: expressions)
   }
 
@@ -984,7 +984,7 @@ public struct GreatestFunction: CommonFunctionSubexpression {
 public struct LeastFunction: CommonFunctionSubexpression {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.least.followedBy(parenthesized: expressions)
   }
 
@@ -997,7 +997,7 @@ public struct LeastFunction: CommonFunctionSubexpression {
 public struct XMLConcatenateFunction: CommonFunctionSubexpression {
   public let expressions: GeneralExpressionList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.xmlconcat.followedBy(parenthesized: expressions)
   }
 
@@ -1010,13 +1010,13 @@ public struct XMLConcatenateFunction: CommonFunctionSubexpression {
 public struct XMLElementFunction: CommonFunctionSubexpression {
   public let name: ColumnLabel
 
-  private var _nameTokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.name, SingleToken(name))
+  private var _nameTokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.name, SingleToken(name))
   }
 
   public let attributes: XMLAttributeList?
 
-  private var _attributesTokens: JoinedSQLTokenSequence? {
+  private var _attributesTokens: JoinedTokenSequence? {
     return attributes.map {
       return SingleToken.xmlattributes.followedBy(parenthesized: $0)
     }
@@ -1024,8 +1024,8 @@ public struct XMLElementFunction: CommonFunctionSubexpression {
 
   public let contents: GeneralExpressionList?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlelement.followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlelement.followedBy(parenthesized: JoinedTokenSequence.compacting(
       _nameTokens,
       _attributesTokens,
       contents,
@@ -1054,8 +1054,8 @@ public struct XMLExistsFunction: CommonFunctionSubexpression {
 
   public let argument: XMLPassingArgument
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlexists.followedBy(parenthesized: JoinedSQLTokenSequence([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlexists.followedBy(parenthesized: JoinedTokenSequence([
       xmlQuery,
       argument,
     ] as [any TokenSequenceGenerator]))
@@ -1077,7 +1077,7 @@ public struct XMLForestFunction: CommonFunctionSubexpression {
   /// Names and contents.
   public let elements: XMLAttributeList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.xmlforest.followedBy(parenthesized: elements)
   }
 
@@ -1095,8 +1095,8 @@ public struct XMLParseFunction: CommonFunctionSubexpression {
 
   public let whitespaceOption: XMLWhitespaceOption?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlparse.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlparse.followedBy(parenthesized: JoinedTokenSequence.compacting([
       SingleToken(option),
       text,
       whitespaceOption,
@@ -1130,12 +1130,12 @@ public struct XMLPIFunction: CommonFunctionSubexpression {
 
   public let content: (any GeneralExpression)?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlpi.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlpi.followedBy(parenthesized: JoinedTokenSequence.compacting([
       SingleToken.name,
       SingleToken(name),
       content.map({
-        JoinedSQLTokenSequence([commaSeparator, $0] as [any TokenSequenceGenerator])
+        JoinedTokenSequence([commaSeparator, $0] as [any TokenSequenceGenerator])
       }),
     ] as [(any TokenSequenceGenerator)?]))
   }
@@ -1162,12 +1162,12 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
       let tokens: Array<Token> = [.version, .no, .value]
       static let noValue: _NoValue = .init()
     }
-    private static let _noValueTokens: JoinedSQLTokenSequence = .init(_NoValue.noValue)
+    private static let _noValueTokens: JoinedTokenSequence = .init(_NoValue.noValue)
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .version(let expr):
-        return JoinedSQLTokenSequence([SingleToken.version, expr] as [any TokenSequenceGenerator])
+        return JoinedTokenSequence([SingleToken.version, expr] as [any TokenSequenceGenerator])
       case .noValue:
         return XMLRootFunction.Version._noValueTokens
       }
@@ -1203,12 +1203,12 @@ public struct XMLRootFunction: CommonFunctionSubexpression {
 
   public let standalone: Standalone?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlroot.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlroot.followedBy(parenthesized: JoinedTokenSequence.compacting([
       xml,
       commaSeparator,
       version,
-      standalone.map({ JoinedSQLTokenSequence(commaSeparator, $0) }),
+      standalone.map({ JoinedTokenSequence(commaSeparator, $0) }),
     ] as [(any TokenSequenceGenerator)?]))
   }
 
@@ -1257,8 +1257,8 @@ public struct XMLSerializeFunction: CommonFunctionSubexpression {
 
   public let indentOption: IndentOption?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.xmlserialize.followedBy(parenthesized: JoinedSQLTokenSequence.compacting([
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.xmlserialize.followedBy(parenthesized: JoinedTokenSequence.compacting([
       option.asSequence,
       xml,
       SingleToken.as,
@@ -1291,7 +1291,7 @@ public struct JSONObjectFunction: CommonFunctionSubexpression {
 
     public let outputType: JSONOutputTypeClause?
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting(keyValuePairs, nullOption, keyUniquenessOption, outputType)
     }
 
@@ -1322,7 +1322,7 @@ public struct JSONObjectFunction: CommonFunctionSubexpression {
 
   private let _argumentList: _ArgumentList
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _argumentList {
     case .arguments(let arguments):
       return SingleToken.jsonObject.followedBy(parenthesized: arguments)
@@ -1398,7 +1398,7 @@ public struct JSONArrayFunction: CommonFunctionSubexpression {
     )
     case outputType(JSONOutputTypeClause?)
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       switch self {
       case .valueList(let list, let nullOption, let outputType):
         return .compacting(list, nullOption, outputType)
@@ -1412,7 +1412,7 @@ public struct JSONArrayFunction: CommonFunctionSubexpression {
 
   private let _arguments: _Arguments
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return SingleToken.jsonArray.followedBy(parenthesized: _arguments)
   }
 
@@ -1487,8 +1487,8 @@ public struct JSONObjectAggregateFunction: JSONAggregateFunctionExpression {
 
   public let outputType: JSONOutputTypeClause?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.jsonObjectagg.followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.jsonObjectagg.followedBy(parenthesized: JoinedTokenSequence.compacting(
       keyValuePair,
       nullOption,
       keyUniquenessOption,
@@ -1519,8 +1519,8 @@ public struct JSONArrayAggregateFunction: JSONAggregateFunctionExpression {
 
   public let outputType: JSONOutputTypeClause?
 
-  public var tokens: JoinedSQLTokenSequence {
-    return SingleToken.jsonArrayagg.followedBy(parenthesized: JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return SingleToken.jsonArrayagg.followedBy(parenthesized: JoinedTokenSequence.compacting(
       value,
       orderBy,
       nullOption,
@@ -1551,7 +1551,7 @@ public struct JSONAggregateWindowFunction: FunctionExpression {
 
   public let window: OverClause?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting([function, filter, window] as [(any TokenSequenceGenerator)?])
   }
 

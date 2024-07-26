@@ -9,8 +9,8 @@
 public struct TableAccessMethodClause: Clause {
   public let methodName: Name
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.using, methodName)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.using, methodName)
   }
 
   public init(methodName: Name) {

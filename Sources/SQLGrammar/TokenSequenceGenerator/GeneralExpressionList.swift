@@ -25,7 +25,7 @@ public struct GeneralExpressionList: TokenSequenceGenerator, ExpressibleByArrayL
   }
 
   @inlinable
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return expressions.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 

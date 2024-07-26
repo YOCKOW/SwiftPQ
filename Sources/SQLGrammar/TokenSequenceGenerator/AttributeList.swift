@@ -58,10 +58,10 @@ public struct AttributeList: TokenSequenceGenerator {
     self.init(names: names.map({ $0 as any _AttributeNameConvertible }))
   }
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       dotJoiner,
-      JoinedSQLTokenSequence(names, separator: dotJoiner)
+      JoinedTokenSequence(names, separator: dotJoiner)
     )
   }
 }

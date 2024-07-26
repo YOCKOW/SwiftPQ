@@ -21,7 +21,7 @@ public struct TypedTableColumnDefinition: TokenSequenceGenerator {
 
   public let constraints: ColumnQualifierList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(
       name.asSequence,
       omitWithOptionsTokens ? nil : WithOptions.withOptions,

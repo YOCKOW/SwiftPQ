@@ -16,7 +16,7 @@ public struct IndexElementOptionSet: TokenSequenceGenerator {
       return parameters.map(_StorageParameters.init)
     }
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return .compacting(name, _parameters)
     }
 
@@ -34,7 +34,7 @@ public struct IndexElementOptionSet: TokenSequenceGenerator {
 
   public let nullsOrder: NullOrdering?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(collation, operatorClass, sortOrder?.asSequence, nullsOrder)
   }
 
@@ -74,7 +74,7 @@ public struct IndexElement: TokenSequenceGenerator {
 
   public let options: IndexElementOptionSet?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(column._tokens, options)
   }
   
@@ -113,7 +113,7 @@ public struct IndexElementList: TokenSequenceGenerator,
 
   public var elements: NonEmptyList<IndexElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 

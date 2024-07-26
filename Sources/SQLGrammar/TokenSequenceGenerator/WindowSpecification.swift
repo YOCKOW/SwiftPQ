@@ -16,8 +16,8 @@ public struct WindowSpecification: TokenSequenceGenerator {
 
   public let frame: FrameClause?
 
-  public var tokens: Parenthesized<JoinedSQLTokenSequence> {
-    return Parenthesized<JoinedSQLTokenSequence>(
+  public var tokens: Parenthesized<JoinedTokenSequence> {
+    return Parenthesized<JoinedTokenSequence>(
       .compacting(name?.asSequence, partitionBy, orderBy, frame)
     )
   }

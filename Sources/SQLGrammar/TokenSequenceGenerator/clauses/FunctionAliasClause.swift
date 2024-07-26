@@ -18,7 +18,7 @@ public struct FunctionAliasClause: Clause {
 
   private var _alias: _Alias
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _alias {
     case .simpleAlias(let aliasClause):
       return aliasClause.tokens
@@ -28,7 +28,7 @@ public struct FunctionAliasClause: Clause {
         sequences.append(alias.asSequence)
       }
       sequences.append(list.parenthesized)
-      return JoinedSQLTokenSequence(sequences)
+      return JoinedTokenSequence(sequences)
     }
   }
 

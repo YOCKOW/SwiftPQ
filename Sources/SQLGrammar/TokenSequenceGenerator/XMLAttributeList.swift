@@ -11,8 +11,8 @@ public struct XMLAttribute: TokenSequenceGenerator {
 
   public let value: any GeneralExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence.compacting(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence.compacting(
       [
         value,
         name.map(SingleToken.init),
@@ -37,7 +37,7 @@ public struct XMLAttribute: TokenSequenceGenerator {
 public struct XMLAttributeList: TokenSequenceGenerator {
   public let attributes: NonEmptyList<XMLAttribute>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return attributes.joinedByCommas()
   }
 

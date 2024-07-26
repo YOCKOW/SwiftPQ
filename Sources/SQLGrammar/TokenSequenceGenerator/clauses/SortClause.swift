@@ -69,7 +69,7 @@ public struct SortBy<Expression>: TokenSequenceGenerator where Expression: Gener
 
   public let nullOrdering: NullOrdering?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var sequences: [any TokenSequenceGenerator] = [expression]
 
     switch sorter {
@@ -84,7 +84,7 @@ public struct SortBy<Expression>: TokenSequenceGenerator where Expression: Gener
 
     nullOrdering.map({ sequences.append($0) })
 
-    return JoinedSQLTokenSequence(sequences)
+    return JoinedTokenSequence(sequences)
   }
 
   public init(_ expression: Expression, sorter: Sorter? = nil, nullOrdering: NullOrdering? = nil) {
@@ -112,18 +112,18 @@ public struct SortBy<Expression>: TokenSequenceGenerator where Expression: Gener
 
 private struct _AnySortBy: TokenSequenceGenerator {
   class _Box {
-    var tokens: JoinedSQLTokenSequence { fatalError("Must be overridden.") }
+    var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
   }
 
   class _Base<T>: _Box where T: GeneralExpression {
     let _base: SortBy<T>
     init(_ base: SortBy<T>) { self._base = base }
-    override var tokens: JoinedSQLTokenSequence { return _base.tokens }
+    override var tokens: JoinedTokenSequence { return _base.tokens }
   }
 
   private let _box: _Box
 
-  var tokens: JoinedSQLTokenSequence { _box.tokens }
+  var tokens: JoinedTokenSequence { _box.tokens }
 
   init<T>(_ sortBy: SortBy<T>) where T: GeneralExpression {
     self._box = _Base<T>(sortBy)
@@ -154,15 +154,15 @@ public struct SortClause: Clause {
       _list.append(_AnySortBy(sortBy))
     }
 
-    public var tokens: JoinedSQLTokenSequence {
+    public var tokens: JoinedTokenSequence {
       return _list.joinedByCommas()
     }
   }
 
   public var list: List
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(OrderBy.orderBy, list)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(OrderBy.orderBy, list)
   }
 
   public init(_ list: List) {
@@ -183,8 +183,8 @@ public struct SortClause: Clause {
 public struct JSONArrayAggregateSortClause: Clause {
   public var list: SortClause.List
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(OrderBy.orderBy, list)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(OrderBy.orderBy, list)
   }
 
   public init(_ list: SortClause.List) {

@@ -24,8 +24,8 @@ public struct IsDistinctFromExpression<Left, Right>: Expression where Left: Expr
 
   public let right: Right
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(left, _IsDistinctFrom.isDistinctFrom, right)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(left, _IsDistinctFrom.isDistinctFrom, right)
   }
 
   public init(_ left: Left, _ right: Right) {
@@ -54,8 +54,8 @@ public struct IsNotDistinctFromExpression<Left, Right>: Expression where Left: E
 
   public let right: Right
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(left, _IsNotDistinctFrom.isNotDistinctFrom, right)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(left, _IsNotDistinctFrom.isNotDistinctFrom, right)
   }
 
   public init(_ left: Left, _ right: Right) {

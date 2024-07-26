@@ -21,18 +21,18 @@ public struct FunctionArgumentExpression: Expression {
 
   private let _notation: _Notation
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _notation {
     case .positional(let generalExpression):
-      return JoinedSQLTokenSequence([generalExpression])
+      return JoinedTokenSequence([generalExpression])
     case .named(let name, let value):
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         name,
         SingleToken(Token.Operator.arrowSign),
         value
       ] as [any TokenSequenceGenerator])
     case .legacyNamed(let name, let value):
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         name,
         SingleToken(Token.Operator.colonEquals),
         value
@@ -88,7 +88,7 @@ public struct FunctionArgumentList: TokenSequenceGenerator {
     )!
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return arguments.joinedByCommas()
   }
 }

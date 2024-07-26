@@ -8,7 +8,7 @@
 /// Representation of `INSERT INTO` statement that is described as `InsertStmt` in "gram.y".
 @available(*, unavailable, message: "Unimplemented")
 public struct InsertStatement: Statement, PreparableStatement {
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     fatalError("Unimplemented.")
   }
 }

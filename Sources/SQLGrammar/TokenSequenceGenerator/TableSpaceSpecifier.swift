@@ -9,8 +9,8 @@
 public struct TableSpaceSpecifier: TokenSequenceGenerator {
   public let tableSpaceName: TableSpaceName
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(SingleToken.tablespace, tableSpaceName)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(SingleToken.tablespace, tableSpaceName)
   }
 
   public init(_ tableSpaceName: TableSpaceName) {

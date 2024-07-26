@@ -88,7 +88,7 @@ public struct LabeledOperator: OperatorTokenSequence {
 
   public let `operator`: any OperatorTokenConvertible
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     var tokens: [Token] = labels.map(\.token)
     tokens.append(`operator`.token)
     return tokens.joined(separator: dotJoiner)
@@ -123,8 +123,8 @@ public struct LabeledOperator: OperatorTokenSequence {
 public struct OperatorConstructor: OperatorTokenSequence {
   public let `operator`: LabeledOperator
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       SingleToken.operator, SingleToken.joiner,
       self.operator.parenthesized
     )

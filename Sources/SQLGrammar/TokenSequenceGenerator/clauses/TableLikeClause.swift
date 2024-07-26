@@ -65,7 +65,7 @@ public struct TableLikeOptionList: TokenSequenceGenerator,
 
   public var options: NonEmptyList<Option>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return options.joined()
   }
 
@@ -82,7 +82,7 @@ public struct TableLikeClause: Clause {
 
   public var options: TableLikeOptionList?
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return .compacting(SingleToken.like, sourceTable, options)
   }
 

@@ -21,8 +21,8 @@ private final class _IsNotDocument: Segment {
 public struct IsDocumentExpression<XMLValue>: Expression where XMLValue: Expression {
   public let value: XMLValue
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(value, _IsDocument.isDocument)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(value, _IsDocument.isDocument)
   }
 
   public init(_ value: XMLValue) {
@@ -42,8 +42,8 @@ extension RecursiveExpression {
 public struct IsNotDocumentExpression<XMLValue>: Expression where XMLValue: Expression {
   public let value: XMLValue
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(value, _IsNotDocument.isNotDocument)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(value, _IsNotDocument.isNotDocument)
   }
 
   public init(_ value: XMLValue) {

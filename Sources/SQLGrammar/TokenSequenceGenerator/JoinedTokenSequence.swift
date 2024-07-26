@@ -1,12 +1,12 @@
 /* *************************************************************************************************
- JoinedSQLTokenSequence.swift
+ JoinedTokenSequence.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-/// Joined SQLToken sequence with `separator`.
-public struct JoinedSQLTokenSequence: TokenSequence {
+/// Joined `Token` sequence with `separator`.
+public struct JoinedTokenSequence: TokenSequence {
   fileprivate let _sequences: Array<any TokenSequenceGenerator>
 
   public let separator: Array<Token>?
@@ -101,7 +101,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<Separator>(
     _ sequences: Array<(any TokenSequenceGenerator)?>,
     separator: Separator? = Optional<Array<Token>>.none
-  ) -> JoinedSQLTokenSequence where Separator: Sequence, Separator.Element: Token {
+  ) -> JoinedTokenSequence where Separator: Sequence, Separator.Element: Token {
     return .init(
       _sequences: sequences.compactMap({ $0 }),
       separator: separator.map({ Array<Token>($0) })
@@ -113,7 +113,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<Separator>(
     _ sequences: Array<(any TokenSequenceGenerator)?>,
     separator: Separator
-  ) -> JoinedSQLTokenSequence where Separator: TokenSequenceGenerator {
+  ) -> JoinedTokenSequence where Separator: TokenSequenceGenerator {
     return .init(
       _sequences: sequences.compactMap({ $0 }),
       separator: Array<Token>(separator.tokens)
@@ -125,7 +125,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<S, Separator>(
     _ sequences: S,
     separator: Separator? = Optional<Array<Token>>.none
-  ) -> JoinedSQLTokenSequence where S: Sequence, S.Element == (any TokenSequenceGenerator)?,
+  ) -> JoinedTokenSequence where S: Sequence, S.Element == (any TokenSequenceGenerator)?,
                                     Separator: Sequence, Separator.Element: Token
   {
     return .init(
@@ -139,7 +139,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<S, Separator>(
     _ sequences: S,
     separator: Separator
-  ) -> JoinedSQLTokenSequence where S: Sequence, S.Element == (any TokenSequenceGenerator)?,
+  ) -> JoinedTokenSequence where S: Sequence, S.Element == (any TokenSequenceGenerator)?,
                                     Separator: TokenSequenceGenerator
   {
     return .init(
@@ -153,7 +153,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<each S, Separator>(
     _ sequence: repeat Optional<each S>,
     separator: Separator?  = Optional<Array<Token>>.none
-  ) -> JoinedSQLTokenSequence where repeat each S: TokenSequenceGenerator,
+  ) -> JoinedTokenSequence where repeat each S: TokenSequenceGenerator,
                                     Separator: Sequence, Separator.Element: Token
   {
     var sequences: [any TokenSequenceGenerator] = []
@@ -170,7 +170,7 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public static func compacting<each S, Separator>(
     _ sequence: repeat Optional<each S>,
     separator: Separator
-  ) -> JoinedSQLTokenSequence where repeat each S: TokenSequenceGenerator,
+  ) -> JoinedTokenSequence where repeat each S: TokenSequenceGenerator,
                                     Separator: TokenSequenceGenerator
   {
     return .compacting(repeat each sequence, separator: separator.tokens)
@@ -179,12 +179,12 @@ public struct JoinedSQLTokenSequence: TokenSequence {
   public struct Iterator: IteratorProtocol {
     public typealias Element = Token
 
-    private let _joinedSequence: JoinedSQLTokenSequence
+    private let _joinedSequence: JoinedTokenSequence
     private var _currentIndex: Int
     private var _currentIterator: Optional<AnyTokenSequenceIterator>
     private var _currentSequenceIsSeparator: Bool
 
-    fileprivate init(_ joinedSequence: JoinedSQLTokenSequence) {
+    fileprivate init(_ joinedSequence: JoinedTokenSequence) {
       self._joinedSequence = joinedSequence
       self._currentIndex = joinedSequence._sequences.startIndex
       self._currentIterator = joinedSequence._sequences.first.map { $0._anyIterator }
@@ -236,20 +236,20 @@ extension Collection where Element: Token {
   /// Returns joined tokens with `separator`.
   public func joined<Separator>(
     separator: Separator? = Optional<Array<Token>>.none
-  ) -> JoinedSQLTokenSequence where Separator: Sequence, Separator.Element: Token {
-    return JoinedSQLTokenSequence(self.map({ SingleToken($0) }), separator: separator)
+  ) -> JoinedTokenSequence where Separator: Sequence, Separator.Element: Token {
+    return JoinedTokenSequence(self.map({ SingleToken($0) }), separator: separator)
   }
 
   /// Returns joined tokens with `separator`.
   @inlinable
   public func joined<Separator>(
     separator: Separator
-  ) -> JoinedSQLTokenSequence where Separator: TokenSequenceGenerator {
+  ) -> JoinedTokenSequence where Separator: TokenSequenceGenerator {
     return self.joined(separator: separator.tokens)
   }
 
   @inlinable
-  public func joinedByCommas() -> JoinedSQLTokenSequence {
+  public func joinedByCommas() -> JoinedTokenSequence {
     return self.joined(separator: commaSeparator)
   }
 }
@@ -259,20 +259,20 @@ extension Collection where Element: LosslessTokenConvertible {
   @inlinable
   public func joined<Separator>(
     separator: Separator? = Optional<Array<Token>>.none
-  ) -> JoinedSQLTokenSequence where Separator: Sequence, Separator.Element: Token {
-    return JoinedSQLTokenSequence(self.map({ $0.asSequence }), separator: separator)
+  ) -> JoinedTokenSequence where Separator: Sequence, Separator.Element: Token {
+    return JoinedTokenSequence(self.map({ $0.asSequence }), separator: separator)
   }
 
   /// Returns joined tokens with `separator`.
   @inlinable
   public func joined<Separator>(
     separator: Separator
-  ) -> JoinedSQLTokenSequence where Separator: TokenSequenceGenerator {
+  ) -> JoinedTokenSequence where Separator: TokenSequenceGenerator {
     return self.joined(separator: separator.tokens)
   }
 
   @inlinable
-  public func joinedByCommas() -> JoinedSQLTokenSequence {
+  public func joinedByCommas() -> JoinedTokenSequence {
     return self.joined(separator: commaSeparator)
   }
 }
@@ -280,36 +280,36 @@ extension Collection where Element: LosslessTokenConvertible {
 extension Collection where Element == any TokenSequenceGenerator {
   /// Returns joined tokens with `separator`.
   @inlinable
-  public func joined<S>(separator: S? = Optional<Array<Token>>.none) -> JoinedSQLTokenSequence where S: Sequence, S.Element: Token {
-    return JoinedSQLTokenSequence(self, separator: separator)
+  public func joined<S>(separator: S? = Optional<Array<Token>>.none) -> JoinedTokenSequence where S: Sequence, S.Element: Token {
+    return JoinedTokenSequence(self, separator: separator)
   }
 
   /// Returns joined tokens with `separator`.
   @inlinable
-  public func joined<S>(separator: S) -> JoinedSQLTokenSequence where S: TokenSequenceGenerator {
+  public func joined<S>(separator: S) -> JoinedTokenSequence where S: TokenSequenceGenerator {
     return self.joined(separator: separator.tokens)
   }
 
   @inlinable
-  public func joinedByCommas() -> JoinedSQLTokenSequence {
+  public func joinedByCommas() -> JoinedTokenSequence {
     return self.joined(separator: commaSeparator)
   }
 }
 
 extension Collection where Element: TokenSequenceGenerator {
   /// Returns joined tokens with `separator`.
-  public func joined<S>(separator: S? = Optional<Array<Token>>.none) -> JoinedSQLTokenSequence where S: Sequence, S.Element: Token {
-    return JoinedSQLTokenSequence(self, separator: separator)
+  public func joined<S>(separator: S? = Optional<Array<Token>>.none) -> JoinedTokenSequence where S: Sequence, S.Element: Token {
+    return JoinedTokenSequence(self, separator: separator)
   }
 
   /// Returns joined tokens with `separator`.
   @inlinable
-  public func joined<S>(separator: S) -> JoinedSQLTokenSequence where S: TokenSequenceGenerator {
+  public func joined<S>(separator: S) -> JoinedTokenSequence where S: TokenSequenceGenerator {
     return self.joined(separator: separator.tokens)
   }
 
   @inlinable
-  public func joinedByCommas() -> JoinedSQLTokenSequence {
+  public func joinedByCommas() -> JoinedTokenSequence {
     return self.joined(separator: commaSeparator)
   }
 }

@@ -30,8 +30,8 @@ public struct SearchClause: Clause {
 
   public let searchSequenceColumnName: ColumnIdentifier
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(
       SingleToken.search,
       ordering,
       SingleToken.by,

@@ -11,8 +11,8 @@ public struct HashPartitionBound: TokenSequenceGenerator {
 
   public let value: UnsignedIntegerConstantExpression
 
-  public var tokens: JoinedSQLTokenSequence {
-    return JoinedSQLTokenSequence(name.asSequence, value)
+  public var tokens: JoinedTokenSequence {
+    return JoinedTokenSequence(name.asSequence, value)
   }
 
   public init(name: NonReservedWord, value: UnsignedIntegerConstantExpression) {
@@ -38,7 +38,7 @@ public struct HashPartitionBoundList: TokenSequenceGenerator,
 
   public var bounds: NonEmptyList<HashPartitionBound>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return bounds.joinedByCommas()
   }
 
@@ -98,20 +98,20 @@ public struct PartitionBoundSpecification: TokenSequenceGenerator {
     static let forValues: _ForValues = .init()
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch strategy {
     case .hash(let list):
-      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken.with, list.parenthesized)
+      return JoinedTokenSequence(_ForValues.forValues, SingleToken.with, list.parenthesized)
     case .list(let list):
-      return JoinedSQLTokenSequence(_ForValues.forValues, SingleToken.in, list.parenthesized)
+      return JoinedTokenSequence(_ForValues.forValues, SingleToken.in, list.parenthesized)
     case .range(let from, let to):
-      return JoinedSQLTokenSequence(
+      return JoinedTokenSequence(
         _ForValues.forValues,
         SingleToken.from, from.parenthesized,
         SingleToken.to, to.parenthesized
       )
     case .default:
-      return JoinedSQLTokenSequence(SingleToken.default)
+      return JoinedTokenSequence(SingleToken.default)
     }
   }
 

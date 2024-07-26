@@ -16,23 +16,23 @@ public struct TargetElement: TokenSequenceGenerator {
 
   private let _type: _ElementType
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     switch _type {
     case .expressionAsColumnLabel(let expression, let columnLabel):
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         expression,
         SingleToken.as,
         columnLabel.asSequence
       ] as Array<any TokenSequenceGenerator>)
     case .expressionWithBareColumnLabel(let expression, let bareColumnLabel):
-      return JoinedSQLTokenSequence([
+      return JoinedTokenSequence([
         expression,
         bareColumnLabel.asSequence
       ] as Array<any TokenSequenceGenerator>)
     case .expression(let expression):
-      return JoinedSQLTokenSequence([expression])
+      return JoinedTokenSequence([expression])
     case .all:
-      return JoinedSQLTokenSequence(SingleToken.asterisk)
+      return JoinedTokenSequence(SingleToken.asterisk)
     }
   }
 
@@ -70,7 +70,7 @@ public struct TargetList: TokenSequenceGenerator,
                           ExpressibleByArrayLiteral {
   public var elements: NonEmptyList<TargetElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return elements.joinedByCommas()
   }
 

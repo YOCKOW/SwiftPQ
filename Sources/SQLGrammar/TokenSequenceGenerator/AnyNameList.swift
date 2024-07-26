@@ -13,7 +13,7 @@ public struct AnyNameList: TokenSequenceGenerator {
     self.names = names
   }
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return names.map({ $0 as any TokenSequenceGenerator }).joinedByCommas()
   }
 }

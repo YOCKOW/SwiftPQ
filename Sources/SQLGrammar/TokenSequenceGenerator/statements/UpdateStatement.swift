@@ -8,7 +8,7 @@
 /// Representation of `Update` statement that is described as `UpdateStmt` in "gram.y".
 @available(*, unavailable, message: "Unimplemented")
 public struct UpdateStatement: Statement, PreparableStatement {
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     fatalError("Unimplemented.")
   }
 }

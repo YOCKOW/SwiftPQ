@@ -32,7 +32,7 @@ public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLi
 public struct ColumnList: TokenSequenceGenerator, ExpressibleByArrayLiteral {
   public let names: NonEmptyList<ColumnListElement>
 
-  public var tokens: JoinedSQLTokenSequence {
+  public var tokens: JoinedTokenSequence {
     return names.joinedByCommas()
   }
 
