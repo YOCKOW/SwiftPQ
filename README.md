@@ -47,7 +47,8 @@ let connection = try Connection(
 
 ## Let's send queries!
 
-You can see the implementations of commands in ["Commands.swift"](Sources/PQ/Commands.swift).
+You can see the implementations of commands in "Sources/PQ/Commands" directory.
+Some macros are useful to embed SQL tokens into queries. See [Macros.swift](Sources/SQLGrammar/Macros.swift). 
 
 ### CREATE TABLE
 

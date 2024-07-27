@@ -13,8 +13,51 @@ import XCTest
 #if canImport(PQMacros)
 import PQMacros
 
-let testMacros: [String: Macro.Type] = [:]
+let testMacros: [String: Macro.Type] = [
+  "const": ConstantExpressionMacro.self,
+]
 #endif
 
 final class PQMacrosTests: XCTestCase {
+  func test_const() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      #"#const("string constant")"#,
+      expandedSource: #"StringConstantExpression("string constant")"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(123)"#,
+      expandedSource: #"UnsignedIntegerConstantExpression(123)"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(123.45)"#,
+      expandedSource: #"UnsignedFloatConstantExpression(123.45)"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(+123)"#,
+      expandedSource: #"UnaryPrefixPlusOperatorInvocation(UnsignedIntegerConstantExpression(123))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(+123.45)"#,
+      expandedSource: #"UnaryPrefixPlusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(-123)"#,
+      expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(123))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(-123.45)"#,
+      expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
 }
