@@ -31,10 +31,29 @@ final class PQMacrosTests: XCTestCase {
       expandedSource: #"UnsignedIntegerConstantExpression(123)"#,
       macros: testMacros
     )
-
     assertMacroExpansion(
       #"#const(123.45)"#,
       expandedSource: #"UnsignedFloatConstantExpression(123.45)"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(+123)"#,
+      expandedSource: #"UnaryPrefixPlusOperatorInvocation(UnsignedIntegerConstantExpression(123))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(+123.45)"#,
+      expandedSource: #"UnaryPrefixPlusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(-123)"#,
+      expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(123))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(-123.45)"#,
+      expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
       macros: testMacros
     )
     #else

@@ -2220,6 +2220,14 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
     XCTAssertEqual(#const("My String").description, #"'My String'"#)
     XCTAssertEqual(#const(12345).description, #"12345"#)
     XCTAssertEqual(#const(123.45).description, #"123.45"#)
+    XCTAssertEqual(#const(+12345).description, #"+12345"#)
+    XCTAssertTrue(#const(+12345) is any SignedIntegerConstantExpression)
+    XCTAssertEqual(#const(+123.45).description, #"+123.45"#)
+    XCTAssertTrue(#const(+123.45) is any SignedFloatConstantExpression)
+    XCTAssertEqual(#const(-12345).description, #"-12345"#)
+    XCTAssertTrue(#const(-12345) is any SignedIntegerConstantExpression)
+    XCTAssertEqual(#const(-123.45).description, #"-123.45"#)
+    XCTAssertTrue(#const(-123.45) is any SignedFloatConstantExpression)
   }
 }
 
