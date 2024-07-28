@@ -36,8 +36,26 @@ function update-grammars() {
   ls -ahl .
 }
 
+function update-pg-types() {
+  # Download pg_type.dat file from PostgreSQL (mirror) repository
+  # and convert it to json file.
+
+  local -r pgTypesDir="${assetsDir}/pg-types"
+  local -r pgTypeDatURL="https://raw.githubusercontent.com/postgres/postgres/${postgresBranch}/src/include/catalog/pg_type.dat"
+  local -r pgTypeDatPath="${pgTypesDir}/pg_type.dat"
+  local -r perlImplPath="${utilsDir}/update-pg-types-converter-impl.pl"
+  local -r pgTypeJSONPath="${pgTypesDir}/pg_type.json"
+
+  set -x
+  mkdir -p "$pgTypesDir"
+  curl -sSL "$pgTypeDatURL" >"$pgTypeDatPath"
+  perl "$perlImplPath" "$pgTypeDatPath" --json | jq . >"$pgTypeJSONPath"
+  { set +x; } 2>/dev/null
+}
+
 case "$commandName" in
-update-grammars)
+update-grammars |\
+update-pg-types )
   $commandName $@
 ;;
 *)
