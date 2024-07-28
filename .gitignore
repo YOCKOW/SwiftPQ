@@ -9,3 +9,4 @@ DerivedData/
 .netrc
 
 /assets/grammars
+/assets/pg-types
