@@ -52,5 +52,5 @@ public struct _MacroConstantExpression: AdditiveArithmetic,
 /// `#const(-123)`     | `UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(123))`
 /// `#const(-123.45)`  | `UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))`
 @freestanding(expression)
-public macro const(_ constExpression: _MacroConstantExpression) -> any Expression =
+public macro const(_ constExpression: _MacroConstantExpression) -> any GeneralExpression =
   #externalMacro(module: "PQMacros", type: "ConstantExpressionMacro")
