@@ -44,7 +44,7 @@ if ($format eq "--json") {
 
   sub ____infoToJSON {
     my $info = shift;
-    my @keys = keys %$info;
+    my @keys = sort keys %$info;
     my $numberOfKeys = @keys;
     my $result = "{";
     for (my $ii = 0; $ii < $numberOfKeys; $ii++) {
