@@ -88,6 +88,37 @@ if ($format eq "--json") {
   print "}";
 
   print "}\n";
+} elsif ($format eq "--swift") {
+  sub __convertKey {
+    my $key = shift;
+    if ($key =~ /^(_+)/) {
+      my $prefix = $1;
+      $key =~ s/^(_+)//;
+      my $converted = &__convertKey($key);
+      return "$prefix$converted";
+    }
+    my @splitted = split(/[^0-9A-Za-z]+/, $key);
+    my $nn = scalar(@splitted);
+    my $result = "";
+    for (my $ii = 0; $ii < $nn; $ii++) {
+      if ($ii == 0) {
+        $result .= $splitted[$ii];
+      } else {
+        $result .= ucfirst($splitted[$ii]);
+      }
+    }
+    return $result;
+  }
+
+  my @sortedPgTypes = sort { int($a->{'oid'}) <=> int($b->{'oid'}) } @$pgTypes;
+  print "extension OID {\n";
+  foreach my $pgTypeInfo (@sortedPgTypes) {
+    if (exists $pgTypeInfo->{'descr'}) {
+      print "  /// $pgTypeInfo->{'descr'}\n";
+    }
+    print "  public static let " . &__convertKey($pgTypeInfo->{'typname'}) . ": OID = .init(rawValue: $pgTypeInfo->{'oid'})\n\n";
+  }
+  print "}\n";
 } else {
   die "Unsupported format: $format";
 }
