@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 import Foundation
-@_spi(RawSyntax) import SwiftSyntax
+import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
@@ -960,34 +960,6 @@ final class KeywordManager {
   )
 
   private(set) lazy var sortedAllKeywords: Array<String> = allKeywords.sorted()
-}
-
-private extension String {
-  var _isSwiftKeyword: Bool {
-    mutating get {
-      return self.withSyntaxText {
-        return SwiftSyntax.Keyword($0) != nil
-      }
-    }
-  }
-
-  var _swiftIdentifier: IdentifierPatternSyntax {
-    let splitted = self.split(whereSeparator: {
-      guard $0.isASCII else { fatalError("Non-ASCII character is contained.") }
-      return !$0.isLetter && !$0.isNumber
-    })
-    guard let first = splitted.first else {
-      fatalError("Empty keyword?!")
-    }
-    var idDesc = first.lowercased()
-    for word in splitted.dropFirst() {
-      idDesc += String(word).capitalized
-    }
-    if idDesc._isSwiftKeyword {
-      idDesc = "`\(idDesc)`"
-    }
-    return .init(identifier: TokenSyntax(.identifier(idDesc), presence: .present))
-  }
 }
 
 public struct StaticKeywordExpander: MemberMacro {

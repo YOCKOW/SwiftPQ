@@ -89,6 +89,8 @@ if ($format eq "--json") {
 
   print "}\n";
 } elsif ($format eq "--swift") {
+  print STDERR "⚠️Deprecated format.";
+
   sub __convertKey {
     my $key = shift;
     if ($key =~ /^(_+)/) {
