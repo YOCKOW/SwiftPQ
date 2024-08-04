@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import CPostgreSQL
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
@@ -17,6 +18,55 @@ let testMacros: [String: Macro.Type] = [
   "const": ConstantExpressionMacro.self,
 ]
 #endif
+
+final class PGTypeManagerTests: XCTestCase {
+  func test_typeInfo() throws {
+    let json = """
+    {
+      "array_type_oid": "1000",
+      "descr": "boolean, 'true'/'false'",
+      "oid": "16",
+      "typalign": "c",
+      "typbyval": "t",
+      "typcategory": "B",
+      "typinput": "boolin",
+      "typispreferred": "t",
+      "typlen": "1",
+      "typname": "bool",
+      "typoutput": "boolout",
+      "typreceive": "boolrecv",
+      "typsend": "boolsend"
+    }
+    """
+    let infoFromJSON = try JSONDecoder().decode(PGTypeInfo.self, from: Data(json.utf8))
+    XCTAssertEqual(infoFromJSON.oid, 16)
+    XCTAssertEqual(infoFromJSON.typeName, "bool")
+
+    let dict = [
+      "array_type_oid":"1002",
+      "descr":"single character",
+      "oid":"18",
+      "typalign":"c",
+      "typbyval":"t",
+      "typcategory":"Z",
+      "typinput":"charin",
+      "typlen":"1",
+      "typname":"char",
+      "typoutput":"charout",
+      "typreceive":"charrecv",
+      "typsend":"charsend",
+    ]
+    let infoFromDict = try PGTypeInfo(dict)
+    XCTAssertEqual(infoFromDict.oid, 18)
+    XCTAssertEqual(infoFromDict.typeName, "char")
+  }
+
+  func test_manager() throws {
+    let manager = PGTypeManager.default
+    XCTAssertEqual(try manager.list.oidToInfo[16]?.typeName, "bool")
+    XCTAssertEqual(try manager.list.nameToInfo["float8"]?.typeByValue, _SwiftPQ_get_FLOAT8PASSBYVAL())
+  }
+}
 
 final class PQMacrosTests: XCTestCase {
   func test_const() {

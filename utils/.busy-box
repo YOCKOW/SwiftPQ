@@ -5,13 +5,53 @@ set -eu
 local -r commandName="$(basename "$0")"
 local -r utilsDir="$(cd "$(dirname $0)" && pwd -L)"
 local -r repoDir="$(dirname "$utilsDir")"
-local postgresBranch=$(cat "${utilsDir}/.postgres-branch")
+local -r postgresBranch=$(cat "${repoDir}/.postgres-branch")
 local -r assetsDir="${repoDir}/assets"
+local -r sourcesDir="${repoDir}/Sources"
+local -r pqDir="${sourcesDir}/PQ"
 
+function __isTrue() {
+  local -r boolValue="${1:-false}"
+  if [[ "${(L)boolValue}" == "true" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+local ____postgresCopyrightContent=""
+function __postgresCopyright() {
+  if [[ -z "$____postgresCopyrightContent" ]]; then
+    ____postgresCopyrightContent=$(curl -sSL "https://raw.githubusercontent.com/postgres/postgres/${postgresBranch}/COPYRIGHT")
+  fi
+  echo "$____postgresCopyrightContent"
+}
+
+function update-copyright() {
+  local -r forceOption="${1:-}"
+  local -r pgCopyrightPath="${assetsDir}/PostgreSQL-COPYRIGHT.${postgresBranch}.txt"
+  local -r shouldUpdate=$(function () {
+    if [[ ! -f "$pgCopyrightPath" ]] || [[ "$forceOption" == "-f" ]] || [[ "$forceOption" == "--force" ]]; then
+      echo true
+    else
+      echo false
+    fi
+  })
+
+  if __isTrue "$shouldUpdate"; then
+    echo "Updating PostgreSQL copyright file at $pgCopyrightPath." 1>&2
+    echo "# This directory contains some files that are generated from sources fetched in PostgreSQL repository." >"$pgCopyrightPath"
+    echo "# PostgreSQL is licensed under PostgreSQL license:" >>"$pgCopyrightPath"
+    echo  >>"$pgCopyrightPath"
+    echo "$(__postgresCopyright)" >>"$pgCopyrightPath"
+  fi
+}
 
 function update-grammars() {
   # Download gram.y file from PostgreSQL (mirror) repository
   # and let 'bison' parse the file to make it easy to read.
+
+  update-copyright
 
   local -r grammarsDir="${assetsDir}/grammars"
   local -r gramyURL="https://raw.githubusercontent.com/postgres/postgres/${postgresBranch}/src/backend/parser/gram.y"
@@ -38,22 +78,41 @@ function update-grammars() {
 
 function update-pg-types() {
   # Download pg_type.dat file from PostgreSQL (mirror) repository
-  # and convert it to json file.
+  # and convert it to json/swift files.
+
+  update-copyright
 
   local -r pgTypesDir="${assetsDir}/pg-types"
   local -r pgTypeDatURL="https://raw.githubusercontent.com/postgres/postgres/${postgresBranch}/src/include/catalog/pg_type.dat"
-  local -r pgTypeDatPath="${pgTypesDir}/pg_type.dat"
+  local -r pgTypeDatPath="${pgTypesDir}/pg_type.${postgresBranch}.dat"
   local -r perlImplPath="${utilsDir}/update-pg-types-converter-impl.pl"
-  local -r pgTypeJSONPath="${pgTypesDir}/pg_type.json"
+  local -r pgTypeJSONPath="${pgTypesDir}/pg_type.${postgresBranch}.json"
+  local -r pgTypeSwiftFilename="pg_type.${postgresBranch}.swift"
+  local -r pgTypeSwiftPath="${pgTypesDir}/${pgTypeSwiftFilename}"
+  local -r pgTypeSwiftLinkFilename="pg_type.current.swift"
 
-  set -x
   mkdir -p "$pgTypesDir"
+
+  echo "Downloading $pgTypeDatURL..."
   curl -sSL "$pgTypeDatURL" >"$pgTypeDatPath"
+
+  echo "Generating a JSON file to $pgTypeJSONPath"
   perl "$perlImplPath" "$pgTypeDatPath" --json | jq . >"$pgTypeJSONPath"
-  { set +x; } 2>/dev/null
+
+  echo "Generating a Swift file to $pgTypeSwiftPath"
+  # TODO: Use swift-format
+  perl "$perlImplPath" "$pgTypeDatPath" --swift >"$pgTypeSwiftPath"
+  function () {
+    set -x
+    cd "$pgTypesDir" && ln -sf "$pgTypeSwiftFilename" "$pgTypeSwiftLinkFilename"
+    { set +x; } 2>/dev/null
+  }
+
+  echo "Done."
 }
 
 case "$commandName" in
+update-copyright |\
 update-grammars |\
 update-pg-types )
   $commandName $@

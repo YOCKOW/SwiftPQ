@@ -100,6 +100,10 @@ final class PQTests: XCTestCase {
     try await __test("::1")
   }
 
+  func test_oid() {
+    XCTAssertEqual(OID.bool, OID(rawValue: 16))
+  }
+
   func test_query_StringInterpolation() {
     XCTAssertEqual(
       Query.rawSQL("SELECT \(identifier: "a") FROM \(TableName(schema: "public", name: "my_table"));").command,

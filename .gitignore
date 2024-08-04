@@ -8,5 +8,3 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
 
-/assets/grammars
-/assets/pg-types

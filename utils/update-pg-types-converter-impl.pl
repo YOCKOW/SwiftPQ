@@ -26,6 +26,7 @@ while (my $inputLine = <$inputFH>) {
 }
 close $inputFH;
 my $pgTypes = eval $pgTypeArrayDesc;
+@$pgTypes = sort { int($a->{'oid'}) <=> int($b->{'oid'}) } @$pgTypes;
 my $numberOfTypes = scalar(@$pgTypes);
 
 sub __escape {
@@ -88,6 +89,38 @@ if ($format eq "--json") {
   print "}";
 
   print "}\n";
+} elsif ($format eq "--swift") {
+  # Not pretty...
+
+  sub ____infoToDictLiteral {
+    my $info = shift;
+    my @keys = sort keys %$info;
+    my $result = "[\n";
+    foreach my $key (@keys) {
+      my $value = $info->{$key};
+      $result .= &__escapeAndQuote($key) . ":" . &__escapeAndQuote($value) . ",\n";
+    }
+    $result .= "]";
+    return $result;
+  }
+
+  print "let pgTypeMap: [String:[String:[String:String]]] = [\n";
+
+  # Oid to info
+  print "\"oidToInfo\":[\n";
+  foreach my $info (@$pgTypes) {
+    print &__escapeAndQuote($info->{'oid'}) . ":" . &____infoToDictLiteral($info) . ",\n";
+  }
+  print "],\n";
+
+  # Name to info
+  print "\"nameToInfo\":[\n";
+  foreach my $info (@$pgTypes) {
+    print &__escapeAndQuote($info->{'typname'}) . ":" . &____infoToDictLiteral($info) . ",\n";
+  }
+  print "],\n";
+
+  print "]\n";
 } else {
   die "Unsupported format: $format";
 }
