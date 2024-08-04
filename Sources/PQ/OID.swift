@@ -7,10 +7,14 @@
 
 import CLibPQ
 
+@attached(member, names: arbitrary)
+private macro _ExpandOIDs() = #externalMacro(module: "PQMacros", type: "OIDExpander")
+
 /// Object identifier that corresponds to a primary key used internally by PostgreSQL.
 ///
 /// See Official Documentation [§8.19. Object Identifier Types](https://www.postgresql.org/docs/current/datatype-oid.html).
-public struct OID: RawRepresentable {
+@_ExpandOIDs
+public struct OID: RawRepresentable, Equatable {
   public typealias RawValue = CLibPQ.Oid
 
   public let rawValue: RawValue

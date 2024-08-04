@@ -17,14 +17,20 @@ internal extension String {
   }
 
   var _swiftIdentifier: IdentifierPatternSyntax {
-    let splitted = self.split(whereSeparator: {
+    let prefix = self.prefix(while: { $0 == "_" })
+    let prefixCount = prefix.count
+
+    let idSource = self.dropFirst(prefixCount)
+
+    let splitted = idSource.split(whereSeparator: {
       guard $0.isASCII else { fatalError("Non-ASCII character is contained.") }
       return !$0.isLetter && !$0.isNumber
     })
     guard let first = splitted.first else {
       fatalError("Empty keyword?!")
     }
-    var idDesc = first.lowercased()
+    var idDesc = String(prefix)
+    idDesc += first.lowercased()
     for word in splitted.dropFirst() {
       idDesc += String(word).capitalized
     }

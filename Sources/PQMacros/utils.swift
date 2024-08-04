@@ -15,14 +15,14 @@ internal let postgresBranchFilePath = repositoryDirectoryPath.appending(".postgr
 internal let assetsDirectoryPath = repositoryDirectoryPath.appending("assets")
 internal let pgTypesDirectoryPath = assetsDirectoryPath.appending("pg-types")
 internal var postgresBranch: String {
-  get {
+  get throws {
     enum __Postgres { static var branch: String? = nil }
     guard let branch = __Postgres.branch else {
       let fd = try! FileDescriptor.open(postgresBranchFilePath, .readOnly)
-      let buffer = UnsafeMutableRawBufferPointer.allocate(byteCount: 256, alignment: 8)
+      let buffer = UnsafeMutableRawBufferPointer.allocate(byteCount: 1024, alignment: 8)
       defer { buffer.deallocate() }
-      try! fd.closeAfter {
-        let count = try! fd.read(into: buffer)
+      try fd.closeAfter {
+        let _ = try fd.read(into: buffer)
         let branch = String(cString: buffer.bindMemory(to: CChar.self).baseAddress!)._trimmed
         __Postgres.branch = String(branch)
       }
@@ -31,7 +31,11 @@ internal var postgresBranch: String {
     return branch
   }
 }
-internal let pgTypeJSONFilePath = pgTypesDirectoryPath.appending("pg_type.\(postgresBranch).json")
+internal var pgTypeJSONFilePath: FilePath {
+  get throws {
+    return pgTypesDirectoryPath.appending("pg_type.\(try postgresBranch).json")
+  }
+}
 
 extension String {
   var _trimmed: Substring {

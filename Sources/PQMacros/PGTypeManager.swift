@@ -7,24 +7,61 @@
 
 import CPostgreSQL
 import Foundation
+import SwiftSyntax
+import SwiftSyntaxBuilder
+import SwiftSyntaxMacros
 import SystemPackage
 
 public typealias OID = Int32
 
-private extension RawRepresentable where Self.RawValue == Character, Self: Decodable {
-  init(_from container: any SingleValueDecodingContainer) throws {
-    let desc = try container.decode(String.self)
-    guard let character = desc.first, desc.dropFirst().isEmpty else {
-      throw DecodingError.dataCorrupted(
-        .init(codingPath: container.codingPath, debugDescription: "Not a character?!")
-      )
+private enum _CharacterDecodingError: LocalizedError {
+  case notCharacter
+  case unexpectedCharacter
+
+  var errorDescription: String? {
+    switch self {
+    case .notCharacter:
+      return "Not a character?!"
+    case .unexpectedCharacter:
+      return "Unexpected character?!"
+    }
+  }
+}
+private protocol _DecodableRawCharacterRepresentable: Decodable, RawRepresentable where Self.RawValue == Character {
+  init(from string: String) throws
+}
+extension _DecodableRawCharacterRepresentable {
+  init(_string string: String) throws {
+    guard let character = string.first, string.dropFirst().isEmpty else {
+      throw _CharacterDecodingError.notCharacter
     }
     guard let instance = Self(rawValue: character) else {
-      throw DecodingError.dataCorrupted(
-        .init(codingPath: container.codingPath, debugDescription: "Unexpected character?!")
-      )
+      throw _CharacterDecodingError.unexpectedCharacter
     }
     self = instance
+  }
+
+  init(_from container: any SingleValueDecodingContainer) throws {
+    let desc = try container.decode(String.self)
+    do {
+      try self.init(_string: desc)
+    } catch let error as _CharacterDecodingError {
+      throw DecodingError.dataCorrupted(
+        .init(
+          codingPath: container.codingPath,
+          debugDescription: error.errorDescription!,
+          underlyingError: error
+        )
+      )
+    }
+  }
+
+  init(from string: String) throws {
+    try self.init(_string: string)
+  }
+
+  public init(from decoder: any Decoder) throws {
+    try self.init(_from: decoder.singleValueContainer())
   }
 }
 
@@ -46,16 +83,25 @@ public struct PGTypeInfo: Decodable {
     case typeSend = "typsend"
   }
 
-  public enum TypeAlignment: Character, Decodable {
+  public enum TypeAlignment: Character, Decodable, _DecodableRawCharacterRepresentable {
     case char = "c"
     case short = "s"
     case int = "i"
     case double = "d"
 
-    public init(from decoder: any Decoder) throws {
-      let container = try decoder.singleValueContainer()
-      let string = try container.decode(String.self)
-      if string == "ALIGNOF_POINTER" {
+    private enum _Error: LocalizedError {
+      case alignmentOfPointerError
+
+      var errorDescription: String? {
+        switch self {
+        case .alignmentOfPointerError:
+          return "No type matching its alignment with pointer's one."
+        }
+      }
+    }
+
+    init(from description: String) throws {
+      if description == "ALIGNOF_POINTER" {
         switch MemoryLayout<UnsafeRawPointer>.alignment {
         case MemoryLayout<CChar>.alignment:
           self = .char
@@ -66,20 +112,31 @@ public struct PGTypeInfo: Decodable {
         case MemoryLayout<CDouble>.alignment:
           self = .double
         default:
-          throw DecodingError.dataCorrupted(
-            .init(
-              codingPath: container.codingPath,
-              debugDescription: "No type matching its alignment with pointer's one."
-            )
-          )
+          throw _Error.alignmentOfPointerError
         }
       } else {
-        try self.init(_from: container)
+        try self.init(_string: description)
       }
+    }
+
+    public init(from decoder: any Decoder) throws {
+      let container = try decoder.singleValueContainer()
+      let string = try container.decode(String.self)
+      do {
+        try self.init(from: string)
+      } catch let error as _Error {
+        throw DecodingError.dataCorrupted(
+          .init(
+            codingPath: container.codingPath,
+            debugDescription: error.errorDescription!
+          )
+        )
+      }
+      try self.init(_from: container)
     }
   }
 
-  public enum TypeCategory: Character, Decodable {
+  public enum TypeCategory: Character, Decodable, _DecodableRawCharacterRepresentable {
     case array = "A"
     case boolean = "B"
     case composite = "C"
@@ -96,10 +153,6 @@ public struct PGTypeInfo: Decodable {
     case bitString = "V"
     case unknown = "X"
     case internalUse = "Z"
-
-    public init(from decoder: any Decoder) throws {
-      try self.init(_from: decoder.singleValueContainer())
-    }
   }
 
   public let arrayTypeOID: OID?
@@ -116,16 +169,69 @@ public struct PGTypeInfo: Decodable {
   public let typeReceive: String
   public let typeSend: String
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: Key.self)
+  private enum _Container {
+    case decoding(KeyedDecodingContainer<Key>)
+    case dictionary([String: String])
 
+    enum DictionaryError: Error {
+      case dataCorruptedError(forKey: Key, in: [String: String], debugDescription: String)
+      case missingKeyError(forKey: Key, in: [String: String])
+    }
 
-    func __notBoolError(for key: Key) -> some Error {
-      return DecodingError.dataCorruptedError(
-        forKey: key,
-        in: container,
-        debugDescription: "Not boolean?!"
-      )
+    func error(for key: Key, debugDescription: String) -> any Error {
+      switch self {
+      case .decoding(let keyedDecodingContainer):
+        return DecodingError.dataCorruptedError(
+          forKey: key,
+          in: keyedDecodingContainer,
+          debugDescription: debugDescription
+        )
+      case .dictionary(let dictionary):
+        return DictionaryError.dataCorruptedError(
+          forKey: key,
+          in: dictionary,
+          debugDescription: debugDescription
+        )
+      }
+    }
+
+    func decode(_ type: String.Type, forKey key: Key) throws -> String {
+      switch self {
+      case .decoding(let keyedDecodingContainer):
+        return try keyedDecodingContainer.decode(String.self, forKey: key)
+      case .dictionary(let dictionary):
+        guard let value = dictionary[key.rawValue] else {
+          throw DictionaryError.missingKeyError(forKey: key, in: dictionary)
+        }
+        return value
+      }
+    }
+
+    func decodeIfPresent(_ type: String.Type, forKey key: Key) throws -> String? {
+      switch self {
+      case .decoding(let keyedDecodingContainer):
+        return try keyedDecodingContainer.decodeIfPresent(String.self, forKey: key)
+      case .dictionary(let dictionary):
+        return dictionary[key.rawValue]
+      }
+    }
+
+    func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T: _DecodableRawCharacterRepresentable {
+      switch self {
+      case .decoding(let keyedDecodingContainer):
+        return try keyedDecodingContainer.decode(T.self, forKey: key)
+      case .dictionary(let dictionary):
+        guard let value = dictionary[key.rawValue] else {
+          throw DictionaryError.missingKeyError(forKey: key, in: dictionary)
+        }
+        return try T.init(from: value)
+      }
+    }
+  }
+
+  private init(_from container: _Container) throws {
+    func __notBoolError(for key: Key) -> any Error {
+      return container.error(for: key, debugDescription: "Not Boolean?!")
     }
     func __bool(from string: String) -> Bool? {
       switch string {
@@ -155,11 +261,7 @@ public struct PGTypeInfo: Decodable {
     }
 
     func __notIntegerError(for key: Key) -> some Error {
-      return DecodingError.dataCorruptedError(
-        forKey: key,
-        in: container,
-        debugDescription: "Not integer?!"
-      )
+      return container.error(for: key, debugDescription: "Not integer?!")
     }
     func __int<I>(from string: String, type: I.Type) -> I? where I: FixedWidthInteger {
       switch string {
@@ -201,13 +303,22 @@ public struct PGTypeInfo: Decodable {
     self.typeReceive = try container.decode(String.self, forKey: .typeReceive)
     self.typeSend = try container.decode(String.self, forKey: .typeSend)
   }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: Key.self)
+    try self.init(_from: .decoding(container))
+  }
+
+  public init(_ dictionary: [String: String]) throws {
+    try self.init(_from: .dictionary(dictionary))
+  }
 }
 
 public struct PGTypeList: Decodable {
   public let oidToInfo: [OID: PGTypeInfo]
   public let nameToInfo: [String: PGTypeInfo]
 
-  enum Key: CodingKey {
+  enum Key: String, CodingKey {
     case oidToInfo
     case nameToInfo
   }
@@ -255,6 +366,27 @@ public struct PGTypeList: Decodable {
       $0[typeName] = try nameToInfoContainer.decode(PGTypeInfo.self, forKey: $1)
     }
   }
+
+  public init(_ dictionary: [String: [String: [String: String]]]) throws {
+    enum __Error: Error {
+      case missingOidToInfo
+      case missingNameToInfo
+    }
+    guard let oidToInfoDict = dictionary[Key.oidToInfo.rawValue] else {
+      throw __Error.missingOidToInfo
+    }
+    guard let nameToInfoDict = dictionary[Key.nameToInfo.rawValue] else {
+      throw __Error.missingNameToInfo
+    }
+    self.oidToInfo = try oidToInfoDict.reduce(into: [:]) {
+      let info = try PGTypeInfo($1.value)
+      $0[info.oid] = info
+    }
+    self.nameToInfo = try nameToInfoDict.reduce(into: [:]) {
+      let info = try PGTypeInfo($1.value)
+      $0[info.typeName] = info
+    }
+  }
 }
 
 public final class PGTypeManager {
@@ -265,6 +397,8 @@ public final class PGTypeManager {
   public var list: PGTypeList {
     get throws {
       guard let list = _list else {
+        // Macros are executed in a sandbox.
+        /*
         let fd = try FileDescriptor.open(pgTypeJSONFilePath, .readOnly)
         try fd.closeAfter {
           let buffer = UnsafeMutableRawBufferPointer.allocate(byteCount: 1024 * 1024, alignment: 8)
@@ -275,8 +409,52 @@ public final class PGTypeManager {
           _list = try JSONDecoder().decode(PGTypeList.self, from: data)
         }
         return _list!
+         */
+
+        _list = try PGTypeList(pgTypeMap)
+        return _list!
       }
       return list
     }
+  }
+}
+
+/// Expand static members of `OID`.
+///
+/// - Note: Only for the purpose of internal use.
+public struct OIDExpander: MemberMacro {
+  public enum Error: Swift.Error {
+    case unsupportedType
+  }
+
+  public static func expansion(
+    of node: AttributeSyntax,
+    providingMembersOf declaration: some DeclGroupSyntax,
+    in context: some MacroExpansionContext
+  ) throws -> [DeclSyntax] {
+    guard let oidStructDecl = declaration.as(StructDeclSyntax.self),
+          oidStructDecl.name.text == "OID",
+          (oidStructDecl.inheritanceClause?.inheritedTypes.contains(where: {
+            $0.type.as(IdentifierTypeSyntax.self)?.name.text == "RawRepresentable"
+          }) == true)
+    else {
+      throw Error.unsupportedType
+    }
+
+    var result: [DeclSyntax] = []
+
+    let list = try PGTypeManager.default.list
+    for oid in list.oidToInfo.keys.sorted(by: <) {
+      let info = list.oidToInfo[oid]!
+      let name = info.typeName
+      let swId = name._swiftIdentifier
+
+      result.append("""
+      /// OID for `\(raw: name)` type.
+      public static let \(swId): OID = .init(rawValue: \(raw: oid))
+      """)
+    }
+
+    return result
   }
 }

@@ -26,6 +26,7 @@ while (my $inputLine = <$inputFH>) {
 }
 close $inputFH;
 my $pgTypes = eval $pgTypeArrayDesc;
+@$pgTypes = sort { int($a->{'oid'}) <=> int($b->{'oid'}) } @$pgTypes;
 my $numberOfTypes = scalar(@$pgTypes);
 
 sub __escape {
@@ -89,38 +90,37 @@ if ($format eq "--json") {
 
   print "}\n";
 } elsif ($format eq "--swift") {
-  print STDERR "⚠️Deprecated format.";
+  # Not pretty...
 
-  sub __convertKey {
-    my $key = shift;
-    if ($key =~ /^(_+)/) {
-      my $prefix = $1;
-      $key =~ s/^(_+)//;
-      my $converted = &__convertKey($key);
-      return "$prefix$converted";
+  sub ____infoToDictLiteral {
+    my $info = shift;
+    my @keys = sort keys %$info;
+    my $result = "[\n";
+    foreach my $key (@keys) {
+      my $value = $info->{$key};
+      $result .= &__escapeAndQuote($key) . ":" . &__escapeAndQuote($value) . ",\n";
     }
-    my @splitted = split(/[^0-9A-Za-z]+/, $key);
-    my $nn = scalar(@splitted);
-    my $result = "";
-    for (my $ii = 0; $ii < $nn; $ii++) {
-      if ($ii == 0) {
-        $result .= $splitted[$ii];
-      } else {
-        $result .= ucfirst($splitted[$ii]);
-      }
-    }
+    $result .= "]";
     return $result;
   }
 
-  my @sortedPgTypes = sort { int($a->{'oid'}) <=> int($b->{'oid'}) } @$pgTypes;
-  print "extension OID {\n";
-  foreach my $pgTypeInfo (@sortedPgTypes) {
-    if (exists $pgTypeInfo->{'descr'}) {
-      print "  /// $pgTypeInfo->{'descr'}\n";
-    }
-    print "  public static let " . &__convertKey($pgTypeInfo->{'typname'}) . ": OID = .init(rawValue: $pgTypeInfo->{'oid'})\n\n";
+  print "let pgTypeMap: [String:[String:[String:String]]] = [\n";
+
+  # Oid to info
+  print "\"oidToInfo\":[\n";
+  foreach my $info (@$pgTypes) {
+    print &__escapeAndQuote($info->{'oid'}) . ":" . &____infoToDictLiteral($info) . ",\n";
   }
-  print "}\n";
+  print "],\n";
+
+  # Name to info
+  print "\"nameToInfo\":[\n";
+  foreach my $info (@$pgTypes) {
+    print &__escapeAndQuote($info->{'typname'}) . ":" . &____infoToDictLiteral($info) . ",\n";
+  }
+  print "],\n";
+
+  print "]\n";
 } else {
   die "Unsupported format: $format";
 }

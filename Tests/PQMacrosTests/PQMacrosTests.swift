@@ -38,9 +38,27 @@ final class PGTypeManagerTests: XCTestCase {
       "typsend": "boolsend"
     }
     """
-    let info = try JSONDecoder().decode(PGTypeInfo.self, from: Data(json.utf8))
-    XCTAssertEqual(info.oid, 16)
-    XCTAssertEqual(info.typeName, "bool")
+    let infoFromJSON = try JSONDecoder().decode(PGTypeInfo.self, from: Data(json.utf8))
+    XCTAssertEqual(infoFromJSON.oid, 16)
+    XCTAssertEqual(infoFromJSON.typeName, "bool")
+
+    let dict = [
+      "array_type_oid":"1002",
+      "descr":"single character",
+      "oid":"18",
+      "typalign":"c",
+      "typbyval":"t",
+      "typcategory":"Z",
+      "typinput":"charin",
+      "typlen":"1",
+      "typname":"char",
+      "typoutput":"charout",
+      "typreceive":"charrecv",
+      "typsend":"charsend",
+    ]
+    let infoFromDict = try PGTypeInfo(dict)
+    XCTAssertEqual(infoFromDict.oid, 18)
+    XCTAssertEqual(infoFromDict.typeName, "char")
   }
 
   func test_manager() throws {

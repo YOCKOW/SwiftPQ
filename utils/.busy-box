@@ -87,6 +87,9 @@ function update-pg-types() {
   local -r pgTypeDatPath="${pgTypesDir}/pg_type.${postgresBranch}.dat"
   local -r perlImplPath="${utilsDir}/update-pg-types-converter-impl.pl"
   local -r pgTypeJSONPath="${pgTypesDir}/pg_type.${postgresBranch}.json"
+  local -r pgTypeSwiftFilename="pg_type.${postgresBranch}.swift"
+  local -r pgTypeSwiftPath="${pgTypesDir}/${pgTypeSwiftFilename}"
+  local -r pgTypeSwiftLinkFilename="pg_type.current.swift"
 
   mkdir -p "$pgTypesDir"
 
@@ -95,6 +98,15 @@ function update-pg-types() {
 
   echo "Generating a JSON file to $pgTypeJSONPath"
   perl "$perlImplPath" "$pgTypeDatPath" --json | jq . >"$pgTypeJSONPath"
+
+  echo "Generating a Swift file to $pgTypeSwiftPath"
+  # TODO: Use swift-format
+  perl "$perlImplPath" "$pgTypeDatPath" --swift >"$pgTypeSwiftPath"
+  function () {
+    set -x
+    cd "$pgTypesDir" && ln -sf "$pgTypeSwiftFilename" "$pgTypeSwiftLinkFilename"
+    { set +x; } 2>/dev/null
+  }
 
   echo "Done."
 }
