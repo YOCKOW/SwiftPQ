@@ -102,6 +102,11 @@ final class PQMacrosTests: XCTestCase {
       macros: testMacros
     )
     assertMacroExpansion(
+      #"#const(Int(-1))"#,
+      expandedSource: "UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(1))",
+      macros: testMacros
+    )
+    assertMacroExpansion(
       #"#const(-123.45)"#,
       expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
       macros: testMacros

@@ -103,6 +103,13 @@ public struct ConstantExpressionMacro: ExpressionMacro {
       return try __convert(asExpr.expression)
     }
 
+    if let funcCallExpr = constantSwiftExpr.as(FunctionCallExprSyntax.self),
+       funcCallExpr.arguments.count == 1,
+       let firstExpr = funcCallExpr.arguments.first?.expression,
+       __convertible(firstExpr) {
+      return try __convert(firstExpr)
+    }
+
     throw Error.unsupportedConstant
   }
 }
