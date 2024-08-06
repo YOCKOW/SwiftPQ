@@ -64,6 +64,23 @@ public struct TargetElement: TokenSequenceGenerator {
   public static let all: TargetElement = .init(.all)
 }
 
+extension GeneralExpression {
+  @inlinable
+  public var asTarget: TargetElement {
+    return TargetElement(self)
+  }
+
+  @inlinable
+  public func `as`(_ outputName: ColumnLabel) -> TargetElement {
+    return TargetElement(self, as: outputName)
+  }
+
+  @inlinable
+  public func outputName(_ outputName: BareColumnLabel) -> TargetElement {
+    return TargetElement(self, outputName)
+  }
+}
+
 /// A list of targets, that is described as `target_list` in "gram.y".
 public struct TargetList: TokenSequenceGenerator,
                           InitializableWithNonEmptyList,

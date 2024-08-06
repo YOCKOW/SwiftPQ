@@ -144,6 +144,8 @@ final class PQTests: XCTestCase {
     let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
+//    let selectResult = try await connection.execute(.select(#const(1)))
+
     await connection.finish()
   }
 }
