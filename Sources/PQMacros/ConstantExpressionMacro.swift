@@ -9,6 +9,17 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
+/// A macro that produces a constructor of some kind of `Expression`.
+///
+/// Macro              | Expanded
+/// -------------------|----------------------------------------------------------------------------
+/// `#const("string")` | `StringConstantExpression("string")`
+/// `#const(123)`      | `UnsignedIntegerConstantExpression(123)`
+/// `#const(123.45)`   | `UnsignedFloatConstantExpression(123.45)`
+/// `#const(+123)`     | `UnaryPrefixPlusOperatorInvocation(UnsignedIntegerConstantExpression(123))`
+/// `#const(+123.45)`  | `UnaryPrefixPlusOperatorInvocation(UnsignedFloatConstantExpression(123.45))`
+/// `#const(-123)`     | `UnaryPrefixMinusOperatorInvocation(UnsignedIntegerConstantExpression(123))`
+/// `#const(-123.45)`  | `UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))`
 public struct ConstantExpressionMacro: ExpressionMacro {
   public enum Error: Swift.Error {
     case unexpectedNumberOfArguments
