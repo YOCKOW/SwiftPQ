@@ -41,39 +41,66 @@ public struct ConstantExpressionMacro: ExpressionMacro {
 
     guard arguments.count == 1 else { throw Error.unexpectedNumberOfArguments }
 
-    func __numericConstructorExpr(from swiftExpr: some ExprSyntaxProtocol) throws -> ExprSyntax {
-      if let intExpr = swiftExpr.as(IntegerLiteralExprSyntax.self) {
-        return "UnsignedIntegerConstantExpression(\(intExpr))"
+    func __convertible(_ expr: ExprSyntax) -> Bool {
+      return (
+        expr.is(StringLiteralExprSyntax.self)
+        || expr.is(IntegerLiteralExprSyntax.self)
+        || expr.is(FloatLiteralExprSyntax.self)
+        || expr.is(PrefixOperatorExprSyntax.self)
+      )
+    }
+
+    func __convert(_ constantExpr: ExprSyntax) throws -> ExprSyntax {
+      func __numericConstructorExpr(from swiftExpr: some ExprSyntaxProtocol) throws -> ExprSyntax {
+        if let intExpr = swiftExpr.as(IntegerLiteralExprSyntax.self) {
+          return "UnsignedIntegerConstantExpression(\(intExpr))"
+        }
+        if let floatExpr = swiftExpr.as(FloatLiteralExprSyntax.self) {
+          return "UnsignedFloatConstantExpression(\(floatExpr))"
+        }
+        throw Error.unsupportedConstant
       }
-      if let floatExpr = swiftExpr.as(FloatLiteralExprSyntax.self) {
-        return "UnsignedFloatConstantExpression(\(floatExpr))"
+
+      func __signedNumericConstructorExpr(
+        from prefixOpExpr: PrefixOperatorExprSyntax
+      ) throws -> ExprSyntax {
+        let prefixOpTypeName: DeclReferenceExprSyntax = try ({
+          switch prefixOpExpr.operator.text {
+          case "+":
+            return .init(baseName: "UnaryPrefixPlusOperatorInvocation")
+          case "-":
+            return .init(baseName: "UnaryPrefixMinusOperatorInvocation")
+          default:
+            throw Error.unsupportedPrefixOperator
+          }
+        })()
+        let operandExpr = try __numericConstructorExpr(from: prefixOpExpr.expression)
+        return "\(prefixOpTypeName)(\(operandExpr))"
       }
+
+      if let stringExpr = constantExpr.as(StringLiteralExprSyntax.self) {
+        return "StringConstantExpression(\(stringExpr))"
+      }
+
+      if let numericConstructorExpr = try? __numericConstructorExpr(from: constantExpr) {
+        return numericConstructorExpr
+      }
+
+      if let prefixOpExpr = constantExpr.as(PrefixOperatorExprSyntax.self) {
+        return try __signedNumericConstructorExpr(from: prefixOpExpr)
+      }
+
       throw Error.unsupportedConstant
     }
 
     let constantSwiftExpr = arguments.first!.expression
 
-    if let stringExpr = constantSwiftExpr.as(StringLiteralExprSyntax.self) {
-      return "StringConstantExpression(\(stringExpr))"
-    }
-    
-    if let numericConstructorExpr = try? __numericConstructorExpr(from: constantSwiftExpr) {
-      return numericConstructorExpr
+    if __convertible(constantSwiftExpr) {
+      return try __convert(constantSwiftExpr)
     }
 
-    if let prefixOpExpr = constantSwiftExpr.as(PrefixOperatorExprSyntax.self) {
-      let prefixOpTypeName: DeclReferenceExprSyntax = try ({
-        switch prefixOpExpr.operator.text {
-        case "+":
-          return .init(baseName: "UnaryPrefixPlusOperatorInvocation")
-        case "-":
-          return .init(baseName: "UnaryPrefixMinusOperatorInvocation")
-        default:
-          throw Error.unsupportedPrefixOperator
-        }
-      })()
-      let operandExpr = try __numericConstructorExpr(from: prefixOpExpr.expression)
-      return "\(prefixOpTypeName)(\(operandExpr))"
+    if let asExpr = constantSwiftExpr.as(AsExprSyntax.self) {
+      return try __convert(asExpr.expression)
     }
 
     throw Error.unsupportedConstant
