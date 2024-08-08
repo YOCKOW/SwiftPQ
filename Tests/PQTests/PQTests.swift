@@ -17,6 +17,17 @@ let databaseUserName = "swiftpq_test"
 let databasePassword = "swiftpq_test"
 
 final class PQTests: XCTestCase {
+  func test_BinaryRepresentation() {
+    let data = Data([0x30, 0x31, 0x32, 0x33, 0x00])
+    let rep = BinaryRepresentation(data: data)
+    for ii in 0..<data.count {
+      XCTAssertEqual(
+        data[data.index(data.startIndex, offsetBy: ii)],
+        rep[rep.index(rep.startIndex, offsetBy: ii)]
+      )
+    }
+  }
+
   func test_socket() async throws {
     if runInGitHubActions {
       print("Skip this test because PostgreSQL's UNIX socket is disabled by ikalnytskyi/action-setup-postgres.")
