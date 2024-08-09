@@ -58,6 +58,15 @@ public struct BinaryRepresentation: Sequence,
 
   private let _data: _Data
 
+  public var data: Data {
+    switch _data {
+    case .pointer(let pointer, let length):
+      return Data(UnsafeRawBufferPointer(start: pointer, count: length))
+    case .data(let data):
+      return data
+    }
+  }
+
   internal init(pointer: UnsafePointer<UInt8>, length: Int) {
     self._data = .pointer(pointer, length: length)
   }

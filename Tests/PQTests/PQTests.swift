@@ -194,5 +194,6 @@ final class PQTests: XCTestCase {
     try __assert(UInt64.max, expectedBinaryData: Data(repeating: 0xFF, count: 8))
     try __assert(Float(-118.625), expectedBinaryData: [0xC2, 0xED, 0x40, 0x00])
     try __assert(Double.infinity, expectedBinaryData: [0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+    try __assert("ABCD", expectedBinaryData: [0x41, 0x42, 0x43, 0x44])
   }
 }

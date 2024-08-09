@@ -210,3 +210,15 @@ extension Float: ValueConvertible {
 extension Double: ValueConvertible {
   public static let oid: OID = .float8
 }
+
+extension String: ValueConvertible {
+  public static let oid: OID = .text
+  
+  public var sqlBinaryData: BinaryRepresentation? {
+    return .init(data: Data(self.utf8))
+  }
+  
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    self.init(data: data.data, encoding: .utf8)
+  }
+}
