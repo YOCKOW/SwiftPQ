@@ -62,6 +62,11 @@ public struct BinaryRepresentation: Sequence,
     self._data = .pointer(pointer, length: length)
   }
 
+  internal init<T>(copyingBytes pointer: UnsafePointer<T>) {
+    let p = UnsafeRawBufferPointer(start: UnsafeRawPointer(pointer), count: MemoryLayout<T>.size)
+    self._data = .data(Data(p))
+  }
+
   public init(data: Data) {
     self._data = .data(data)
   }
@@ -127,5 +132,31 @@ public struct BinaryRepresentation: Sequence,
 
   public var regions: Regions {
     return .init(self)
+  }
+}
+
+extension BinaryRepresentation: Equatable {
+  private func _isEqual<D>(to data: D) -> Bool where D: DataProtocol {
+    guard self.count == data.count else {
+      return false
+    }
+    var myIndex = self.startIndex
+    var dataIndex = data.startIndex
+    while myIndex < self.endIndex && dataIndex < data.endIndex {
+      guard self[myIndex] == data[dataIndex] else {
+        return false
+      }
+      myIndex = self.index(after: myIndex)
+      dataIndex = data.index(after: dataIndex)
+    }
+    return true
+  }
+
+  public static func == <D>(lhs: BinaryRepresentation, rhs: D) -> Bool where D: DataProtocol {
+    return lhs._isEqual(to: rhs)
+  }
+
+  public static func ==(lhs: BinaryRepresentation, rhs: BinaryRepresentation) -> Bool {
+    return lhs._isEqual(to: rhs)
   }
 }

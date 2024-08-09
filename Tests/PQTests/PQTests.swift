@@ -28,39 +28,6 @@ final class PQTests: XCTestCase {
     }
   }
 
-  func test_socket() async throws {
-    if runInGitHubActions {
-      print("Skip this test because PostgreSQL's UNIX socket is disabled by ikalnytskyi/action-setup-postgres.")
-      return
-    }
-
-    #if os(macOS)
-    let socketDirectory = "/tmp"
-    #elseif os(Linux)
-    let socketDirectory = "/var/run/postgresql"
-    #else
-    #error("Unsupported OS.")
-    #endif
-
-    let connection = try Connection(
-      unixSocketDirectoryPath: socketDirectory,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword
-    )
-
-    let connDB = await connection.database
-    XCTAssertEqual(connDB, databaseName)
-
-    let connUser = await connection.user
-    XCTAssertEqual(connUser, databaseUserName)
-
-    let connPassword = await connection.password
-    XCTAssertEqual(connPassword, databasePassword)
-
-    await connection.finish()
-  }
-
   func test_host() async throws {
     let connection = try Connection(
       host: .localhost,
@@ -158,5 +125,74 @@ final class PQTests: XCTestCase {
 //    let selectResult = try await connection.execute(.select(#const(1)))
 
     await connection.finish()
+  }
+
+  func test_socket() async throws {
+    if runInGitHubActions {
+      print("Skip this test because PostgreSQL's UNIX socket is disabled by ikalnytskyi/action-setup-postgres.")
+      return
+    }
+
+    #if os(macOS)
+    let socketDirectory = "/tmp"
+    #elseif os(Linux)
+    let socketDirectory = "/var/run/postgresql"
+    #else
+    #error("Unsupported OS.")
+    #endif
+
+    let connection = try Connection(
+      unixSocketDirectoryPath: socketDirectory,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+
+    let connDB = await connection.database
+    XCTAssertEqual(connDB, databaseName)
+
+    let connUser = await connection.user
+    XCTAssertEqual(connUser, databaseUserName)
+
+    let connPassword = await connection.password
+    XCTAssertEqual(connPassword, databasePassword)
+
+    await connection.finish()
+  }
+
+  func test_ValueConvertible() throws {
+    func __assert<V, D>(
+      _ value: V,
+      expectedBinaryData data: D,
+      file: StaticString = #filePath,
+      line: UInt = #line
+    ) throws where V: ValueConvertible, V: Equatable, D: DataProtocol {
+      let binary = try XCTUnwrap(
+        value.sqlBinaryData,
+        "Failed to get binary data.",
+        file: file,
+        line: line
+      )
+      XCTAssertTrue(binary == data, file: file, line: line)
+
+      let restored = try XCTUnwrap(
+        V(sqlBinaryData: binary),
+        "Failed to get original value.",
+        file: file,
+        line: line
+      )
+      XCTAssertEqual(value, restored, "Unexpected value.", file: file, line: line)
+    }
+
+    try __assert(Int8(0x12), expectedBinaryData: [0x12])
+    try __assert(UInt8(0x34), expectedBinaryData: [0x34])
+    try __assert(Int16(0x1234), expectedBinaryData: [0x12, 0x34])
+    try __assert(UInt16(0x5678), expectedBinaryData: [0x56, 0x78])
+    try __assert(Int32(0x12345678), expectedBinaryData: [0x12, 0x34, 0x56, 0x78])
+    try __assert(UInt32(0x9ABCDEF0), expectedBinaryData: [0x9A, 0xBC, 0xDE, 0xF0])
+    try __assert(Int64(0x123456789ABCDEF0), expectedBinaryData: [0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0])
+    try __assert(UInt64.max, expectedBinaryData: Data(repeating: 0xFF, count: 8))
+    try __assert(Float(-118.625), expectedBinaryData: [0x00, 0x40, 0xED, 0xC2])
+    try __assert(Double.infinity, expectedBinaryData: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x7F])
   }
 }
