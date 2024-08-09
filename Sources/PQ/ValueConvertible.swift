@@ -6,6 +6,7 @@
  ************************************************************************************************ */
 
 import Foundation
+import yExtensions
 
 /// A type that can be converted to a SQL parameter value
 ///
@@ -62,19 +63,85 @@ extension ValueConvertible where Self: FixedWidthInteger {
 }
 
 extension ValueConvertible where Self: FloatingPoint {
+  private var _byteSwapped: Self {
+    return withUnsafePointer(to: self) { (myPointer: UnsafePointer<Self>) -> Self in
+      func __swapBytesViaInt<T>(_ type: T.Type) -> Self where T: FixedWidthInteger {
+        return myPointer.withMemoryRebound(to: type, capacity: 1) {
+          return withUnsafePointer(to: $0.pointee.byteSwapped) {
+            return $0.withMemoryRebound(to: Self.self, capacity: 1) { $0.pointee }
+          }
+        }
+      }
+
+      let size = MemoryLayout<Self>.size
+      switch size {
+      case 4:
+        return __swapBytesViaInt(UInt32.self)
+      case 8:
+        return __swapBytesViaInt(UInt64.self)
+      default:
+        let destP = UnsafeMutableRawBufferPointer.allocate(
+          byteCount: size,
+          alignment: MemoryLayout<Self>.alignment
+        )
+        defer { destP.deallocate() }
+
+        let srcP = UnsafeRawBufferPointer(start: UnsafeRawPointer(myPointer), count: size)
+        for ii in 0..<size {
+          destP[ii] = srcP[size - ii - 1]
+        }
+        return destP.bindMemory(to: Self.self).baseAddress!.pointee
+      }
+    }
+  }
+
+  private var _bigEndian: Self {
+    switch ByteOrder.current {
+    case .unknown:
+      fatalError("Unknown host endianness.")
+    case .littleEndian:
+      return _byteSwapped
+    case .bigEndian:
+      return self
+    }
+  }
+
+  private var _littleEndian: Self {
+    switch ByteOrder.current {
+    case .unknown:
+      fatalError("Unknown host endianness.")
+    case .littleEndian:
+      return self
+    case .bigEndian:
+      return _byteSwapped
+    }
+  }
+
+  private init(_bigEndian bigEndian: Self) {
+    switch ByteOrder.current {
+    case .unknown:
+      fatalError("Unknown host endianness.")
+    case .littleEndian:
+      self = bigEndian._byteSwapped
+    case .bigEndian:
+      self = bigEndian
+    }
+  }
+
   public var sqlBinaryData: BinaryRepresentation? {
-    return withUnsafePointer(to: self) { .init(copyingBytes: $0) }
+    return withUnsafePointer(to: self._bigEndian) { .init(copyingBytes: $0) }
   }
 
   public init?(sqlBinaryData data: BinaryRepresentation) {
     guard data.count == MemoryLayout<Self>.size else {
       return nil
     }
-    self.init(0)
-    withUnsafeBytes(of: &self) {
+    var bigEndian = Self(0)
+    withUnsafeBytes(of: &bigEndian) {
       let count = data.copyBytes(to: UnsafeMutableRawBufferPointer(mutating: $0))
       assert(MemoryLayout<Self>.size == count, "Unexpected length?!")
     }
+    self.init(_bigEndian: bigEndian)
   }
 }
 
