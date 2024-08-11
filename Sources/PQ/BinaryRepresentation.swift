@@ -131,6 +131,14 @@ public struct BinaryRepresentation: Sequence,
     return .init(i._offset - 1)
   }
 
+  public func index(_ i: Index, offsetBy distance: Int) -> Index {
+    return .init(i._offset + distance)
+  }
+
+  public var count: Int {
+    return _data.count
+  }
+
   public subscript(position: Index) -> UInt8 {
     return _data[position._offset]
   }
@@ -167,5 +175,29 @@ extension BinaryRepresentation: Equatable {
 
   public static func ==(lhs: BinaryRepresentation, rhs: BinaryRepresentation) -> Bool {
     return lhs._isEqual(to: rhs)
+  }
+}
+
+extension BinaryRepresentation: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    var desc = "BinaryRepresentation(\(count) bytes):\n"
+    let MAX = 256
+    let nn = Swift.min(count, MAX)
+    for ii in 0..<nn {
+      let byte = self[relativeIndex: ii]
+      if byte < 0x10 {
+        desc += "0"
+      }
+      desc += String(byte, radix: 16, uppercase: true)
+      if ii % 8 == 7 {
+        desc += "\n"
+      } else if ii < nn - 1 {
+        desc += " "
+      }
+    }
+    if count > MAX {
+      desc += "…"
+    }
+    return desc
   }
 }
