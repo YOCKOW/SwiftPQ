@@ -9,7 +9,7 @@
 ///
 /// - Note: `ColId` is not always used as a name of column.
 ///         It means a name that can be column, table, or others' name.
-public struct ColumnIdentifier: LosslessTokenConvertible {
+public struct ColumnIdentifier: LosslessTokenConvertible, Hashable {
   public let token: Token
 
   public init?(_ token: Token) {
@@ -30,6 +30,10 @@ public struct ColumnIdentifier: LosslessTokenConvertible {
       return
     }
     self.token = .identifier(description)
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(token)
   }
 }
 

@@ -122,9 +122,30 @@ final class PQTests: XCTestCase {
     let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
-    do {
+    SIMPLE_SELECT: do {
       let selectResult = try await connection.execute(.select(#const(1)))
       XCTAssertTrue(selectResult.isTuples)
+
+      guard case .tuples(let table) = selectResult else {
+        XCTFail("Unexpected result.")
+        break SIMPLE_SELECT
+      }
+      guard table.count == 1 else {
+        XCTFail("Unexpected number of rows.")
+        break SIMPLE_SELECT
+      }
+      let row = table[0]
+      guard row.count == 1 else {
+        XCTFail("Unexpected number of columns.")
+        break SIMPLE_SELECT
+      }
+      let field = row[0]
+      XCTAssertEqual(field.oid, .int4)
+      XCTAssertEqual(field.value?.as(Int32.self), 1)
+
+      let fieldAgain = row[0]
+      XCTAssertEqual(field.oid, fieldAgain.oid)
+      XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
     }
 
     await connection.finish()

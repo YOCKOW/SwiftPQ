@@ -71,8 +71,13 @@ public class Token: CustomStringConvertible {
   @usableFromInline
   internal let _rawValue: String
 
+  private lazy var __normalizedRawValue: String = _rawValue.lowercased()
+  fileprivate var _normalizedRawValue: String {
+    return __normalizedRawValue
+  }
+
   fileprivate func isEqual(to other: Token) -> Bool {
-    return Swift.type(of: self) == Swift.type(of: other) && self._rawValue == other._rawValue
+    return self._normalizedRawValue == other._normalizedRawValue
   }
 
   @inlinable
@@ -121,10 +126,14 @@ public class Token: CustomStringConvertible {
 
   public class Identifier: Token {}
 
-  public class DelimitedIdentifier: Identifier {
+  public final class DelimitedIdentifier: Identifier {
     private let _isUTF8: Bool
 
     private lazy var _description: String = _rawValue._quoted(mark: "\"", isUTF8: _isUTF8)
+
+    fileprivate override var _normalizedRawValue: String {
+      return _description
+    }
 
     public override var description: String {
       return _description
@@ -136,10 +145,14 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public class StringConstant: Token {
+  public final class StringConstant: Token {
     private let _isUTF8: Bool
 
     private lazy var _description: String = _rawValue._quoted(mark: "'", isUTF8: _isUTF8)
+
+    fileprivate override var _normalizedRawValue: String {
+      return _description
+    }
 
     public override var description: String {
       return _description
@@ -196,7 +209,7 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public class BitStringConstant: Token {
+  public final class BitStringConstant: Token {
     public enum Style {
       case binary
       case hexadecimal
@@ -208,13 +221,21 @@ public class Token: CustomStringConvertible {
 
     public let style: Style
 
-    public override var description: String {
+    private lazy var _description: String = ({
       switch style {
       case .binary:
         return "B'\(_rawValue)'"
       case .hexadecimal:
         return "X'\(_rawValue.uppercased())'"
       }
+    })()
+
+    fileprivate override var _normalizedRawValue: String {
+      return _description
+    }
+
+    public override var description: String {
+      return _description
     }
 
     public init(_ rawValue: String, style: Style) throws {
@@ -346,6 +367,12 @@ public class Token: CustomStringConvertible {
 extension Token: Equatable {
   public static func ==(lhs: Token, rhs: Token) -> Bool {
     return lhs.isEqual(to: rhs)
+  }
+}
+
+extension Token: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(_normalizedRawValue)
   }
 }
 
