@@ -122,7 +122,10 @@ final class PQTests: XCTestCase {
     let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
-//    let selectResult = try await connection.execute(.select(#const(1)))
+    do {
+      let selectResult = try await connection.execute(.select(#const(1)))
+      XCTAssertTrue(selectResult.isTuples)
+    }
 
     await connection.finish()
   }

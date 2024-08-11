@@ -19,16 +19,128 @@ public enum ExecutionError: Error {
   case unimplemented
 }
 
-public enum QueryResult {
+public enum QueryResult: Equatable {
+  /// Wrapper of a pointer to `PGresult`.
+  fileprivate final class _PGResult: Equatable {
+    private let _result: OpaquePointer
+
+    static func == (lhs: _PGResult, rhs: _PGResult) -> Bool {
+      return lhs._result == rhs._result
+    }
+
+    internal init(_ result: OpaquePointer) {
+      self._result = result
+    }
+
+    deinit {
+      PQclear(_result)
+    }
+  }
+
+  public enum Format {
+    case text
+    case binary
+  }
+
+  /// A single field value of a row.
+  public enum Value {
+    case text(String)
+    case binary(BinaryRepresentation)
+
+    public init?<T>(_ value: T) where T: ValueConvertible {
+      if let binary = value.sqlBinaryData {
+        self = .binary(binary)
+      } else if let string = value.sqlStringValue {
+        self = .text(string)
+      } else {
+        return nil
+      }
+    }
+
+    public func `as`<T>(_ type: T.Type) -> T? where T: ValueConvertible {
+      switch self {
+      case .text(let string):
+        return T(sqlStringValue: string)
+      case .binary(let data):
+        return data.as(type)
+      }
+    }
+  }
+
+  /// A field value and its additional information.
+  public struct Field {
+    /// Object Identifier.
+    public let oid: OID
+
+    /// Column name.
+    public let name: String
+
+    /// Field value.
+    public let value: QueryResult.Value
+
+    fileprivate init(oid: OID, name: String, value: QueryResult.Value) {
+      self.oid = oid
+      self.name = name
+      self.value = value
+    }
+  }
+
+  /// Representation of a row (a.k.a. tuple).
+  public final class Row: Equatable {
+    private let _result: _PGResult
+
+    /// An index of this row in the table.
+    public let rowIndex: Int
+
+    public static func == (lhs: Row, rhs: Row) -> Bool {
+      return lhs._result == rhs._result && lhs.rowIndex == rhs.rowIndex
+    }
+
+    fileprivate init(_ result: _PGResult, rowIndex: Int) {
+      self._result = result
+      self.rowIndex = rowIndex
+    }
+  }
+
+  /// A query result that represents tuples.
+  public final class Table: Equatable {
+    private let _result: _PGResult
+
+    public static func == (lhs: Table, rhs: Table) -> Bool {
+      return lhs._result == rhs._result
+    }
+
+    fileprivate init(_ result: _PGResult) {
+      self._result = result
+    }
+  }
+
   case ok
-  // case tuples()
-  // case singleTuple()
+  case tuples(Table)
+  case singleTuple(Row)
   case copyOut
   case copyIn
   case copyBoth
   case pipelineSynchronization
   case pipelineAborted
+
+  @inlinable
+  public var isTuples: Bool {
+    guard case .tuples = self else {
+      return false
+    }
+    return true
+  }
+
+  @inlinable
+  public var isSingleTuple: Bool {
+    guard case .singleTuple = self else {
+      return false
+    }
+    return true
+  }
 }
+
 
 extension Connection {
   /// A command represented by `query` is submitted to the server.
@@ -51,9 +163,11 @@ extension Connection {
     case PGRES_COMMAND_OK:
       return .ok
     case PGRES_TUPLES_OK:
-      throw ExecutionError.unimplemented
+      dontClear = true
+      return .tuples(QueryResult.Table(QueryResult._PGResult(pgResult)))
     case PGRES_SINGLE_TUPLE:
-      throw ExecutionError.unimplemented
+      dontClear = true
+      return .singleTuple(QueryResult.Row(QueryResult._PGResult(pgResult), rowIndex: 0))
     case PGRES_COPY_IN:
       return .copyIn
     case PGRES_COPY_OUT:
