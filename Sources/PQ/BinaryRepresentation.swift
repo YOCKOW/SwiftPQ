@@ -87,7 +87,7 @@ public struct BinaryRepresentation: Sequence,
     private var _currentOffset: Int
 
     public mutating func next() -> Element? {
-      guard _data.count < _currentOffset else { return nil }
+      guard _currentOffset < _data.count else { return nil }
       let byte = _data[_currentOffset]
       _currentOffset += 1
       return byte

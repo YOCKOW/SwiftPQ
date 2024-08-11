@@ -19,15 +19,33 @@ let databasePassword = "swiftpq_test"
 final class PQTests: XCTestCase {
   func test_BinaryRepresentation() {
     let data = Data([0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00])
-    let rep = BinaryRepresentation(data: data)
+    let representation = BinaryRepresentation(data: data)
     for ii in 0..<data.count {
       XCTAssertEqual(
         data[data.index(data.startIndex, offsetBy: ii)],
-        rep[rep.index(rep.startIndex, offsetBy: ii)]
+        representation[representation.index(representation.startIndex, offsetBy: ii)]
       )
     }
+
+    do {
+      // enumeration
+      var counter = 0
+      for byte in representation {
+        counter += 1
+        XCTAssertTrue(byte == 0x00 || (0x30...0x39).contains(byte))
+      }
+      XCTAssertEqual(counter, representation.count)
+
+      counter = 0
+      for (ii, byte) in representation.enumerated() {
+        counter += 1
+        XCTAssertTrue(byte == 0x00 || ii == byte - 0x30)
+      }
+      XCTAssertEqual(counter, representation.count)
+    }
+
     XCTAssertEqual(
-      rep.debugDescription,
+      representation.debugDescription,
       """
       BinaryRepresentation(11 bytes):
       30 31 32 33 34 35 36 37
