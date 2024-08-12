@@ -2227,5 +2227,10 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
     XCTAssertEqual(#const(-12345).description, #"-12345"#)
     XCTAssertEqual(#const(-123.45).description, #"-123.45"#)
   }
+
+  func test_param() {
+    XCTAssertEqual(#param(1).description, "$1")
+    XCTAssertEqual(#paramExpr(2).description, "$2")
+  }
 }
 

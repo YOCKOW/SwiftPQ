@@ -16,6 +16,8 @@ import PQMacros
 
 let testMacros: [String: Macro.Type] = [
   "const": ConstantExpressionMacro.self,
+  "param": PositionalParameterMacro.self,
+  "paramExpr": PositionalParameterMacro.self,
 ]
 #endif
 
@@ -109,6 +111,23 @@ final class PQMacrosTests: XCTestCase {
     assertMacroExpansion(
       #"#const(-123.45)"#,
       expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func test_param() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      #"#param(123)"#,
+      expandedSource: "Token.PositionalParameter(123)",
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#paramExpr(123)"#,
+      expandedSource: "Token.PositionalParameter(123).asExpression",
       macros: testMacros
     )
     #else

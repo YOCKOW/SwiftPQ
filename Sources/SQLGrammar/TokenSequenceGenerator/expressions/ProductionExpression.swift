@@ -417,6 +417,13 @@ public struct PositionalParameterExpression: ProductionExpression {
   }
 }
 
+extension Token.PositionalParameter {
+  @inlinable
+  public var asExpression: PositionalParameterExpression {
+    return .init(self)
+  }
+}
+
 /// An expression of parenthesized `a_expr` with optional `indirection`.
 public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpression {
   public let expression: any GeneralExpression

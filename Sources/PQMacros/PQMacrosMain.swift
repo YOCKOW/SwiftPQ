@@ -13,6 +13,7 @@ struct PQMacrosPlugin: CompilerPlugin {
   let providingMacros: [Macro.Type] = [
     ConstantExpressionMacro.self,
     OIDExpander.self,
+    PositionalParameterMacro.self,
     StaticKeywordExpander.self,
     WellknownOperatorsExpander.self,
   ]

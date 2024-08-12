@@ -47,3 +47,18 @@ public macro const(
   module: "PQMacros",
   type: "ConstantExpressionMacro"
 )
+
+
+///  A macro that converts an integer literal to a `Token.PositionalParameter` constructor.
+@freestanding(expression)
+public macro param(_ pos: UInt) -> Token.PositionalParameter = #externalMacro(
+  module: "PQMacros",
+  type: "PositionalParameterMacro"
+)
+
+///  A macro that converts an integer literal to a `PositionalParameterExpression` constructor.
+@freestanding(expression)
+public macro paramExpr(_ pos: UInt) -> PositionalParameterExpression = #externalMacro(
+  module: "PQMacros",
+  type: "PositionalParameterMacro"
+)
