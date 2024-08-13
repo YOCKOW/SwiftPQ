@@ -11,6 +11,7 @@ import SwiftSyntaxMacros
 @main
 struct PQMacrosPlugin: CompilerPlugin {
   let providingMacros: [Macro.Type] = [
+    BooleanMacro.self,
     ConstantExpressionMacro.self,
     OIDExpander.self,
     PositionalParameterMacro.self,
