@@ -42,8 +42,10 @@ public macro const(_: UInt64) -> UnsignedIntegerConstantExpression = #externalMa
 /// `UnaryPrefix[Plus|Minus]OperatorInvocation` constructor.
 @freestanding(expression)
 public macro const(
-  _ integer: any (ExpressibleByFloatLiteral & AdditiveArithmetic)
-) -> any SignedFloatConstantExpression = #externalMacro(
+  _ float: any (ExpressibleByFloatLiteral & AdditiveArithmetic)
+) -> any (
+  SignedFloatConstantExpression & GeneralExpression & RestrictedExpression
+) = #externalMacro(
   module: "PQMacros",
   type: "ConstantExpressionMacro"
 )

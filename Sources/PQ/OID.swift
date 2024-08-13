@@ -22,4 +22,7 @@ public struct OID: RawRepresentable, Equatable {
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
   }
+
+  /// Invalid OID.
+  public static let invalid: OID = .init(rawValue: InvalidOid)
 }

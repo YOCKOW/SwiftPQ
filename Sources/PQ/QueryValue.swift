@@ -1,5 +1,5 @@
 /* *************************************************************************************************
- ValueConvertible.swift
+ QueryValue.swift
    © 2024 YOCKOW.
      Licensed under MIT License.
      See "LICENSE.txt" for more information.
@@ -8,10 +8,53 @@
 import Foundation
 import yExtensions
 
+/// A single field value of a row.
+public enum QueryValue: CustomDebugStringConvertible {
+  case text(String)
+  case binary(BinaryRepresentation)
+
+  public init?<T>(_ value: T) where T: QueryValueConvertible {
+    if let binary = value.sqlBinaryData {
+      self = .binary(binary)
+    } else if let string = value.sqlStringValue {
+      self = .text(string)
+    } else {
+      return nil
+    }
+  }
+
+  public func `as`<T>(_ type: T.Type) -> T? where T: QueryValueConvertible {
+    switch self {
+    case .text(let string):
+      return T(sqlStringValue: string)
+    case .binary(let data):
+      return data.as(type)
+    }
+  }
+
+  public var data: Data {
+    switch self {
+    case .text(let string):
+      return Data(string.utf8) + CollectionOfOne<UInt8>(0x00)
+    case .binary(let representation):
+      return representation.data
+    }
+  }
+
+  public var debugDescription: String {
+    switch self {
+    case .text(let string):
+      return string
+    case .binary(let representation):
+      return representation.debugDescription
+    }
+  }
+}
+
 /// A type that can be converted to a SQL parameter value
 ///
 /// At least either `sqlStringValue` or `sqlBinaryData` must be not `nil`.
-public protocol ValueConvertible {
+public protocol QueryValueConvertible {
   /// An Object Identifier for this type.
   static var oid: OID { get }
 
@@ -29,12 +72,12 @@ public protocol ValueConvertible {
 }
 
 extension BinaryRepresentation {
-  public func `as`<V>(_ type: V.Type) -> V? where V: ValueConvertible {
+  public func `as`<V>(_ type: V.Type) -> V? where V: QueryValueConvertible {
     return V(sqlBinaryData: self)
   }
 }
 
-extension ValueConvertible where Self: LosslessStringConvertible {
+extension QueryValueConvertible where Self: LosslessStringConvertible {
   public var sqlStringValue: String? {
     return self.description
   }
@@ -44,7 +87,7 @@ extension ValueConvertible where Self: LosslessStringConvertible {
   }
 }
 
-extension ValueConvertible where Self: FixedWidthInteger {
+extension QueryValueConvertible where Self: FixedWidthInteger {
   public var sqlBinaryData: BinaryRepresentation? {
     return withUnsafePointer(to: self.bigEndian) { .init(copyingBytes: $0) }
   }
@@ -62,7 +105,7 @@ extension ValueConvertible where Self: FixedWidthInteger {
   }
 }
 
-extension ValueConvertible where Self: FloatingPoint {
+extension QueryValueConvertible where Self: FloatingPoint {
   private var _byteSwapped: Self {
     return withUnsafePointer(to: self) { (myPointer: UnsafePointer<Self>) -> Self in
       func __swapBytesViaInt<T>(_ type: T.Type) -> Self where T: FixedWidthInteger {
@@ -145,39 +188,39 @@ extension ValueConvertible where Self: FloatingPoint {
   }
 }
 
-extension Int8: ValueConvertible {
+extension Int8: QueryValueConvertible {
   public static let oid: OID = .char
 }
 
-extension UInt8: ValueConvertible {
+extension UInt8: QueryValueConvertible {
   public static let oid: OID = .char
 }
 
-extension Int16: ValueConvertible {
+extension Int16: QueryValueConvertible {
   public static let oid: OID = .int2
 }
 
-extension UInt16: ValueConvertible {
+extension UInt16: QueryValueConvertible {
   public static let oid: OID = .int2
 }
 
-extension Int32: ValueConvertible {
+extension Int32: QueryValueConvertible {
   public static let oid: OID = .int4
 }
 
-extension UInt32: ValueConvertible {
+extension UInt32: QueryValueConvertible {
   public static let oid: OID = .int4
 }
 
-extension Int64: ValueConvertible {
+extension Int64: QueryValueConvertible {
   public static let oid: OID = .int8
 }
 
-extension UInt64: ValueConvertible {
+extension UInt64: QueryValueConvertible {
   public static let oid: OID = .int8
 }
 
-extension Int: ValueConvertible {
+extension Int: QueryValueConvertible {
   public static let oid: OID = ({
     switch MemoryLayout<Int>.size {
     case 4:
@@ -190,7 +233,7 @@ extension Int: ValueConvertible {
   })()
 }
 
-extension UInt: ValueConvertible {
+extension UInt: QueryValueConvertible {
   public static let oid: OID = ({
     switch MemoryLayout<UInt>.size {
     case 4:
@@ -203,15 +246,15 @@ extension UInt: ValueConvertible {
   })()
 }
 
-extension Float: ValueConvertible {
+extension Float: QueryValueConvertible {
   public static let oid: OID = .float4
 }
 
-extension Double: ValueConvertible {
+extension Double: QueryValueConvertible {
   public static let oid: OID = .float8
 }
 
-extension String: ValueConvertible {
+extension String: QueryValueConvertible {
   public static let oid: OID = .text
   
   public var sqlBinaryData: BinaryRepresentation? {

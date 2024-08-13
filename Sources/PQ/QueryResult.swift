@@ -9,8 +9,11 @@ import CLibPQ
 import Foundation
 import SQLGrammar
 
-/// An error corresponding to some of `ExecStatusType`.
+/// An error that may be thrown while execution. Some of them are corresponding to `ExecStatusType`.
 public enum ExecutionError: Error {
+  case tooManyParameters
+  case unsupportedResultFormat
+
   case emptyQuery
   case badResponse(message: String)
   case nonFatalError(message: String)
@@ -48,31 +51,6 @@ public enum QueryResult: Equatable {
     case unknown
   }
 
-  /// A single field value of a row.
-  public enum Value {
-    case text(String)
-    case binary(BinaryRepresentation)
-
-    public init?<T>(_ value: T) where T: ValueConvertible {
-      if let binary = value.sqlBinaryData {
-        self = .binary(binary)
-      } else if let string = value.sqlStringValue {
-        self = .text(string)
-      } else {
-        return nil
-      }
-    }
-
-    public func `as`<T>(_ type: T.Type) -> T? where T: ValueConvertible {
-      switch self {
-      case .text(let string):
-        return T(sqlStringValue: string)
-      case .binary(let data):
-        return data.as(type)
-      }
-    }
-  }
-
   /// A field value and its additional information.
   public struct Field {
     /// Object Identifier.
@@ -82,9 +60,9 @@ public enum QueryResult: Equatable {
     public let name: ColumnIdentifier
 
     /// Field value.
-    public let value: QueryResult.Value?
+    public let value: QueryValue?
 
-    fileprivate init(oid: OID, name: ColumnIdentifier, value: QueryResult.Value?) {
+    fileprivate init(oid: OID, name: ColumnIdentifier, value: QueryValue?) {
       self.oid = oid
       self.name = name
       self.value = value
@@ -193,10 +171,10 @@ public enum QueryResult: Equatable {
       return Int(PQgetlength(_result, CInt(indices.rowIndex), CInt(indices.columnIndex)))
     }
 
-    private let _valueCache: _IndexedCache<_IndexedCache<Value?>> = .init()
-    func value(at indices: (rowIndex: Int, columnIndex: Int)) -> Value? {
+    private let _valueCache: _IndexedCache<_IndexedCache<QueryValue?>> = .init()
+    func value(at indices: (rowIndex: Int, columnIndex: Int)) -> QueryValue? {
       return _valueCache.value(at: indices.rowIndex, ifAbsent: {
-        return _IndexedCache<Value?>()
+        return _IndexedCache<QueryValue?>()
       }).value(at: indices.columnIndex, ifAbsent: {
         if valueIsNull(at: indices) {
           return nil
@@ -317,6 +295,10 @@ public enum QueryResult: Equatable {
       assert(index >= 0 && index < endIndex, "Out of bounds.")
       return Row(_result, rowIndex: index)
     }
+
+    public var numberOfColumns: Int {
+      return _result.numberOfFields
+    }
   }
 
   case ok
@@ -347,11 +329,7 @@ public enum QueryResult: Equatable {
 
 
 extension Connection {
-  /// A command represented by `query` is submitted to the server.
-  public func execute(_ query: Query) throws -> QueryResult {
-    guard let pgResult = PQexec(_connection, query.command) else {
-      throw ExecutionError.unexpectedError(message: "`PQexec` returned NULL pointer.")
-    }
+  private func _handlePGResult(_ pgResult: OpaquePointer) throws -> QueryResult {
     let status = PQresultStatus(pgResult)
     var dontClear = false
     defer {
@@ -391,5 +369,101 @@ extension Connection {
     default:
       throw ExecutionError.unimplemented
     }
+  }
+
+  /// A command represented by `query` and given `parameters` are submitted to the server.
+  public func execute(
+    _ query: Query,
+    parameters: [any QueryValueConvertible],
+    resultFormat: QueryResult.Format = .text
+  ) throws -> QueryResult {
+    let count = parameters.count
+    guard count <= CInt.max else {
+      throw ExecutionError.tooManyParameters
+    }
+
+    let cResultFormat: CInt = try ({
+      switch resultFormat {
+      case .text:
+        return 0
+      case .binary:
+        return 1
+      case .unknown:
+        throw ExecutionError.unsupportedResultFormat
+      }
+    })()
+
+    let nParams = CInt(parameters.count)
+    let paramTypes = UnsafeMutablePointer<CLibPQ.Oid>.allocate(capacity: count)
+    let paramValues = UnsafeMutablePointer<UnsafePointer<CChar>?>.allocate(capacity: count)
+    paramValues.initialize(repeating: nil, count: count)
+    let paramLengths = UnsafeMutablePointer<CInt>.allocate(capacity: count)
+    let paramFormats = UnsafeMutablePointer<CInt>.allocate(capacity: count)
+    
+    defer {
+      paramTypes.deallocate()
+      for ii in 0..<count {
+        paramValues[ii]?.deallocate()
+      }
+      paramValues.deallocate()
+      paramLengths.deallocate()
+      paramFormats.deallocate()
+    }
+
+
+    for (ii, param) in parameters.enumerated() {
+      let queryValue = QueryValue(param)
+      let cOid = (queryValue == nil ? OID.invalid : type(of: param).oid).rawValue
+      let valueData = queryValue?.data
+      let value = valueData.map {
+        let valuePtr = UnsafeMutablePointer<CChar>.allocate(capacity: $0.count)
+        $0.copyBytes(to: UnsafeMutableRawBufferPointer(start: valuePtr, count: $0.count))
+        return valuePtr
+      }
+      let length: CInt = (valueData?.count).map(CInt.init) ?? 0
+      let format: CInt = ({
+        switch queryValue {
+        case .text:
+          return 0
+        case .binary:
+          return 1
+        case nil:
+          return 0 // hmm
+        }
+      })()
+
+      paramTypes[ii] = cOid
+      paramValues[ii] = value.map({ UnsafePointer<CChar>($0)})
+      paramLengths[ii] = length
+      paramFormats[ii] = format
+    }
+
+    guard let pgResult = PQexecParams(
+      _connection,
+      query.command,
+      nParams,
+      paramTypes,
+      paramValues,
+      paramLengths,
+      paramFormats,
+      cResultFormat
+    ) else {
+      throw ExecutionError.unexpectedError(message: "`PQexecParams` returned NULL pointer.")
+    }
+    return try _handlePGResult(pgResult)
+  }
+
+  /// A command represented by `query` is submitted to the server.
+  @inlinable
+  public func execute(_ query: Query, resultFormat: QueryResult.Format) throws -> QueryResult {
+    return try execute(query, parameters: [], resultFormat: resultFormat)
+  }
+
+  /// A command represented by `query` is submitted to the server.
+  public func execute(_ query: Query) throws -> QueryResult {
+    guard let pgResult = PQexec(_connection, query.command) else {
+      throw ExecutionError.unexpectedError(message: "`PQexec` returned NULL pointer.")
+    }
+    return try _handlePGResult(pgResult)
   }
 }

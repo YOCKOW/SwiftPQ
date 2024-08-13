@@ -149,30 +149,83 @@ final class PQTests: XCTestCase {
     let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
+    func __assertTuples(
+      _ result: QueryResult,
+      expectedNumberOfRows: Int,
+      expectedNumberOfColumns: Int,
+      file: StaticString = #filePath,
+      line: UInt = #line
+    ) -> QueryResult.Table? {
+      guard case .tuples(let table) = result else {
+        XCTFail("Result is not tuples.", file: file, line: line)
+        return nil
+      }
+      guard table.count == expectedNumberOfRows else {
+        XCTFail("Unexpected number of rows.", file: file, line: line)
+        return nil
+      }
+      guard table.numberOfColumns == expectedNumberOfColumns else {
+        XCTFail("Unexpected number of columns.", file: file, line: line)
+        return nil
+      }
+      return table
+    }
+
     SIMPLE_SELECT: do {
-      let selectResult = try await connection.execute(.select(#const(1)))
-      XCTAssertTrue(selectResult.isTuples)
+      let result = try await connection.execute(.select(#const(1)))
+      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let row = table[0]
+        let field = row[0]
+        XCTAssertEqual(field.oid, .int4)
+        XCTAssertEqual(field.value?.as(Int32.self), 1)
 
-      guard case .tuples(let table) = selectResult else {
-        XCTFail("Unexpected result.")
-        break SIMPLE_SELECT
+        let fieldAgain = row[0]
+        XCTAssertEqual(field.oid, fieldAgain.oid)
+        XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
       }
-      guard table.count == 1 else {
-        XCTFail("Unexpected number of rows.")
-        break SIMPLE_SELECT
-      }
-      let row = table[0]
-      guard row.count == 1 else {
-        XCTFail("Unexpected number of columns.")
-        break SIMPLE_SELECT
-      }
-      let field = row[0]
-      XCTAssertEqual(field.oid, .int4)
-      XCTAssertEqual(field.value?.as(Int32.self), 1)
+    }
 
-      let fieldAgain = row[0]
-      XCTAssertEqual(field.oid, fieldAgain.oid)
-      XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
+    BINARY_RESULT_TESTS: do {
+      let intResult = try await connection.execute(.select(#const(0x1234ABCD)), resultFormat: .binary)
+      if let intTable = __assertTuples(intResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let row = intTable[0]
+        let field = row[0]
+        XCTAssertEqual(field.oid, .int4)
+        XCTAssertEqual(field.value?.as(Int32.self), 0x1234ABCD)
+      }
+
+      let floatResult = try await connection.execute(.rawSQL("SELECT 1.23::float8"), resultFormat: .binary)
+      if let floatTable = __assertTuples(floatResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let row = floatTable[0]
+        let field = row[0]
+        XCTAssertEqual(field.oid, .float8)
+        XCTAssertEqual(field.value?.as(Double.self), 1.23)
+      }
+
+      let strResult = try await connection.execute(.select(#const("STRING")), resultFormat: .binary)
+      if let strTable = __assertTuples(strResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let row = strTable[0]
+        let field = row[0]
+        XCTAssertEqual(field.oid, .text)
+        XCTAssertEqual(field.value?.as(String.self), "STRING")
+      }
+    }
+
+    PARAM_TESTS: do {
+      let result = try await connection.execute(
+        .rawSQL("SELECT \(#param(1)) + \(#param(2)), \(#param(3)) + \(#param(4))"),
+        parameters: [Int32(1), Int32(2), Int64(3), Int64(4)],
+        resultFormat: .text
+      )
+      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 2) {
+        let row = table[0]
+        let field0 = row[0]
+        let field1 = row[1]
+        XCTAssertEqual(field0.oid, .int4)
+        XCTAssertEqual(field0.value?.as(UInt32.self), 3)
+        XCTAssertEqual(field1.oid, .int8)
+        XCTAssertEqual(field1.value?.as(UInt64.self), 7)
+      }
     }
 
     await connection.finish()
@@ -217,7 +270,7 @@ final class PQTests: XCTestCase {
       expectedBinaryData data: D,
       file: StaticString = #filePath,
       line: UInt = #line
-    ) throws where V: ValueConvertible, V: Equatable, D: DataProtocol {
+    ) throws where V: QueryValueConvertible, V: Equatable, D: DataProtocol {
       let binary = try XCTUnwrap(
         value.sqlBinaryData,
         "Failed to get binary data.",
