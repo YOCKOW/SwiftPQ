@@ -186,6 +186,17 @@ final class PQTests: XCTestCase {
     }
 
     BINARY_RESULT_TESTS: do {
+      let boolResult = try await connection.execute(.select(#TRUE, #FALSE), resultFormat: .binary)
+      if let boolTable = __assertTuples(boolResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 2) {
+        let row = boolTable[0]
+        let trueField = row[0]
+        let falseField = row[1]
+        XCTAssertEqual(trueField.oid, .bool)
+        XCTAssertEqual(falseField.oid, .bool)
+        XCTAssertEqual(trueField.value?.as(Bool.self), true)
+        XCTAssertEqual(falseField.value?.as(Bool.self), false)
+      }
+
       let intResult = try await connection.execute(.select(#const(0x1234ABCD)), resultFormat: .binary)
       if let intTable = __assertTuples(intResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let row = intTable[0]
@@ -213,18 +224,31 @@ final class PQTests: XCTestCase {
 
     PARAM_TESTS: do {
       let result = try await connection.execute(
-        .rawSQL("SELECT \(#param(1)) + \(#param(2)), \(#param(3)) + \(#param(4))"),
-        parameters: [Int32(1), Int32(2), Int64(3), Int64(4)],
+        .rawSQL("""
+          SELECT
+            \(#param(1)) + \(#param(2)),
+            \(#param(3)) + \(#param(4)),
+            \(#param(5))
+          ;
+        """),
+        parameters: [
+          Int32(1), Int32(2),
+          Int64(3), Int64(4),
+          true,
+        ],
         resultFormat: .text
       )
-      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 2) {
+      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 3) {
         let row = table[0]
-        let field0 = row[0]
-        let field1 = row[1]
-        XCTAssertEqual(field0.oid, .int4)
-        XCTAssertEqual(field0.value?.as(UInt32.self), 3)
-        XCTAssertEqual(field1.oid, .int8)
-        XCTAssertEqual(field1.value?.as(UInt64.self), 7)
+
+        XCTAssertEqual(row[0].oid, .int4)
+        XCTAssertEqual(row[0].value?.as(UInt32.self), 3)
+
+        XCTAssertEqual(row[1].oid, .int8)
+        XCTAssertEqual(row[1].value?.as(UInt64.self), 7)
+
+        XCTAssertEqual(row[2].oid, .bool)
+        XCTAssertEqual(row[2].value?.as(Bool.self), true)
       }
     }
 

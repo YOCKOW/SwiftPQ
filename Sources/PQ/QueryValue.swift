@@ -188,6 +188,39 @@ extension QueryValueConvertible where Self: FloatingPoint {
   }
 }
 
+extension Bool: QueryValueConvertible {
+  public static let oid: OID = .bool
+
+  @inlinable
+  public init?(sqlStringValue: String) {
+    if sqlStringValue.isEmpty {
+      return nil
+    }
+    guard sqlStringValue.compareCount(with: 6) == .orderedAscending else {
+      return nil
+    }
+    switch sqlStringValue.lowercased() {
+    case "true", "yes", "on", "1", "t", "y":
+      self = true
+    case "false", "no", "off", "0", "f", "n":
+      self = false
+    default:
+      return nil
+    }
+  }
+
+  @inlinable
+  public var sqlBinaryData: BinaryRepresentation? {
+    let byte: UInt8 = self ? 1 : 0
+    return BinaryRepresentation(data: Data([byte]))
+  }
+
+  @inlinable
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    self = data.allSatisfy({ $0 == 0 }) ? false : true
+  }
+}
+
 extension Int8: QueryValueConvertible {
   public static let oid: OID = .char
 }
