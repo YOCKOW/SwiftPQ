@@ -5,7 +5,6 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-import CPostgreSQL
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
@@ -69,7 +68,7 @@ final class PGTypeManagerTests: XCTestCase {
   func test_manager() throws {
     let manager = PGTypeManager.default
     XCTAssertEqual(try manager.list.oidToInfo[16]?.typeName, "bool")
-    XCTAssertEqual(try manager.list.nameToInfo["float8"]?.typeByValue, _SwiftPQ_get_FLOAT8PASSBYVAL())
+    XCTAssertEqual(try manager.list.nameToInfo["float8"]?.typeByValue, .other("FLOAT8PASSBYVAL"))
   }
 }
 

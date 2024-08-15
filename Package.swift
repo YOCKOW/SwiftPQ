@@ -5,41 +5,6 @@ import Foundation
 import PackageDescription
 import CompilerPluginSupport
 
-let postgresIncludeDirectory: String? = try ({ () throws -> String? in
-  func __run(_ exePath: URL, arguments: [String]?) throws -> String? {
-    let process = Process()
-    let stdout = Pipe()
-    process.executableURL = exePath
-    process.standardOutput = stdout
-    process.arguments = arguments
-    try process.run()
-    process.waitUntilExit()
-    guard process.terminationStatus == 0 else { return nil }
-    let stdoutData = stdout.fileHandleForReading.availableData
-    return String(data: stdoutData, encoding: .utf8)
-  }
-
-  guard let pgConfigPath =  try __run(
-    URL(fileURLWithPath: "/bin/sh"),
-    arguments: ["-c", "which pg_config"]
-  ) else {
-    print("pg_config not found.")
-    return nil
-  }
-  return try __run(
-    URL(fileURLWithPath: pgConfigPath._trimmed),
-    arguments: ["--includedir"]
-  )?._trimmed
-})()
-
-let cPostgreSQLCSettings: [CSetting] = ({
-  var settings: [CSetting] = []
-  if let postgresIncludeDirectory {
-    settings.append(.unsafeFlags(["-I", postgresIncludeDirectory]))
-  }
-  return settings
-})()
-
 let swiftSyntaxVersion: Version = ({
   #if compiler(>=5.10)
   return "510.0.1"
@@ -58,7 +23,7 @@ let package = Package(
   ],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
-    .library(name: "CPostgreSQL", type: .static, targets: ["CPostgreSQL"]),
+    .library(name: "CLibECPG", targets: ["CLibECPG"]),
     .library(name: "CLibPQ", targets: ["CLibPQ"]),
     .library(name: "SwiftPQ", targets: ["SQLGrammar", "PQ"]),
   ],
@@ -74,9 +39,13 @@ let package = Package(
   targets: [
       // Targets are the basic building blocks of a package, defining a module or a test suite.
       // Targets can depend on other targets in this package and products from dependencies.
-    .target(
-      name: "CPostgreSQL",
-      cSettings: cPostgreSQLCSettings
+    .systemLibrary(
+      name: "CLibECPG",
+      pkgConfig: "libecpg",
+      providers: [
+        .brew(["postgresql", "libpq"]),
+        .apt(["libecpg-dev"]),
+      ]
     ),
     .systemLibrary(
       name: "CLibPQ",
@@ -89,7 +58,6 @@ let package = Package(
     .macro(
       name: "PQMacros",
       dependencies: [
-        "CPostgreSQL",
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
         .product(name: "SystemPackage", package: "swift-system"),
@@ -105,8 +73,8 @@ let package = Package(
     .target(
       name: "PQ",
       dependencies: [
+        "CLibECPG",
         "CLibPQ",
-        "CPostgreSQL",
         "PQMacros",
         "SQLGrammar",
         "SwiftNetworkGear",
@@ -117,7 +85,6 @@ let package = Package(
     .testTarget(
       name: "PQMacrosTests",
       dependencies: [
-        "CPostgreSQL",
         "PQMacros",
         .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ]
@@ -125,7 +92,6 @@ let package = Package(
     .testTarget(
       name: "SQLGrammarTests",
       dependencies: [
-        "CPostgreSQL",
         "SwiftNetworkGear",
         "SQLGrammar",
       ]
@@ -133,7 +99,6 @@ let package = Package(
     .testTarget(
       name: "PQTests",
       dependencies: [
-        "CPostgreSQL",
         "PQ",
         "SQLGrammar",
       ]

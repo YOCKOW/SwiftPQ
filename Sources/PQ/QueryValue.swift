@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-import CPostgreSQL
+import CLibECPG
 import Foundation
 import yExtensions
 
@@ -312,17 +312,18 @@ extension Decimal: QueryValueConvertible {
     guard let decimal: Decimal = data.withUnsafeBytes({
       return $0.withMemoryRebound(to: Int16.self) { (buffer: UnsafeBufferPointer<Int16>) -> Decimal? in
         let signFlag = Int16(bigEndian: buffer[2])
-        if _SwiftPQ_numericSignIsNaN(CInt(signFlag)) {
+        if signFlag == NUMERIC_NAN {
           return .nan
         }
         guard let sign: FloatingPointSign = ({ () -> FloatingPointSign? in
-          if _SwiftPQ_numericSignIsPositive(CInt(signFlag)) {
+          switch signFlag {
+          case Int16(NUMERIC_POS):
             return .plus
-          }
-          if _SwiftPQ_numericSignIsNegative(CInt(signFlag)) {
+          case Int16(NUMERIC_NEG):
             return .minus
+          default:
+            return nil
           }
-          return nil
         })() else {
           return nil
         }
