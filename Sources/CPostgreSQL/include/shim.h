@@ -15,4 +15,8 @@
 bool _SwiftPQ_get_FLOAT8PASSBYVAL();
 int _SwiftPQ_get_NAMEDATALEN();
 
+bool _SwiftPQ_numericSignIsPositive(int flag);
+bool _SwiftPQ_numericSignIsNegative(int flag);
+bool _SwiftPQ_numericSignIsNaN(int flag);
+
 #endif

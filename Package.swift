@@ -106,6 +106,7 @@ let package = Package(
       name: "PQ",
       dependencies: [
         "CLibPQ",
+        "CPostgreSQL",
         "PQMacros",
         "SQLGrammar",
         "SwiftNetworkGear",

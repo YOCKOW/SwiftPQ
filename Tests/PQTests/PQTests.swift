@@ -213,6 +213,35 @@ final class PQTests: XCTestCase {
         XCTAssertEqual(field.value?.as(Double.self), 1.23)
       }
 
+      func __assertDecimal(
+        _ decimalDescription: String,
+        expectedDecimal: Decimal,
+        file: StaticString = #filePath,
+        line: UInt = #line
+      ) async throws {
+        let decimalResult = try await connection.execute(
+          .rawSQL("SELECT \(raw: decimalDescription)::decimal;"),
+          resultFormat: .binary
+        )
+        if let decimalTable = __assertTuples(
+          decimalResult,
+          expectedNumberOfRows: 1,
+          expectedNumberOfColumns: 1,
+          file: file,
+          line: line
+        ) {
+          let field = decimalTable[0][0]
+          XCTAssertEqual(field.oid, .numeric, "Unexpected OID.", file: file, line: line)
+          XCTAssertEqual(field.value?.as(Decimal.self), expectedDecimal, "Unexpected Decimal value.", file: file, line: line)
+        }
+      }
+      try await __assertDecimal("12345.67", expectedDecimal: Decimal(sign: .plus, exponent: -2, significand: 1234567))
+      try await __assertDecimal("1234567", expectedDecimal: Decimal(sign: .plus, exponent: 0, significand: 1234567))
+      try await __assertDecimal("-12345.67", expectedDecimal: Decimal(sign: .minus, exponent: -2, significand: 1234567))
+      try await __assertDecimal("-1234567", expectedDecimal: Decimal(sign: .minus, exponent: 0, significand: 1234567))
+      try await __assertDecimal("0.01234567", expectedDecimal: Decimal(sign: .plus, exponent: -8, significand: 1234567))
+      try await __assertDecimal("-0.01234567", expectedDecimal: Decimal(sign: .minus, exponent: -8, significand: 1234567))
+
       let strResult = try await connection.execute(.select(#const("STRING")), resultFormat: .binary)
       if let strTable = __assertTuples(strResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let row = strTable[0]

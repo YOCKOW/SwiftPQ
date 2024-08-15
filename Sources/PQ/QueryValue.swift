@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import CPostgreSQL
 import Foundation
 import yExtensions
 
@@ -77,11 +78,13 @@ extension BinaryRepresentation {
   }
 }
 
-extension QueryValueConvertible where Self: LosslessStringConvertible {
+extension QueryValueConvertible where Self: CustomStringConvertible {
   public var sqlStringValue: String? {
-    return self.description
+    return String(describing: self)
   }
+}
 
+extension QueryValueConvertible where Self: LosslessStringConvertible {
   public init?(sqlStringValue: String) {
     self.init(sqlStringValue)
   }
@@ -285,6 +288,84 @@ extension Float: QueryValueConvertible {
 
 extension Double: QueryValueConvertible {
   public static let oid: OID = .float8
+}
+
+extension Decimal: QueryValueConvertible {
+  public static let oid: OID = .numeric
+
+  public init?(sqlStringValue: String) {
+    self.init(string: sqlStringValue, locale: Locale(identifier: "en_US"))
+  }
+
+
+  public var sqlBinaryData: BinaryRepresentation? {
+    return nil
+  }
+  
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    // `data` is considered as an array of 16-bit integers. First four of them are header.
+    guard data.count > 8, data.count.isMultiple(of: 2) else {
+      return nil
+    }
+    let count16 = data.count / 2
+
+    guard let decimal: Decimal = data.withUnsafeBytes({
+      return $0.withMemoryRebound(to: Int16.self) { (buffer: UnsafeBufferPointer<Int16>) -> Decimal? in
+        let signFlag = Int16(bigEndian: buffer[2])
+        if _SwiftPQ_numericSignIsNaN(CInt(signFlag)) {
+          return .nan
+        }
+        guard let sign: FloatingPointSign = ({ () -> FloatingPointSign? in
+          if _SwiftPQ_numericSignIsPositive(CInt(signFlag)) {
+            return .plus
+          }
+          if _SwiftPQ_numericSignIsNegative(CInt(signFlag)) {
+            return .minus
+          }
+          return nil
+        })() else {
+          return nil
+        }
+
+        let nDigits = Int16(bigEndian: buffer[0])
+        guard nDigits > 0, count16 >= nDigits + 4 else {
+          return nil
+        }
+        var weight = Int16(bigEndian: buffer[1]) + 1
+        let dScale = Int16(bigEndian: buffer[3])
+        let fnDigits = (dScale == 0) ? 0 : ((dScale - 1) / 4) + 1
+        assert(nDigits == weight + fnDigits, "Unexpected length.")
+
+        return buffer.withMemoryRebound(to: UInt16.self) { (buffer: UnsafeBufferPointer<UInt16>) -> Decimal? in
+          var result: Decimal = 0
+          var fractionPartCount = 1
+          for ii in 4..<(4 + Int(nDigits)) {
+            let currentPart = Decimal(UInt16(bigEndian: buffer[ii]))
+            guard currentPart < 10000 else {
+              return nil
+            }
+            if weight > 0 {
+              result = result * 10000 + currentPart
+              weight -= 1
+            } else {
+              result += currentPart * pow(
+                Decimal(sign: .plus, exponent: -4, significand: 1),
+                fractionPartCount
+              )
+              fractionPartCount += 1
+            }
+          }
+          if sign == .minus {
+            result.negate()
+          }
+          return result
+        }
+      }
+    }) else {
+      return nil
+    }
+    self = decimal
+  }
 }
 
 extension String: QueryValueConvertible {
