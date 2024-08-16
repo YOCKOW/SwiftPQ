@@ -249,6 +249,16 @@ final class PQTests: XCTestCase {
         XCTAssertEqual(field.oid, .text)
         XCTAssertEqual(field.value?.as(String.self), "STRING")
       }
+
+      let dataResult = try await connection.execute(
+        .select(BinaryInfixTypeCastOperatorInvocation(#const("\\xDEADBEEF"), as: .bytea)),
+        resultFormat: .binary
+      )
+      if let dataTable = __assertTuples(dataResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = dataTable[0][0]
+        XCTAssertEqual(field.oid, .bytea)
+        XCTAssertEqual(field.value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
+      }
     }
 
     PARAM_TESTS: do {
@@ -258,7 +268,8 @@ final class PQTests: XCTestCase {
             \(#param(1)) + \(#param(2)),
             \(#param(3)) + \(#param(4)),
             \(#param(5)),
-            \(#param(6))
+            \(#param(6)),
+            \(#param(7))
           ;
         """),
         parameters: [
@@ -266,10 +277,11 @@ final class PQTests: XCTestCase {
           Int64(3), Int64(4),
           true,
           try XCTUnwrap(Decimal(sqlStringValue: "0.12")),
+          Data([0xDE, 0xAD, 0xBE, 0xEF]),
         ],
         resultFormat: .text
       )
-      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 4) {
+      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 5) {
         let row = table[0]
 
         XCTAssertEqual(row[0].oid, .int4)
@@ -283,6 +295,9 @@ final class PQTests: XCTestCase {
 
         XCTAssertEqual(row[3].oid, .numeric)
         XCTAssertEqual(row[3].value?.as(Decimal.self)?.description, "0.12")
+
+        XCTAssertEqual(row[4].oid, .bytea)
+        XCTAssertEqual(row[4].value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
       }
     }
 

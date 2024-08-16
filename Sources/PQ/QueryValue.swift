@@ -523,3 +523,46 @@ extension String: QueryValueConvertible {
     self.init(data: data.data, encoding: .utf8)
   }
 }
+
+extension Data: QueryValueConvertible {
+  public static let oid: OID = .bytea
+
+  public var sqlStringValue: String? {
+    return "\\x" + self.flatMap { (byte: UInt8) -> String in
+      let hex = String(byte, radix: 16, uppercase: false)
+      if byte < 0x10 {
+        return "0\(hex)"
+      }
+      return hex
+    }
+  }
+
+  public init?(sqlStringValue string: String) {
+    if string.hasPrefix("\\x") {
+      self.init()
+      var currentIndex = string.index(string.startIndex, offsetBy: 2)
+      while currentIndex < string.endIndex {
+        let nextIndex = string.index(after: currentIndex)
+        guard nextIndex < string.endIndex else {
+          return nil
+        }
+        guard let byte = UInt8(string[currentIndex...nextIndex], radix: 16) else {
+          return nil
+        }
+        self.append(byte)
+        currentIndex = string.index(after: nextIndex)
+      }
+    } else {
+      // TODO?: Support for `bytea_output = 'escape'`??
+      return nil
+    }
+  }
+
+  public var sqlBinaryData: BinaryRepresentation? {
+    return BinaryRepresentation(data: self)
+  }
+  
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    self.init(data)
+  }
+}

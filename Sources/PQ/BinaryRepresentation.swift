@@ -56,7 +56,7 @@ public struct BinaryRepresentation: Sequence,
     }
   }
 
-  private let _data: _Data
+  fileprivate let _data: _Data
 
   public var data: Data {
     switch _data {
@@ -199,5 +199,16 @@ extension BinaryRepresentation: CustomDebugStringConvertible {
       desc += "…"
     }
     return desc
+  }
+}
+
+extension Data {
+  public init(_ binaryRepresentation: BinaryRepresentation) {
+    switch binaryRepresentation._data {
+    case .pointer(let pointer, length: let length):
+      self.init(bytes: pointer, count: length)
+    case .data(let data):
+      self = data
+    }
   }
 }
