@@ -257,17 +257,19 @@ final class PQTests: XCTestCase {
           SELECT
             \(#param(1)) + \(#param(2)),
             \(#param(3)) + \(#param(4)),
-            \(#param(5))
+            \(#param(5)),
+            \(#param(6))
           ;
         """),
         parameters: [
           Int32(1), Int32(2),
           Int64(3), Int64(4),
           true,
+          try XCTUnwrap(Decimal(sqlStringValue: "0.12")),
         ],
         resultFormat: .text
       )
-      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 3) {
+      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 4) {
         let row = table[0]
 
         XCTAssertEqual(row[0].oid, .int4)
@@ -278,6 +280,9 @@ final class PQTests: XCTestCase {
 
         XCTAssertEqual(row[2].oid, .bool)
         XCTAssertEqual(row[2].value?.as(Bool.self), true)
+
+        XCTAssertEqual(row[3].oid, .numeric)
+        XCTAssertEqual(row[3].value?.as(Decimal.self)?.description, "0.12")
       }
     }
 
@@ -351,6 +356,53 @@ final class PQTests: XCTestCase {
     try __assert(UInt64.max, expectedBinaryData: Data(repeating: 0xFF, count: 8))
     try __assert(Float(-118.625), expectedBinaryData: [0xC2, 0xED, 0x40, 0x00])
     try __assert(Double.infinity, expectedBinaryData: [0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+    try __assert(
+      Decimal(0),
+      expectedBinaryData: [
+        0x00, 0x01, // nDigits
+        0x00, 0x00, // weight (-1)
+        0x00, 0x00, // sign
+        0x00, 0x00, // dScale
+        0x00, 0x00,
+      ]
+    )
+    try __assert(
+      try XCTUnwrap(Decimal(sqlStringValue: "0.12")),
+      expectedBinaryData: [
+        0x00, 0x01, // nDigits
+        0xFF, 0xFF, // weight (-1)
+        0x00, 0x00, // sign
+        0x00, 0x02, // dScale
+        0x04, 0xB0, // 1200
+      ]
+    )
+    try __assert(
+      try XCTUnwrap(Decimal(sqlStringValue: "12345.678")),
+      expectedBinaryData: [
+        0x00, 0x03, // nDigits
+        0x00, 0x01, // weight (-1)
+        0x00, 0x00, // sign
+        0x00, 0x03, // dScale
+        0x00, 0x01, // 1
+        0x09, 0x29, // 2345
+        0x1A, 0x7C, // 6780
+      ]
+    )
+    try __assert(
+      try XCTUnwrap(Decimal(sqlStringValue: "-987654321.0987654321")),
+      expectedBinaryData: [
+        0x00, 0x06, // nDigits
+        0x00, 0x02, // weight (-1)
+        0x40, 0x00, // sign
+        0x00, 0x0A, // dScale
+        0x00, 0x09, // 9
+        0x22, 0x3D, // 8765
+        0x10, 0xE1, // 4321
+        0x03, 0xDB, // 0987
+        0x19, 0x8F, // 6543
+        0x08, 0x34, // 2100
+      ]
+    )
     try __assert("ABCD", expectedBinaryData: [0x41, 0x42, 0x43, 0x44])
   }
 }

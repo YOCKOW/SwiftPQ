@@ -297,9 +297,152 @@ extension Decimal: QueryValueConvertible {
     self.init(string: sqlStringValue, locale: Locale(identifier: "en_US"))
   }
 
+  private var _floor: Decimal  {
+    let resultPtr = UnsafeMutablePointer<Decimal>.allocate(capacity: 1)
+    defer { resultPtr.deallocate() }
+
+    withUnsafePointer(to: self) {
+      NSDecimalRound(resultPtr, $0, 0, .down)
+    }
+
+    return resultPtr.pointee
+  }
+
+  private var _floorAndFraction: (floor: Decimal, fraction: Decimal) {
+    let floor = self._floor
+    return (floor: floor, fraction: self - floor)
+  }
+
+  private var _fraction: Decimal {
+    return self._floorAndFraction.fraction
+  }
+
+
+  private var _isInteger: Bool {
+    return self == self._floor
+  }
+
+  private struct _CalculationError: Error {
+    let error: CalculationError
+  }
+  private func _multiplyByPowerOf10(
+    _ power: Int16,
+    rounding roundingMode: RoundingMode = .down
+  ) throws -> Decimal {
+    let resultPtr = UnsafeMutablePointer<Decimal>.allocate(capacity: 1)
+    defer { resultPtr.deallocate() }
+
+    let error = withUnsafePointer(to: self) {
+      return NSDecimalMultiplyByPowerOf10(resultPtr, $0, power, roundingMode)
+    }
+    switch error {
+    case .noError:
+      break
+    default:
+      throw _CalculationError(error: error)
+    }
+
+    return resultPtr.pointee
+  }
+
+  private var _int16Value: Int16 {
+    return (self as NSDecimalNumber).int16Value
+  }
 
   public var sqlBinaryData: BinaryRepresentation? {
-    return nil
+    guard self.isNaN || self.isFinite else {
+      return nil
+    }
+
+    // Implementation note:
+    // Binary representation for `decimal` is `NumericVar` without `buf`.
+    // https://github.com/postgres/postgres/blob/e3ec9dc1bf4983fcedb6f43c71ea12ee26aefc7a/src/backend/utils/adt/numeric.c#L312-L320
+    // https://github.com/postgres/postgres/blob/e3ec9dc1bf4983fcedb6f43c71ea12ee26aefc7a/src/backend/utils/adt/numeric.c#L1161-L1184
+
+    var nDigits: Int16 = 0
+    var weight: Int16 = 0
+    var signFlag: Int16 = 0
+    var dScale: Int16 = 0
+    var digits: [Int16] = []
+
+    CONVERT_DECIMAL_TO_PQ_FORMAT: do {
+      if self.isNaN {
+        signFlag = Int16(NUMERIC_NAN)
+        break CONVERT_DECIMAL_TO_PQ_FORMAT
+      }
+
+      if self == 0 {
+        nDigits = 1
+        weight = 1
+        digits.append(0x0000)
+        break CONVERT_DECIMAL_TO_PQ_FORMAT
+      }
+
+      let absDecimal = ({
+        switch self.sign {
+        case .plus:
+          signFlag = Int16(NUMERIC_POS)
+          return self
+        case .minus:
+          signFlag = Int16(NUMERIC_NEG)
+          return -self
+        }
+      })()
+
+      if absDecimal.significand._isInteger {
+        if absDecimal.exponent < 0 {
+          dScale = Int16(absDecimal.exponent * -1)
+        }
+      } else {
+        var tmpDecimal = absDecimal._fraction
+        while !tmpDecimal._isInteger {
+          guard let next = try? tmpDecimal._multiplyByPowerOf10(1) else {
+            return nil
+          }
+          dScale += 1
+          tmpDecimal = next
+        }
+      }
+
+      var consumingDecimal = absDecimal
+      while consumingDecimal >= 1 {
+        guard let next = try? consumingDecimal._multiplyByPowerOf10(-4) else {
+          return nil
+        }
+        weight += 1
+        consumingDecimal = next
+      }
+      nDigits = weight + ((dScale == 0) ? 0 : ((dScale - 1) / 4) + 1)
+
+      assert(consumingDecimal._floor == 0, "Unexpected initial value: \(consumingDecimal)")
+      for _ in 0..<nDigits {
+        guard let x10000 = try? consumingDecimal._multiplyByPowerOf10(4) else {
+          return nil
+        }
+        let (floor, fraction) = x10000._floorAndFraction
+        assert(floor < 10000, "Unexpected floor value: \(floor)")
+        digits.append(floor._int16Value)
+        consumingDecimal = fraction
+      }
+      assert(digits.count == nDigits, "Unexpected number of digits.")
+    }
+
+    // FINALIZE
+    var data = Data()
+    func __append(_ int16: Int16) {
+      withUnsafePointer(to: int16.bigEndian) {
+        $0.withMemoryRebound(to: UInt8.self, capacity: 2) {
+          data.append($0[0])
+          data.append($0[1])
+        }
+      }
+    }
+    __append(nDigits)
+    __append(weight - 1)
+    __append(signFlag)
+    __append(dScale)
+    digits.forEach({ __append($0) })
+    return BinaryRepresentation(data: data)
   }
   
   public init?(sqlBinaryData data: BinaryRepresentation) {
