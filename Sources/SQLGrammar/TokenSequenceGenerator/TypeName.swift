@@ -116,6 +116,8 @@ public struct TypeName: NameRepresentation,
 
   // `GenericTypeName`s
 
+  public static let bytea: TypeName = GenericTypeName.bytea.typeName
+
   public static let date: TypeName = GenericTypeName.date.typeName
 
   public static let json: TypeName = GenericTypeName.json.typeName
@@ -424,6 +426,8 @@ public struct GenericTypeName: SimpleTypeName,
     }
     return (funcName, funcArgList)
   }
+
+  public static let bytea: GenericTypeName = .init("BYTEA")
 
   public static let date: GenericTypeName = .init("DATE")
 
