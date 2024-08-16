@@ -5,7 +5,6 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-import CPostgreSQL
 import Foundation
 import SwiftSyntax
 import SwiftSyntaxBuilder
@@ -64,6 +63,16 @@ extension _DecodableRawCharacterRepresentable {
     try self.init(_from: decoder.singleValueContainer())
   }
 }
+
+public enum Reference<T> {
+  /// Non-referring value.
+  case value(T)
+
+  /// A value referred by `String`
+  case other(String)
+}
+
+extension Reference: Equatable where T: Equatable {}
 
 /// `pg_type` described in https://www.postgresql.org/docs/16/catalog-pg-type.html
 public struct PGTypeInfo: Decodable {
@@ -159,11 +168,11 @@ public struct PGTypeInfo: Decodable {
   public let description: String?
   public let oid: OID
   public let typeAlignment: TypeAlignment
-  public let typeByValue: Bool
+  public let typeByValue: Reference<Bool>
   public let typeCategory: TypeCategory
   public let typeInput: String
   public let typeIsPreferred: Bool?
-  public let typeLength: Int
+  public let typeLength: Reference<Int>
   public let typeName: String
   public let typeOutput: String
   public let typeReceive: String
@@ -239,8 +248,6 @@ public struct PGTypeInfo: Decodable {
         return true
       case "f":
         return false
-      case "FLOAT8PASSBYVAL":
-        return _SwiftPQ_get_FLOAT8PASSBYVAL()
       default:
         return nil
       }
@@ -259,19 +266,18 @@ public struct PGTypeInfo: Decodable {
         return boolValue
       }
     }
+    func __decodeReferenceBool(for key: Key) throws -> Reference<Bool> {
+      if let bool = try? __decodeBool(for: key) {
+        return .value(bool)
+      }
+      return .other(try container.decode(String.self, forKey: key))
+    }
 
-    func __notIntegerError(for key: Key) -> some Error {
+    func __notIntegerError(for key: Key) -> any Error {
       return container.error(for: key, debugDescription: "Not integer?!")
     }
     func __int<I>(from string: String, type: I.Type) -> I? where I: FixedWidthInteger {
-      switch string {
-      case "NAMEDATALEN":
-        return I(_SwiftPQ_get_NAMEDATALEN())
-      case "SIZEOF_POINTER":
-        return I(MemoryLayout<UnsafeRawPointer>.size)
-      default:
-        return I(string)
-      }
+      return I(string)
     }
     func __decodeInt<I>(_ intType: I.Type, for key: Key) throws -> I where I: FixedWidthInteger {
       guard let int = __int(from: try container.decode(String.self, forKey: key), type: I.self) else {
@@ -288,16 +294,22 @@ public struct PGTypeInfo: Decodable {
       }
       return int
     }
+    func __decodeReferenceInt<I>(_ intType: I.Type, for key: Key) throws -> Reference<I> where I: FixedWidthInteger {
+      if let int = try? __decodeInt(intType, for: key) {
+        return .value(int)
+      }
+      return .other(try container.decode(String.self, forKey: key))
+    }
 
     self.arrayTypeOID = try __decodeIntIfPresent(OID.self, for: .arrayTypeOID)
     self.description = try container.decodeIfPresent(String.self, forKey: .description)
     self.oid = try __decodeInt(OID.self, for: .oid)
     self.typeAlignment = try container.decode(TypeAlignment.self, forKey: .typeAlignment)
-    self.typeByValue = try __decodeBool(for: .typeByValue)
+    self.typeByValue = try __decodeReferenceBool(for: .typeByValue)
     self.typeCategory = try container.decode(TypeCategory.self, forKey: .typeCategory)
     self.typeInput = try container.decode(String.self, forKey: .typeInput)
     self.typeIsPreferred = try __decodeBoolIfPresent(for: .typeIsPreferred)
-    self.typeLength = try __decodeInt(Int.self, for: .typeLength)
+    self.typeLength = try __decodeReferenceInt(Int.self, for: .typeLength)
     self.typeName = try container.decode(String.self, forKey: .typeName)
     self.typeOutput = try container.decode(String.self, forKey: .typeOutput)
     self.typeReceive = try container.decode(String.self, forKey: .typeReceive)

@@ -12,6 +12,32 @@ internal macro _ExpandStaticKeywords() = #externalMacro(module: "PQMacros", type
 internal macro _ExpandWellknownOperators() = #externalMacro(module: "PQMacros", type: "WellknownOperatorsExpander")
 
 
+// MARK: - BooleanMacro
+
+/// A macro that expands `BooleanConstantExpression` instance expression.
+@freestanding(expression)
+public macro bool(_ bool: Bool) -> BooleanConstantExpression = #externalMacro(
+  module: "PQMacros",
+  type: "BooleanMacro"
+)
+
+/// A macro that expands `BooleanConstantExpression.true` expression.
+@freestanding(expression)
+public macro TRUE() -> BooleanConstantExpression = #externalMacro(
+  module: "PQMacros",
+  type: "BooleanMacro"
+)
+
+/// A macro that expands `BooleanConstantExpression.false` expression.
+@freestanding(expression)
+public macro FALSE() -> BooleanConstantExpression = #externalMacro(
+  module: "PQMacros",
+  type: "BooleanMacro"
+)
+
+
+// MARK: - ConstantExpressionMacro
+
 /// A macro that converts a string literal to a `StringConstantExpression` constructor.
 @freestanding(expression)
 public macro const(_ string: String) -> StringConstantExpression = #externalMacro(
@@ -42,8 +68,33 @@ public macro const(_: UInt64) -> UnsignedIntegerConstantExpression = #externalMa
 /// `UnaryPrefix[Plus|Minus]OperatorInvocation` constructor.
 @freestanding(expression)
 public macro const(
-  _ integer: any (ExpressibleByFloatLiteral & AdditiveArithmetic)
-) -> any SignedFloatConstantExpression = #externalMacro(
+  _ float: any (ExpressibleByFloatLiteral & AdditiveArithmetic)
+) -> any (
+  SignedFloatConstantExpression & GeneralExpression & RestrictedExpression
+) = #externalMacro(
   module: "PQMacros",
   type: "ConstantExpressionMacro"
+)
+
+/// A macro that expands `BooleanConstantExpression` instance expression.
+@freestanding(expression)
+public macro const(_ bool: Bool) -> BooleanConstantExpression = #externalMacro(
+  module: "PQMacros",
+  type: "ConstantExpressionMacro"
+)
+
+// MARK: - PositionalParameterMacro
+
+///  A macro that converts an integer literal to a `Token.PositionalParameter` constructor.
+@freestanding(expression)
+public macro param(_ pos: UInt) -> Token.PositionalParameter = #externalMacro(
+  module: "PQMacros",
+  type: "PositionalParameterMacro"
+)
+
+///  A macro that converts an integer literal to a `PositionalParameterExpression` constructor.
+@freestanding(expression)
+public macro paramExpr(_ pos: UInt) -> PositionalParameterExpression = #externalMacro(
+  module: "PQMacros",
+  type: "PositionalParameterMacro"
 )

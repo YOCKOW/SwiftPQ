@@ -5,7 +5,6 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-import CPostgreSQL
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
@@ -15,7 +14,12 @@ import XCTest
 import PQMacros
 
 let testMacros: [String: Macro.Type] = [
+  "bool": BooleanMacro.self,
   "const": ConstantExpressionMacro.self,
+  "FALSE": BooleanMacro.self,
+  "param": PositionalParameterMacro.self,
+  "paramExpr": PositionalParameterMacro.self,
+  "TRUE": BooleanMacro.self,
 ]
 #endif
 
@@ -64,11 +68,24 @@ final class PGTypeManagerTests: XCTestCase {
   func test_manager() throws {
     let manager = PGTypeManager.default
     XCTAssertEqual(try manager.list.oidToInfo[16]?.typeName, "bool")
-    XCTAssertEqual(try manager.list.nameToInfo["float8"]?.typeByValue, _SwiftPQ_get_FLOAT8PASSBYVAL())
+    XCTAssertEqual(try manager.list.nameToInfo["float8"]?.typeByValue, .other("FLOAT8PASSBYVAL"))
   }
 }
 
 final class PQMacrosTests: XCTestCase {
+  func test_bool() {
+    #if canImport(PQMacros)
+    let trueSource = "BooleanConstantExpression.true"
+    let falseSource = "BooleanConstantExpression.false"
+    assertMacroExpansion("#bool(true)", expandedSource: trueSource, macros: testMacros)
+    assertMacroExpansion("#bool(false)", expandedSource: falseSource, macros: testMacros)
+    assertMacroExpansion("#TRUE", expandedSource: trueSource, macros: testMacros)
+    assertMacroExpansion("#FALSE", expandedSource: falseSource, macros: testMacros)
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
+
   func test_const() {
     #if canImport(PQMacros)
     assertMacroExpansion(
@@ -109,6 +126,33 @@ final class PQMacrosTests: XCTestCase {
     assertMacroExpansion(
       #"#const(-123.45)"#,
       expandedSource: #"UnaryPrefixMinusOperatorInvocation(UnsignedFloatConstantExpression(123.45))"#,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(true)"#,
+      expandedSource: "BooleanConstantExpression.true",
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#const(false)"#,
+      expandedSource: "BooleanConstantExpression.false",
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func test_param() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      #"#param(123)"#,
+      expandedSource: "Token.PositionalParameter(123)",
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      #"#paramExpr(123)"#,
+      expandedSource: "Token.PositionalParameter(123).asExpression",
       macros: testMacros
     )
     #else

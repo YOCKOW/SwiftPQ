@@ -2216,6 +2216,13 @@ final class SQLGrammarStatementTests: XCTestCase {
 
 
 final class SQLGrammarMacroExpansionTests: XCTestCase {
+  func test_bool() {
+    XCTAssertEqual(#bool(true).description, "TRUE")
+    XCTAssertEqual(#bool(false).description, "FALSE")
+    XCTAssertEqual(#TRUE.description, "TRUE")
+    XCTAssertEqual(#FALSE.description, "FALSE")
+  }
+
   func test_const() {
     XCTAssertEqual(#const("My String").description, #"'My String'"#)
     XCTAssertEqual(#const(12345).description, #"12345"#)
@@ -2226,6 +2233,13 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
     XCTAssertEqual(#const(+123.45).description, #"+123.45"#)
     XCTAssertEqual(#const(-12345).description, #"-12345"#)
     XCTAssertEqual(#const(-123.45).description, #"-123.45"#)
+    XCTAssertEqual(#const(true).description, "TRUE")
+    XCTAssertEqual(#const(false).description, "FALSE")
+  }
+
+  func test_param() {
+    XCTAssertEqual(#param(1).description, "$1")
+    XCTAssertEqual(#paramExpr(2).description, "$2")
   }
 }
 

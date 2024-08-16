@@ -47,6 +47,7 @@ public struct ConstantExpressionMacro: ExpressionMacro {
         || expr.is(IntegerLiteralExprSyntax.self)
         || expr.is(FloatLiteralExprSyntax.self)
         || expr.is(PrefixOperatorExprSyntax.self)
+        || expr.is(BooleanLiteralExprSyntax.self)
       )
     }
 
@@ -88,6 +89,17 @@ public struct ConstantExpressionMacro: ExpressionMacro {
 
       if let prefixOpExpr = constantExpr.as(PrefixOperatorExprSyntax.self) {
         return try __signedNumericConstructorExpr(from: prefixOpExpr)
+      }
+
+      if let boolExpr = constantExpr.as(BooleanLiteralExprSyntax.self) {
+        switch boolExpr.literal.tokenKind {
+        case .keyword(.true):
+          return BooleanMacro.trueExprSyntax
+        case .keyword(.false):
+          return BooleanMacro.falseExprSyntax
+        default:
+          throw Error.unsupportedConstant
+        }
       }
 
       throw Error.unsupportedConstant
