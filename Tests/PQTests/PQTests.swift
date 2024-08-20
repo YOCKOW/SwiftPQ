@@ -12,11 +12,84 @@ import SQLGrammar
 
 let runInGitHubActions: Bool = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"]?.lowercased() == "true"
 
-let databaseName = "swiftpq_test"
-let databaseUserName = "swiftpq_test"
-let databasePassword = "swiftpq_test"
+let databaseName = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_NAME"] ?? "swiftpq_test"
+let databaseUserName = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_USER_NAME"] ?? "swiftpq_test"
+let databasePassword = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_PASSWORD"] ?? "swiftpq_test"
 
 final class PQTests: XCTestCase {
+  func newConnection(
+    host: Domain = .localhost,
+    parameters: [any ConnectionParameter]? = nil
+  ) throws -> Connection {
+    return try Connection(
+      host: host,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword,
+      parameters: parameters
+    )
+  }
+
+  func newConnection(
+    host: IPAddress,
+    parameters: [any ConnectionParameter]? = nil
+  ) throws -> Connection {
+    return try Connection(
+      host: host,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword,
+      parameters: parameters
+    )
+  }
+
+  func newConnection(unixSocketDirectoryPath path: String) throws -> Connection {
+    return try Connection(
+      unixSocketDirectoryPath: path,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+  }
+
+  func connecting<Result>(
+    host: Domain = .localhost,
+    parameters: [any ConnectionParameter]? = nil,
+    job: (Connection) async throws -> Result
+  ) async throws -> Result {
+    let connection = try newConnection(host: host, parameters: parameters)
+    let result = try await job(connection)
+    await connection.finish()
+    return result
+  }
+
+  func assertTuples(
+    _ result: QueryResult,
+    expectedNumberOfRows: Int,
+    expectedNumberOfColumns: Int,
+    file: StaticString = #filePath,
+    line: UInt = #line
+  ) -> QueryResult.Table? {
+    guard case .tuples(let table) = result else {
+      XCTFail("Result is not tuples.", file: file, line: line)
+      return nil
+    }
+    guard table.count == expectedNumberOfRows else {
+      XCTFail("Unexpected number of rows.", file: file, line: line)
+      return nil
+    }
+    guard table.numberOfColumns == expectedNumberOfColumns else {
+      XCTFail("Unexpected number of columns.", file: file, line: line)
+      return nil
+    }
+    return table
+  }
+
+  // MARK: - Tests
+
   func test_BinaryRepresentation() {
     let data = Data([0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00])
     let representation = BinaryRepresentation(data: data)
@@ -56,13 +129,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_host() async throws {
-    let connection = try Connection(
-      host: .localhost,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword,
-      parameters: [Connection.SSLMode.allow]
-    )
+    let connection = try newConnection(parameters: [Connection.SSLMode.allow])
 
     let connDB = await connection.database
     XCTAssertEqual(connDB, databaseName)
@@ -79,12 +146,7 @@ final class PQTests: XCTestCase {
   func test_ipAddress() async throws {
     func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
       let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)
-      let connection = try Connection(
-        host: ipAddress,
-        database: databaseName,
-        user: databaseUserName,
-        password: databasePassword
-      )
+      let connection = try newConnection(host: ipAddress)
 
       let connDB = await connection.database
       XCTAssertEqual(connDB, databaseName, file: file, line: line)
@@ -125,12 +187,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_query() async throws {
-    let connection = try Connection(
-      host: .localhost,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword
-    )
+    let connection = try newConnection()
     
     let tableName: TableName = "test_table"
 
@@ -149,45 +206,13 @@ final class PQTests: XCTestCase {
     let dropResult = try await connection.execute(.dropTable(tableName, ifExists: false))
     XCTAssertEqual(dropResult, .ok)
 
-    func __assertTuples(
-      _ result: QueryResult,
-      expectedNumberOfRows: Int,
-      expectedNumberOfColumns: Int,
-      file: StaticString = #filePath,
-      line: UInt = #line
-    ) -> QueryResult.Table? {
-      guard case .tuples(let table) = result else {
-        XCTFail("Result is not tuples.", file: file, line: line)
-        return nil
-      }
-      guard table.count == expectedNumberOfRows else {
-        XCTFail("Unexpected number of rows.", file: file, line: line)
-        return nil
-      }
-      guard table.numberOfColumns == expectedNumberOfColumns else {
-        XCTFail("Unexpected number of columns.", file: file, line: line)
-        return nil
-      }
-      return table
-    }
+    await connection.finish()
+  }
 
-    SIMPLE_SELECT: do {
-      let result = try await connection.execute(.select(#const(1)))
-      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let row = table[0]
-        let field = row[0]
-        XCTAssertEqual(field.oid, .int4)
-        XCTAssertEqual(field.value?.as(Int32.self), 1)
-
-        let fieldAgain = row[0]
-        XCTAssertEqual(field.oid, fieldAgain.oid)
-        XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
-      }
-    }
-
-    BINARY_RESULT_TESTS: do {
-      let boolResult = try await connection.execute(.select(#TRUE, #FALSE), resultFormat: .binary)
-      if let boolTable = __assertTuples(boolResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 2) {
+  func test_query_binaryResult_bool() async throws {
+    try await connecting {
+      let result = try await $0.execute(.select(#TRUE, #FALSE), resultFormat: .binary)
+      if let boolTable = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 2) {
         let row = boolTable[0]
         let trueField = row[0]
         let falseField = row[1]
@@ -196,23 +221,25 @@ final class PQTests: XCTestCase {
         XCTAssertEqual(trueField.value?.as(Bool.self), true)
         XCTAssertEqual(falseField.value?.as(Bool.self), false)
       }
+    }
+  }
 
-      let intResult = try await connection.execute(.select(#const(0x1234ABCD)), resultFormat: .binary)
-      if let intTable = __assertTuples(intResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let row = intTable[0]
-        let field = row[0]
-        XCTAssertEqual(field.oid, .int4)
-        XCTAssertEqual(field.value?.as(Int32.self), 0x1234ABCD)
+  func test_query_binaryResult_data() async throws {
+    try await connecting {
+      let result = try await $0.execute(
+        .select(BinaryInfixTypeCastOperatorInvocation(#const("\\xDEADBEEF"), as: .bytea)),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .bytea)
+        XCTAssertEqual(field.value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
       }
+    }
+  }
 
-      let floatResult = try await connection.execute(.rawSQL("SELECT 1.23::float8"), resultFormat: .binary)
-      if let floatTable = __assertTuples(floatResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let row = floatTable[0]
-        let field = row[0]
-        XCTAssertEqual(field.oid, .float8)
-        XCTAssertEqual(field.value?.as(Double.self), 1.23)
-      }
-
+  func test_query_binaryResult_decimal() async throws {
+    try await connecting { (connection) async throws -> Void in
       func __assertDecimal(
         _ decimalDescription: String,
         expectedDecimal: Decimal,
@@ -223,7 +250,7 @@ final class PQTests: XCTestCase {
           .rawSQL("SELECT \(raw: decimalDescription)::decimal;"),
           resultFormat: .binary
         )
-        if let decimalTable = __assertTuples(
+        if let decimalTable = assertTuples(
           decimalResult,
           expectedNumberOfRows: 1,
           expectedNumberOfColumns: 1,
@@ -235,34 +262,52 @@ final class PQTests: XCTestCase {
           XCTAssertEqual(field.value?.as(Decimal.self), expectedDecimal, "Unexpected Decimal value.", file: file, line: line)
         }
       }
+
       try await __assertDecimal("12345.67", expectedDecimal: Decimal(sign: .plus, exponent: -2, significand: 1234567))
       try await __assertDecimal("1234567", expectedDecimal: Decimal(sign: .plus, exponent: 0, significand: 1234567))
       try await __assertDecimal("-12345.67", expectedDecimal: Decimal(sign: .minus, exponent: -2, significand: 1234567))
       try await __assertDecimal("-1234567", expectedDecimal: Decimal(sign: .minus, exponent: 0, significand: 1234567))
       try await __assertDecimal("0.01234567", expectedDecimal: Decimal(sign: .plus, exponent: -8, significand: 1234567))
       try await __assertDecimal("-0.01234567", expectedDecimal: Decimal(sign: .minus, exponent: -8, significand: 1234567))
+    }
+  }
 
-      let strResult = try await connection.execute(.select(#const("STRING")), resultFormat: .binary)
-      if let strTable = __assertTuples(strResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let row = strTable[0]
-        let field = row[0]
+  func test_query_binaryResult_float() async throws {
+    try await connecting {
+      let result = try await $0.execute(.rawSQL("SELECT 1.23::float8"), resultFormat: .binary)
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .float8)
+        XCTAssertEqual(field.value?.as(Double.self), 1.23)
+      }
+    }
+  }
+
+  func test_query_binaryResult_int() async throws {
+    try await connecting {
+      let result = try await $0.execute(.select(#const(0x1234ABCD)), resultFormat: .binary)
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .int4)
+        XCTAssertEqual(field.value?.as(Int32.self), 0x1234ABCD)
+      }
+    }
+  }
+
+  func test_query_binaryResult_string() async throws {
+    try await connecting {
+      let result = try await $0.execute(.select(#const("STRING")), resultFormat: .binary)
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
         XCTAssertEqual(field.oid, .text)
         XCTAssertEqual(field.value?.as(String.self), "STRING")
       }
-
-      let dataResult = try await connection.execute(
-        .select(BinaryInfixTypeCastOperatorInvocation(#const("\\xDEADBEEF"), as: .bytea)),
-        resultFormat: .binary
-      )
-      if let dataTable = __assertTuples(dataResult, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let field = dataTable[0][0]
-        XCTAssertEqual(field.oid, .bytea)
-        XCTAssertEqual(field.value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
-      }
     }
+  }
 
-    PARAM_TESTS: do {
-      let result = try await connection.execute(
+  func test_query_parameters() async throws {
+    try await connecting {
+      let result = try await $0.execute(
         .rawSQL("""
           SELECT
             \(#param(1)) + \(#param(2)),
@@ -281,7 +326,7 @@ final class PQTests: XCTestCase {
         ],
         resultFormat: .text
       )
-      if let table = __assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 5) {
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 5) {
         let row = table[0]
 
         XCTAssertEqual(row[0].oid, .int4)
@@ -300,8 +345,22 @@ final class PQTests: XCTestCase {
         XCTAssertEqual(row[4].value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
       }
     }
+  }
 
-    await connection.finish()
+  func test_query_simpleSelect() async throws {
+    try await connecting {
+      let result = try await $0.execute(.select(#const(1)))
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let row = table[0]
+        let field = row[0]
+        XCTAssertEqual(field.oid, .int4)
+        XCTAssertEqual(field.value?.as(Int32.self), 1)
+
+        let fieldAgain = row[0]
+        XCTAssertEqual(field.oid, fieldAgain.oid)
+        XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
+      }
+    }
   }
 
   func test_socket() async throws {
@@ -318,12 +377,7 @@ final class PQTests: XCTestCase {
     #error("Unsupported OS.")
     #endif
 
-    let connection = try Connection(
-      unixSocketDirectoryPath: socketDirectory,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword
-    )
+    let connection = try newConnection(unixSocketDirectoryPath: socketDirectory)
 
     let connDB = await connection.database
     XCTAssertEqual(connDB, databaseName)
