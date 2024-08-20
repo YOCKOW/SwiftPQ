@@ -12,11 +12,49 @@ import SQLGrammar
 
 let runInGitHubActions: Bool = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"]?.lowercased() == "true"
 
-let databaseName = "swiftpq_test"
-let databaseUserName = "swiftpq_test"
-let databasePassword = "swiftpq_test"
+let databaseName = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_NAME"] ?? "swiftpq_test"
+let databaseUserName = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_USER_NAME"] ?? "swiftpq_test"
+let databasePassword = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_PASSWORD"] ?? "swiftpq_test"
 
 final class PQTests: XCTestCase {
+  func newConnection(
+    host: Domain = .localhost,
+    parameters: [any ConnectionParameter]? = nil
+  ) throws -> Connection {
+    return try Connection(
+      host: host,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword,
+      parameters: parameters
+    )
+  }
+
+  func newConnection(
+    host: IPAddress,
+    parameters: [any ConnectionParameter]? = nil
+  ) throws -> Connection {
+    return try Connection(
+      host: host,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword,
+      parameters: parameters
+    )
+  }
+
+  func newConnection(unixSocketDirectoryPath path: String) throws -> Connection {
+    return try Connection(
+      unixSocketDirectoryPath: path,
+      port: nil,
+      database: databaseName,
+      user: databaseUserName,
+      password: databasePassword
+    )
+  }
+
   func test_BinaryRepresentation() {
     let data = Data([0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x00])
     let representation = BinaryRepresentation(data: data)
@@ -56,13 +94,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_host() async throws {
-    let connection = try Connection(
-      host: .localhost,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword,
-      parameters: [Connection.SSLMode.allow]
-    )
+    let connection = try newConnection(parameters: [Connection.SSLMode.allow])
 
     let connDB = await connection.database
     XCTAssertEqual(connDB, databaseName)
@@ -79,12 +111,7 @@ final class PQTests: XCTestCase {
   func test_ipAddress() async throws {
     func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
       let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)
-      let connection = try Connection(
-        host: ipAddress,
-        database: databaseName,
-        user: databaseUserName,
-        password: databasePassword
-      )
+      let connection = try newConnection(host: ipAddress)
 
       let connDB = await connection.database
       XCTAssertEqual(connDB, databaseName, file: file, line: line)
@@ -125,12 +152,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_query() async throws {
-    let connection = try Connection(
-      host: .localhost,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword
-    )
+    let connection = try newConnection()
     
     let tableName: TableName = "test_table"
 
@@ -318,12 +340,7 @@ final class PQTests: XCTestCase {
     #error("Unsupported OS.")
     #endif
 
-    let connection = try Connection(
-      unixSocketDirectoryPath: socketDirectory,
-      database: databaseName,
-      user: databaseUserName,
-      password: databasePassword
-    )
+    let connection = try newConnection(unixSocketDirectoryPath: socketDirectory)
 
     let connDB = await connection.database
     XCTAssertEqual(connDB, databaseName)
