@@ -33,6 +33,14 @@ public struct ConstantTypeCastStringLiteralSyntaxMacro: ExpressionMacro {
         string: \(stringExpr)
       )
       """
+    case "TIMESTAMPTZ", "TIMESTAMP_WITH_TIME_ZONE":
+      let stringExpr = arguments.first!
+      return """
+      ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+        constantTypeName: .timestamp(withTimeZone: true),
+        string: \(stringExpr)
+      )
+      """
     default:
       throw Error.unexpectedMacroName
     }

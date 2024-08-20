@@ -20,6 +20,7 @@ let testMacros: [String: Macro.Type] = [
   "param": PositionalParameterMacro.self,
   "paramExpr": PositionalParameterMacro.self,
   "TIMESTAMP": ConstantTypeCastStringLiteralSyntaxMacro.self,
+  "TIMESTAMPTZ": ConstantTypeCastStringLiteralSyntaxMacro.self,
   "TRUE": BooleanMacro.self,
 ]
 #endif
@@ -152,6 +153,16 @@ final class PQMacrosTests: XCTestCase {
       ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
         constantTypeName: .timestamp,
         string: "2004-10-19 10:23:54"
+      )
+      """,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      ##"#TIMESTAMPTZ("2004-10-19 10:23:54+09")"##,
+      expandedSource: """
+      ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+        constantTypeName: .timestamp(withTimeZone: true),
+        string: "2004-10-19 10:23:54+09"
       )
       """,
       macros: testMacros
