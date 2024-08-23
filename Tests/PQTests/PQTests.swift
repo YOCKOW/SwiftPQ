@@ -128,6 +128,19 @@ final class PQTests: XCTestCase {
 
   }
 
+  func test_connectionParameterStatus() async throws {
+    try await connecting {
+      let dateStyle = await $0.dateStyle
+      XCTAssertNotNil(dateStyle)
+
+      let intervalStyle = await $0.intervalStyle
+      XCTAssertNotNil(intervalStyle)
+
+      let timeZone = await $0.timeZone
+      XCTAssertNotNil(timeZone)
+    }
+  }
+
   func test_host() async throws {
     let connection = try newConnection(parameters: [Connection.SSLMode.allow])
 
