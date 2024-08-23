@@ -50,14 +50,30 @@ public enum QueryValue: CustomDebugStringConvertible {
       return representation.debugDescription
     }
   }
+
+  @inlinable
+  public var isText: Bool {
+    guard case .text = self else {
+      return false
+    }
+    return true
+  }
+
+  @inlinable
+  public var isBinary: Bool {
+    guard case .binary = self else {
+      return false
+    }
+    return true
+  }
 }
 
 /// A type that can be converted to a SQL parameter value
 ///
 /// At least either `sqlStringValue` or `sqlBinaryData` must be not `nil`.
 public protocol QueryValueConvertible {
-  /// An Object Identifier for this type.
-  static var oid: OID { get }
+  /// An Object Identifier for this instance.
+  var oid: OID { get }
 
   /// A string value for SQL text format.
   var sqlStringValue: String? { get }
@@ -192,7 +208,7 @@ extension QueryValueConvertible where Self: FloatingPoint {
 }
 
 extension Bool: QueryValueConvertible {
-  public static let oid: OID = .bool
+  public var oid: OID { .bool }
 
   @inlinable
   public init?(sqlStringValue: String) {
@@ -225,39 +241,39 @@ extension Bool: QueryValueConvertible {
 }
 
 extension Int8: QueryValueConvertible {
-  public static let oid: OID = .char
+  public var oid: OID { .char }
 }
 
 extension UInt8: QueryValueConvertible {
-  public static let oid: OID = .char
+  public var oid: OID { .char }
 }
 
 extension Int16: QueryValueConvertible {
-  public static let oid: OID = .int2
+  public var oid: OID { .int2 }
 }
 
 extension UInt16: QueryValueConvertible {
-  public static let oid: OID = .int2
+  public var oid: OID { .int2 }
 }
 
 extension Int32: QueryValueConvertible {
-  public static let oid: OID = .int4
+  public var oid: OID { .int4 }
 }
 
 extension UInt32: QueryValueConvertible {
-  public static let oid: OID = .int4
+  public var oid: OID { .int4 }
 }
 
 extension Int64: QueryValueConvertible {
-  public static let oid: OID = .int8
+  public var oid: OID { .int8 }
 }
 
 extension UInt64: QueryValueConvertible {
-  public static let oid: OID = .int8
+  public var oid: OID { .int8 }
 }
 
 extension Int: QueryValueConvertible {
-  public static let oid: OID = ({
+  public var oid: OID {
     switch MemoryLayout<Int>.size {
     case 4:
       return .int4
@@ -266,12 +282,12 @@ extension Int: QueryValueConvertible {
     default:
       fatalError("Unsupported architecture.")
     }
-  })()
+  }
 }
 
 extension UInt: QueryValueConvertible {
-  public static let oid: OID = ({
-    switch MemoryLayout<UInt>.size {
+  public var oid: OID {
+    switch MemoryLayout<Int>.size {
     case 4:
       return .int4
     case 8:
@@ -279,19 +295,19 @@ extension UInt: QueryValueConvertible {
     default:
       fatalError("Unsupported architecture.")
     }
-  })()
+  }
 }
 
 extension Float: QueryValueConvertible {
-  public static let oid: OID = .float4
+  public var oid: OID { .float4 }
 }
 
 extension Double: QueryValueConvertible {
-  public static let oid: OID = .float8
+  public var oid: OID { .float8 }
 }
 
 extension Decimal: QueryValueConvertible {
-  public static let oid: OID = .numeric
+  public var oid: OID { .numeric }
 
   public init?(sqlStringValue: String) {
     self.init(string: sqlStringValue, locale: Locale(identifier: "en_US"))
@@ -513,8 +529,8 @@ extension Decimal: QueryValueConvertible {
 }
 
 extension String: QueryValueConvertible {
-  public static let oid: OID = .text
-  
+  public var oid: OID { .text }
+
   public var sqlBinaryData: BinaryRepresentation? {
     return .init(data: Data(self.utf8))
   }
@@ -525,7 +541,7 @@ extension String: QueryValueConvertible {
 }
 
 extension Data: QueryValueConvertible {
-  public static let oid: OID = .bytea
+  public var oid: OID { .bytea }
 
   public var sqlStringValue: String? {
     return "\\x" + self.flatMap { (byte: UInt8) -> String in

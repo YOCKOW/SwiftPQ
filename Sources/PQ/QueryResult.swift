@@ -413,7 +413,7 @@ extension Connection {
 
     for (ii, param) in parameters.enumerated() {
       let queryValue = QueryValue(param)
-      let cOid = (queryValue == nil ? OID.invalid : type(of: param).oid).rawValue
+      let cOid = (queryValue == nil ? OID.invalid : param.oid).rawValue
       let valueData = queryValue?.data
       let value = valueData.map {
         let valuePtr = UnsafeMutablePointer<CChar>.allocate(capacity: $0.count)

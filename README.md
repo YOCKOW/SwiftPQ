@@ -13,6 +13,8 @@ You can send query to PostgreSQL server with raw SQL, or in the *Swifty* way[^1]
 
 * Swift >= 5.10
 * libpq
+* [libecgp](https://www.postgresql.org/docs/current/app-ecpg.html)
+* [libpgtypes](https://www.postgresql.org/docs/current/ecpg-pgtypes.html)
 
 # Usage
 

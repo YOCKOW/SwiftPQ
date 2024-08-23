@@ -305,6 +305,43 @@ final class PQTests: XCTestCase {
     }
   }
 
+  func test_query_timestamp() async throws {
+    try await connecting {
+      var result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-20 17:35:24")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value?.as(Timestamp.self)?.sqlStringValue, "2024-08-20 17:35:24")
+      }
+
+
+      result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-21 01:23:45.678901")),
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value?.isText, true)
+        XCTAssertEqual(field.value?.as(Timestamp.self)?.sqlStringValue, "2024-08-21 01:23:45.678901")
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [Timestamp.postgresEpoch],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value?.as(Timestamp.self)?.sqlStringValue, "2000-01-01 00:00:00")
+      }
+    }
+  }
+
   func test_query_parameters() async throws {
     try await connecting {
       let result = try await $0.execute(
