@@ -8,22 +8,16 @@
 import CLibECPG
 import Foundation
 
-/// A type that corresponds to `timestamp` or `timestamptz` PostgreSQL type.
+/// A type that corresponds to `timestamp` PostgreSQL type.
 public struct Timestamp: QueryValueConvertible, Equatable {
   /// Time interval with units of microseconds since Postgres Epoch (`2000-01-01 00:00:00+00`).
   public var timeIntervalSincePostgresEpoch: Int64
 
-  /// Time zone of this timestamp.
-  public var timeZone: TimeZone?
-
-  public init(timeIntervalSincePostgresEpoch: Int64, timeZone: TimeZone? = nil) {
+  public init(timeIntervalSincePostgresEpoch: Int64) {
     self.timeIntervalSincePostgresEpoch = timeIntervalSincePostgresEpoch
-    self.timeZone = timeZone
   }
 
-  public var oid: OID {
-    return timeZone == nil ? .timestamp : .timestamptz
-  }
+  public var oid: OID { .timestamp }
 
   public var sqlStringValue: String? {
     let cString = _SwiftPQ_PGTYPES_timestamp_to_cString(timeIntervalSincePostgresEpoch)
