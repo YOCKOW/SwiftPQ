@@ -9,7 +9,9 @@ import CLibECPG
 import Foundation
 
 /// A type that corresponds to `timestamp` PostgreSQL type.
-public struct Timestamp: QueryValueConvertible, Equatable {
+public struct Timestamp: Equatable,
+                         LosslessQueryStringConvertible,
+                         LosslessQueryBinaryDataConvertible {
   /// Time interval with units of microseconds since Postgres Epoch (`2000-01-01 00:00:00+00`).
   public var timeIntervalSincePostgresEpoch: Int64
 
@@ -19,7 +21,7 @@ public struct Timestamp: QueryValueConvertible, Equatable {
 
   public var oid: OID { .timestamp }
 
-  public var sqlStringValue: String? {
+  public var sqlStringValue: String {
     let cString = _SwiftPQ_PGTYPES_timestamp_to_cString(timeIntervalSincePostgresEpoch)
     defer {
       _SwiftPQ_PGTYPES_free_cString(cString)
@@ -42,7 +44,7 @@ public struct Timestamp: QueryValueConvertible, Equatable {
     self.init(timeIntervalSincePostgresEpoch: result.pointee)
   }
 
-  public var sqlBinaryData: BinaryRepresentation? {
+  public var sqlBinaryData: BinaryRepresentation {
     return timeIntervalSincePostgresEpoch.sqlBinaryData
   }
 

@@ -53,17 +53,25 @@ public enum QueryResult: Equatable {
 
   /// A field value and its additional information.
   public struct Field {
-    /// Object Identifier.
-    public let oid: OID
-
     /// Column name.
     public let name: ColumnIdentifier
 
     /// Field value.
-    public let value: QueryValue?
+    public let value: QueryValue
 
-    fileprivate init(oid: OID, name: ColumnIdentifier, value: QueryValue?) {
-      self.oid = oid
+    /// Object Identifier.
+    @inlinable
+    public var oid: OID {
+      return value.oid
+    }
+
+    /// A payload of this field.
+    @inlinable
+    public var payload: QueryValue.Payload? {
+      return value.payload
+    }
+
+    fileprivate init(name: ColumnIdentifier, value: QueryValue) {
       self.name = name
       self.value = value
     }
@@ -171,10 +179,10 @@ public enum QueryResult: Equatable {
       return Int(PQgetlength(_result, CInt(indices.rowIndex), CInt(indices.columnIndex)))
     }
 
-    private let _valueCache: _IndexedCache<_IndexedCache<QueryValue?>> = .init()
-    func value(at indices: (rowIndex: Int, columnIndex: Int)) -> QueryValue? {
-      return _valueCache.value(at: indices.rowIndex, ifAbsent: {
-        return _IndexedCache<QueryValue?>()
+    private let _payloadCache: _IndexedCache<_IndexedCache<QueryValue.Payload?>> = .init()
+    func payload(at indices: (rowIndex: Int, columnIndex: Int)) -> QueryValue.Payload? {
+      return _payloadCache.value(at: indices.rowIndex, ifAbsent: {
+        return _IndexedCache<QueryValue.Payload?>()
       }).value(at: indices.columnIndex, ifAbsent: {
         if valueIsNull(at: indices) {
           return nil
@@ -248,10 +256,10 @@ public enum QueryResult: Equatable {
     }
 
     public subscript(_ index: Int) -> Field {
-      let oid = _result.dataTypeOID(at: index)
       let name = _result.columnName(at: index)
-      let value = _result.value(at: (rowIndex: rowIndex, columnIndex: index))
-      return Field(oid: oid, name: name, value: value)
+      let oid = _result.dataTypeOID(at: index)
+      let payload = _result.payload(at: (rowIndex: rowIndex, columnIndex: index))
+      return Field(name: name, value: QueryValue(oid: oid, payload: payload))
     }
   }
 
@@ -374,7 +382,7 @@ extension Connection {
   /// A command represented by `query` and given `parameters` are submitted to the server.
   public func execute(
     _ query: Query,
-    parameters: [any QueryValueConvertible],
+    parameters: [any CustomQueryValueConvertible],
     resultFormat: QueryResult.Format = .text
   ) throws -> QueryResult {
     let count = parameters.count
@@ -412,17 +420,17 @@ extension Connection {
 
 
     for (ii, param) in parameters.enumerated() {
-      let queryValue = QueryValue(param)
-      let cOid = (queryValue == nil ? OID.invalid : param.oid).rawValue
-      let valueData = queryValue?.data
-      let value = valueData.map {
-        let valuePtr = UnsafeMutablePointer<CChar>.allocate(capacity: $0.count)
-        $0.copyBytes(to: UnsafeMutableRawBufferPointer(start: valuePtr, count: $0.count))
-        return valuePtr
+      let queryValue = param.queryValue
+      let cOid = (queryValue.payload == nil ? OID.invalid : param.oid).rawValue
+      let payloadData = queryValue.payload?.data
+      let payloadPtr: UnsafePointer<CChar>? = payloadData.map {
+        let payloadMutablePtr = UnsafeMutablePointer<CChar>.allocate(capacity: $0.count)
+        $0.copyBytes(to: UnsafeMutableRawBufferPointer(start: payloadMutablePtr, count: $0.count))
+        return UnsafePointer<CChar>(payloadMutablePtr)
       }
-      let length: CInt = (valueData?.count).map(CInt.init) ?? 0
+      let length: CInt = (payloadData?.count).map(CInt.init) ?? 0
       let format: CInt = ({
-        switch queryValue {
+        switch queryValue.payload {
         case .text:
           return 0
         case .binary:
@@ -433,7 +441,7 @@ extension Connection {
       })()
 
       paramTypes[ii] = cOid
-      paramValues[ii] = value.map({ UnsafePointer<CChar>($0)})
+      paramValues[ii] = payloadPtr
       paramLengths[ii] = length
       paramFormats[ii] = format
     }
