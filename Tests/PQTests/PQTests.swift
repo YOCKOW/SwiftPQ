@@ -318,43 +318,6 @@ final class PQTests: XCTestCase {
     }
   }
 
-  func test_query_timestamp() async throws {
-    try await connecting {
-      var result = try await $0.execute(
-        .select(#TIMESTAMP("2024-08-20 17:35:24")),
-        resultFormat: .binary
-      )
-      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let field = table[0][0]
-        XCTAssertEqual(field.oid, .timestamp)
-        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-20 17:35:24")
-      }
-
-
-      result = try await $0.execute(
-        .select(#TIMESTAMP("2024-08-21 01:23:45.678901")),
-        resultFormat: .text
-      )
-      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let field = table[0][0]
-        XCTAssertEqual(field.oid, .timestamp)
-        XCTAssertEqual(field.value.payload?.isText, true)
-        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-21 01:23:45.678901")
-      }
-
-      result = try await $0.execute(
-        .select(#paramExpr(1)),
-        parameters: [Timestamp.postgresEpoch],
-        resultFormat: .binary
-      )
-      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
-        let field = table[0][0]
-        XCTAssertEqual(field.oid, .timestamp)
-        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2000-01-01 00:00:00")
-      }
-    }
-  }
-
   func test_query_parameters() async throws {
     try await connecting {
       let result = try await $0.execute(
@@ -439,6 +402,118 @@ final class PQTests: XCTestCase {
     XCTAssertEqual(connPassword, databasePassword)
 
     await connection.finish()
+  }
+
+  func test_Timestamp() async throws {
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00")?.timeIntervalSincePostgresEpoch, 0)
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00+09")?.timeIntervalSincePostgresEpoch, -32400000000)
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00-09")?.timeIntervalSincePostgresEpoch, +32400000000)
+    XCTAssertEqual(Timestamp("1999-12-31 20:30:00-0330")?.timeIntervalSincePostgresEpoch, 0)
+    XCTAssertEqual(Timestamp("2000-01-01 01:23:45+012345")?.timeIntervalSincePostgresEpoch, 0)
+    XCTAssertEqual(Timestamp("1970-01-01 00:00:00"), Timestamp.unixEpoch)
+    XCTAssertEqual(Timestamp(Date(timeIntervalSinceReferenceDate: 0)), Timestamp("2001-01-01 00:00:00"))
+
+    XCTAssertEqual(
+      Timestamp("2024-09-01 12:34:56", timeZone: TimeZone(identifier: "Asia/Tokyo"))?.timeIntervalSincePostgresEpoch,
+      try XCTUnwrap(Timestamp("2024-09-01 12:34:56+09")).timeIntervalSincePostgresEpoch
+    )
+
+    XCTAssertNil(Timestamp("20"))
+    XCTAssertNil(Timestamp("2024-09-01 01:23:45+12345678"))
+
+    // WITHOUT TIME ZONE
+    try await connecting {
+      var result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-20 17:35:24")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-20 17:35:24")
+      }
+
+
+      result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-21 01:23:45.678901")),
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.payload?.isText, true)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-21 01:23:45.678901")
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [Timestamp.postgresEpoch],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2000-01-01 00:00:00")
+      }
+    }
+
+    // WITH TIME ZONE
+    try await connecting { (connection) -> Void in
+      let dbTimeZone = await connection.timeZone
+
+      var result = try await connection.execute(
+        .select(#TIMESTAMPTZ("2024-08-26 17:04:15")),
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: dbTimeZone),
+          Timestamp("2024-08-26 17:04:15", timeZone: dbTimeZone)
+        )
+      }
+
+      result = try await connection.execute(
+        .select(#TIMESTAMPTZ("2024-08-26 17:04:15")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: dbTimeZone),
+          Timestamp("2024-08-26 17:04:15", timeZone: dbTimeZone)
+        )
+      }
+
+      let darwinTz = try XCTUnwrap(TimeZone(identifier: "Australia/Darwin"))
+      let darwinTimestamp = try XCTUnwrap(Timestamp("2024-08-26 17:30:00", timeZone: darwinTz))
+      result = try await connection.execute(
+        .select(#paramExpr(1)),
+        parameters: [darwinTimestamp],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(field.value.asTimestamp(withTimeZone: darwinTz), darwinTimestamp)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: darwinTz)?.sqlStringValue,
+          "2024-08-26 17:30:00+0930"
+        )
+      }
+      result = try await connection.execute(
+        .select(#paramExpr(1)),
+        parameters: [darwinTimestamp],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(field.value.asTimestamp(withTimeZone: darwinTz), darwinTimestamp)
+      }
+    }
   }
 
   func test_ValueConvertible() throws {

@@ -24,7 +24,7 @@ static inline int64_t * _Nullable _SwiftPQ_PGTYPES_timestamp_from_cString(
   int64_t * _Nonnull result
 ) {
   errno = 0;
-  const int64_t timestamp = PGTYPEStimestamp_from_asc(string, NULL);
+  const int64_t timestamp = PGTYPEStimestamp_from_asc((char *)string, NULL);
   if (errno == PGTYPES_TS_BAD_TIMESTAMP) {
     return NULL;
   } else {
