@@ -16,6 +16,7 @@ import PQMacros
 let testMacros: [String: Macro.Type] = [
   "bool": BooleanMacro.self,
   "const": ConstantExpressionMacro.self,
+  "DATE": GenericTypeCastStringLiteralSyntaxMacro.self,
   "FALSE": BooleanMacro.self,
   "param": PositionalParameterMacro.self,
   "paramExpr": PositionalParameterMacro.self,
@@ -164,6 +165,20 @@ final class PQMacrosTests: XCTestCase {
         constantTypeName: .timestamp(withTimeZone: true),
         string: "2004-10-19 10:23:54+09"
       )
+      """,
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func test_genericTypeCastStringLiteralSyntax() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      ##"#DATE("2024-08-27")"##,
+      expandedSource: """
+      GenericTypeCastStringLiteralSyntax(typeName: TypeName.date, string: "2024-08-27")!
       """,
       macros: testMacros
     )

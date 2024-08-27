@@ -231,7 +231,7 @@ extension Timestamp {
   public static let foundationDateEpoch: Timestamp = .init(timeIntervalSincePostgresEpoch: 31622400000000)
 
   @inlinable
-  public init(_ date: Date, timeZone: TimeZone? = nil) {
+  public init(_ date: FoundationDate, timeZone: TimeZone? = nil) {
     self.init(
       timeIntervalSincePostgresEpoch: (
         Int64(date.timeIntervalSinceReferenceDate * 1000000)
