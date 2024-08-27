@@ -14,6 +14,7 @@ struct PQMacrosPlugin: CompilerPlugin {
     BooleanMacro.self,
     ConstantExpressionMacro.self,
     ConstantTypeCastStringLiteralSyntaxMacro.self,
+    GenericTypeCastStringLiteralSyntaxMacro.self,
     OIDExpander.self,
     PositionalParameterMacro.self,
     StaticKeywordExpander.self,

@@ -141,6 +141,48 @@ final class PQTests: XCTestCase {
     }
   }
 
+  func test_Date() async throws {
+    XCTAssertTrue(try ({ () throws -> Bool in
+      let date = try XCTUnwrap(Date("2001-02-28"))
+      let ymd = date.yearMonthDay
+      return (
+        ymd.year == 2001
+        && ymd.month == 2
+        && ymd.day == 28
+      )
+    })())
+    XCTAssertEqual(Date("1999-03-13"), Date(year: 1999, month: 3, day: 13))
+
+
+    try await connecting {
+      var result: QueryResult!
+
+      result = try await $0.execute(.select(#DATE("2024-08-27")), resultFormat: .text)
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .date)
+        XCTAssertEqual(field.value.as(Date.self)?.sqlStringValue, "2024-08-27")
+      }
+
+      result = try await $0.execute(.select(#DATE("2024-08-27")), resultFormat: .binary)
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .date)
+        XCTAssertEqual(field.value.as(Date.self)?.sqlStringValue, "2024-08-27")
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [try XCTUnwrap(Date(sqlStringValue: "1983-10-03"))]
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .date)
+        XCTAssertEqual(field.value.as(Date.self)?.sqlStringValue, "1983-10-03")
+      }
+    }
+  }
+
   func test_host() async throws {
     let connection = try newConnection(parameters: [Connection.SSLMode.allow])
 
@@ -413,7 +455,10 @@ final class PQTests: XCTestCase {
     XCTAssertEqual(Timestamp("2000-01-01 01:23:45+012345")?.timeIntervalSincePostgresEpoch, 0)
     #endif
     XCTAssertEqual(Timestamp("1970-01-01 00:00:00"), Timestamp.unixEpoch)
-    XCTAssertEqual(Timestamp(Date(timeIntervalSinceReferenceDate: 0)), Timestamp("2001-01-01 00:00:00"))
+    XCTAssertEqual(
+      Timestamp(FoundationDate(timeIntervalSinceReferenceDate: 0)),
+      Timestamp("2001-01-01 00:00:00")
+    )
 
     XCTAssertEqual(
       Timestamp("2024-09-01 12:34:56", timeZone: TimeZone(identifier: "Asia/Tokyo"))?.timeIntervalSincePostgresEpoch,

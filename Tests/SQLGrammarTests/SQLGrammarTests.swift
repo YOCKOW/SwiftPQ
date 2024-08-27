@@ -2249,6 +2249,10 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
     )
   }
 
+  func test_genericTypeCastStringLiteralSyntax() {
+    XCTAssertEqual(#DATE("2024-08-27").description, "DATE '2024-08-27'")
+  }
+
   func test_param() {
     XCTAssertEqual(#param(1).description, "$1")
     XCTAssertEqual(#paramExpr(2).description, "$2")

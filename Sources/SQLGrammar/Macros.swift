@@ -116,6 +116,16 @@ public macro TIMESTAMP_WITH_TIME_ZONE(
 )
 
 
+// MARK: - GenericTypeCastStringLiteralSyntaxMacro
+
+/// A macro that expands a `GenericTypeCastStringLiteralSyntax` constructor.
+@freestanding(expression)
+public macro DATE(_ string: String) -> GenericTypeCastStringLiteralSyntax = #externalMacro(
+  module: "PQMacros",
+  type: "GenericTypeCastStringLiteralSyntaxMacro"
+)
+
+
 // MARK: - PositionalParameterMacro
 
 ///  A macro that converts an integer literal to a `Token.PositionalParameter` constructor.
