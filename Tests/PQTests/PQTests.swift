@@ -409,7 +409,9 @@ final class PQTests: XCTestCase {
     XCTAssertEqual(Timestamp("2000-01-01 00:00:00+09")?.timeIntervalSincePostgresEpoch, -32400000000)
     XCTAssertEqual(Timestamp("2000-01-01 00:00:00-09")?.timeIntervalSincePostgresEpoch, +32400000000)
     XCTAssertEqual(Timestamp("1999-12-31 20:30:00-0330")?.timeIntervalSincePostgresEpoch, 0)
+    #if canImport(Darwin) || canImport(FoundationEssentials) // https://github.com/apple/swift-corelibs-foundation/issues/5079
     XCTAssertEqual(Timestamp("2000-01-01 01:23:45+012345")?.timeIntervalSincePostgresEpoch, 0)
+    #endif
     XCTAssertEqual(Timestamp("1970-01-01 00:00:00"), Timestamp.unixEpoch)
     XCTAssertEqual(Timestamp(Date(timeIntervalSinceReferenceDate: 0)), Timestamp("2001-01-01 00:00:00"))
 
