@@ -10,91 +10,210 @@ import Foundation
 import yExtensions
 
 /// A single field value of a row.
-public enum QueryValue: CustomDebugStringConvertible {
-  case text(String)
-  case binary(BinaryRepresentation)
+public struct QueryValue: CustomDebugStringConvertible {
+  /// Representation of the acutual query value.
+  public enum Payload {
+    /// Text format representation.
+    case text(String)
 
-  public init?<T>(_ value: T) where T: QueryValueConvertible {
-    if let binary = value.sqlBinaryData {
-      self = .binary(binary)
-    } else if let string = value.sqlStringValue {
-      self = .text(string)
-    } else {
-      return nil
+    /// Binary format representation.
+    case binary(BinaryRepresentation)
+
+    public var data: Data {
+      switch self {
+      case .text(let string):
+        return Data(string.utf8) + CollectionOfOne<UInt8>(0x00)
+      case .binary(let representation):
+        return representation.data
+      }
+    }
+
+    @inlinable
+    public var isText: Bool {
+      guard case .text = self else {
+        return false
+      }
+      return true
+    }
+
+    @inlinable
+    public var isBinary: Bool {
+      guard case .binary = self else {
+        return false
+      }
+      return true
     }
   }
 
-  public func `as`<T>(_ type: T.Type) -> T? where T: QueryValueConvertible {
-    switch self {
-    case .text(let string):
-      return T(sqlStringValue: string)
-    case .binary(let data):
-      return data.as(type)
-    }
+  public let oid: OID
+
+  public let payload: Payload?
+
+  @inlinable
+  public init(oid: OID, payload: Payload?) {
+    self.oid = oid
+    self.payload = payload
   }
 
-  public var data: Data {
-    switch self {
-    case .text(let string):
-      return Data(string.utf8) + CollectionOfOne<UInt8>(0x00)
-    case .binary(let representation):
-      return representation.data
-    }
+  @inlinable
+  public init(oid: OID, string: String) {
+    self.oid = oid
+    self.payload = .text(string)
+  }
+
+  @inlinable
+  public init(oid: OID, binary: BinaryRepresentation) {
+    self.oid = oid
+    self.payload = .binary(binary)
   }
 
   public var debugDescription: String {
-    switch self {
+    var desc = "OID: \(oid.rawValue)\n"
+    switch payload {
     case .text(let string):
-      return string
+      desc += string
     case .binary(let representation):
-      return representation.debugDescription
+      desc += representation.debugDescription
+    case nil:
+      desc += "<no data>"
     }
+    return desc
   }
 }
 
-/// A type that can be converted to a SQL parameter value
-///
-/// At least either `sqlStringValue` or `sqlBinaryData` must be not `nil`.
-public protocol QueryValueConvertible {
-  /// An Object Identifier for this type.
-  static var oid: OID { get }
+// MARK: - Protocol definitions
 
+/// A type that can be converted to a SQL parameter value.
+public protocol CustomQueryValueConvertible {
+  /// An Object Identifier for this instance.
+  var oid: OID { get }
+
+  /// A payload of the query value.
+  var payload: QueryValue.Payload? { get }
+
+  /// A query value.
+  ///
+  /// Default implementation provided.
+  var queryValue: QueryValue { get }
+}
+
+/// A type that can be converted to a SQL parameter value with string representation.
+public protocol CustomQueryStringConvertible: CustomQueryValueConvertible {
   /// A string value for SQL text format.
-  var sqlStringValue: String? { get }
+  var sqlStringValue: String { get }
+}
 
-  /// Initializes with a string value for SQL text format.
-  init?(sqlStringValue: String)
-
+/// A type that can be converted to a SQL parameter value with binary representation.
+public protocol CustomQueryBinaryDataConvertible: CustomQueryValueConvertible {
   /// Binary data for SQL binary format.
-  var sqlBinaryData: BinaryRepresentation? { get }
+  var sqlBinaryData: BinaryRepresentation { get }
+}
 
-  /// Initializes with binary data for SQL binary format.
+/// A type that can be represented as a query value in a lossless, unambiguous way.
+public protocol LosslessQueryValueConvertible: CustomQueryValueConvertible {
+  /// Instantiates an instance of the conforming type from query value.
+  init?(_ value: QueryValue)
+}
+
+/// A type that can be represented as a SQL parameter string in a lossless, unambiguous way.
+public protocol LosslessQueryStringConvertible: CustomQueryStringConvertible,
+                                                LosslessQueryValueConvertible {
+  /// Instantiates an instance of the conforming type from a SQL string representation.
+  init?(sqlStringValue: String)
+}
+
+/// A type that can be represented as SQL parameter binary data in a lossless, unambiguous way.
+public protocol LosslessQueryBinaryDataConvertible: CustomQueryBinaryDataConvertible,
+                                                    LosslessQueryValueConvertible {
+  /// Instantiates an instance of the conforming type from a SQL binary representation.
   init?(sqlBinaryData: BinaryRepresentation)
 }
 
-extension BinaryRepresentation {
-  public func `as`<V>(_ type: V.Type) -> V? where V: QueryValueConvertible {
-    return V(sqlBinaryData: self)
+
+// MARK: - Protocol extensions
+
+extension CustomQueryValueConvertible {
+  @inlinable
+  public var queryValue: QueryValue {
+    return QueryValue(oid: self.oid, payload: self.payload)
   }
 }
 
-extension QueryValueConvertible where Self: CustomStringConvertible {
-  public var sqlStringValue: String? {
+extension CustomQueryStringConvertible {
+  @inlinable
+  public var payload: QueryValue.Payload? {
+    return .text(self.sqlStringValue)
+  }
+}
+
+extension CustomQueryBinaryDataConvertible {
+  @inlinable
+  public var payload: QueryValue.Payload? {
+    return .binary(self.sqlBinaryData)
+  }
+}
+
+extension CustomQueryStringConvertible where Self: CustomStringConvertible {
+  @inlinable
+  public var sqlStringValue: String {
     return String(describing: self)
   }
 }
 
-extension QueryValueConvertible where Self: LosslessStringConvertible {
+extension CustomQueryStringConvertible where Self: CustomQueryBinaryDataConvertible {
+  /// A query value with binary format.
+  @inlinable
+  public var payload: QueryValue.Payload? {
+    return .binary(self.sqlBinaryData)
+  }
+}
+
+extension LosslessQueryStringConvertible {
+  public init?(_ value: QueryValue) {
+    guard case .text(let string) = value.payload else {
+      return nil
+    }
+    self.init(sqlStringValue: string)
+  }
+}
+
+extension LosslessQueryBinaryDataConvertible {
+  public init?(_ value: QueryValue) {
+    guard case .binary(let data) = value.payload else {
+      return nil
+    }
+    self.init(sqlBinaryData: data)
+  }
+}
+
+extension LosslessQueryStringConvertible where Self: LosslessQueryBinaryDataConvertible {
+  public init?(_ value: QueryValue) {
+    switch value.payload {
+    case .text(let string):
+      self.init(sqlStringValue: string)
+    case .binary(let data):
+      self.init(sqlBinaryData: data)
+    default:
+      return nil
+    }
+  }
+}
+
+extension LosslessQueryStringConvertible where Self: LosslessStringConvertible {
+  @inlinable
   public init?(sqlStringValue: String) {
     self.init(sqlStringValue)
   }
 }
 
-extension QueryValueConvertible where Self: FixedWidthInteger {
-  public var sqlBinaryData: BinaryRepresentation? {
+extension CustomQueryBinaryDataConvertible where Self: FixedWidthInteger {
+  public var sqlBinaryData: BinaryRepresentation {
     return withUnsafePointer(to: self.bigEndian) { .init(copyingBytes: $0) }
   }
+}
 
+extension LosslessQueryBinaryDataConvertible where Self: FixedWidthInteger {
+  @inlinable
   public init?(sqlBinaryData data: BinaryRepresentation) {
     guard data.count == MemoryLayout<Self>.size else {
       return nil
@@ -108,8 +227,8 @@ extension QueryValueConvertible where Self: FixedWidthInteger {
   }
 }
 
-extension QueryValueConvertible where Self: FloatingPoint {
-  private var _byteSwapped: Self {
+extension CustomQueryBinaryDataConvertible where Self: FloatingPoint {
+  fileprivate var _byteSwapped: Self {
     return withUnsafePointer(to: self) { (myPointer: UnsafePointer<Self>) -> Self in
       func __swapBytesViaInt<T>(_ type: T.Type) -> Self where T: FixedWidthInteger {
         return myPointer.withMemoryRebound(to: type, capacity: 1) {
@@ -163,6 +282,12 @@ extension QueryValueConvertible where Self: FloatingPoint {
     }
   }
 
+  public var sqlBinaryData: BinaryRepresentation {
+    return withUnsafePointer(to: self._bigEndian) { .init(copyingBytes: $0) }
+  }
+}
+
+extension LosslessQueryBinaryDataConvertible where Self: FloatingPoint {
   private init(_bigEndian bigEndian: Self) {
     switch ByteOrder.current {
     case .unknown:
@@ -172,10 +297,6 @@ extension QueryValueConvertible where Self: FloatingPoint {
     case .bigEndian:
       self = bigEndian
     }
-  }
-
-  public var sqlBinaryData: BinaryRepresentation? {
-    return withUnsafePointer(to: self._bigEndian) { .init(copyingBytes: $0) }
   }
 
   public init?(sqlBinaryData data: BinaryRepresentation) {
@@ -191,8 +312,29 @@ extension QueryValueConvertible where Self: FloatingPoint {
   }
 }
 
-extension Bool: QueryValueConvertible {
-  public static let oid: OID = .bool
+// MARK: - Existing type extensions
+
+extension BinaryRepresentation {
+  public func `as`<T>(_ type: T.Type) -> T? where T: LosslessQueryBinaryDataConvertible {
+    return T(sqlBinaryData: self)
+  }
+}
+
+extension QueryValue {
+  public func `as`<T>(_ type: T.Type) -> T? where T: LosslessQueryValueConvertible {
+    return T(self)
+  }
+}
+
+extension QueryValue: CustomQueryValueConvertible {
+  @inlinable
+  public var queryValue: QueryValue {
+    return self
+  }
+}
+
+extension Bool: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .bool }
 
   @inlinable
   public init?(sqlStringValue: String) {
@@ -213,7 +355,7 @@ extension Bool: QueryValueConvertible {
   }
 
   @inlinable
-  public var sqlBinaryData: BinaryRepresentation? {
+  public var sqlBinaryData: BinaryRepresentation {
     let byte: UInt8 = self ? 1 : 0
     return BinaryRepresentation(data: Data([byte]))
   }
@@ -224,40 +366,40 @@ extension Bool: QueryValueConvertible {
   }
 }
 
-extension Int8: QueryValueConvertible {
-  public static let oid: OID = .char
+extension Int8: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .char }
 }
 
-extension UInt8: QueryValueConvertible {
-  public static let oid: OID = .char
+extension UInt8: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .char }
 }
 
-extension Int16: QueryValueConvertible {
-  public static let oid: OID = .int2
+extension Int16: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int2 }
 }
 
-extension UInt16: QueryValueConvertible {
-  public static let oid: OID = .int2
+extension UInt16: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int2 }
 }
 
-extension Int32: QueryValueConvertible {
-  public static let oid: OID = .int4
+extension Int32: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int4 }
 }
 
-extension UInt32: QueryValueConvertible {
-  public static let oid: OID = .int4
+extension UInt32: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int4 }
 }
 
-extension Int64: QueryValueConvertible {
-  public static let oid: OID = .int8
+extension Int64: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int8 }
 }
 
-extension UInt64: QueryValueConvertible {
-  public static let oid: OID = .int8
+extension UInt64: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .int8 }
 }
 
-extension Int: QueryValueConvertible {
-  public static let oid: OID = ({
+extension Int: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID {
     switch MemoryLayout<Int>.size {
     case 4:
       return .int4
@@ -266,12 +408,12 @@ extension Int: QueryValueConvertible {
     default:
       fatalError("Unsupported architecture.")
     }
-  })()
+  }
 }
 
-extension UInt: QueryValueConvertible {
-  public static let oid: OID = ({
-    switch MemoryLayout<UInt>.size {
+extension UInt: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID {
+    switch MemoryLayout<Int>.size {
     case 4:
       return .int4
     case 8:
@@ -279,19 +421,19 @@ extension UInt: QueryValueConvertible {
     default:
       fatalError("Unsupported architecture.")
     }
-  })()
+  }
 }
 
-extension Float: QueryValueConvertible {
-  public static let oid: OID = .float4
+extension Float: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .float4 }
 }
 
-extension Double: QueryValueConvertible {
-  public static let oid: OID = .float8
+extension Double: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .float8 }
 }
 
-extension Decimal: QueryValueConvertible {
-  public static let oid: OID = .numeric
+extension Decimal: LosslessQueryStringConvertible {
+  public var oid: OID { .numeric }
 
   public init?(sqlStringValue: String) {
     self.init(string: sqlStringValue, locale: Locale(identifier: "en_US"))
@@ -349,7 +491,7 @@ extension Decimal: QueryValueConvertible {
     return (self as NSDecimalNumber).int16Value
   }
 
-  public var sqlBinaryData: BinaryRepresentation? {
+  public var binaryData: BinaryRepresentation? {
     guard self.isNaN || self.isFinite else {
       return nil
     }
@@ -445,7 +587,7 @@ extension Decimal: QueryValueConvertible {
     return BinaryRepresentation(data: data)
   }
   
-  public init?(sqlBinaryData data: BinaryRepresentation) {
+  public init?(_ data: BinaryRepresentation) {
     // `data` is considered as an array of 16-bit integers. First four of them are header.
     guard data.count > 8, data.count.isMultiple(of: 2) else {
       return nil
@@ -510,12 +652,30 @@ extension Decimal: QueryValueConvertible {
     }
     self = decimal
   }
+
+  public var payload: QueryValue.Payload? {
+    if let data = binaryData {
+      return .binary(data)
+    }
+    return .text(sqlStringValue)
+  }
+
+  public init?(_ value: QueryValue) {
+    switch value.payload {
+    case .text(let string):
+      self.init(sqlStringValue: string)
+    case .binary(let data):
+      self.init(data)
+    default:
+      return nil
+    }
+  }
 }
 
-extension String: QueryValueConvertible {
-  public static let oid: OID = .text
-  
-  public var sqlBinaryData: BinaryRepresentation? {
+extension String: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .text }
+
+  public var sqlBinaryData: BinaryRepresentation {
     return .init(data: Data(self.utf8))
   }
   
@@ -524,10 +684,10 @@ extension String: QueryValueConvertible {
   }
 }
 
-extension Data: QueryValueConvertible {
-  public static let oid: OID = .bytea
+extension Data: LosslessQueryStringConvertible, LosslessQueryBinaryDataConvertible {
+  public var oid: OID { .bytea }
 
-  public var sqlStringValue: String? {
+  public var sqlStringValue: String {
     return "\\x" + self.flatMap { (byte: UInt8) -> String in
       let hex = String(byte, radix: 16, uppercase: false)
       if byte < 0x10 {
@@ -558,7 +718,7 @@ extension Data: QueryValueConvertible {
     }
   }
 
-  public var sqlBinaryData: BinaryRepresentation? {
+  public var sqlBinaryData: BinaryRepresentation {
     return BinaryRepresentation(data: self)
   }
   

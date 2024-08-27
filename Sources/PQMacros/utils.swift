@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import SwiftSyntax
 import SystemPackage
 
 private let _thisFilePath = FilePath(#filePath)
@@ -45,4 +46,12 @@ extension String {
     }
     return self[firstIndex...lastIndex]
   }
+}
+
+extension FreestandingMacroExpansionSyntax {
+#if compiler(<5.10)
+  internal var arguments: LabeledExprSyntax {
+    return node.argumentList
+  }
+#endif
 }

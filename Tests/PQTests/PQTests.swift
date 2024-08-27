@@ -128,6 +128,19 @@ final class PQTests: XCTestCase {
 
   }
 
+  func test_connectionParameterStatus() async throws {
+    try await connecting {
+      let dateStyle = await $0.dateStyle
+      XCTAssertNotNil(dateStyle)
+
+      let intervalStyle = await $0.intervalStyle
+      XCTAssertNotNil(intervalStyle)
+
+      let timeZone = await $0.timeZone
+      XCTAssertNotNil(timeZone)
+    }
+  }
+
   func test_host() async throws {
     let connection = try newConnection(parameters: [Connection.SSLMode.allow])
 
@@ -218,8 +231,8 @@ final class PQTests: XCTestCase {
         let falseField = row[1]
         XCTAssertEqual(trueField.oid, .bool)
         XCTAssertEqual(falseField.oid, .bool)
-        XCTAssertEqual(trueField.value?.as(Bool.self), true)
-        XCTAssertEqual(falseField.value?.as(Bool.self), false)
+        XCTAssertEqual(trueField.value.as(Bool.self), true)
+        XCTAssertEqual(falseField.value.as(Bool.self), false)
       }
     }
   }
@@ -233,7 +246,7 @@ final class PQTests: XCTestCase {
       if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let field = table[0][0]
         XCTAssertEqual(field.oid, .bytea)
-        XCTAssertEqual(field.value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
+        XCTAssertEqual(field.value.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
       }
     }
   }
@@ -259,7 +272,7 @@ final class PQTests: XCTestCase {
         ) {
           let field = decimalTable[0][0]
           XCTAssertEqual(field.oid, .numeric, "Unexpected OID.", file: file, line: line)
-          XCTAssertEqual(field.value?.as(Decimal.self), expectedDecimal, "Unexpected Decimal value.", file: file, line: line)
+          XCTAssertEqual(field.value.as(Decimal.self), expectedDecimal, "Unexpected Decimal value.", file: file, line: line)
         }
       }
 
@@ -278,7 +291,7 @@ final class PQTests: XCTestCase {
       if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let field = table[0][0]
         XCTAssertEqual(field.oid, .float8)
-        XCTAssertEqual(field.value?.as(Double.self), 1.23)
+        XCTAssertEqual(field.value.as(Double.self), 1.23)
       }
     }
   }
@@ -289,7 +302,7 @@ final class PQTests: XCTestCase {
       if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let field = table[0][0]
         XCTAssertEqual(field.oid, .int4)
-        XCTAssertEqual(field.value?.as(Int32.self), 0x1234ABCD)
+        XCTAssertEqual(field.value.as(Int32.self), 0x1234ABCD)
       }
     }
   }
@@ -300,7 +313,7 @@ final class PQTests: XCTestCase {
       if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
         let field = table[0][0]
         XCTAssertEqual(field.oid, .text)
-        XCTAssertEqual(field.value?.as(String.self), "STRING")
+        XCTAssertEqual(field.value.as(String.self), "STRING")
       }
     }
   }
@@ -330,19 +343,19 @@ final class PQTests: XCTestCase {
         let row = table[0]
 
         XCTAssertEqual(row[0].oid, .int4)
-        XCTAssertEqual(row[0].value?.as(UInt32.self), 3)
+        XCTAssertEqual(row[0].value.as(UInt32.self), 3)
 
         XCTAssertEqual(row[1].oid, .int8)
-        XCTAssertEqual(row[1].value?.as(UInt64.self), 7)
+        XCTAssertEqual(row[1].value.as(UInt64.self), 7)
 
         XCTAssertEqual(row[2].oid, .bool)
-        XCTAssertEqual(row[2].value?.as(Bool.self), true)
+        XCTAssertEqual(row[2].value.as(Bool.self), true)
 
         XCTAssertEqual(row[3].oid, .numeric)
-        XCTAssertEqual(row[3].value?.as(Decimal.self)?.description, "0.12")
+        XCTAssertEqual(row[3].value.as(Decimal.self)?.description, "0.12")
 
         XCTAssertEqual(row[4].oid, .bytea)
-        XCTAssertEqual(row[4].value?.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
+        XCTAssertEqual(row[4].value.as(Data.self), Data([0xDE, 0xAD, 0xBE, 0xEF]))
       }
     }
   }
@@ -354,11 +367,11 @@ final class PQTests: XCTestCase {
         let row = table[0]
         let field = row[0]
         XCTAssertEqual(field.oid, .int4)
-        XCTAssertEqual(field.value?.as(Int32.self), 1)
+        XCTAssertEqual(field.value.as(Int32.self), 1)
 
         let fieldAgain = row[0]
         XCTAssertEqual(field.oid, fieldAgain.oid)
-        XCTAssertEqual(field.value?.as(Int32.self), fieldAgain.value?.as(Int32.self))
+        XCTAssertEqual(field.value.as(Int32.self), fieldAgain.value.as(Int32.self))
       }
     }
   }
@@ -391,23 +404,135 @@ final class PQTests: XCTestCase {
     await connection.finish()
   }
 
+  func test_Timestamp() async throws {
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00")?.timeIntervalSincePostgresEpoch, 0)
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00+09")?.timeIntervalSincePostgresEpoch, -32400000000)
+    XCTAssertEqual(Timestamp("2000-01-01 00:00:00-09")?.timeIntervalSincePostgresEpoch, +32400000000)
+    XCTAssertEqual(Timestamp("1999-12-31 20:30:00-0330")?.timeIntervalSincePostgresEpoch, 0)
+    #if canImport(Darwin) || canImport(FoundationEssentials) // https://github.com/apple/swift-corelibs-foundation/issues/5079
+    XCTAssertEqual(Timestamp("2000-01-01 01:23:45+012345")?.timeIntervalSincePostgresEpoch, 0)
+    #endif
+    XCTAssertEqual(Timestamp("1970-01-01 00:00:00"), Timestamp.unixEpoch)
+    XCTAssertEqual(Timestamp(Date(timeIntervalSinceReferenceDate: 0)), Timestamp("2001-01-01 00:00:00"))
+
+    XCTAssertEqual(
+      Timestamp("2024-09-01 12:34:56", timeZone: TimeZone(identifier: "Asia/Tokyo"))?.timeIntervalSincePostgresEpoch,
+      try XCTUnwrap(Timestamp("2024-09-01 12:34:56+09")).timeIntervalSincePostgresEpoch
+    )
+
+    XCTAssertNil(Timestamp("20"))
+    XCTAssertNil(Timestamp("2024-09-01 01:23:45+12345678"))
+
+    // WITHOUT TIME ZONE
+    try await connecting {
+      var result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-20 17:35:24")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-20 17:35:24")
+      }
+
+
+      result = try await $0.execute(
+        .select(#TIMESTAMP("2024-08-21 01:23:45.678901")),
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.payload?.isText, true)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2024-08-21 01:23:45.678901")
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [Timestamp.postgresEpoch],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamp)
+        XCTAssertEqual(field.value.as(Timestamp.self)?.sqlStringValue, "2000-01-01 00:00:00")
+      }
+    }
+
+    // WITH TIME ZONE
+    try await connecting { (connection) -> Void in
+      let dbTimeZone = await connection.timeZone
+
+      var result = try await connection.execute(
+        .select(#TIMESTAMPTZ("2024-08-26 17:04:15")),
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: dbTimeZone),
+          Timestamp("2024-08-26 17:04:15", timeZone: dbTimeZone)
+        )
+      }
+
+      result = try await connection.execute(
+        .select(#TIMESTAMPTZ("2024-08-26 17:04:15")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: dbTimeZone),
+          Timestamp("2024-08-26 17:04:15", timeZone: dbTimeZone)
+        )
+      }
+
+      let darwinTz = try XCTUnwrap(TimeZone(identifier: "Australia/Darwin"))
+      let darwinTimestamp = try XCTUnwrap(Timestamp("2024-08-26 17:30:00", timeZone: darwinTz))
+      result = try await connection.execute(
+        .select(#paramExpr(1)),
+        parameters: [darwinTimestamp],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(field.value.asTimestamp(withTimeZone: darwinTz), darwinTimestamp)
+        XCTAssertEqual(
+          field.value.as(Timestamp.self, timeZone: darwinTz)?.sqlStringValue,
+          "2024-08-26 17:30:00+0930"
+        )
+      }
+      result = try await connection.execute(
+        .select(#paramExpr(1)),
+        parameters: [darwinTimestamp],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timestamptz)
+        XCTAssertEqual(field.value.asTimestamp(withTimeZone: darwinTz), darwinTimestamp)
+      }
+    }
+  }
+
   func test_ValueConvertible() throws {
     func __assert<V, D>(
       _ value: V,
       expectedBinaryData data: D,
       file: StaticString = #filePath,
       line: UInt = #line
-    ) throws where V: QueryValueConvertible, V: Equatable, D: DataProtocol {
-      let binary = try XCTUnwrap(
-        value.sqlBinaryData,
-        "Failed to get binary data.",
-        file: file,
-        line: line
-      )
-      XCTAssertTrue(binary == data, file: file, line: line)
+    ) throws where V: LosslessQueryValueConvertible, V: Equatable, D: DataProtocol {
+      let queryValue = value.queryValue
+      guard case .binary(let binary) = queryValue.payload else {
+        XCTFail("Failed to get binary data.", file: file, line: line)
+        return
+      }
 
       let restored = try XCTUnwrap(
-        V(sqlBinaryData: binary),
+        V(QueryValue(oid: queryValue.oid, binary: binary)),
         "Failed to get original value.",
         file: file,
         line: line

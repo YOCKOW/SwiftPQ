@@ -41,10 +41,10 @@ let package = Package(
       // Targets can depend on other targets in this package and products from dependencies.
     .systemLibrary(
       name: "CLibECPG",
-      pkgConfig: "libecpg",
+      pkgConfig: "libecpg libpgtypes",
       providers: [
         .brew(["postgresql", "libpq"]),
-        .apt(["libecpg-dev"]),
+        .apt(["libecpg-dev", "libpgtypes3"]),
       ]
     ),
     .systemLibrary(

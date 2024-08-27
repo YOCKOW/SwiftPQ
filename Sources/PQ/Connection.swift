@@ -211,6 +211,11 @@ public actor Connection {
     }
   }
 
+  private func _property(_ pqFunc: (OpaquePointer) -> UnsafePointer<CChar>?) -> String? {
+    guard let cString = pqFunc(_connection) else { return nil }
+    return String(cString: cString)
+  }
+
   private func _property(_ pqFunc: (OpaquePointer) -> UnsafeMutablePointer<CChar>?) -> String? {
     guard let cString = pqFunc(_connection) else { return nil }
     return String(cString: cString)
@@ -230,4 +235,26 @@ public actor Connection {
 
   /// Returns the database name of the connection.
   public var database: String? { _property(PQdb) }
+
+  // MARK: - Parameter Status
+
+  private func _parameterStatus(for key: String) -> String? {
+    return _property({ PQparameterStatus($0, key) })
+  }
+
+  public var dateStyle: String? {
+    return _parameterStatus(for: "DateStyle")
+  }
+
+  public var intervalStyle: String? {
+    return _parameterStatus(for: "IntervalStyle")
+  }
+
+  /// Returns the time zone of the connected database.
+  public var timeZone: TimeZone? {
+    guard let timeZoneDesc = _parameterStatus(for: "TimeZone") else {
+      return nil
+    }
+    return TimeZone(identifier: timeZoneDesc)
+  }
 }

@@ -83,6 +83,39 @@ public macro const(_ bool: Bool) -> BooleanConstantExpression = #externalMacro(
   type: "ConstantExpressionMacro"
 )
 
+// MARK: - ConstantTypeCastStringLiteralSyntaxMacro
+
+/// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
+/// constructor.
+@freestanding(expression)
+public macro TIMESTAMP(
+  _ string: String
+) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
+  module: "PQMacros",
+  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+)
+
+/// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
+/// constructor.
+@freestanding(expression)
+public macro TIMESTAMPTZ(
+  _ string: String
+) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
+  module: "PQMacros",
+  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+)
+
+/// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
+/// constructor.
+@freestanding(expression)
+public macro TIMESTAMP_WITH_TIME_ZONE(
+  _ string: String
+) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
+  module: "PQMacros",
+  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+)
+
+
 // MARK: - PositionalParameterMacro
 
 ///  A macro that converts an integer literal to a `Token.PositionalParameter` constructor.

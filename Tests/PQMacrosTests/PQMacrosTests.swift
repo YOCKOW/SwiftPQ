@@ -19,6 +19,8 @@ let testMacros: [String: Macro.Type] = [
   "FALSE": BooleanMacro.self,
   "param": PositionalParameterMacro.self,
   "paramExpr": PositionalParameterMacro.self,
+  "TIMESTAMP": ConstantTypeCastStringLiteralSyntaxMacro.self,
+  "TIMESTAMPTZ": ConstantTypeCastStringLiteralSyntaxMacro.self,
   "TRUE": BooleanMacro.self,
 ]
 #endif
@@ -136,6 +138,33 @@ final class PQMacrosTests: XCTestCase {
     assertMacroExpansion(
       #"#const(false)"#,
       expandedSource: "BooleanConstantExpression.false",
+      macros: testMacros
+    )
+    #else
+    throw XCTSkip("macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func test_constTypeCastStringLiteralSyntax() {
+    #if canImport(PQMacros)
+    assertMacroExpansion(
+      ##"#TIMESTAMP("2004-10-19 10:23:54")"##,
+      expandedSource: """
+      ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+        constantTypeName: .timestamp,
+        string: "2004-10-19 10:23:54"
+      )
+      """,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      ##"#TIMESTAMPTZ("2004-10-19 10:23:54+09")"##,
+      expandedSource: """
+      ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>(
+        constantTypeName: .timestamp(withTimeZone: true),
+        string: "2004-10-19 10:23:54+09"
+      )
+      """,
       macros: testMacros
     )
     #else
