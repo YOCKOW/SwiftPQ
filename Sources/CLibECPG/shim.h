@@ -19,7 +19,7 @@ typedef struct {
   int year;
   int month;
   int day;
-} _SwiftPQ_YMD;
+} _SwiftPQ_PGTYPES_YMD;
 
 static inline int32_t * _Nullable _SwiftPQ_PGTYPES_date_from_cString(const char * _Nonnull string,
                                                                      int32_t * _Nonnull result) {
@@ -33,7 +33,7 @@ static inline int32_t * _Nullable _SwiftPQ_PGTYPES_date_from_cString(const char 
   }
 }
 
-static inline void _SwiftPQ_PGTYPES_date_from_ymd(const _SwiftPQ_YMD * _Nonnull ymd,
+static inline void _SwiftPQ_PGTYPES_date_from_ymd(const _SwiftPQ_PGTYPES_YMD * _Nonnull ymd,
                                                   int32_t * _Nonnull result) {
   int mdy[3] = {ymd->month, ymd->day, ymd->year};
   date pgDate = 0;
@@ -41,7 +41,8 @@ static inline void _SwiftPQ_PGTYPES_date_from_ymd(const _SwiftPQ_YMD * _Nonnull 
   *result = (int32_t)pgDate;
 }
 
-static inline void _SwiftPQ_PGTYPES_date_to_ymd(int32_t pgDate, _SwiftPQ_YMD * _Nonnull result) {
+static inline void _SwiftPQ_PGTYPES_date_to_ymd(int32_t pgDate,
+                                                _SwiftPQ_PGTYPES_YMD * _Nonnull result) {
   int mdy[3] = {0};
   PGTYPESdate_julmdy((date)pgDate, mdy);
   result->year = mdy[2];
