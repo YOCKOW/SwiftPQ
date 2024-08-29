@@ -153,6 +153,16 @@ final class PQTests: XCTestCase {
     })())
     XCTAssertEqual(Date("1999-03-13"), Date(year: 1999, month: 3, day: 13))
 
+    do {
+      var date = try XCTUnwrap(Date("2002-04-01"))
+      date.day += 1
+      XCTAssertEqual(date.description, "2002-04-02")
+      date.month += 1
+      XCTAssertEqual(date.description, "2002-05-02")
+      date.year += 22
+      XCTAssertEqual(date.description, "2024-05-02")
+    }
+
 
     try await connecting {
       var result: QueryResult!
