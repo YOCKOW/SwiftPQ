@@ -525,6 +525,44 @@ final class PQTests: XCTestCase {
         )
       )
     }
+
+    // WITHOUT TIME ZONE
+    try await connecting {
+      var result: QueryResult!
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [try XCTUnwrap(Time("12:34:56"))],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .time)
+        XCTAssertEqual(field.value.as(Time.self), Time(hour: 12, minute: 34, second: 56))
+      }
+    }
+
+    // WITH TIME ZONE
+    try await connecting {
+      var result: QueryResult!
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [try XCTUnwrap(Time("12:34:56+09:00"))],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timetz)
+        XCTAssertEqual(
+          field.value.as(Time.self),
+          Time(
+            hour: 12, minute: 34, second: 56,
+            timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 9 * 3600))
+          )
+        )
+      }
+    }
   }
 
   func test_Timestamp() async throws {

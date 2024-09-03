@@ -122,7 +122,7 @@ private final class _PGTimeBox: Equatable {
 }
 
 /// A type that corresponds to PostgreSQL's `time` or `time with time zone` type.
-public struct Time: Equatable, LosslessStringConvertible {
+public struct Time: Equatable, LosslessStringConvertible, LosslessQueryStringConvertible {
   private var _box: _PGTimeBox
 
   public var timeZone: Optional<TimeZone>
