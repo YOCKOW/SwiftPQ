@@ -456,6 +456,77 @@ final class PQTests: XCTestCase {
     await connection.finish()
   }
 
+  func test_Time() async throws {
+    do { // Parser tests.
+      XCTAssertEqual(
+        Time("04:05:06.789"),
+        Time(hour: 4, minute: 5, second: 6, microsecond: 789000)
+      )
+      XCTAssertEqual(
+        Time("04:05:06"),
+        Time(hour: 4, minute: 5, second: 6)
+      )
+      XCTAssertEqual(
+        Time("04:05"),
+        Time(hour: 4, minute: 5, second: 0)
+      )
+      XCTAssertEqual(
+        Time("040506"),
+        Time(hour: 4, minute: 5, second: 6)
+      )
+      XCTAssertEqual(
+        Time("04:05 AM"),
+        Time(hour: 4, minute: 5, second: 0)
+      )
+      XCTAssertEqual(
+        Time("04:05 PM"),
+        Time(hour: 16, minute: 5, second: 0)
+      )
+      XCTAssertEqual(
+        Time("04:05:06.789-8"),
+        Time(
+          hour: 4, minute: 5, second: 6, microsecond: 789000,
+          timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: -8 * 3600))
+        )
+      )
+      XCTAssertEqual(
+        Time("04:05:06+09:00"),
+        Time(
+          hour: 4, minute: 5, second: 6,
+          timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 9 * 3600))
+        )
+      )
+      XCTAssertEqual(
+        Time("04:05+09:30"),
+        Time(
+          hour: 4, minute: 5, second: 0,
+          timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 9 * 3600 + 30 * 60))
+        )
+      )
+      XCTAssertEqual(
+        Time("040506+07:30:00"),
+        Time(
+          hour: 4, minute: 5, second: 6,
+          timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 7 * 3600 + 30 * 60))
+        )
+      )
+      XCTAssertEqual(
+        Time("040506+07:30:00"),
+        Time(
+          hour: 4, minute: 5, second: 6,
+          timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 7 * 3600 + 30 * 60))
+        )
+      )
+      XCTAssertEqual(
+        Time("04:05:06 PST"),
+        Time(
+          hour: 4, minute: 5, second: 6,
+          timeZone: try XCTUnwrap(TimeZone(abbreviation: "PST"))
+        )
+      )
+    }
+  }
+
   func test_Timestamp() async throws {
     XCTAssertEqual(Timestamp("2000-01-01 00:00:00")?.timeIntervalSincePostgresEpoch, 0)
     XCTAssertEqual(Timestamp("2000-01-01 00:00:00+09")?.timeIntervalSincePostgresEpoch, -32400000000)

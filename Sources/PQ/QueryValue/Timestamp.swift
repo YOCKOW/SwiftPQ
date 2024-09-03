@@ -8,87 +8,26 @@
 import CLibECPG
 import Foundation
 
-/// Detect the time zone _tolerantly_ with one of formats below.
-///
-/// Supported time zone formats:
-/// - Abbreviated name. i.g. `JST`.
-/// - Signed offset: `{-|+}hh[[:]mm[[:]ss]]`. i.g. `+9`, `-02`, `+08:30`, `-07:15:30`.
-private func _detectTimeZone(from pgDescription: String) -> (timeZone: TimeZone, range: Range<String.Index>)? {
-  guard let tzFirstIndex = pgDescription.lastIndex(where: { $0 == " " || $0 == "-" || $0 == "+" }) else {
-    return nil
-  }
-
-  let tzRange = tzFirstIndex..<pgDescription.endIndex
-  let tzFirstChar = pgDescription[tzFirstIndex]
-  switch tzFirstChar {
-  case " ":
-    // Parse abbr name
-    let abbrFirstIndex = pgDescription.index(after: tzFirstIndex)
-    guard abbrFirstIndex < pgDescription.endIndex else {
-      return nil
-    }
-    let abbr = String(pgDescription[abbrFirstIndex...])
-    guard let timeZone = TimeZone(abbreviation: abbr) else {
-      return nil
-    }
-    return (timeZone, tzRange)
-  case "-", "+":
-    // Parse offset
-    let plus: Bool = tzFirstChar == "+"
-
-    var currentIndex = pgDescription.index(after: tzFirstIndex)
-    func __advance() {
-      currentIndex = pgDescription.index(after: currentIndex)
-    }
-    func __parseInt(allowColon: Bool) -> Int? {
-      var result: Int = 0
-      var count = 0
-      while currentIndex < pgDescription.endIndex && count < 2 {
-        let char = pgDescription[currentIndex]
-        if allowColon && char == ":" {
-          __advance()
-          continue
-        }
-        guard let firstScalar = char.unicodeScalars.first,
-              ("0"..."9").contains(firstScalar) else {
-          return count > 0 ? result : nil
-        }
-        result = result * 10 + Int(firstScalar.value - 0x30)
-        __advance()
-        count += 1
-      }
-      return result
-    }
-
-    guard let hours = __parseInt(allowColon: false) else {
-      return nil
-    }
-    let minutes = __parseInt(allowColon: true)
-    let seconds: Int? = minutes == nil ? nil : __parseInt(allowColon: true)
-
-    guard currentIndex == pgDescription.endIndex else {
-      return nil
-    }
-
-    let secondsFromGMT = (hours * 3600 + ((minutes ?? 0) * 60) + (seconds ?? 0)) * (plus ? 1 : -1)
-    guard let timeZone = TimeZone(secondsFromGMT: secondsFromGMT) else {
-      return nil
-    }
-    return (timeZone, tzRange)
-  default:
-    return nil
-  }
-}
-
 private func _parseTimestamp(_ description: String) -> (timestamp: Int64, timeZone: TimeZone?)? {
-  let detectedTimeZoneAndRange = _detectTimeZone(from: description)
-  let timeZone: TimeZone? = detectedTimeZoneAndRange?.timeZone
+  let possibleIndexOfTimeZoneSeparator = description.lastIndex(where: {
+    $0 == " " || $0 == "-" || $0 == "+"
+  })
+  let parsedTZInfo = possibleIndexOfTimeZoneSeparator.flatMap {
+    description._detectTimeZone(from: $0)
+  }
+  let timeZone: TimeZone? = parsedTZInfo.flatMap {
+    guard $0.endIndex == description.endIndex else {
+      return nil
+    }
+    return $0.timeZone
+  }
 
   let timestampPtr = UnsafeMutablePointer<Int64>.allocate(capacity: 1)
   defer {
     timestampPtr.deallocate()
   }
-  let descRange = description.startIndex..<((detectedTimeZoneAndRange?.range.lowerBound) ?? description.endIndex)
+  let descEndIndex = timeZone == nil ? description.endIndex : possibleIndexOfTimeZoneSeparator!
+  let descRange = description.startIndex..<descEndIndex
   guard let parseResultPtr = description[descRange].withCString({
     _SwiftPQ_PGTYPES_timestamp_from_cString($0, timestampPtr)
   }) else {
@@ -145,8 +84,7 @@ private func _dumpTimestamp(_ timestamp: Int64, timeZone: TimeZone?) -> String {
 ///
 /// - Note: PostgreSQL doesn't store any information about time zones for `timestamptz`. You have to
 ///         care about time zones when the value is converted to/from string.
-public struct Timestamp: Equatable,
-                         LosslessQueryStringConvertible,
+public struct Timestamp: LosslessQueryStringConvertible,
                          LosslessQueryBinaryDataConvertible {
   /// Time interval with units of microseconds since Postgres Epoch (`2000-01-01 00:00:00+00`).
   public var timeIntervalSincePostgresEpoch: Int64
@@ -238,6 +176,25 @@ extension Timestamp {
         + Timestamp.foundationDateEpoch.timeIntervalSincePostgresEpoch
       ),
       timeZone: timeZone
+    )
+  }
+
+  @inlinable
+  public var foundationDate: FoundationDate {
+    return FoundationDate(
+      timeIntervalSinceReferenceDate: Double(
+        self.timeIntervalSincePostgresEpoch
+        - Timestamp.foundationDateEpoch.timeIntervalSincePostgresEpoch
+      ) / 1000000.0
+    )
+  }
+}
+
+extension Timestamp: Equatable {
+  public static func ==(lhs: Timestamp, rhs: Timestamp) -> Bool {
+    return (
+      lhs.timeIntervalSincePostgresEpoch == rhs.timeIntervalSincePostgresEpoch
+      && lhs._timeZoneIsEqual(to: rhs)
     )
   }
 }

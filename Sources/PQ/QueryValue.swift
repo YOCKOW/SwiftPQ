@@ -439,7 +439,7 @@ extension Decimal: LosslessQueryStringConvertible {
     self.init(string: sqlStringValue, locale: Locale(identifier: "en_US"))
   }
 
-  private var _floor: Decimal  {
+  internal var _floor: Decimal  {
     let resultPtr = UnsafeMutablePointer<Decimal>.allocate(capacity: 1)
     defer { resultPtr.deallocate() }
 
@@ -467,7 +467,8 @@ extension Decimal: LosslessQueryStringConvertible {
   private struct _CalculationError: Error {
     let error: CalculationError
   }
-  private func _multiplyByPowerOf10(
+
+  internal func _multiplyByPowerOf10(
     _ power: Int16,
     rounding roundingMode: RoundingMode = .down
   ) throws -> Decimal {
@@ -487,8 +488,22 @@ extension Decimal: LosslessQueryStringConvertible {
     return resultPtr.pointee
   }
 
+  internal func _rounded(_ scale: Int, rounding roundingMode: RoundingMode = .plain) -> Decimal {
+    let resultPtr = UnsafeMutablePointer<Decimal>.allocate(capacity: 1)
+    defer { resultPtr.deallocate() }
+
+    withUnsafePointer(to: self) {
+      NSDecimalRound(resultPtr, $0, scale, roundingMode)
+    }
+    return resultPtr.pointee
+  }
+
   private var _int16Value: Int16 {
     return (self as NSDecimalNumber).int16Value
+  }
+
+  internal var _intValue: Int {
+    return (self as NSDecimalNumber).intValue
   }
 
   public var binaryData: BinaryRepresentation? {
