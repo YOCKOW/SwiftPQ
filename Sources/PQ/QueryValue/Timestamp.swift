@@ -42,43 +42,6 @@ private func _parseTimestamp(_ description: String) -> (timestamp: Int64, timeZo
   return (timestamp, timeZone)
 }
 
-private func _dumpTimestamp(_ timestamp: Int64, timeZone: TimeZone?) -> String {
-  let secondsFromGMT = Int64(timeZone?.secondsFromGMT() ?? 0)
-  let timestampToDump = timestamp + (secondsFromGMT * 1000000)
-
-  let cString = _SwiftPQ_PGTYPES_timestamp_to_cString(timestampToDump)
-  defer {
-    _SwiftPQ_PGTYPES_free_cString(cString)
-  }
-
-  var desc = String(cString: cString)
-  TIME_ZONE_DESC: if timeZone != nil {
-    desc += secondsFromGMT > 0 ? "+" : "-"
-
-    func __append(_ int: Int64) {
-      if int < 10 {
-        desc += "0"
-      }
-      desc += String(int, radix: 10)
-    }
-
-    let (hourOffset, hRemainder) = abs(secondsFromGMT).quotientAndRemainder(dividingBy: 3600)
-    __append(hourOffset)
-
-    let (minOffset, secOffset) = hRemainder.quotientAndRemainder(dividingBy: 60)
-    guard minOffset > 0 else {
-      break TIME_ZONE_DESC
-    }
-    __append(minOffset)
-
-    guard secOffset > 0 else {
-      break TIME_ZONE_DESC
-    }
-    __append(secOffset)
-  }
-  return desc
-}
-
 /// A type that corresponds to PostgreSQL's `timestamp` or
 /// `timestamptz`(a.k.a. `TIMESTAMP WITH TIME ZONE`) type.
 ///
@@ -100,7 +63,20 @@ public struct Timestamp: LosslessQueryStringConvertible,
   public var oid: OID { timeZone == nil ? .timestamp : .timestamptz }
 
   public var sqlStringValue: String {
-    return _dumpTimestamp(timeIntervalSincePostgresEpoch, timeZone: timeZone)
+    let fDate: FoundationDate! = timeZone == nil ? nil : self.foundationDate
+    let secondsFromGMT = Int64(timeZone?.secondsFromGMT(for: fDate) ?? 0)
+    let timestampToDump = timeIntervalSincePostgresEpoch + (secondsFromGMT * 1000000)
+
+    let cString = _SwiftPQ_PGTYPES_timestamp_to_cString(timestampToDump)
+    defer {
+      _SwiftPQ_PGTYPES_free_cString(cString)
+    }
+
+    let timestampDesc = String(cString: cString)
+    guard let timeZone = self.timeZone else {
+      return timestampDesc
+    }
+    return timestampDesc + timeZone._offsetDescription(for: fDate)
   }
 
   public init?(_ description: String, timeZone: TimeZone? = nil) {

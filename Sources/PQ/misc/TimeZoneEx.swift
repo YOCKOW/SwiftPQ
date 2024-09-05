@@ -11,6 +11,34 @@ internal extension TimeZone {
   func _utcOffsetIsEqual(to other: TimeZone) -> Bool {
     return self.secondsFromGMT() == other.secondsFromGMT()
   }
+
+  func _offsetDescription(for foundationDate: FoundationDate? = nil) -> String {
+    let secondsFromGMT = foundationDate.map({ self.secondsFromGMT(for: $0) }) ?? self.secondsFromGMT()
+    var desc = secondsFromGMT > 0 ? "+" : "-"
+
+    func __append(_ int: Int) {
+      if int < 10 {
+        desc += "0"
+      }
+      desc += String(int, radix: 10)
+    }
+
+    let (hourOffset, hRemainder) = abs(secondsFromGMT).quotientAndRemainder(dividingBy: 3600)
+    __append(hourOffset)
+
+    let (minOffset, secOffset) = hRemainder.quotientAndRemainder(dividingBy: 60)
+    guard minOffset > 0 else {
+      return desc
+    }
+    __append(minOffset)
+
+    guard secOffset > 0 else {
+      return desc
+    }
+    __append(secOffset)
+
+    return desc
+  }
 }
 
 internal extension Time {

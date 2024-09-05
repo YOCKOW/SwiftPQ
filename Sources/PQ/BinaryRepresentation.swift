@@ -20,6 +20,7 @@ public struct BinaryRepresentation: Sequence,
                                     DataProtocol {
   public typealias Element = UInt8
   public typealias Regions = CollectionOfOne<Self>
+  public typealias SubSequence = Self
 
   fileprivate enum _Data {
     case pointer(UnsafePointer<UInt8>, length: Int)
@@ -141,6 +142,25 @@ public struct BinaryRepresentation: Sequence,
 
   public subscript(position: Index) -> UInt8 {
     return _data[position._offset]
+  }
+
+  public subscript(bounds: Range<Index>) -> BinaryRepresentation {
+    switch _data {
+    case .pointer(let pointer, let length):
+      precondition(
+        (
+          bounds.lowerBound._offset >= 0
+          && bounds.upperBound._offset <= length
+        ),
+        "Out of bounds."
+      )
+      let newPointer = pointer.advanced(by: bounds.lowerBound._offset)
+      let newLength = bounds.upperBound._offset - bounds.lowerBound._offset
+      return BinaryRepresentation(pointer: newPointer, length: newLength)
+    case .data(let data):
+      let subdata = data[relativeBounds: bounds.lowerBound._offset..<bounds.upperBound._offset]
+      return BinaryRepresentation(data: subdata)
+    }
   }
 
   public func withUnsafeBytes<R>(_ body: (UnsafeRawBufferPointer) throws -> R) rethrows -> R {

@@ -6,6 +6,7 @@
  ************************************************************************************************ */
 
 import Foundation
+import yExtensions
 
 internal enum _AMPM {
   case am
@@ -122,7 +123,10 @@ private final class _PGTimeBox: Equatable {
 }
 
 /// A type that corresponds to PostgreSQL's `time` or `time with time zone` type.
-public struct Time: Equatable, LosslessStringConvertible, LosslessQueryStringConvertible {
+public struct Time: Equatable, 
+                    LosslessStringConvertible,
+                    LosslessQueryStringConvertible,
+                    LosslessQueryBinaryDataConvertible {
   private var _box: _PGTimeBox
 
   public var timeZone: Optional<TimeZone>
@@ -197,7 +201,10 @@ public struct Time: Equatable, LosslessStringConvertible, LosslessQueryStringCon
   }
 
   public var description: String {
-    return _box.description
+    guard let timeZone = self.timeZone else {
+      return _box.description
+    }
+    return _box.description + timeZone._offsetDescription()
   }
 
   public init?(_ description: String) {
@@ -283,5 +290,40 @@ public struct Time: Equatable, LosslessStringConvertible, LosslessQueryStringCon
       microsecond: microsecond,
       timeZone: timeZone
     )
+  }
+
+  public var sqlBinaryData: BinaryRepresentation {
+    let pgTimeData = _box.pgTime.sqlBinaryData
+    guard let timeZone = self.timeZone else {
+      return pgTimeData
+    }
+    let timeZoneData = Int32(timeZone.secondsFromGMT() * -1).sqlBinaryData
+    return BinaryRepresentation(data: pgTimeData.data + timeZoneData)
+  }
+
+
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    switch data.count {
+    case 8:
+      guard let pgTime = Int64(sqlBinaryData: data) else {
+        return nil
+      }
+      self._box = _PGTimeBox(pgTime: pgTime)
+      self.timeZone = nil
+    case 12:
+      let pgTimeData = data[relativeBounds: 0..<8]
+      let timeZoneData = data[relativeBounds: 8..<12]
+      guard let pgTime = Int64(sqlBinaryData: pgTimeData) else {
+        return nil
+      }
+      guard let timeZoneOffset = Int32(sqlBinaryData: timeZoneData),
+            let timeZone = TimeZone(secondsFromGMT: Int(timeZoneOffset) * -1) else {
+        return nil
+      }
+      self._box = _PGTimeBox(pgTime: pgTime)
+      self.timeZone = timeZone
+    default:
+      return nil
+    }
   }
 }

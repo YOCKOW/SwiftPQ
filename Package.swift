@@ -29,6 +29,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
+    .package(url: "https://github.com/YOCKOW/SwiftRanges.git", from: "3.1.0"),
     .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.4.0"),
     .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
 
@@ -78,6 +79,7 @@ let package = Package(
         "PQMacros",
         "SQLGrammar",
         "SwiftNetworkGear",
+        "SwiftRanges",
         "SwiftUnicodeSupplement",
         "ySwiftExtensions",
       ]

@@ -457,7 +457,8 @@ final class PQTests: XCTestCase {
   }
 
   func test_Time() async throws {
-    do { // Parser tests.
+    // `LosslessStringConvertible` tests
+    do {
       XCTAssertEqual(
         Time("04:05:06.789"),
         Time(hour: 4, minute: 5, second: 6, microsecond: 789000)
@@ -524,6 +525,16 @@ final class PQTests: XCTestCase {
           timeZone: try XCTUnwrap(TimeZone(abbreviation: "PST"))
         )
       )
+      XCTAssertEqual(Time("04:05:06.7890123")?.description, "04:05:06.789012")
+      XCTAssertEqual(Time("01:02:03-04:00")?.description, "01:02:03-04")
+      XCTAssertEqual(
+        Time(
+          hour: 23, minute: 45, second: 6, microsecond: 789,
+          timeZone: TimeZone(identifier: "Pacific/Marquesas")
+        ).description,
+        "23:45:06.000789-0930"
+      )
+
     }
 
     // WITHOUT TIME ZONE
@@ -540,6 +551,17 @@ final class PQTests: XCTestCase {
         XCTAssertEqual(field.oid, .time)
         XCTAssertEqual(field.value.as(Time.self), Time(hour: 12, minute: 34, second: 56))
       }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [try XCTUnwrap(Time("23:45:01"))],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .time)
+        XCTAssertEqual(field.value.as(Time.self), Time(hour: 23, minute: 45, second: 01))
+      }
     }
 
     // WITH TIME ZONE
@@ -548,7 +570,7 @@ final class PQTests: XCTestCase {
 
       result = try await $0.execute(
         .select(#paramExpr(1)),
-        parameters: [try XCTUnwrap(Time("12:34:56+09:00"))],
+        parameters: [try XCTUnwrap(Time("12:34:56+07:00"))],
         resultFormat: .text
       )
       if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
@@ -558,7 +580,29 @@ final class PQTests: XCTestCase {
           field.value.as(Time.self),
           Time(
             hour: 12, minute: 34, second: 56,
-            timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 9 * 3600))
+            timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: 7 * 3600))
+          )
+        )
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [
+          Time(
+            hour: 23, minute: 45, second: 6, microsecond: 789,
+            timeZone: TimeZone(identifier: "Pacific/Marquesas")
+          )
+        ],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .timetz)
+        XCTAssertEqual(
+          field.value.as(Time.self),
+          Time(
+            hour: 23, minute: 45, second: 6, microsecond: 789,
+            timeZone: try XCTUnwrap(TimeZone(secondsFromGMT: -9 * 3600 - 30 * 60))
           )
         )
       }
