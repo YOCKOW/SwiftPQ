@@ -16,12 +16,13 @@ import PQMacros
 let testMacros: [String: Macro.Type] = [
   "bool": BooleanMacro.self,
   "const": ConstantExpressionMacro.self,
-  "DATE": GenericTypeCastStringLiteralSyntaxMacro.self,
+  "DATE": TypeCastStringLiteralSyntaxMacro.self,
   "FALSE": BooleanMacro.self,
+  "INTERVAL": TypeCastStringLiteralSyntaxMacro.self,
   "param": PositionalParameterMacro.self,
   "paramExpr": PositionalParameterMacro.self,
-  "TIMESTAMP": ConstantTypeCastStringLiteralSyntaxMacro.self,
-  "TIMESTAMPTZ": ConstantTypeCastStringLiteralSyntaxMacro.self,
+  "TIMESTAMP": TypeCastStringLiteralSyntaxMacro.self,
+  "TIMESTAMPTZ": TypeCastStringLiteralSyntaxMacro.self,
   "TRUE": BooleanMacro.self,
 ]
 #endif
@@ -146,8 +147,22 @@ final class PQMacrosTests: XCTestCase {
     #endif
   }
 
-  func test_constTypeCastStringLiteralSyntax() {
-    #if canImport(PQMacros)
+  func test_TypeCastStringLiteralSyntax() {
+#if canImport(PQMacros)
+    assertMacroExpansion(
+      ##"#DATE("2024-08-27")"##,
+      expandedSource: """
+      GenericTypeCastStringLiteralSyntax(typeName: TypeName.date, string: "2024-08-27")!
+      """,
+      macros: testMacros
+    )
+    assertMacroExpansion(
+      ##"#INTERVAL("3 years 3 mons 700 days 133:17:36.789")"##,
+      expandedSource: """
+      ConstantIntervalTypeCastStringLiteralSyntax(string: "3 years 3 mons 700 days 133:17:36.789")!
+      """,
+      macros: testMacros
+    )
     assertMacroExpansion(
       ##"#TIMESTAMP("2004-10-19 10:23:54")"##,
       expandedSource: """
@@ -165,20 +180,6 @@ final class PQMacrosTests: XCTestCase {
         constantTypeName: .timestamp(withTimeZone: true),
         string: "2004-10-19 10:23:54+09"
       )
-      """,
-      macros: testMacros
-    )
-    #else
-    throw XCTSkip("macros are only supported when running tests for the host platform")
-    #endif
-  }
-
-  func test_genericTypeCastStringLiteralSyntax() {
-    #if canImport(PQMacros)
-    assertMacroExpansion(
-      ##"#DATE("2024-08-27")"##,
-      expandedSource: """
-      GenericTypeCastStringLiteralSyntax(typeName: TypeName.date, string: "2024-08-27")!
       """,
       macros: testMacros
     )

@@ -273,6 +273,22 @@ final class PQTests: XCTestCase {
           Interval(years: 1002, days: 3, minutes: 4, microseconds: 5000)
         )
       }
+
+      result = try await $0.execute(
+        .select(#INTERVAL("2 years 15 months 100 weeks 99 hours 123456789 milliseconds")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(
+            years: 3, months: 3, days: 700,
+            hours: 133, minutes: 17, seconds: 36, milliseconds: 789
+          )
+        )
+      }
     }
   }
 

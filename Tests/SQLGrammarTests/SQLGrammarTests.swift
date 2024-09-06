@@ -2237,7 +2237,12 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
     XCTAssertEqual(#const(false).description, "FALSE")
   }
 
-  func test_constTypeCastStringLiteralSyntax() {
+  func test_TypeCastStringLiteralSyntax() {
+    XCTAssertEqual(#DATE("2024-08-27").description, "DATE '2024-08-27'")
+    XCTAssertEqual(
+      #INTERVAL("3 years 3 mons 700 days 133:17:36.789").description,
+      "INTERVAL '3 years 3 mons 700 days 133:17:36.789'"
+    )
     XCTAssertEqual(#TIMESTAMP("2004-10-19 10:23:54").description, "TIMESTAMP '2004-10-19 10:23:54'")
     XCTAssertEqual(
       #TIMESTAMPTZ("2004-10-19 10:23:54+09").description,
@@ -2247,10 +2252,6 @@ final class SQLGrammarMacroExpansionTests: XCTestCase {
       #TIMESTAMP_WITH_TIME_ZONE("2004-10-19 10:23:54+09").description,
       "TIMESTAMP WITH TIME ZONE '2004-10-19 10:23:54+09'"
     )
-  }
-
-  func test_genericTypeCastStringLiteralSyntax() {
-    XCTAssertEqual(#DATE("2024-08-27").description, "DATE '2024-08-27'")
   }
 
   func test_param() {
