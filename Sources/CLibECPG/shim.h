@@ -7,13 +7,20 @@
 
 #ifndef yCLibECPG
 #define yCLibECPG
+#include <assert.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <pgtypes_date.h>
-#include <pgtypes_error.h>
-#include <pgtypes_numeric.h>
-#include <pgtypes_timestamp.h>
+#include "pgtypes_date.h"
+#include "pgtypes_error.h"
+#include "pgtypes_interval.h"
+#include "pgtypes_numeric.h"
+#include "pgtypes_timestamp.h"
+
+typedef struct {
+  int64_t time;
+  int32_t month;
+} _SwiftPQ_PGTYPES_Interval;
 
 typedef struct {
   int year;
@@ -56,6 +63,36 @@ static inline char * _Nonnull _SwiftPQ_PGTYPES_date_to_cString(int32_t pgDate) {
 
 static inline void _SwiftPQ_PGTYPES_free_cString(char * _Nonnull string) {
   PGTYPESchar_free(string);
+}
+
+static inline _SwiftPQ_PGTYPES_Interval * _Nullable _SwiftPQ_PGTYPES_interval_from_cString(
+  const char * _Nonnull string,
+  _SwiftPQ_PGTYPES_Interval * _Nonnull result
+) {
+  errno = 0;
+  interval * rawResult = PGTYPESinterval_from_asc((char *)string, NULL);
+  if (errno == PGTYPES_INTVL_BAD_INTERVAL || !rawResult) {
+    if (rawResult) {
+      PGTYPESinterval_free(rawResult);
+    }
+    return NULL;
+  } else {
+    result->time = rawResult->time;
+    result->month = rawResult->month;
+    PGTYPESinterval_free(rawResult);
+    return result;
+  }
+}
+
+static inline char * _Nonnull _SwiftPQ_PGTYPES_interval_to_cString(
+  const _SwiftPQ_PGTYPES_Interval * _Nonnull intvl
+) {
+  interval * pgInterval = PGTYPESinterval_new();
+  pgInterval->time = intvl->time;
+  pgInterval->month = intvl->month;
+  const char * cString = PGTYPESinterval_to_asc(pgInterval);
+  PGTYPESinterval_free(pgInterval);
+  return cString;
 }
 
 /// Returns `NULL` if `string` is invalid for timestamp.
