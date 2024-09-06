@@ -6,6 +6,7 @@
  ************************************************************************************************ */
 
 import CLibECPG
+import yExtensions
 
 extension _SwiftPQ_PGTYPES_Interval: Equatable {
   public static func ==(lhs: _SwiftPQ_PGTYPES_Interval, rhs: _SwiftPQ_PGTYPES_Interval) -> Bool {
@@ -13,7 +14,14 @@ extension _SwiftPQ_PGTYPES_Interval: Equatable {
   }
 }
 
-public struct Interval: Equatable, LosslessStringConvertible {
+/// A type that corresponds to PostgreSQL's `interval` type.
+///
+/// - Note: This type always treats a day as 24 hours.
+public struct Interval: Equatable,
+                        LosslessStringConvertible,
+                        LosslessQueryStringConvertible {
+  public var oid: OID { .interval }
+
   private let _interval: _SwiftPQ_PGTYPES_Interval
 
   public static func ==(lhs: Interval, rhs: Interval) -> Bool {
@@ -74,6 +82,31 @@ public struct Interval: Equatable, LosslessStringConvertible {
     let nMilliseconds: Int64 = nSeconds * 1000 + Int64(milliseconds)
     interval.time = nMilliseconds * 1000 + Int64(microseconds)
 
+    self._interval = interval
+  }
+}
+
+extension Interval: LosslessQueryBinaryDataConvertible {
+  // Implementation Note:
+  //   `_SwiftPQ_PGTYPES_Interval` has only two fields: `time` and `month`,
+  //   while `Interval`(PG server) has three fields: `time`, `day`, and `month`.
+
+  private static let _microsecondsPerDay: Int64 = 24 * 60 * 60 * 1_000_000
+
+  public var sqlBinaryData: BinaryRepresentation {
+    let (day, rTime) = _interval.time.quotientAndRemainder(dividingBy: Interval._microsecondsPerDay)
+    return rTime.sqlBinaryData + Int32(day).sqlBinaryData + _interval.month.sqlBinaryData
+  }
+
+  public init?(sqlBinaryData data: BinaryRepresentation) {
+    guard data.count == 16,
+          let time = Int64(sqlBinaryData: data[relativeBounds: 0..<8]),
+          let day = Int32(sqlBinaryData: data[relativeBounds: 8..<12]),
+          let month = Int32(sqlBinaryData: data[relativeBounds: 12..<16]) else {
+      return nil
+    }
+    var interval = _SwiftPQ_PGTYPES_Interval(time: time, month: month)
+    interval.time += Int64(day) * Interval._microsecondsPerDay
     self._interval = interval
   }
 }

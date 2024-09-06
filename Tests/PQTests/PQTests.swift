@@ -208,7 +208,7 @@ final class PQTests: XCTestCase {
     await connection.finish()
   }
 
-  func test_Interval() throws {
+  func test_Interval() async throws {
     // LosslessStringConvertible
     do {
       XCTAssertEqual(Interval("1-2"), Interval(years: 1, months: 2))
@@ -237,6 +237,42 @@ final class PQTests: XCTestCase {
       XCTAssertEqual(Interval("123456 milliseconds"), Interval(seconds: 123, milliseconds: 456))
       XCTAssertEqual(Interval("1234567 milliseconds"), Interval(seconds: 1234, milliseconds: 567))
       XCTAssertEqual(Interval("12345678 microseconds"), Interval(seconds: 12, microseconds: 345_678))
+    }
+
+    try await connecting {
+      var result: QueryResult! = nil
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [
+          Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6, microseconds: 7),
+        ],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6, microseconds: 7)
+        )
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [
+          Interval(millenniums: 1, years: 2, days: 3, minutes: 4, milliseconds: 5)
+        ],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(years: 1002, days: 3, minutes: 4, microseconds: 5000)
+        )
+      }
     }
   }
 
