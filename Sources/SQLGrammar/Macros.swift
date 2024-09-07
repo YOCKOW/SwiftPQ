@@ -83,7 +83,23 @@ public macro const(_ bool: Bool) -> BooleanConstantExpression = #externalMacro(
   type: "ConstantExpressionMacro"
 )
 
-// MARK: - ConstantTypeCastStringLiteralSyntaxMacro
+// MARK: - TypeCastStringLiteralSyntaxMacro
+
+/// A macro that expands a `GenericTypeCastStringLiteralSyntax` constructor.
+@freestanding(expression)
+public macro DATE(_ string: String) -> GenericTypeCastStringLiteralSyntax = #externalMacro(
+  module: "PQMacros",
+  type: "TypeCastStringLiteralSyntaxMacro"
+)
+
+/// A macro that expands a `ConstantIntervalTypeCastStringLiteralSyntax` constructor.
+@freestanding(expression)
+public macro INTERVAL(
+  _ string: String
+) -> ConstantIntervalTypeCastStringLiteralSyntax = #externalMacro(
+  module: "PQMacros",
+  type: "TypeCastStringLiteralSyntaxMacro"
+)
 
 /// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
 /// constructor.
@@ -92,7 +108,7 @@ public macro TIMESTAMP(
   _ string: String
 ) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
   module: "PQMacros",
-  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+  type: "TypeCastStringLiteralSyntaxMacro"
 )
 
 /// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
@@ -102,7 +118,7 @@ public macro TIMESTAMPTZ(
   _ string: String
 ) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
   module: "PQMacros",
-  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+  type: "TypeCastStringLiteralSyntaxMacro"
 )
 
 /// A macro that expands a `ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName>`
@@ -112,18 +128,9 @@ public macro TIMESTAMP_WITH_TIME_ZONE(
   _ string: String
 ) -> ConstantTypeCastStringLiteralSyntax<ConstantDateTimeTypeName> = #externalMacro(
   module: "PQMacros",
-  type: "ConstantTypeCastStringLiteralSyntaxMacro"
+  type: "TypeCastStringLiteralSyntaxMacro"
 )
 
-
-// MARK: - GenericTypeCastStringLiteralSyntaxMacro
-
-/// A macro that expands a `GenericTypeCastStringLiteralSyntax` constructor.
-@freestanding(expression)
-public macro DATE(_ string: String) -> GenericTypeCastStringLiteralSyntax = #externalMacro(
-  module: "PQMacros",
-  type: "GenericTypeCastStringLiteralSyntaxMacro"
-)
 
 
 // MARK: - PositionalParameterMacro

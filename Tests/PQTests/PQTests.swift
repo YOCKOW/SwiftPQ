@@ -208,6 +208,90 @@ final class PQTests: XCTestCase {
     await connection.finish()
   }
 
+  func test_Interval() async throws {
+    // LosslessStringConvertible
+    do {
+      XCTAssertEqual(Interval("1-2"), Interval(years: 1, months: 2))
+      XCTAssertEqual(Interval("3 4:05:06"), Interval(days: 3, hours: 4, minutes: 5, seconds: 6))
+      XCTAssertEqual(
+        Interval("1 year 2 months 3 days 4 hours 5 minutes 6 seconds"),
+        Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6)
+      )
+      XCTAssertEqual(
+        Interval("P1Y2M3DT4H5M6S"),
+        Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6)
+      )
+      XCTAssertEqual(
+        Interval("P0001-02-03T04:05:06"),
+        Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6)
+      )
+      XCTAssertEqual(
+        Interval(" 2 years 15 mons 99 weeks 7 days 133:17:36.789"),
+        Interval(
+          years: 3, months: 3,
+          weeks: 99, days: 7,
+          hours: 133, minutes: 17, seconds: 36, milliseconds: 789
+        )
+      )
+      XCTAssertEqual(Interval("100 milliseconds"), Interval(milliseconds: 100))
+      XCTAssertEqual(Interval("123456 milliseconds"), Interval(seconds: 123, milliseconds: 456))
+      XCTAssertEqual(Interval("1234567 milliseconds"), Interval(seconds: 1234, milliseconds: 567))
+      XCTAssertEqual(Interval("12345678 microseconds"), Interval(seconds: 12, microseconds: 345_678))
+    }
+
+    try await connecting {
+      var result: QueryResult! = nil
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [
+          Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6, microseconds: 7),
+        ],
+        resultFormat: .text
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6, microseconds: 7)
+        )
+      }
+
+      result = try await $0.execute(
+        .select(#paramExpr(1)),
+        parameters: [
+          Interval(millenniums: 1, years: 2, days: 3, minutes: 4, milliseconds: 5)
+        ],
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(years: 1002, days: 3, minutes: 4, microseconds: 5000)
+        )
+      }
+
+      result = try await $0.execute(
+        .select(#INTERVAL("2 years 15 months 100 weeks 99 hours 123456789 milliseconds")),
+        resultFormat: .binary
+      )
+      if let table = assertTuples(result, expectedNumberOfRows: 1, expectedNumberOfColumns: 1) {
+        let field = table[0][0]
+        XCTAssertEqual(field.oid, .interval)
+        XCTAssertEqual(
+          field.value.as(Interval.self),
+          Interval(
+            years: 3, months: 3, days: 700,
+            hours: 133, minutes: 17, seconds: 36, milliseconds: 789
+          )
+        )
+      }
+    }
+  }
+
   func test_ipAddress() async throws {
     func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
       let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)

@@ -198,6 +198,12 @@ extension BinaryRepresentation: Equatable {
   }
 }
 
+extension BinaryRepresentation {
+  public static func +(lhs: BinaryRepresentation, rhs: BinaryRepresentation) -> BinaryRepresentation {
+    return BinaryRepresentation(data: lhs.data + rhs.data)
+  }
+}
+
 extension BinaryRepresentation: CustomDebugStringConvertible {
   public var debugDescription: String {
     var desc = "BinaryRepresentation(\(count) bytes):\n"
