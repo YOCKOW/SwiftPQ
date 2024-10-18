@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing a column label which is described as `ColLabel` in "gram.y".
-public struct ColumnLabel: LosslessTokenConvertible {
+public struct ColumnLabel: LosslessTokenConvertible, Sendable {
   public let token: Token
 
   public init?(_ token: Token) {

@@ -43,7 +43,7 @@ extension ColumnLabel: _AttributeNameConvertible {
 }
 
 /// A type representing attributes which is expressed as `attrs` in "gram.y".
-public struct AttributeList: TokenSequenceGenerator {  
+public struct AttributeList: TokenSequenceGenerator {
   public var names: NonEmptyList<AttributeName>
 
   public init(names: NonEmptyList<AttributeName>) {

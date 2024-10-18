@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// Sort direction.
-public enum SortDirection: LosslessTokenConvertible {
+public enum SortDirection: LosslessTokenConvertible, Sendable {
   case ascending
   case descending
   public static let `default`: SortDirection = .ascending
@@ -33,7 +33,7 @@ public enum SortDirection: LosslessTokenConvertible {
 }
 
 /// A type that represents nulls order.
-public enum NullOrdering: Segment {
+public enum NullOrdering: Segment, Sendable {
   /// NULLS FIRST
   case first
 
@@ -55,7 +55,7 @@ public enum NullOrdering: Segment {
 
 /// Representation of an expression to sort. It is described as `sortby` in "gram.y".
 public struct SortBy<Expression>: TokenSequenceGenerator where Expression: GeneralExpression {
-  public enum Sorter {
+  public enum Sorter: Sendable {
     /// A keyword `ASC` or `DESC`
     case direction(SortDirection)
 
@@ -111,11 +111,11 @@ public struct SortBy<Expression>: TokenSequenceGenerator where Expression: Gener
 }
 
 private struct _AnySortBy: TokenSequenceGenerator {
-  class _Box {
+  class _Box: @unchecked Sendable {
     var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
   }
 
-  class _Base<T>: _Box where T: GeneralExpression {
+  class _Base<T>: _Box, @unchecked Sendable where T: GeneralExpression {
     let _base: SortBy<T>
     init(_ base: SortBy<T>) { self._base = base }
     override var tokens: JoinedTokenSequence { return _base.tokens }

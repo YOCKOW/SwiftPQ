@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-private final class PartitionBy: Segment {
+private final class PartitionBy: Segment, Sendable {
   let tokens: Array<Token> = [.partition, .by]
   private init() {}
   static let partitionBy: PartitionBy = .init()
@@ -121,7 +121,7 @@ public struct PartitionSpecificationParameterList: TokenSequenceGenerator,
 ///
 /// While this is defined as `ColId`, there are a few tokens that can be accepted here:
 /// [Source](https://github.com/postgres/postgres/blob/REL_16_3/src/backend/parser/gram.y#L18726-L18746).
-public enum PartitionStrategy: CustomTokenConvertible {
+public enum PartitionStrategy: CustomTokenConvertible, Sendable {
   case range
   case list
   case hash

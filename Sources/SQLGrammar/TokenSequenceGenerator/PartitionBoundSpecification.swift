@@ -82,7 +82,7 @@ public struct PartitionBoundSpecification: TokenSequenceGenerator {
     )
   }
 
-  public enum Strategy {
+  public enum Strategy: Sendable {
     case hash(HashPartitionBoundList)
     case list(GeneralExpressionList)
     case range(from: GeneralExpressionList, to: GeneralExpressionList)

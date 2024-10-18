@@ -13,7 +13,7 @@ internal enum _AMPM {
   case pm
 }
 
-private final class _PGTimeBox: Equatable {
+private final class _PGTimeBox: Equatable, @unchecked Sendable {
   struct HMSF: Equatable {
     let hour: Int
     let minute: Int
@@ -49,32 +49,63 @@ private final class _PGTimeBox: Equatable {
     }
   }
 
-  private var _pgTime: Optional<Int64>
+  private struct _Properties: Sendable {
+    var pgTime: Optional<Int64>
+    var hmsf: Optional<HMSF>
+    init(pgTime: Int64) {
+      self.pgTime = pgTime
+      self.hmsf = nil
+    }
+    init(hmsf: HMSF) {
+      self.pgTime = nil
+      self.hmsf = hmsf
+    }
+  }
+  private var _properties: _Properties
+  private let _queue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQ._PGTimeBox",
+    attributes: .concurrent
+  )
+  private func _withProperties<T>(_ work: (inout _Properties) throws -> T) rethrows -> T {
+    return try _queue.sync(flags: .barrier, execute: { try work(&_properties) })
+  }
 
-  private var _hmsf: Optional<HMSF>
 
   init(pgTime: Int64) {
-    self._pgTime = pgTime
-    self._hmsf = nil
+    self._properties = .init(pgTime: pgTime)
   }
 
   init(hour: Int, minute: Int, second: Int, microsecond: Int) {
-    self._pgTime = nil
-    self._hmsf = .init(hour: hour, minute: minute, second: second, microsecond: microsecond)
+    self._properties = .init(
+      hmsf: .init(
+        hour: hour,
+        minute: minute,
+        second: second,
+        microsecond: microsecond
+      )
+    )
   }
 
   var pgTime: Int64 {
-    if _pgTime == nil {
-      _pgTime = _hmsf!.pgTime
+    return _withProperties {
+      guard let pgTime = $0.pgTime else {
+        let pgTime = $0.hmsf!.pgTime
+        $0.pgTime = pgTime
+        return pgTime
+      }
+      return pgTime
     }
-    return _pgTime!
   }
 
   var hmsf: HMSF {
-    if _hmsf == nil {
-      _hmsf = HMSF(pgTime: _pgTime!)
+    return _withProperties {
+      guard let hmsf = $0.hmsf else {
+        let hmsf = HMSF(pgTime: $0.pgTime!)
+        $0.hmsf = hmsf
+        return hmsf
+      }
+      return hmsf
     }
-    return _hmsf!
   }
 
   var hour: Int { hmsf.hour }
@@ -115,10 +146,12 @@ private final class _PGTimeBox: Equatable {
   })()
 
   static func ==(lhs: _PGTimeBox, rhs: _PGTimeBox) -> Bool {
-    if let lPGTime = lhs._pgTime {
-      return lPGTime == rhs.pgTime
+    return lhs._withProperties {
+      if let lPGTime = $0.pgTime {
+        return lPGTime == rhs.pgTime
+      }
+      return $0.hmsf == rhs.hmsf
     }
-    return lhs.hmsf == rhs.hmsf
   }
 }
 
@@ -126,7 +159,8 @@ private final class _PGTimeBox: Equatable {
 public struct Time: Equatable, 
                     LosslessStringConvertible,
                     LosslessQueryStringConvertible,
-                    LosslessQueryBinaryDataConvertible {
+                    LosslessQueryBinaryDataConvertible,
+                    Sendable {
   private var _box: _PGTimeBox
 
   public var timeZone: Optional<TimeZone>

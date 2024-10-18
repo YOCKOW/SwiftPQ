@@ -36,7 +36,7 @@ public enum ReferentialAction: TokenSequenceGenerator {
 
 /// A set of `ReferentialAction`s. Described as `key_actions` in "gram.y".
 public struct ReferentialActionSet: TokenSequenceGenerator {
-  public class Action: TokenSequenceGenerator {
+  public class Action: TokenSequenceGenerator, @unchecked Sendable {
     public let action: ReferentialAction
 
     fileprivate init(_ action: ReferentialAction) {
@@ -46,14 +46,14 @@ public struct ReferentialActionSet: TokenSequenceGenerator {
     public var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
 
     /// `key_delete` in "gram.y".
-    public final class OnDelete: Action {
+    public final class OnDelete: Action, @unchecked Sendable {
       public override var tokens: JoinedTokenSequence {
         return JoinedTokenSequence(SingleToken.on, SingleToken.delete, action)
       }
     }
 
     /// `key_update` in "gram.y".
-    public final class OnUpdate: Action {
+    public final class OnUpdate: Action, @unchecked Sendable {
       public override var tokens: JoinedTokenSequence {
         return JoinedTokenSequence(SingleToken.on, SingleToken.update, action)
       }

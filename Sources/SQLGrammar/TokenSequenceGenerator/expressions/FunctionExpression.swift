@@ -23,7 +23,7 @@ public protocol JSONAggregateFunctionExpression: WindowlessFunctionExpression {}
 /// A type that represents `func_application` described in "gram.y".
 public struct FunctionApplication: WindowlessFunctionExpression {
   public struct ArgumentList: TokenSequenceGenerator {
-    public enum AggregatePattern: LosslessTokenConvertible {
+    public enum AggregatePattern: LosslessTokenConvertible, Sendable {
       case all
       case distinct
 
@@ -398,7 +398,7 @@ public struct TypeCastFunction: CommonFunctionSubexpression, ValueExpression {
 public struct ExtractFunction: CommonFunctionSubexpression {
   /// A token that selects what field to extract from the source value.
   /// It corresponds to `extract_arg` in "gram.y".
-  public struct Field: LosslessTokenConvertible {
+  public struct Field: LosslessTokenConvertible, Sendable {
     public let token: Token
 
     public init?(_ token: Token) {
@@ -794,7 +794,7 @@ public struct TreatFunction: CommonFunctionSubexpression {
 
 /// A representation `TRIM '(' [BOTH|LEADING|TRAILING] trim_list ')'`
 public struct TrimFunction: CommonFunctionSubexpression {
-  public enum TrimmingEnd: LosslessTokenConvertible {
+  public enum TrimmingEnd: LosslessTokenConvertible, Sendable {
     case leading
     case trailing
     case both

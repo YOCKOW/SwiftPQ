@@ -5,16 +5,16 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-public class JSONConstructorNullOptionTokens: Segment, TokenSequence {
+public class JSONConstructorNullOptionTokens: Segment, TokenSequence, @unchecked Sendable {
   public let tokens: Array<Token>
   fileprivate init(_ tokens: Array<Token>) { self.tokens = tokens }
 }
 
-private final class NullOnNull: JSONConstructorNullOptionTokens {
+private final class NullOnNull: JSONConstructorNullOptionTokens, @unchecked Sendable {
   static let nullOnNull: NullOnNull = .init([.null, .on, .null])
 }
 
-private final class AbsentOnNull: JSONConstructorNullOptionTokens {
+private final class AbsentOnNull: JSONConstructorNullOptionTokens, @unchecked Sendable {
   static let absentOnNull: AbsentOnNull = .init([.absent, .on, .null])
 }
 

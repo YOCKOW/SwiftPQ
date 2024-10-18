@@ -21,7 +21,7 @@ extension OperatorTokenConvertible {
 }
 
 /// Mathematical operator described as `MathOp` in "gram.y".
-public struct MathOperator: OperatorTokenConvertible {
+public struct MathOperator: OperatorTokenConvertible, Sendable {
   public let token: Token.Operator
 
   @inlinable
@@ -68,7 +68,7 @@ public struct MathOperator: OperatorTokenConvertible {
 }
 
 /// An operator that consists of only one token that is not a math operator.
-public struct GeneralOperator: OperatorTokenConvertible {
+public struct GeneralOperator: OperatorTokenConvertible, Sendable {
   public let token: Token.Operator
 
   @inlinable
@@ -83,10 +83,10 @@ public protocol OperatorTokenSequence: TokenSequenceGenerator {}
 
 /// Representation of a schema-qualified operator name that is described as `any_operator`
 /// in "gram.y".
-public struct LabeledOperator: OperatorTokenSequence {
+public struct LabeledOperator: OperatorTokenSequence, Sendable {
   public let labels: [ColumnIdentifier] // Empty allowed.
 
-  public let `operator`: any OperatorTokenConvertible
+  public let `operator`: any OperatorTokenConvertible & Sendable
 
   public var tokens: JoinedTokenSequence {
     var tokens: [Token] = labels.map(\.token)
@@ -97,7 +97,7 @@ public struct LabeledOperator: OperatorTokenSequence {
   public init<Op>(
     labels: [ColumnIdentifier] = [],
     _ `operator`: Op
-  ) where Op: OperatorTokenConvertible {
+  ) where Op: OperatorTokenConvertible, Op: Sendable {
     self.labels = labels
     self.operator = `operator`
   }
@@ -110,7 +110,7 @@ public struct LabeledOperator: OperatorTokenSequence {
     }
   }
 
-  public init<Op>(schema: SchemaName, _ `operator`: Op) where Op: OperatorTokenConvertible {
+  public init<Op>(schema: SchemaName, _ `operator`: Op) where Op: OperatorTokenConvertible, Op: Sendable {
     self.init(labels: [schema.identifier], `operator`)
   }
 
@@ -120,7 +120,7 @@ public struct LabeledOperator: OperatorTokenSequence {
 }
 
 /// An `OPERATOR` constructor.
-public struct OperatorConstructor: OperatorTokenSequence {
+public struct OperatorConstructor: OperatorTokenSequence, Sendable {
   public let `operator`: LabeledOperator
 
   public var tokens: JoinedTokenSequence {
@@ -136,15 +136,15 @@ public struct OperatorConstructor: OperatorTokenSequence {
 }
 
 /// Qualified operator described as `qual_all_Op` in "gram.y".
-public struct QualifiedOperator: OperatorTokenSequence {
-  private enum _Type {
-    case bare(any OperatorTokenConvertible)
+public struct QualifiedOperator: OperatorTokenSequence, Sendable {
+  private enum _Type: Sendable {
+    case bare(any OperatorTokenConvertible & Sendable)
     case constructor(OperatorConstructor)
   }
 
   private let _type: _Type
 
-  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible {
+  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible, Op: Sendable {
     self._type = .bare(`operator`)
   }
 
@@ -190,7 +190,7 @@ public struct QualifiedOperator: OperatorTokenSequence {
 }
 
 /// Qualified general operator described as `qual_Op` in "gram.y".
-public struct QualifiedGeneralOperator: OperatorTokenSequence {
+public struct QualifiedGeneralOperator: OperatorTokenSequence, Sendable {
   public typealias Tokens = QualifiedOperator.Tokens
 
   private let _qualifiedOperator: QualifiedOperator
@@ -213,10 +213,10 @@ public struct QualifiedGeneralOperator: OperatorTokenSequence {
 
 /// An operator that is used in `ANY/SOME/ALL` expression.
 /// It is described as `subquery_Op` in "gram.y".
-public struct SubqueryOperator: OperatorTokenSequence {
+public struct SubqueryOperator: OperatorTokenSequence, Sendable {
   fileprivate enum _Operator: TokenSequenceGenerator {
     /// `all_Op`
-    case token(any OperatorTokenConvertible)
+    case token(any OperatorTokenConvertible & Sendable)
 
     /// `OPERATOR '(' any_operator ')'`
     case constructor(OperatorConstructor)
@@ -285,7 +285,7 @@ public struct SubqueryOperator: OperatorTokenSequence {
     self._operator = _operator
   }
 
-  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible {
+  public init<Op>(_ `operator`: Op) where Op: OperatorTokenConvertible, Op: Sendable {
     self.init(_operator: .token(`operator`))
   }
 

@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type that specifies drop behavior.
-public enum DropBehavior: LosslessTokenConvertible {
+public enum DropBehavior: LosslessTokenConvertible, Sendable {
   case cascade
   case restrict
 

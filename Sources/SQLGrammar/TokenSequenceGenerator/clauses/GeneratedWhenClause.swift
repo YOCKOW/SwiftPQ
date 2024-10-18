@@ -11,7 +11,7 @@ public enum GeneratedWhenClause: Clause {
   case always
   case byDefault
 
-  public struct Tokens: TokenSequence {
+  public struct Tokens: TokenSequence, Sendable {
     public let tokens: Array<Token>
     private init(_ tokens: Array<Token>) { self.tokens = tokens }
     public static let always: Tokens = .init([.always])

@@ -218,7 +218,7 @@ public struct TableCommandSyntax: SimpleSelectStatement {
 
 /// A kind of select statement that consists of [combined queries](https://www.postgresql.org/docs/16/queries-union.html).
 public struct CombinedSelectQuery: SimpleSelectStatement {
-  public enum SetOperation: LosslessTokenConvertible {
+  public enum SetOperation: LosslessTokenConvertible, Sendable {
     case union
     case intersect
     case except

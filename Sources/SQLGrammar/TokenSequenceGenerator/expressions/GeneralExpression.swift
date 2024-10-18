@@ -540,7 +540,7 @@ extension GeneralExpression {
 /// `a_expr subquery_Op sub_type '(' a_expr ')'` in "gram.y".
 public struct SatisfyExpression: GeneralExpression {
   /// A keyword to determine how to generate the result. It is described as `sub_type` in "gram.y".
-  public enum Kind: CustomTokenConvertible {
+  public enum Kind: CustomTokenConvertible, Sendable {
     case `any`
     case `some`
     case all

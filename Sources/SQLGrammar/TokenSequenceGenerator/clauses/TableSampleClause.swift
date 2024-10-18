@@ -29,7 +29,7 @@ public struct TableSampleClause: Clause {
   public let arguments: GeneralExpressionList
 
   public struct Repeatable: Clause {
-    private class _Box {
+    private class _Box: @unchecked Sendable {
       var tokens: JoinedTokenSequence {
         fatalError("Must be overridden.")
       }
@@ -39,7 +39,7 @@ public struct TableSampleClause: Clause {
       }
     }
 
-    private final class _Base<Seed>: _Box where Seed: GeneralExpression {
+    private final class _Base<Seed>: _Box, @unchecked Sendable where Seed: GeneralExpression {
       private let _base: RepeatableClause<Seed>
 
       init(_ base: RepeatableClause<Seed>) {

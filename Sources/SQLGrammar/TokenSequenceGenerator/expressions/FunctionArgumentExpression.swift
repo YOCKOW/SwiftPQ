@@ -8,7 +8,7 @@
 /// An expression that represents a function argument,
 ///  that is described as `func_arg_expr` in "gram.y".
 public struct FunctionArgumentExpression: Expression {
-  private enum _Notation {
+  private enum _Notation: Sendable {
     /// `a_expr`
     case positional(any GeneralExpression)
 

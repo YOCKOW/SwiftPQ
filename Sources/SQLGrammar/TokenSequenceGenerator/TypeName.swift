@@ -926,7 +926,7 @@ public struct ConstantDateTimeTypeName: SimpleTypeName,
                                         ConstantTypeName,
                                         _PossiblyQualifiedNameConvertible,
                                         _PossiblyFunctionNameWithModifiersConvertible {
-  public enum DateTimeType {
+  public enum DateTimeType: Sendable {
     case timestamp
     case time
 

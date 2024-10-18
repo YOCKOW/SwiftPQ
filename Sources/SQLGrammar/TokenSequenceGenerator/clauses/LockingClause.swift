@@ -145,7 +145,7 @@ public struct LockingModeList: TokenSequenceGenerator,
 /// `FOR {UPDATE | NO KEY UPDATE | SHARE | KEY SHARE} ...` clause
 /// that is described as `for_locking_clause` in "gram.y".
 public struct LockingClause: Clause {
-  private enum _LockingMode: TokenSequenceGenerator {
+  private enum _LockingMode: TokenSequenceGenerator, Sendable {
     case readOnly
     case others(LockingModeList)
 

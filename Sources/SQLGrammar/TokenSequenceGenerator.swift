@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type that holds a sequence of `SQLToken`.
-public protocol TokenSequenceGenerator {
+public protocol TokenSequenceGenerator: Sendable {
   /// A type representing a sequence of tokens.
   associatedtype Tokens: Sequence where Self.Tokens.Element: Token
 
@@ -134,13 +134,13 @@ internal final class AnyTokenSequenceIterator: IteratorProtocol {
 }
 
 /// A type erasure to be used in the case that `any TokenSequenceGenerator` is not available.
-internal class AnyTokenSequenceGenerator: TokenSequenceGenerator {
-  class Tokens: Sequence {
+internal class AnyTokenSequenceGenerator: TokenSequenceGenerator, @unchecked Sendable {
+  class Tokens: Sequence, @unchecked Sendable {
     typealias Element = Token
     typealias Iterator = AnyTokenSequenceIterator
     func makeIterator() -> AnyTokenSequenceIterator { fatalError("Must be overridden.") }
 
-    fileprivate final class _BaseGenerator<T>: Tokens where T: TokenSequenceGenerator {
+    fileprivate final class _BaseGenerator<T>: Tokens, @unchecked Sendable where T: TokenSequenceGenerator {
       private let _generator: T
       init(_ generator: T) { self._generator = generator }
       override func makeIterator() -> AnyTokenSequenceIterator {
@@ -157,7 +157,7 @@ internal class AnyTokenSequenceGenerator: TokenSequenceGenerator {
 }
 
 /// A type erasure to be used in the case that `any TokenSequence` is not available.
-internal final class AnyTokenSequence: AnyTokenSequenceGenerator, TokenSequence {}
+internal final class AnyTokenSequence: AnyTokenSequenceGenerator, TokenSequence, @unchecked Sendable {}
 
 extension TokenSequenceGenerator {
   internal var _asAny: AnyTokenSequenceGenerator {

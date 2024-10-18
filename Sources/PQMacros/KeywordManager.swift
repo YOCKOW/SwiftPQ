@@ -5,12 +5,13 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Dispatch
 import Foundation
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-final class KeywordManager {
+final class KeywordManager: @unchecked Sendable {
   static let defaultUnreservedKeywords: Set<String> = [
     "ABORT",
     "ABSENT",
@@ -951,15 +952,43 @@ final class KeywordManager {
 
   static let `default`: KeywordManager = .init()
 
-  private(set) lazy var allKeywords: Set<String> = (
-    unreservedKeywords
-    .union(columnNameKeywords)
-    .union(typeFunctionNameKeywords)
-    .union(reservedKeywords)
-    .union(bareLabelKeywords)
+  struct _LazyComputedProperties {
+    let allKeywords: Set<String>
+    let sortedAllKeywords: Array<String>
+    init(_ manager: KeywordManager) {
+      self.allKeywords = (
+        manager.unreservedKeywords
+          .union(manager.columnNameKeywords)
+          .union(manager.typeFunctionNameKeywords)
+          .union(manager.reservedKeywords)
+          .union(manager.bareLabelKeywords)
+      )
+      self.sortedAllKeywords = allKeywords.sorted()
+    }
+  }
+  private var __lazyComputedProperties: _LazyComputedProperties? = nil
+  private let _lazyComputedPropertiesQueue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQMacros.KeywordManager.LazyComputedProperties",
+    attributes: .concurrent
   )
+  private var _lazyComputedProperties: _LazyComputedProperties {
+    return _lazyComputedPropertiesQueue.sync {
+      if let lazyComputedProperties = __lazyComputedProperties {
+        return lazyComputedProperties
+      }
+      let lazyComputedProperties = _LazyComputedProperties(self)
+      __lazyComputedProperties = lazyComputedProperties
+      return lazyComputedProperties
+    }
+  }
 
-  private(set) lazy var sortedAllKeywords: Array<String> = allKeywords.sorted()
+  var allKeywords: Set<String> {
+    return _lazyComputedProperties.allKeywords
+  }
+
+  var sortedAllKeywords: Array<String> {
+    return _lazyComputedProperties.sortedAllKeywords
+  }
 }
 
 public struct StaticKeywordExpander: MemberMacro {
@@ -1003,7 +1032,7 @@ public struct StaticKeywordExpander: MemberMacro {
 
        ```
        private struct __Keyword {
-       static let closures: [Character: (String) -> Keyword?] = [
+       static let closures: [Character: @Sendable (String) -> Keyword?] = [
            "A": { // Inital A
            switch $0.dropFirst() {
            case "BORT": return .abort
@@ -1124,7 +1153,7 @@ public struct StaticKeywordExpander: MemberMacro {
 
       result.append("""
       private struct __Keyword {
-        static let closures: [Character: (String) -> Token?] = \(dictionaryExpr)
+        static let closures: [Character: @Sendable (String) -> Token?] = \(dictionaryExpr)
       }
       """)
     }
@@ -1132,10 +1161,15 @@ public struct StaticKeywordExpander: MemberMacro {
     result.append("""
     /// Returns an instance of `Keyword` represented by `string` if exists.
     public static func keyword(from string: String) -> Keyword? {
-      let uc = string.uppercased()
-      guard let initial = uc.first else { return nil }
-      guard let judge = __Keyword.closures[initial] else { return nil }
-      return judge(uc) as? Keyword
+      guard let initial = string.first else { return nil }
+      let ucInitial = initial.uppercased()
+      do { // Only one character?
+        var iter = ucInitial.makeIterator()
+        guard iter.next() != nil else { return nil }
+        guard iter.next() == nil else { return nil }
+      }
+      guard let judge = __Keyword.closures[ucInitial.first.unsafelyUnwrapped] else { return nil }
+      return judge(string.uppercased()) as? Keyword
     }
     """)
 

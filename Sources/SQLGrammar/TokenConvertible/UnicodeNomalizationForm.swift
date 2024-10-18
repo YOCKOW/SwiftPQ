@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A normalization form for Unicode text that is described as `unicode_normal_form` in "gram.y".
-public enum UnicodeNormalizationForm: LosslessTokenConvertible {
+public enum UnicodeNormalizationForm: LosslessTokenConvertible, Sendable {
   /// NFC
   case nfc
 

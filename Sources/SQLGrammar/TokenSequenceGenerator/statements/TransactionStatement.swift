@@ -7,7 +7,7 @@
 
 /// An optional keyword used in transaction statements. This is described as `opt_transaction` in
 /// "gram.y".
-public enum TransactionKeyword: CustomTokenConvertible {
+public enum TransactionKeyword: CustomTokenConvertible, Sendable {
   case work
   case transaction
 
@@ -171,7 +171,7 @@ public enum LegacyTransactionStatement: TopLevelStatement {
 /// A statement representing a type of transaction command that is described as `TransactionStmt` in
 ///  "gram.y".
 public struct TransactionStatement: Statement {
-  public enum Command {
+  public enum Command: Sendable {
     /// Representation of `ABORT_P opt_transaction opt_transaction_chain`
     case abort(TransactionKeyword?, TransactionChain?)
 

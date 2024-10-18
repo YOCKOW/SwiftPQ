@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A representation of `NonReservedWord` in "gram.y".
-public struct NonReservedWord: LosslessTokenConvertible, ExpressibleByStringLiteral {
+public struct NonReservedWord: LosslessTokenConvertible, ExpressibleByStringLiteral, Sendable {
   public typealias StringLiteralType = String
 
   public let token: Token

@@ -6,8 +6,10 @@ import PackageDescription
 import CompilerPluginSupport
 
 let swiftSyntaxVersion: Version = ({
-  #if compiler(>=5.10)
-  return "510.0.1"
+  #if compiler(>=6)
+  return "600.0.1"
+  #elseif compiler(>=5.10)
+  return "510.0.3"
   #else
   return "509.1.1"
   #endif
@@ -28,14 +30,13 @@ let package = Package(
     .library(name: "SwiftPQ", targets: ["SQLGrammar", "PQ"]),
   ],
   dependencies: [
-    .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.16.6"..<"2.0.0"),
-    .package(url: "https://github.com/YOCKOW/SwiftRanges.git", from: "3.1.0"),
-    .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.4.0"),
-    .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.10.1"),
+    .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.19.1"..<"2.0.0"),
+    .package(url: "https://github.com/YOCKOW/SwiftRanges.git", from: "3.2.1"),
+    .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.5.0"),
+    .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.11.1"),
 
     // For Macros
     .package(url: "https://github.com/apple/swift-syntax.git", from: swiftSyntaxVersion),
-    .package(url: "https://github.com/YOCKOW/swift-system.git", from: "1.3.2"),
   ],
   targets: [
       // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -61,7 +62,6 @@ let package = Package(
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-        .product(name: "SystemPackage", package: "swift-system"),
       ]
     ),
     .target(
@@ -105,7 +105,8 @@ let package = Package(
         "SQLGrammar",
       ]
     ),
-  ]
+  ],
+  swiftLanguageVersions: [.v5, .version("6")]
 )
 
 let repoDirPath = String(#filePath).split(separator: "/", omittingEmptySubsequences: false).dropLast().joined(separator: "/")
@@ -122,21 +123,5 @@ if ProcessInfo.processInfo.environment["YOCKOW_USE_LOCAL_PACKAGES"] != nil {
       return $0
     }
     return .package(path: depRelPath)
-  }
-}
-
-private extension Character {
-  var _isWhitespaceOrNewline: Bool {
-    return self.isWhitespace || self.isNewline
-  }
-}
-
-private extension String {
-  var _trimmed: String {
-    guard let firstIndex = self.firstIndex(where: { !$0._isWhitespaceOrNewline }),
-          let lastIndex = self.lastIndex(where: { !$0._isWhitespaceOrNewline }) else {
-      return ""
-    }
-    return String(self[firstIndex...lastIndex])
   }
 }

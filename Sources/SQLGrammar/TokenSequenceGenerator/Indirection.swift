@@ -8,13 +8,16 @@
 /// A type representing `indirection`.
 public struct Indirection: TokenSequenceGenerator {
   @dynamicMemberLookup
-  public struct List: BidirectionalCollection, MutableCollection {
+  public struct List: BidirectionalCollection, MutableCollection, Sendable {
     /// A type representing an element of `Indirection.List` that is described as `indirection_el` in "gram.y".
     public enum Element: TokenSequenceGenerator {
       case attributeName(AttributeName)
       case any
-      case `subscript`(any GeneralExpression)
-      case slice(lowerBound: (any GeneralExpression)?, upperBound: (any GeneralExpression)?)
+      case `subscript`(any GeneralExpression )
+      case slice(
+        lowerBound: (any GeneralExpression )?,
+        upperBound: (any GeneralExpression )?
+      )
 
       public var tokens: JoinedTokenSequence {
         switch self {

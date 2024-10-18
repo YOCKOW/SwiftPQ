@@ -108,6 +108,8 @@ extension NonEmptyList: ExpressibleByArrayLiteral {
   }
 }
 
+extension NonEmptyList: Sendable where Item: Sendable {}
+
 public protocol InitializableWithNonEmptyList {
   associatedtype NonEmptyListElement
   init(_ list: NonEmptyList<NonEmptyListElement>)

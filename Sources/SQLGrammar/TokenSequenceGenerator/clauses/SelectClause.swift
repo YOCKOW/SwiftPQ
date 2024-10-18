@@ -7,12 +7,12 @@
 
 /// A type that is described as `select_clause` in "gram.y".
 public struct SelectClause: Clause  {
-  public class SelectQuery {
+  public class SelectQuery: @unchecked Sendable {
     fileprivate func makeIterator() -> AnyTokenSequenceIterator {
       fatalError("Must be overridden.")
     }
 
-    fileprivate class _SelectStatement<T>: SelectQuery where T: SelectStatement {
+    fileprivate class _SelectStatement<T>: SelectQuery, @unchecked Sendable where T: SelectStatement {
       let statement: T
 
       override func makeIterator() -> AnyTokenSequenceIterator {
@@ -24,13 +24,14 @@ public struct SelectClause: Clause  {
       }
     }
 
-    fileprivate final class _SimpleSelectStatement<T>: _SelectStatement<T>
+    fileprivate final class _SimpleSelectStatement<T>: _SelectStatement<T>, @unchecked Sendable
       where T: SimpleSelectStatement
     {
 
     }
 
-    fileprivate final class _ParenthesizedSelectStatement<T>: _SelectStatement<Parenthesized<T>>
+    fileprivate final class _ParenthesizedSelectStatement<T>: _SelectStatement<Parenthesized<T>>,
+                                                              @unchecked Sendable
       where T: SelectStatement
     {
 

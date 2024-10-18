@@ -6,6 +6,7 @@
  ************************************************************************************************ */
 
 import CLibPQ
+import Dispatch
 import Foundation
 import NetworkGear
 import yExtensions
@@ -36,6 +37,20 @@ extension IPAddress: _PGHost {
   }
 }
 
+/// A wrapper of `PGconn *`.
+/// This type exists for the purpose of calling `PQfinish` in `deinit` of `Connection`.
+internal struct _PGConnectionPointer: @unchecked Sendable {
+  internal let pointer: OpaquePointer
+  private let _queue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQ._PGConnectionPointer.\(UUID().uuidString)",
+    attributes: .concurrent
+  )
+  func withIsolatedPointer<T>(_ work: (OpaquePointer) throws -> T) rethrows ->T {
+    return try _queue.sync(flags: .barrier) { try work(pointer) }
+  }
+  fileprivate init(_ pointer: OpaquePointer) { self.pointer = pointer }
+}
+
 public actor Connection {
   public enum Error: Swift.Error {
     case fileNotFound
@@ -45,7 +60,7 @@ public actor Connection {
   }
 
   /// GSS TCP/IP connection priority.
-  public enum GSSAPIMode: String, ConnectionParameter {
+  public enum GSSAPIMode: String, ConnectionParameter, Sendable {
     /// Disable a GSSAPI-encrypted connection.
     case disable
 
@@ -61,7 +76,7 @@ public actor Connection {
   }
 
   /// SSL TCP/IP connection priority.
-  public enum SSLMode: String, ConnectionParameter {
+  public enum SSLMode: String, ConnectionParameter, Sendable {
     /// Disable an SSL connection.
     case disable
 
@@ -87,7 +102,7 @@ public actor Connection {
     }
   }
 
-  internal let _connection: OpaquePointer // PGconn *
+  internal let _connection: _PGConnectionPointer
   private var _isFinished: Bool = false
 
   private init(_ connection: OpaquePointer?) throws {
@@ -97,7 +112,7 @@ public actor Connection {
     guard PQstatus(pgConn) == CONNECTION_OK else {
       throw Error.unexpectedError(String(cString: PQerrorMessage(pgConn)))
     }
-    self._connection = pgConn
+    self._connection = .init(pgConn)
   }
 
   private init(uriDescription: String) throws {
@@ -200,24 +215,25 @@ public actor Connection {
 
   public func finish() {
     if !_isFinished {
-      PQfinish(_connection)
+      PQfinish(_connection.pointer)
       _isFinished = true
     }
   }
 
   deinit {
     if !_isFinished {
-      PQfinish(_connection)
+      _connection.withIsolatedPointer(PQfinish)
+      _isFinished = true
     }
   }
 
   private func _property(_ pqFunc: (OpaquePointer) -> UnsafePointer<CChar>?) -> String? {
-    guard let cString = pqFunc(_connection) else { return nil }
+    guard let cString = pqFunc(_connection.pointer) else { return nil }
     return String(cString: cString)
   }
 
   private func _property(_ pqFunc: (OpaquePointer) -> UnsafeMutablePointer<CChar>?) -> String? {
-    guard let cString = pqFunc(_connection) else { return nil }
+    guard let cString = pqFunc(_connection.pointer) else { return nil }
     return String(cString: cString)
   }
 

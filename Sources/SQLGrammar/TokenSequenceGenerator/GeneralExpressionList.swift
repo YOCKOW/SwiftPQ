@@ -35,7 +35,8 @@ public struct GeneralExpressionList: TokenSequenceGenerator, ExpressibleByArrayL
 
   public init<FirstExpr, each OptionalExpr>(
     _ firstExpression: FirstExpr, _ optionalExpression: repeat each OptionalExpr
-  ) where FirstExpr: GeneralExpression, repeat each OptionalExpr: GeneralExpression {
+  ) where FirstExpr: GeneralExpression,
+          repeat each OptionalExpr: GeneralExpression {
     self.expressions = .init(item: firstExpression)
     repeat (self.expressions.append(each optionalExpression))
   }

@@ -67,7 +67,7 @@ public struct LimitClause: Clause {
   /// `FETCH ...` clause that is a kind of `limit_clause`.
   public struct FetchClause: Clause {
     /// A (ignorable) keyword for `FETCH` clause, that is described as `first_or_next` in "gram.y".
-    public enum Keyword: CustomTokenConvertible {
+    public enum Keyword: CustomTokenConvertible, Sendable {
       case first
       case next
 
@@ -136,7 +136,7 @@ public struct LimitClause: Clause {
     }
 
     /// A (ignorable) token `ROW` or `ROWS` that is described as `row_or_rows` in "gram.y".
-    public enum Unit: CustomTokenConvertible {
+    public enum Unit: CustomTokenConvertible, Sendable {
       case row
       case rows
 

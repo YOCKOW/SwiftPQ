@@ -19,7 +19,7 @@ let databasePassword = ProcessInfo.processInfo.environment["SWIFTPQ_TEST_DB_PASS
 final class PQTests: XCTestCase {
   func newConnection(
     host: Domain = .localhost,
-    parameters: [any ConnectionParameter]? = nil
+    parameters: [any ConnectionParameter & Sendable]? = nil
   ) throws -> Connection {
     return try Connection(
       host: host,
@@ -33,7 +33,7 @@ final class PQTests: XCTestCase {
 
   func newConnection(
     host: IPAddress,
-    parameters: [any ConnectionParameter]? = nil
+    parameters: [any ConnectionParameter & Sendable]? = nil
   ) throws -> Connection {
     return try Connection(
       host: host,
@@ -57,7 +57,7 @@ final class PQTests: XCTestCase {
 
   func connecting<Result>(
     host: Domain = .localhost,
-    parameters: [any ConnectionParameter]? = nil,
+    parameters: [any ConnectionParameter & Sendable]? = nil,
     job: (Connection) async throws -> Result
   ) async throws -> Result {
     let connection = try newConnection(host: host, parameters: parameters)
@@ -293,7 +293,7 @@ final class PQTests: XCTestCase {
   }
 
   func test_ipAddress() async throws {
-    func __test(_ ipAddressDescription: String, file: StaticString = #file, line: UInt = #line) async throws {
+    func __test(_ ipAddressDescription: String, file: StaticString = #filePath, line: UInt = #line) async throws {
       let ipAddress = try XCTUnwrap(IPAddress(string: ipAddressDescription), file: file, line: line)
       let connection = try newConnection(host: ipAddress)
 

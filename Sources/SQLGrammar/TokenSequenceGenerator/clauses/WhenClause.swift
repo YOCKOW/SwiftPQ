@@ -27,13 +27,13 @@ public struct WhenClause<Condition, Result>: Clause where Condition: GeneralExpr
 }
 
 /// A type-erasure for `WhenClause`.
-struct AnyWhenClause: Clause {
-  private class _Box {
+internal struct AnyWhenClause: Clause, Sendable {
+  private class _Box: @unchecked Sendable {
     var condition: any GeneralExpression { fatalError("Must be overridden.") }
     var result: any GeneralExpression { fatalError("Must be overridden.") }
     var tokens: JoinedTokenSequence { fatalError("Must be overridden.") }
   }
-  private class _Base<C, R>: _Box where C: GeneralExpression, R: GeneralExpression {
+  private class _Base<C, R>: _Box, @unchecked Sendable where C: GeneralExpression, R: GeneralExpression {
     let _base: WhenClause<C, R>
     init(_ base: WhenClause<C, R>) { self._base = base }
 
@@ -56,15 +56,17 @@ struct AnyWhenClause: Clause {
     return (_box as? _Base<Condition, Result>)?._base
   }
 
-  init<Condition, Result>(_ base: WhenClause<Condition, Result>) where Condition: GeneralExpression,
-                                                                       Result: GeneralExpression {
+  init<Condition, Result>(
+    _ base: WhenClause<Condition, Result>
+  ) where Condition: GeneralExpression,
+          Result: GeneralExpression  {
     self._box = _Base<Condition, Result>(base)
   }
 
   init<Condition, Result>(
     when condition: Condition,
     then result: Result
-  ) where Condition: GeneralExpression, Result: GeneralExpression {
+  ) where Condition: GeneralExpression , Result: GeneralExpression  {
     self.init(WhenClause<Condition, Result>(when: condition, then: result))
   }
 }
@@ -80,9 +82,9 @@ public struct WhenClauseList: TokenSequenceGenerator {
   public init<Condition, Result, each OptionalCondition, each OptionalResult>(
     _ firstClause: WhenClause<Condition, Result>,
     _ optionalClause: repeat WhenClause<each OptionalCondition, each OptionalResult>
-  ) where Condition: GeneralExpression, Result: GeneralExpression,
+  ) where Condition: GeneralExpression , Result: GeneralExpression,
           repeat each OptionalCondition: GeneralExpression,
-          repeat each OptionalResult: GeneralExpression
+          repeat each OptionalResult: GeneralExpression 
   {
     var list = NonEmptyList(item: AnyWhenClause(firstClause))
     repeat (list.append(AnyWhenClause(each optionalClause)))
@@ -92,9 +94,9 @@ public struct WhenClauseList: TokenSequenceGenerator {
   public init<Condition, Result, each OptionalCondition, each OptionalResult>(
     _ firstClauseSeed: (when: Condition, then: Result),
     _ optionalClauseSeed: repeat (when: each OptionalCondition, then: each OptionalResult)
-  ) where Condition: GeneralExpression, Result: GeneralExpression,
-          repeat each OptionalCondition: GeneralExpression,
-          repeat each OptionalResult: GeneralExpression
+  ) where Condition: GeneralExpression , Result: GeneralExpression ,
+          repeat each OptionalCondition: GeneralExpression ,
+          repeat each OptionalResult: GeneralExpression 
   {
     var list = NonEmptyList(item: AnyWhenClause(when: firstClauseSeed.0, then: firstClauseSeed.1))
     repeat (list.append(
@@ -105,14 +107,14 @@ public struct WhenClauseList: TokenSequenceGenerator {
 
   public mutating func append<Condition, Result>(
     _ whenClause: WhenClause<Condition, Result>
-  ) where Condition: GeneralExpression, Result: GeneralExpression {
+  ) where Condition: GeneralExpression, Result: GeneralExpression  {
     _clauses.append(AnyWhenClause(whenClause))
   }
 
   public mutating func append<Condition, Result>(
     when condition: Condition,
     then result: Result
-  ) where Condition: GeneralExpression, Result: GeneralExpression {
+  ) where Condition: GeneralExpression, Result: GeneralExpression  {
     self.append(WhenClause<Condition, Result>(when: condition, then: result))
   }
 }

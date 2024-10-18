@@ -333,7 +333,7 @@ extension ConstraintCheckingTimeOption: _ColumnQualifierConvertible {
 public struct ColumnQualifierList: TokenSequenceGenerator {
   /// Column constraint described as `column_constraint` in
   /// [Official Documentation](https://www.postgresql.org/docs/current/sql-createtable.html).
-  public struct Constraint {
+  public struct Constraint: Sendable {
     public var constraint: NamedColumnConstraint
 
     @inlinable

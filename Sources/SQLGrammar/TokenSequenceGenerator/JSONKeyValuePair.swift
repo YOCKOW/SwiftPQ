@@ -7,7 +7,7 @@
 
 /// A JSON name-value pair, described as `json_name_and_value` in "gram.y".
 public struct JSONKeyValuePair: TokenSequenceGenerator {
-  public enum Delimiter: LosslessTokenConvertible {
+  public enum Delimiter: LosslessTokenConvertible, Sendable {
     case valueKeyword
     case colon
 
