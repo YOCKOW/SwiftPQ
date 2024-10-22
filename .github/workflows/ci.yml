@@ -29,7 +29,7 @@ jobs:
           - macOS-14
           - macOS-15
         swift-version:
-          - '6.0.1'
+          - '6.0'
           - '5.10.1'
           - '5.10'
         swift-compat-ver:
