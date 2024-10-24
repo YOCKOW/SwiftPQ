@@ -29,7 +29,7 @@ jobs:
           - macOS-14
           - macOS-15
         swift-version:
-          - '6.0'
+          - '6.0.1'
           - '5.10.1'
           - '5.10'
         swift-compat-ver:
@@ -79,7 +79,16 @@ jobs:
     - uses: YOCKOW/Action-setup-swift@main
       with:
         swift-version: ${{ matrix.swift-version }}
+    ## NEEDS WORKAROUND FOR https://github.com/swiftlang/swift-package-manager/issues/8064
     # DEBUG mode
+    - name: Build with debug mode.
+      id: debug_build
+      run: swift build --configuration debug -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
+      continue-on-error: true
+    - name: Retry build with debug mode if necessary.
+      if: steps.debug_build.outcome == 'failure'
+      run: swift build --configuration debug -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
+      continue-on-error: true
     - name: Test with debug mode.
       id: debug_test
       run: swift test --configuration debug -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
@@ -90,6 +99,14 @@ jobs:
         rm -rf $(cd .build/debug && pwd -P)
         swift test --configuration debug -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
     # RELEASE mode
+    - name: Build with release mode.
+      id: release_build
+      run: swift build --configuration release -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
+      continue-on-error: true
+    - name: Retry build with release mode if necessary.
+      if: steps.release_build.outcome == 'failure'
+      run: swift build --configuration release -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
+      continue-on-error: true
     - name: Test with release mode.
       id: release_test
       run: swift test --configuration release -Xswiftc -enable-testing -Xswiftc -swift-version -Xswiftc ${{ matrix.swift-compat-ver }}
