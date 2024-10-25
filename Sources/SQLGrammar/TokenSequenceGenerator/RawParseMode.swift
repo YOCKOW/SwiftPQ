@@ -5,7 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
-private class ModeSymbol: Token {
+private final class ModeSymbol: Token, @unchecked Sendable {
   static let typeName: ModeSymbol = .init(rawValue: "MODE_TYPE_NAME")
   static let plpgSQLExpression: ModeSymbol = .init(rawValue: "MODE_PLPGSQL_EXPR")
   static let plpgSQLAssignment1: ModeSymbol = .init(rawValue: "MODE_PLPGSQL_ASSIGN1")

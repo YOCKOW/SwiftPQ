@@ -10,9 +10,9 @@ import Foundation
 import yExtensions
 
 /// A single field value of a row.
-public struct QueryValue: CustomDebugStringConvertible {
+public struct QueryValue: CustomDebugStringConvertible, Sendable {
   /// Representation of the acutual query value.
-  public enum Payload {
+  public enum Payload: Sendable {
     /// Text format representation.
     case text(String)
 

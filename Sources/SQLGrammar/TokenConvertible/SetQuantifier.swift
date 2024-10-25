@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A token that is described as `set_quantifier` in "gram.y".
-public enum SetQuantifier: LosslessTokenConvertible {
+public enum SetQuantifier: LosslessTokenConvertible, Sendable {
   case all
   case distinct
 

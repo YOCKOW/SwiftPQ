@@ -413,7 +413,7 @@ public struct DatabaseName: NameRepresentation {
 /// A type representing a function name that is described as `func_name` in "gram.y".
 public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
   /// An identifier that can be a function name.
-  public struct Identifier: LosslessTokenConvertible {
+  public struct Identifier: LosslessTokenConvertible, Sendable {
     private let _name: TypeOrFunctionName
 
     public var token: Token { return _name.token }
@@ -424,7 +424,7 @@ public struct FunctionName: NameRepresentation, ExpressibleByStringLiteral {
     }
   }
 
-  private enum _Type {
+  private enum _Type: Sendable {
     case identifier(Identifier)
     case qualifiedName(any QualifiedName)
   }
@@ -598,7 +598,7 @@ public enum OptionalNameList: TokenSequenceGenerator,
   case none
   case some(NameList)
 
-  public struct Tokens: Sequence {
+  public struct Tokens: Sequence, Sendable {
     public typealias Element = Token
 
     private let _list: OptionalNameList

@@ -17,12 +17,13 @@ public struct BinaryRepresentation: Sequence,
                                     Collection,
                                     BidirectionalCollection,
                                     ContiguousBytes,
-                                    DataProtocol {
+                                    DataProtocol,
+                                    Sendable {
   public typealias Element = UInt8
   public typealias Regions = CollectionOfOne<Self>
   public typealias SubSequence = Self
 
-  fileprivate enum _Data {
+  fileprivate enum _Data: @unchecked Sendable {
     case pointer(UnsafePointer<UInt8>, length: Int)
     case data(Data)
 

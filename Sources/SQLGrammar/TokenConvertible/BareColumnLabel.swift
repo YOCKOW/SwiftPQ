@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A type representing a bare column label which is described as `BareColLabel` in "gram.y".
-public struct BareColumnLabel: LosslessTokenConvertible {
+public struct BareColumnLabel: LosslessTokenConvertible, Sendable {
   public let token: Token
 
   public init?(_ token: Token) {

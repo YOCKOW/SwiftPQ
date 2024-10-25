@@ -48,7 +48,8 @@ private func _parseTimestamp(_ description: String) -> (timestamp: Int64, timeZo
 /// - Note: PostgreSQL doesn't store any information about time zones for `timestamptz`. You have to
 ///         care about time zones when the value is converted to/from string.
 public struct Timestamp: LosslessQueryStringConvertible,
-                         LosslessQueryBinaryDataConvertible {
+                         LosslessQueryBinaryDataConvertible,
+                         Sendable {
   /// Time interval with units of microseconds since Postgres Epoch (`2000-01-01 00:00:00+00`).
   public var timeIntervalSincePostgresEpoch: Int64
 

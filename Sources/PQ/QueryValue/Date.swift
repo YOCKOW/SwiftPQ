@@ -6,11 +6,12 @@
  ************************************************************************************************ */
 
 import CLibECPG
+import Dispatch
 import Foundation
 
 public typealias FoundationDate = Foundation.Date
 
-extension _SwiftPQ_PGTYPES_YMD: Equatable {
+extension CLibECPG._SwiftPQ_PGTYPES_YMD: Swift.Equatable {
   public static func ==(lhs: _SwiftPQ_PGTYPES_YMD, rhs: _SwiftPQ_PGTYPES_YMD) -> Bool {
     return (
       lhs.year == rhs.year
@@ -20,52 +21,70 @@ extension _SwiftPQ_PGTYPES_YMD: Equatable {
   }
 }
 
-private final class _PGYMDBox: Equatable {
-  private var _pgDate: Optional<Int32>
-
-  private var _ymd: Optional<_SwiftPQ_PGTYPES_YMD>
+private final class _PGYMDBox: Equatable, @unchecked Sendable {
+  private struct _Properties: Sendable {
+    var pgDate: Optional<Int32>
+    var ymd: Optional<_SwiftPQ_PGTYPES_YMD>
+    init(pgDate: Optional<Int32>, ymd: Optional<_SwiftPQ_PGTYPES_YMD>) {
+      self.pgDate = pgDate
+      self.ymd = ymd
+    }
+  }
+  private var _properties: _Properties
+  private let _queue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQ._PGYMDBox",
+    attributes: .concurrent
+  )
+  private func _withProperties<T>(_ work: (inout _Properties) throws -> T) rethrows -> T {
+    return try _queue.sync(flags: .barrier, execute: { try work(&_properties) })
+  }
 
   init(pgDate: Int32) {
-    _pgDate = pgDate
-    _ymd = nil
+    _properties = .init(pgDate: pgDate, ymd: nil)
   }
 
   init(year: CInt, month: CInt, day: CInt) {
-    _pgDate = nil
-    _ymd = _SwiftPQ_PGTYPES_YMD(year: year, month: month, day: day)
+    self._properties = .init(
+      pgDate: nil,
+      ymd: _SwiftPQ_PGTYPES_YMD(year: year, month: month, day: day)
+    )
   }
 
   var pgDate: Int32 {
-    guard let pgDate = _pgDate else {
-      guard let ymd = _ymd else { fatalError("Missing _ymd?!") }
+    return _withProperties {
+      guard let pgDate = $0.pgDate else {
+        guard let ymd = $0.ymd else { fatalError("Missing _ymd?!") }
 
-      let pgDatePtr = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
-      defer {
-        pgDatePtr.deallocate()
+        let pgDatePtr = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+        defer {
+          pgDatePtr.deallocate()
+        }
+        withUnsafePointer(to: ymd) {
+          _SwiftPQ_PGTYPES_date_from_ymd($0, pgDatePtr)
+        }
+        let pgDate = pgDatePtr.pointee
+        $0.pgDate = pgDate
+        return pgDate
       }
-      withUnsafePointer(to: ymd) {
-        _SwiftPQ_PGTYPES_date_from_ymd($0, pgDatePtr)
-      }
-      let pgDate = pgDatePtr.pointee
-      _pgDate = pgDate
       return pgDate
     }
-    return pgDate
   }
 
   var ymd: _SwiftPQ_PGTYPES_YMD {
-    guard let ymd = _ymd else {
-      guard let pgDate = _pgDate else { fatalError("Missing _pgDate?!") }
-      let ymdPtr = UnsafeMutablePointer<_SwiftPQ_PGTYPES_YMD>.allocate(capacity: 1)
-      defer {
-        ymdPtr.deallocate()
+    return _withProperties {
+      guard let ymd = $0.ymd else {
+        guard let pgDate = $0.pgDate else { fatalError("Missing _pgDate?!") }
+        let ymdPtr = UnsafeMutablePointer<_SwiftPQ_PGTYPES_YMD>.allocate(capacity: 1)
+        defer {
+          ymdPtr.deallocate()
+        }
+        _SwiftPQ_PGTYPES_date_to_ymd(pgDate, ymdPtr)
+        let ymd = ymdPtr.pointee
+        $0.ymd = ymd
+        return ymd
       }
-      _SwiftPQ_PGTYPES_date_to_ymd(pgDate, ymdPtr)
-      let ymd = ymdPtr.pointee
-      _ymd = ymd
       return ymd
     }
-    return ymd
   }
   var year: CInt { ymd.year }
   var month: CInt { ymd.month }
@@ -86,10 +105,12 @@ private final class _PGYMDBox: Equatable {
   }
 
   static func ==(lhs: _PGYMDBox, rhs: _PGYMDBox) -> Bool {
-    if let lPGDate = lhs._pgDate {
-      return lPGDate == rhs.pgDate
-    }
-    return lhs.ymd == rhs.ymd
+    return lhs._withProperties({
+      if let lPGDate = $0.pgDate {
+        return lPGDate == rhs.pgDate
+      }
+      return $0.ymd == rhs.ymd
+    })
   }
 }
 
@@ -97,7 +118,8 @@ private final class _PGYMDBox: Equatable {
 public struct Date: Equatable,
                     LosslessStringConvertible,
                     LosslessQueryBinaryDataConvertible,
-                    LosslessQueryStringConvertible {
+                    LosslessQueryStringConvertible,
+                    Sendable {
   public var oid: OID { .date }
 
   private var _box: _PGYMDBox

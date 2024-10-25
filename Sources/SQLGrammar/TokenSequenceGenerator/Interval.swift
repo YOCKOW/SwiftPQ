@@ -74,7 +74,7 @@ public enum IntervalFieldsPhrase: Segment {
 }
 
 /// An option for `INTERVAL`'s `opt_interval` or `'(' Iconst ')'`
-public enum IntervalOption {
+public enum IntervalOption: Sendable {
   case fields(IntervalFieldsPhrase)
   case precision(UnsignedIntegerConstantExpression)
 }

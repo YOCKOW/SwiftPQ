@@ -8,10 +8,11 @@
 import SQLGrammar
 
 /// A type representing SQL.
-public struct Query {
+public struct Query: Sendable {
   public struct RawSQL: RawRepresentable,
                         ExpressibleByStringLiteral,
-                        ExpressibleByStringInterpolation {
+                        ExpressibleByStringInterpolation,
+                        Sendable {
     public typealias RawValue = String
     public typealias StringLiteralType = String
 

@@ -5,11 +5,11 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Dispatch
 import Foundation
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-import SystemPackage
 
 public typealias OID = Int32
 
@@ -71,11 +71,11 @@ public enum Reference<T> {
   /// A value referred by `String`
   case other(String)
 }
-
 extension Reference: Equatable where T: Equatable {}
+extension Reference: Sendable where T: Sendable {}
 
 /// `pg_type` described in https://www.postgresql.org/docs/16/catalog-pg-type.html
-public struct PGTypeInfo: Decodable {
+public struct PGTypeInfo: Decodable, Sendable {
   enum Key: String, CodingKey {
     case arrayTypeOID = "array_type_oid"
     case description = "descr"
@@ -92,7 +92,7 @@ public struct PGTypeInfo: Decodable {
     case typeSend = "typsend"
   }
 
-  public enum TypeAlignment: Character, Decodable, _DecodableRawCharacterRepresentable {
+  public enum TypeAlignment: Character, Decodable, Sendable, _DecodableRawCharacterRepresentable {
     case char = "c"
     case short = "s"
     case int = "i"
@@ -145,7 +145,7 @@ public struct PGTypeInfo: Decodable {
     }
   }
 
-  public enum TypeCategory: Character, Decodable, _DecodableRawCharacterRepresentable {
+  public enum TypeCategory: Character, Decodable, Sendable, _DecodableRawCharacterRepresentable {
     case array = "A"
     case boolean = "B"
     case composite = "C"
@@ -326,7 +326,7 @@ public struct PGTypeInfo: Decodable {
   }
 }
 
-public struct PGTypeList: Decodable {
+public struct PGTypeList: Decodable, Sendable {
   public let oidToInfo: [OID: PGTypeInfo]
   public let nameToInfo: [String: PGTypeInfo]
 
@@ -401,32 +401,24 @@ public struct PGTypeList: Decodable {
   }
 }
 
-public final class PGTypeManager {
+public final class PGTypeManager: @unchecked Sendable {
   private init() {}
   public static let `default`: PGTypeManager = .init()
 
   private var _list: PGTypeList? = nil
+  private let _listQueue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQMacros.PGTypeManager",
+    attributes: .concurrent
+  )
   public var list: PGTypeList {
     get throws {
-      guard let list = _list else {
-        // Macros are executed in a sandbox.
-        /*
-        let fd = try FileDescriptor.open(pgTypeJSONFilePath, .readOnly)
-        try fd.closeAfter {
-          let buffer = UnsafeMutableRawBufferPointer.allocate(byteCount: 1024 * 1024, alignment: 8)
-          defer { buffer.deallocate() }
-
-          let count = try fd.read(into: buffer)
-          let data = Data(buffer[0..<count])
-          _list = try JSONDecoder().decode(PGTypeList.self, from: data)
+      return try _listQueue.sync(flags: .barrier) {
+        guard let list = _list else {
+          _list = try PGTypeList(pgTypeMap)
+          return _list!
         }
-        return _list!
-         */
-
-        _list = try PGTypeList(pgTypeMap)
-        return _list!
+        return list
       }
-      return list
     }
   }
 }

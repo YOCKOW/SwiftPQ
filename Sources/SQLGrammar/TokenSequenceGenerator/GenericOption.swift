@@ -8,7 +8,7 @@
 /// An element of generic options. This is described as `generic_option_elem` in "gram.y".
 public struct GenericOption: TokenSequenceGenerator {
   /// Representation of `generic_option_name` in "gram.y".
-  public struct Name {
+  public struct Name: Sendable {
     public let name: ColumnLabel
 
     public var token: Token {
@@ -21,7 +21,7 @@ public struct GenericOption: TokenSequenceGenerator {
   }
 
   /// Representation of `generic_option_arg` in "gram.y.
-  public struct Argument {
+  public struct Argument: Sendable {
     public let argument: StringConstantExpression
 
     public init(_ argument: StringConstantExpression) {

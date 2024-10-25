@@ -61,8 +61,8 @@ static inline char * _Nonnull _SwiftPQ_PGTYPES_date_to_cString(int32_t pgDate) {
   return PGTYPESdate_to_asc((date)pgDate);
 }
 
-static inline void _SwiftPQ_PGTYPES_free_cString(char * _Nonnull string) {
-  PGTYPESchar_free(string);
+static inline void _SwiftPQ_PGTYPES_free_cString(const char * _Nonnull string) {
+  PGTYPESchar_free((char *)string);
 }
 
 static inline _SwiftPQ_PGTYPES_Interval * _Nullable _SwiftPQ_PGTYPES_interval_from_cString(
@@ -84,7 +84,7 @@ static inline _SwiftPQ_PGTYPES_Interval * _Nullable _SwiftPQ_PGTYPES_interval_fr
   }
 }
 
-static inline char * _Nonnull _SwiftPQ_PGTYPES_interval_to_cString(
+static inline const char * _Nonnull _SwiftPQ_PGTYPES_interval_to_cString(
   const _SwiftPQ_PGTYPES_Interval * _Nonnull intvl
 ) {
   interval * pgInterval = PGTYPESinterval_new();

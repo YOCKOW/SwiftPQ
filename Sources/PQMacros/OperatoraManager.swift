@@ -5,12 +5,13 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Dispatch
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 /// Map of well-known operators.
-internal final class OperatorMap {
+internal final class OperatorMap: @unchecked Sendable {
   private init() {}
 
   static let map: OperatorMap = .init()
@@ -43,9 +44,42 @@ internal final class OperatorMap {
     "bitwiseNot": "~",
   ]
 
-  private lazy var _binOpToName: [String: String] = _nameToBinOp.reduce(into: [:]) { $0[$1.value] = $1.key }
+  struct _LazyComputedProperties {
+    var binOpToName: [String: String]?
+    var unaryPrefixOpToName: [String: String]?
+  }
+  private var _lazyComputedProperties: _LazyComputedProperties = .init()
+  private var _lazyComputedPropertiesQueue: DispatchQueue = .init(
+    label: "OperatorMap.lastComputedPropertiesQueue",
+    attributes: .concurrent
+  )
+  private func _withLazyComputedProperties<T>(
+    _ work: (inout _LazyComputedProperties) throws -> T
+  ) rethrows -> T {
+    return try _lazyComputedPropertiesQueue.sync(flags: .barrier) {
+      try work(&_lazyComputedProperties)
+    }
+  }
 
-  private lazy var _unaryPrefixOpToName: [String: String] = _nameToUnaryPrefixOp.reduce(into: [:]) { $0[$1.value] = $1.key }
+  private var _binOpToName: [String: String] {
+    return _withLazyComputedProperties {
+      if let binOpToName = $0.binOpToName {
+        return binOpToName
+      }
+      $0.binOpToName = _nameToBinOp.reduce(into: [:]) { $0[$1.value] = $1.key }
+      return $0.binOpToName!
+    }
+  }
+
+  private var _unaryPrefixOpToName: [String: String] {
+    return _withLazyComputedProperties {
+      if let unaryPrefixOpToName = $0.unaryPrefixOpToName {
+        return unaryPrefixOpToName
+      }
+      $0.unaryPrefixOpToName = _nameToUnaryPrefixOp.reduce(into: [:]) { $0[$1.value] = $1.key }
+      return $0.unaryPrefixOpToName!
+    }
+  }
 
   var binaryOperatorNames: Dictionary<String, String>.Keys {
     return _nameToBinOp.keys

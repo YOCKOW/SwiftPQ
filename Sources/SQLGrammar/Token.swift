@@ -5,6 +5,7 @@
      See "LICENSE.txt" for more information.
  ************************************************************************************************ */
 
+import Dispatch
 import UnicodeSupplement
 
 public typealias SQLIntegerType = FixedWidthInteger & UnsignedInteger
@@ -67,13 +68,24 @@ private extension String {
 
 /// A type representing SQL token.
 @_ExpandStaticKeywords
-public class Token: CustomStringConvertible {
+public class Token: CustomStringConvertible, @unchecked Sendable {
   @usableFromInline
   internal let _rawValue: String
 
-  private lazy var __normalizedRawValue: String = _rawValue.lowercased()
+  private var __normalizedRawValue: String?
+  private let _normalizedRawValueQueue: DispatchQueue = .init(
+    label: "jp.YOCKOW.PQ.SQLGrammar.Token.normalizedRawValue",
+    attributes: .concurrent
+  )
   fileprivate var _normalizedRawValue: String {
-    return __normalizedRawValue
+    return _normalizedRawValueQueue.sync(flags: .barrier) {
+      guard let normalizedRawValue = __normalizedRawValue else {
+        let normalizedRawValue = _rawValue.lowercased()
+        __normalizedRawValue = normalizedRawValue
+        return normalizedRawValue
+      }
+      return normalizedRawValue
+    }
   }
 
   fileprivate func isEqual(to other: Token) -> Bool {
@@ -90,7 +102,7 @@ public class Token: CustomStringConvertible {
   }
 
   /// A token that is able to be recognized as a keyword.
-  public class Keyword: Token {
+  public class Keyword: Token, @unchecked Sendable {
     /// A boolean value indicating whether or not it is an `unreserved_keyword`.
     public let isUnreserved: Bool
 
@@ -124,12 +136,26 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public class Identifier: Token {}
+  public class Identifier: Token, @unchecked Sendable {}
 
-  public final class DelimitedIdentifier: Identifier {
+  public final class DelimitedIdentifier: Identifier, @unchecked Sendable {
     private let _isUTF8: Bool
 
-    private lazy var _description: String = _rawValue._quoted(mark: "\"", isUTF8: _isUTF8)
+    private var __description: String? = nil
+    private let _descriptionQueue: DispatchQueue = .init(
+      label: "jp.YOCKOW.PQ.SQLGrammar.Token.DelimitedIdentifier.description",
+      attributes: .concurrent
+    )
+    private var _description: String {
+      return _descriptionQueue.sync(flags: .barrier) {
+        guard let description = __description else {
+          let description = _rawValue._quoted(mark: "\"", isUTF8: _isUTF8)
+          __description = description
+          return description
+        }
+        return description
+      }
+    }
 
     fileprivate override var _normalizedRawValue: String {
       return _description
@@ -145,10 +171,24 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public final class StringConstant: Token {
+  public final class StringConstant: Token, @unchecked Sendable {
     private let _isUTF8: Bool
 
-    private lazy var _description: String = _rawValue._quoted(mark: "'", isUTF8: _isUTF8)
+    private var __description: String? = nil
+    private let _descriptionQueue: DispatchQueue = .init(
+      label: "jp.YOCKOW.PQ.SQLGrammar.Token.StringConstant.description",
+      attributes: .concurrent
+    )
+    private var _description: String {
+      return _descriptionQueue.sync(flags: .barrier) {
+        guard let description = __description else {
+          let description = _rawValue._quoted(mark: "'", isUTF8: _isUTF8)
+          __description = description
+          return description
+        }
+        return description
+      }
+    }
 
     fileprivate override var _normalizedRawValue: String {
       return _description
@@ -164,7 +204,7 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public class NumericConstant: Token {
+  public class NumericConstant: Token, @unchecked Sendable {
     public let isInteger: Bool
 
     public let isFloat: Bool
@@ -179,7 +219,7 @@ public class Token: CustomStringConvertible {
       super.init(rawValue: rawValue)
     }
 
-    public final class Integer<U>: NumericConstant where U: SQLIntegerType {
+    public final class Integer<U>: NumericConstant, @unchecked Sendable where U: SQLIntegerType {
       public let value: U
 
       internal override var isZero: Bool { value == 0 }
@@ -192,7 +232,7 @@ public class Token: CustomStringConvertible {
       }
     }
 
-    public final class Float<F>: NumericConstant where F: SQLFloatType {
+    public final class Float<F>: NumericConstant, @unchecked Sendable where F: SQLFloatType {
       public let value: F
 
       internal override var isZero: Bool { value == 0.0 }
@@ -209,7 +249,7 @@ public class Token: CustomStringConvertible {
     }
   }
 
-  public final class BitStringConstant: Token {
+  public final class BitStringConstant: Token, @unchecked Sendable {
     public enum Style {
       case binary
       case hexadecimal
@@ -221,14 +261,28 @@ public class Token: CustomStringConvertible {
 
     public let style: Style
 
-    private lazy var _description: String = ({
-      switch style {
-      case .binary:
-        return "B'\(_rawValue)'"
-      case .hexadecimal:
-        return "X'\(_rawValue.uppercased())'"
+    private var __description: String? = nil
+    private let _descriptionQueue: DispatchQueue = .init(
+      label: "jp.YOCKOW.PQ.SQLGrammar.Token.StringConstant.description",
+      attributes: .concurrent
+    )
+    private var _description: String {
+      return _descriptionQueue.sync(flags: .barrier) {
+        guard let description = __description else {
+          let description = ({
+            switch style {
+            case .binary:
+              return "B'\(_rawValue)'"
+            case .hexadecimal:
+              return "X'\(_rawValue.uppercased())'"
+            }
+          })()
+          __description = description
+          return description
+        }
+        return description
       }
-    })()
+    }
 
     fileprivate override var _normalizedRawValue: String {
       return _description
@@ -262,7 +316,7 @@ public class Token: CustomStringConvertible {
   }
 
   @_ExpandWellknownOperators
-  public final class Operator: Token {
+  public final class Operator: Token, @unchecked Sendable {
     public enum Error: Swift.Error {
       case empty
       case invalidCharacter
@@ -344,21 +398,21 @@ public class Token: CustomStringConvertible {
     internal static let typeCast: Operator = Operator(rawValue: "::")
   }
 
-  public class SpecialCharacter: Token {}
+  public class SpecialCharacter: Token, @unchecked Sendable {}
 
   /// A '$n' token described as `PARAM` in "gram.y".
-  public final class PositionalParameter: SpecialCharacter {
+  public final class PositionalParameter: SpecialCharacter, @unchecked Sendable {
     public init(_ position: UInt) {
       super.init(rawValue: "$\(position)")
     }
   }
 
   /// A token to remove whitespace.
-  public final class Joiner: Token {
+  public final class Joiner: Token, @unchecked Sendable {
     fileprivate static let singleton: Joiner = .init(rawValue: "")
   }
 
-  public final class Newline: Token {
+  public final class Newline: Token, @unchecked Sendable {
     fileprivate static let singleton: Newline = .init(rawValue: "\n")
   }
 }

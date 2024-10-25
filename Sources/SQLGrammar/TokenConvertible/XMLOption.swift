@@ -7,7 +7,7 @@
 
 /// An option to determine how to parse/serialize XML.
 /// It is described as `document_or_content` in "gram.y"
-public enum XMLOption: LosslessTokenConvertible {
+public enum XMLOption: LosslessTokenConvertible, Sendable {
   case document
   case content
 

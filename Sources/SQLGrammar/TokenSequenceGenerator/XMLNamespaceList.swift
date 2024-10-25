@@ -8,7 +8,7 @@
 
 /// An element of XML namespace list that is described as `xml_namespace_el` in "gram.y".
 public struct XMLNamespaceListElement: TokenSequenceGenerator {
-  public enum Name {
+  public enum Name: Sendable {
     case name(ColumnLabel)
     case `default`
   }

@@ -11,7 +11,7 @@ public enum NullTreatment: TokenSequenceGenerator {
   case distinct
   case notDistinct
 
-  public class Tokens: Segment, TokenSequence {
+  public final class Tokens: Segment, TokenSequence {
     public let tokens: Array<Token>
     private init(_ tokens: Array<Token>) { self.tokens = tokens }
     public static let nullsDistinct: Tokens = .init([.nulls, .distinct])

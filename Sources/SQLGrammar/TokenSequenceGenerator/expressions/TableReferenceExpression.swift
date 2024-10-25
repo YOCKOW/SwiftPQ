@@ -59,7 +59,7 @@ public enum JoinType: TokenSequenceGenerator {
 
 /// A specifier of join condition.
 /// This type comprises not only `join_qual` but also `NATURAL` keyword.
-public enum JoinCondition {
+public enum JoinCondition: Sendable {
   case usingColumnNames(NameList, alias: ColumnIdentifier? = nil)
   case predicate(any GeneralExpression)
   case natural
@@ -67,9 +67,10 @@ public enum JoinCondition {
   /// `opt_alias_clause_for_join_using`
   fileprivate final class _AliasClauseForJoinUsing: Clause {
     let column: ColumnIdentifier
-    private(set) lazy var tokens: Array<Token> = [.as, column.token]
+    let tokens: Array<Token>
     init(_ column: ColumnIdentifier) {
       self.column = column
+      self.tokens = [.as, column.token]
     }
   }
 }

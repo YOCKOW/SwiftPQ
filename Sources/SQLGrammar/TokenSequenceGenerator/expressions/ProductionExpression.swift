@@ -352,7 +352,7 @@ public struct ConstantIntervalTypeCastStringLiteralSyntax: ConstantExpression {
 }
 
 /// A boolean constant as an expression: `TRUE` or `FALSE`.
-public class BooleanConstantExpression: ConstantExpression {
+public class BooleanConstantExpression: ConstantExpression, @unchecked Sendable {
   public let value: Bool
   public let tokens: Array<Token>
 
@@ -363,12 +363,12 @@ public class BooleanConstantExpression: ConstantExpression {
 
 
   /// `TRUE` as an expression.
-  public final class True: BooleanConstantExpression {
+  public final class True: BooleanConstantExpression, @unchecked Sendable {
     fileprivate init() { super.init(true) }
   }
 
   /// `FALSE` as an expression.
-  public final class False: BooleanConstantExpression {
+  public final class False: BooleanConstantExpression, @unchecked Sendable {
     fileprivate init() { super.init(false) }
   }
 
@@ -426,7 +426,7 @@ extension Token.PositionalParameter {
 
 /// An expression of parenthesized `a_expr` with optional `indirection`.
 public struct ParenthesizedGeneralExpressionWithIndirection: ProductionExpression {
-  public let expression: any GeneralExpression
+  public let expression: any GeneralExpression 
 
   public let indirection: Indirection?
 

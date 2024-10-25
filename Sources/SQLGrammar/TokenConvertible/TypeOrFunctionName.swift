@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// A name available for type or function. Described as `type_function_name` in "gram.y".
-internal struct TypeOrFunctionName: LosslessTokenConvertible {
+internal struct TypeOrFunctionName: LosslessTokenConvertible, Sendable {
   let token: Token
 
   init?(_ token: Token) {

@@ -53,7 +53,7 @@ public struct IndexElementOptionSet: TokenSequenceGenerator {
 
 /// Representation of `index_elem` in "gram.y".
 public struct IndexElement: TokenSequenceGenerator {
-  public enum Column {
+  public enum Column: Sendable {
     case name(ColumnIdentifier)
     case functionCall(any WindowlessFunctionExpression)
     case expression(any GeneralExpression)

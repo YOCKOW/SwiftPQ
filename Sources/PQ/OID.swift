@@ -14,7 +14,7 @@ private macro _ExpandOIDs() = #externalMacro(module: "PQMacros", type: "OIDExpan
 ///
 /// See Official Documentation [§8.19. Object Identifier Types](https://www.postgresql.org/docs/current/datatype-oid.html).
 @_ExpandOIDs
-public struct OID: RawRepresentable, Equatable {
+public struct OID: RawRepresentable, Equatable, Sendable {
   public typealias RawValue = CLibPQ.Oid
 
   public let rawValue: RawValue

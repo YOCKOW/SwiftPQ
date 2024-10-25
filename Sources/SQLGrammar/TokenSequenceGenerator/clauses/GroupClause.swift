@@ -42,7 +42,7 @@ public struct RollUpClause: Clause {
 public struct GroupingSetsClause: Clause {
   public let list: GroupingList
 
-  private final class _GroupingSetsTokens: TokenSequenceGenerator {
+  private final class _GroupingSetsTokens: TokenSequenceGenerator, Sendable {
     let tokens: Array<Token> = [.grouping, .sets]
     private init() {}
     static let groupingSetsTokens: _GroupingSetsTokens = .init()
@@ -59,7 +59,7 @@ public struct GroupingSetsClause: Clause {
 
 /// An element used in `GROUP BY` clause, that is described as `group_by_item` in "gram.y".
 public enum GroupingElement: TokenSequenceGenerator {
-  case expression(any GeneralExpression)
+  case expression(any GeneralExpression )
   case empty
   case cube(CubeClause)
   case rollUp(RollUpClause)
@@ -102,7 +102,7 @@ public enum GroupingElement: TokenSequenceGenerator {
     }
   }
 
-  public init(_ expression: any GeneralExpression) {
+  public init(_ expression: any GeneralExpression ) {
     self = .expression(expression)
   }
 
@@ -150,7 +150,7 @@ public struct GroupClause: Clause {
 
   public let columnReferences: GroupingList
 
-  private final class _GroupByTokens: Segment {
+  private final class _GroupByTokens: Segment, Sendable {
     let tokens: Array<Token> = [.group, .by]
     private init() {}
     static let groupByTokens: _GroupByTokens = .init()

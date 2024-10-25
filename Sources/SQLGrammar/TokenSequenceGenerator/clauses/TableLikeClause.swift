@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An option in `LIKE` clause. This is described as `TableLikeOption` in "gram.y".
-public enum TableLikeOption: CustomTokenConvertible {
+public enum TableLikeOption: CustomTokenConvertible, Sendable {
   case comments
   case compression
   case constraints

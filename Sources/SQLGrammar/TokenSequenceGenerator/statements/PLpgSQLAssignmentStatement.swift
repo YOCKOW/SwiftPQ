@@ -9,7 +9,7 @@
 public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
   public struct Variable: TokenSequenceGenerator {
     /// Representation of `plassign_target` in "gram.y".
-    public enum Target: CustomTokenConvertible {
+    public enum Target: CustomTokenConvertible, Sendable {
       case identifier(ColumnIdentifier)
       case parameter(Token.PositionalParameter)
 
@@ -45,7 +45,7 @@ public struct PLpgSQLAssignmentStatement: TokenSequenceGenerator {
   }
 
   /// Representation of `plassign_equals` in "gram.y".
-  public enum Operator: CustomTokenConvertible {
+  public enum Operator: CustomTokenConvertible, Sendable {
     case colonEquals
     case equalTo
 

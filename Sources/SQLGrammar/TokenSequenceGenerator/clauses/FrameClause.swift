@@ -60,7 +60,7 @@ public struct FrameExtent: TokenSequenceGenerator {
 
 /// A clause that is described as `opt_frame_clause` in "gram.y".
 public struct FrameClause: Clause {
-  public enum Mode: LosslessTokenConvertible {
+  public enum Mode: LosslessTokenConvertible, Sendable {
     case range
     case rows
     case groups

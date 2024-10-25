@@ -8,7 +8,7 @@
 import CLibECPG
 import yExtensions
 
-extension _SwiftPQ_PGTYPES_Interval: Equatable {
+extension CLibECPG._SwiftPQ_PGTYPES_Interval: Swift.Equatable {
   public static func ==(lhs: _SwiftPQ_PGTYPES_Interval, rhs: _SwiftPQ_PGTYPES_Interval) -> Bool {
     return lhs.time == rhs.time && lhs.month == rhs.month
   }
@@ -19,7 +19,8 @@ extension _SwiftPQ_PGTYPES_Interval: Equatable {
 /// - Note: This type always treats a day as 24 hours.
 public struct Interval: Equatable,
                         LosslessStringConvertible,
-                        LosslessQueryStringConvertible {
+                        LosslessQueryStringConvertible,
+                        Sendable {
   public var oid: OID { .interval }
 
   private let _interval: _SwiftPQ_PGTYPES_Interval

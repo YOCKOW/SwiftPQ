@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An option to control whether or not the constraint can be deferred.
-public enum DeferrableConstraintOption {
+public enum DeferrableConstraintOption: Sendable {
   case deferrable
   case notDeferrable
 
@@ -33,7 +33,7 @@ public enum DeferrableConstraintOption {
 }
 
 /// The default time to check the constraint
-public enum ConstraintCheckingTimeOption {
+public enum ConstraintCheckingTimeOption: Sendable {
   case initiallyDeferred
   case initiallyImmediate
 

@@ -6,7 +6,7 @@
  ************************************************************************************************ */
 
 /// An element of `ColumnList`. Described as `columnElem` in "gram.y".
-public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLiteral {
+public struct ColumnListElement: LosslessTokenConvertible, ExpressibleByStringLiteral, Sendable {
   public let name: ColumnIdentifier
 
   @inlinable

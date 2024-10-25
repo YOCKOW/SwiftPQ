@@ -25,7 +25,7 @@ public struct SequenceOption: TokenSequenceGenerator {
 
   private let _option: _Option
 
-  public struct Tokens: Sequence {
+  public struct Tokens: Sequence, Sendable {
     public typealias Element = Token
 
     public struct Iterator: IteratorProtocol {
