@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
@@ -6,7 +6,13 @@ import PackageDescription
 import CompilerPluginSupport
 
 let swiftSyntaxVersion: Version = ({
-  #if compiler(>=6)
+  #if compiler(>=6.3)
+  return "603.0.0"
+  #elseif compiler(>=6.2)
+  return "602.0.0"
+  #elseif compiler(>=6.1)
+  return "601.0.1"
+  #elseif compiler(>=6)
   return "600.0.1"
   #elseif compiler(>=5.10)
   return "510.0.3"
@@ -18,10 +24,10 @@ let swiftSyntaxVersion: Version = ({
 let package = Package(
   name: "PQ",
   platforms: [
-    .macOS("10.15.4"),
-    .iOS(.v13),
-    .tvOS(.v13),
-    .watchOS(.v6),
+    .macOS(.v13),
+    .iOS(.v16),
+    .watchOS(.v9),
+    .tvOS(.v16),
   ],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -30,10 +36,10 @@ let package = Package(
     .library(name: "SwiftPQ", targets: ["SQLGrammar", "PQ"]),
   ],
   dependencies: [
-    .package(url:"https://github.com/YOCKOW/SwiftNetworkGear.git", "0.19.1"..<"2.0.0"),
-    .package(url: "https://github.com/YOCKOW/SwiftRanges.git", from: "3.2.1"),
-    .package(url:"https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "1.5.0"),
-    .package(url:"https://github.com/YOCKOW/ySwiftExtensions.git", from: "1.11.1"),
+    .package(url: "https://github.com/YOCKOW/SwiftNetworkGear.git", "0.20.1"..<"2.0.0"),
+    .package(url: "https://github.com/YOCKOW/SwiftRanges.git", from: "4.0.2"),
+    .package(url: "https://github.com/YOCKOW/SwiftUnicodeSupplement.git", from: "2.0.1"),
+    .package(url: "https://github.com/YOCKOW/ySwiftExtensions.git", from: "2.1.0"),
 
     // For Macros
     .package(url: "https://github.com/apple/swift-syntax.git", from: swiftSyntaxVersion),
@@ -106,7 +112,10 @@ let package = Package(
       ]
     ),
   ],
-  swiftLanguageVersions: [.v5, .version("6")]
+  swiftLanguageModes: [
+    .v5,
+    .v6
+  ]
 )
 
 let repoDirPath = String(#filePath).split(separator: "/", omittingEmptySubsequences: false).dropLast().joined(separator: "/")

@@ -1195,6 +1195,7 @@ public struct StaticKeywordExpander: MemberMacro {
   public static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
+    conformingTo protocols: [SwiftSyntax.TypeSyntax],
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
     if let sqlTokenClassDecl = declaration.as(ClassDeclSyntax.self),
