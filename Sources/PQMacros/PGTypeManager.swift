@@ -434,6 +434,7 @@ public struct OIDExpander: MemberMacro {
   public static func expansion(
     of node: AttributeSyntax,
     providingMembersOf declaration: some DeclGroupSyntax,
+    conformingTo protocols: [SwiftSyntax.TypeSyntax],
     in context: some MacroExpansionContext
   ) throws -> [DeclSyntax] {
     guard let oidStructDecl = declaration.as(StructDeclSyntax.self),
